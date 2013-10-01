@@ -1,7 +1,8 @@
 package com.lmn.Arbiter_Android.ProjectWizard;
 
-import android.app.FragmentManager;
+//import android.app.FragmentManager;
 import android.content.res.Resources;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.ProjectWizard.Steps.Step;

@@ -5,13 +5,13 @@ import com.lmn.Arbiter_Android.ProjectWizard.ProjectWizard;
 
 import android.os.Bundle;
 import android.annotation.SuppressLint;
-import android.app.Activity;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
 
 @SuppressLint("SetJavaScriptEnabled")
-public class MapActivity extends Activity {
+public class MapActivity extends FragmentActivity {
         private WebView mWebView;
         private ProjectWizard projectWizard;
         private MapMenuEvents menuEvents;
@@ -77,7 +77,7 @@ public class MapActivity extends Activity {
         }
         
         public void startWizard(){
-        	projectWizard = new ProjectWizard(getFragmentManager(), getResources());
+        	projectWizard = new ProjectWizard(getSupportFragmentManager(), getResources());
             projectWizard.startWizard();
         }
 }

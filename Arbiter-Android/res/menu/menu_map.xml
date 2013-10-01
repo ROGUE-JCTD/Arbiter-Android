@@ -1,0 +1,42 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/action_new_feature"
+        android:icon="@drawable/ic_action_edit"
+        android:showAsAction="ifRoom"
+        android:title="@string/action_new_feature"/>
+    
+    <item
+        android:id="@+id/action_remove_feature"
+        android:icon="@drawable/ic_action_delete"
+        android:showAsAction="ifRoom"
+        android:title="@string/action_remove_feature"/>
+    
+    <item
+        android:id="@+id/action_sync"
+        android:icon="@drawable/ic_action_refresh"
+        android:showAsAction="ifRoom"
+        android:title="@string/action_sync"/>
+    
+    <item
+        android:id="@+id/action_layers"
+        android:showAsAction="never"
+        android:title="@string/action_layers"/>
+    
+    <item
+        android:id="@+id/action_projects"
+        android:showAsAction="never"
+        android:title="@string/action_projects"/>
+    
+    <item
+        android:id="@+id/action_modified"
+        android:showAsAction="never"
+        android:title="@string/action_modified"/>
+    
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_settings"/>
+
+</menu>

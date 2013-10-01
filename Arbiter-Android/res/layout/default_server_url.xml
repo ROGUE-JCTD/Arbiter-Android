@@ -1,0 +1,33 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    
+    <LinearLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center|center_horizontal"
+	    android:orientation="vertical" >
+	
+	    <TextView
+	        android:id="@+id/default_server_url_textview"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:gravity="center"
+	        android:padding="20dip"
+	        android:text="@string/enter_default_url"
+	        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+	    <EditText
+	        android:id="@+id/default_server_url_edittext"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginBottom="20dip"
+	        android:ems="10"
+	        android:hint="@string/default_server_url_hint"
+	        android:inputType="textUri" >
+
+	        <requestFocus />
+	    </EditText>
+
+	</LinearLayout>
+</ScrollView>

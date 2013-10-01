@@ -3,7 +3,42 @@
 
     <string name="app_name">Arbiter-Android</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_findme">Find me</string>
+    
+    <!-- PROJECT WIZARD STRINGS -->
+    	<string name="project_wizard_ok">OK</string>
+    	<string name="project_wizard_cancel">Skip</string>
+    	
+    	<!-- Create Project Dialog -->
+    
+    	<string name="create_project_title">Arbiter</string>
+    	<string name="must_create_project">Before editing, you must first create a project.</string>
+    	<string name="create_project_question">Would you like to create one now?</string>
+    	
+    	<!-- Choose Project Name Dialog -->
+    	
+    	<string name="choose_name_title">Arbiter</string>
+    	<string name="choose_project_name">Choose a name for your project.</string>
+    	<string name="choose_name_hint">New project name*</string>
+    	
+    	<!-- Default Server URL -->
 
+		<string name="default_server_url_title">Arbiter</string>
+    	<string name="enter_default_url">Enter the URL for the default server.</string>
+    	<string name="default_server_url_hint">ex. http://geoserver.rogue.lmnsolutions.com/geoserver</string>
+    	
+    	<!-- Default Server Credentials -->
+
+		<string name="default_server_login_title">Arbiter</string>
+    	<string name="enter_default_server_login">Enter the login for the default server.</string>
+    	<string name="default_server_username_hint">Username</string>
+    	<string name="default_server_password_hint">Password</string>
+    	
+    	<!-- Default Server Name -->
+    	
+    	<string name="default_server_name_title">Arbiter</string>
+    	<string name="enter_default_server_name">Enter a name for the default server.</string>
+    	<string name="default_server_name_hint">Default server name*</string>
+    <!-- Add Layers  -->
+    		
 </resources>

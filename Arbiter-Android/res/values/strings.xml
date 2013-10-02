@@ -20,6 +20,10 @@
     	<string name="layers_activity_name">Layers</string>
     	<string name="action_add_layers">Add Layers</string>
     
+    	<string name="layer_visibility_off">Off</string>
+    	<string name="layer_visibility_on">On</string>
+    	<string name="remove_layer">Remove layer</string>
+    	
     <!-- PROJECTS ACTIVITY STRINGS -->
     	<string name="projects_activity_name">Projects</string>
     	

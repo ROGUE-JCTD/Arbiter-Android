@@ -5,11 +5,9 @@ import com.lmn.Arbiter_Android.ProjectWizard.Steps.Step;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-//import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 
 /**
@@ -50,7 +48,7 @@ public class ProjectWizardDialogFragment extends DialogFragment {
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState){
 		LayoutInflater inflater = getActivity().getLayoutInflater();
-		Log.w("Arbiter_Android", "helloooooo " + step.getTitle());
+		
 		dialog = new AlertDialog.Builder(getActivity())
 			.setIcon(R.drawable.icon)
 			.setTitle(step.getTitle())
@@ -71,6 +69,7 @@ public class ProjectWizardDialogFragment extends DialogFragment {
                 )
                 .create();
 		
+		dialog.getWindow().getAttributes().windowAnimations = R.style.project_wizard_animation;
 		return dialog;
 	}
 	

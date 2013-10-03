@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="layer_list_item">#96CDCD</color>
+    <color name="layer_list_item_pressed">#7093DB</color>
+    <color name="remove_list_item_pressed">#bf0000</color>
+</resources>

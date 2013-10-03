@@ -54,7 +54,7 @@ public class ProjectWizard {
 				
 			case SKIP:
 				Log.w("Arbiter_Android", "CANCEL HAS BEEN HIT!!");
-				transitionManager.transitionSkip();
+				transitionManager.handleSkip();
 				break;
 				
 			case BACK:

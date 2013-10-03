@@ -13,7 +13,6 @@ import android.webkit.WebView;
 @SuppressLint("SetJavaScriptEnabled")
 public class MapActivity extends FragmentActivity {
         private WebView mWebView;
-        private ProjectWizard projectWizard;
         private MapMenuEvents menuEvents;
         
         public MapActivity(){
@@ -77,8 +76,7 @@ public class MapActivity extends FragmentActivity {
         }
         
         public void startWizard(){
-        	projectWizard = new ProjectWizard(getSupportFragmentManager(), getResources());
-            projectWizard.startWizard();
+        	(new ProjectWizard(getSupportFragmentManager(), getResources())).startWizard();
         }
 }
 

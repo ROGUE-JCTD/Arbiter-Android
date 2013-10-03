@@ -26,6 +26,8 @@
     	
     <!-- PROJECTS ACTIVITY STRINGS -->
     	<string name="projects_activity_name">Projects</string>
+    	<string name="delete_project">Delete project</string>
+    	<string name="action_new_project">New project</string>
     	
     <!-- MODIFIED FEATURES ACTIVITY STRINGS -->
     	<string name="modified_activity_name">Modified</string>
@@ -35,6 +37,8 @@
     
     <!-- ADD LAYERS ACTIVITY STRINGS -->
     	<string name="add_layers_activity_name">Add Layers</string>
+    	<string name="layer_filter_hint">Filter</string>
+    	<string name="action_add_server">Add Server</string>
     	
     <!-- PROJECT WIZARD STRINGS -->
     	<string name="project_wizard_ok">OK</string>

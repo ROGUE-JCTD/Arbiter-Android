@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+	<RelativeLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="56dip"
+	    android:background="@drawable/list_selector"
+   		android:clickable="true">
+   		
+		<!-- Project name-->
+
+	    <TextView
+	        android:id="@+id/projectName"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentLeft="true"
+	        android:layout_centerVertical="true"
+	        android:layout_marginLeft="17dp"
+	        android:text="@string/projects_activity_name"
+	        android:textColor="#040404"
+	        android:textSize="14sp"
+	        android:textStyle="bold"
+	        android:typeface="sans" />
+	    
+	</RelativeLayout>
+    
+    
+    <!--  ListRow Left sied ToggleButton -->
+    <LinearLayout android:id="@+id/removeProjectButton"
+        android:layout_width="56dip"
+        android:layout_height="55dip"
+        android:layout_alignParentRight="true"
+        android:gravity="center"
+        android:background="@drawable/list_item_delete_selector"
+        android:clickable="true">
+        
+	    <!-- Remove Layer button -->
+	    <ImageView 
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:padding="5dip"
+	        android:src="@drawable/ic_action_delete"
+	        android:contentDescription="@string/delete_project"/>
+	    
+    </LinearLayout>
+    
+</RelativeLayout>

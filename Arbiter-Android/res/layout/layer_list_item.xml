@@ -20,7 +20,6 @@
 	            android:id="@+id/layerVisibility"
 	            android:layout_width="50dip"
 	            android:layout_height="50dip"
-	            android:onClick="toggleLayerVisibility"
 	            android:textOff="@string/layer_visibility_off"
 	            android:textOn="@string/layer_visibility_on"/>
 	 
@@ -50,7 +49,7 @@
 	        android:textSize="12sp"
 	        android:layout_marginTop="1dip"
 	        android:layout_toRightOf="@+id/visibilityToggle"
-	        android:text="@string/default_server_name_hint" />
+	        android:text="@string/server_name_hint" />
 	    
 	</RelativeLayout>
     

@@ -8,73 +8,64 @@
     	<string name="map_activity_name">Arbiter</string>
     	
     	<string name="action_new_feature">Draw</string>
-    	<string name="action_remove_feature">Remove</string>
-    	<string name="action_sync">Sync</string>
     	
-    	<string name="action_layers">Layers</string>
+    	<string name="action_servers">Servers</string>
     	<string name="action_projects">Projects</string>
-    	<string name="action_modified">Modified</string>
+    	<string name="action_make_available_offline">Make available offline</string>
     	<string name="action_settings">Settings</string>
+    	<string name="layers_button">Layers</string>
     	
-    <!-- LAYERS ACTIVITY STRINGS -->
-    	<string name="layers_activity_name">Layers</string>
+    <!-- PROJECTS ACTIVITY STRINGS -->
+    	<string name="projects_activity_name">Projects</string>
+    	<string name="delete_project">Delete project</string>
+    	<string name="action_new_project">New project</string>
+    
+    <!-- LAYERS DIALOG STRINGS -->
+    	<string name="layers_dialog_title">Layers</string>
+    	<string name="add_layers_button">Add Layers</string>
     	<string name="action_add_layers">Add Layers</string>
     
     	<string name="layer_visibility_off">Off</string>
     	<string name="layer_visibility_on">On</string>
     	<string name="remove_layer">Remove layer</string>
     	
-    <!-- PROJECTS ACTIVITY STRINGS -->
-    	<string name="projects_activity_name">Projects</string>
-    	<string name="delete_project">Delete project</string>
-    	<string name="action_new_project">New project</string>
+    <!-- LAYER INFO DIALOG STRINGS -->
+    	<string name="layer_info_dialog_title">Layer Info</string>
     	
-    <!-- MODIFIED FEATURES ACTIVITY STRINGS -->
-    	<string name="modified_activity_name">Modified</string>
-    	
-    <!-- SETTINGS ACTIVITY STRINGS -->	
-    	<string name="settings_activity_name">Settings</string>
-    
-    <!-- ADD LAYERS ACTIVITY STRINGS -->
-    	<string name="add_layers_activity_name">Add Layers</string>
+    <!-- ADD LAYERS DIALOG STRINGS -->
+    	<string name="add_layers_dialog_title">Add Layers</string>
     	<string name="layer_filter_hint">Filter</string>
     	<string name="action_add_server">Add Server</string>
     	
-    <!-- PROJECT WIZARD STRINGS -->
-    	<string name="project_wizard_ok">OK</string>
-    	<string name="project_wizard_cancel">Skip</string>
+   	<!-- WELCOME DIALOG STRINGS -->
+   
+   	<string name="welcome_dialog_title">Welcome</string>
+   	<string name="must_create_project">Before editing, you must first create a project.</string>
+   	<string name="create_project_question">Would you like to create one now?</string>
+   	
+   	<!-- PROJECT NAME DIALOG STRINGS -->
+   	
+   	<string name="project_name_dialog_title">Project Name</string>
+   	<string name="choose_project_name">Enter project name.</string>
+   	<string name="choose_name_hint">New project name*</string>
+   	
+   	<!-- SERVER DIALOG STRINGS -->
+
+	<string name="server_dialog_title">Servers</string>
+	<string name="add_server_button">Add Server</string>
+	
+   	<!-- ADD SERVER DIALOG STRINGS -->
+
+	<string name="add_server_dialog_title">Add Server</string>
+	<string name="server_name_hint">Name</string>
+   	<string name="server_url_hint">ex. http://example.com/geoserver</string>
+   	<string name="server_username_hint">Username</string>
+   	<string name="server_password_hint">Password</string>
     	
-    	<!-- Create Project Dialog -->
+    <!-- GO OFFLINE DIALOG STRINGS  -->
+    <string name="go_offline_dialog_title">Offline</string>
+   	
+    <!-- CHOOSE AOI DIALOG STRINGS  -->
+    <string name="choose_aoi_dialog_title">Choose AOI</string>
     
-    	<string name="create_project_title">Arbiter</string>
-    	<string name="must_create_project">Before editing, you must first create a project.</string>
-    	<string name="create_project_question">Would you like to create one now?</string>
-    	
-    	<!-- Choose Project Name Dialog -->
-    	
-    	<string name="choose_name_title">Arbiter</string>
-    	<string name="choose_project_name">Enter project name.</string>
-    	<string name="choose_name_hint">New project name*</string>
-    	
-    	<!-- Default Server URL -->
-
-		<string name="default_server_url_title">Arbiter</string>
-    	<string name="enter_default_url">Enter server url.</string>
-    	<string name="default_server_url_hint">ex. http://geoserver.rogue.lmnsolutions.com/geoserver</string>
-    	
-    	<!-- Default Server Credentials -->
-
-		<string name="default_server_login_title">Arbiter</string>
-    	<string name="enter_default_server_login">Enter server login.</string>
-    	<string name="default_server_username_hint">Username</string>
-    	<string name="default_server_password_hint">Password</string>
-    	
-    	<!-- Default Server Name -->
-    	
-    	<string name="default_server_name_title">Arbiter</string>
-    	<string name="enter_default_server_name">Enter server name.</string>
-    	<string name="default_server_name_hint">server name</string>
-    	
-    <!-- Add Layers  -->
-    		
 </resources>

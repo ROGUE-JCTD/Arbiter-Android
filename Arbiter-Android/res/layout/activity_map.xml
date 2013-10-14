@@ -13,6 +13,15 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true" />
 
-   
+    <ImageButton
+        android:id="@+id/layers_button"
+        android:src="@drawable/icon"
+        android:contentDescription="@string/layers_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="17dp"
+        android:layout_marginTop="24dp"/>
 
 </RelativeLayout>

@@ -1,6 +1,6 @@
 package com.lmn.Arbiter_Android;
 
-import com.lmn.Arbiter_Android.MenuEvents.ProjectMenuEvents;
+import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.Projects.ProjectList;
 import com.lmn.Arbiter_Android.Projects.ProjectListAdapter;
 
@@ -14,7 +14,7 @@ public class ProjectsActivity extends FragmentActivity {
 
 	private ListView listView;
 	private ProjectList projectList;
-	private ProjectMenuEvents menuEvents;
+	private ArbiterDialogs dialogs;
 	
 	public ProjectsActivity(){
 		super();
@@ -27,8 +27,7 @@ public class ProjectsActivity extends FragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.activity_projects);
-	    
-	    this.menuEvents = new ProjectMenuEvents(getSupportFragmentManager(), getResources());
+	    dialogs = new ArbiterDialogs(getResources(), getSupportFragmentManager());
 	    
 	    this.listView = (ListView) findViewById(R.id.projectListView);
 	    ProjectListAdapter adapter = new ProjectListAdapter(this, R.layout.project_list_item, projectList.getList());
@@ -46,7 +45,7 @@ public class ProjectsActivity extends FragmentActivity {
     public boolean onOptionsItemSelected(MenuItem item){
     	switch (item.getItemId()) {
     		case R.id.action_new_project:
-    			menuEvents.startProjectWizard();
+    			dialogs.showProjectNameDialog();
     			return true;
     		
     		default:

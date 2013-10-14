@@ -24,32 +24,8 @@
             </intent-filter>
         </activity>
         <activity 
-            android:name="AddLayersActivity"
-            android:label="@string/add_layers_activity_name"
-            android:icon="@drawable/icon">
-            
-        </activity>
-        <activity 
-            android:name="LayersActivity"
-            android:label="@string/layers_activity_name"
-            android:icon="@drawable/icon">
-            
-        </activity>
-        <activity 
             android:name="ProjectsActivity"
             android:label="@string/projects_activity_name"
-            android:icon="@drawable/icon">
-            
-        </activity>
-        <activity 
-            android:name="ModifiedFeaturesActivity"
-            android:label="@string/modified_activity_name"
-            android:icon="@drawable/icon">
-            
-        </activity>
-        <activity 
-            android:name="SettingsActivity"
-            android:label="@string/settings_activity_name"
             android:icon="@drawable/icon">
             
         </activity>

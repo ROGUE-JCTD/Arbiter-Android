@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:baselineAligned="false" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+	    <Spinner
+	        android:id="@+id/spinner1"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="15dip"
+	        android:layout_marginLeft="15dip"
+	        android:layout_toLeftOf="@+id/add_server_button" />
+
+	    <ImageButton
+	        android:id="@+id/add_server_button"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentRight="true"
+	        android:layout_marginLeft="15dip"
+	        android:layout_centerVertical="true"
+	        android:contentDescription="@string/add_server_button"
+	        android:src="@drawable/content_new" />
+        
+    </RelativeLayout>
+   	
+    <MultiAutoCompleteTextView
+        android:id="@+id/multiAutoCompleteTextView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dip"
+        android:ems="10"
+        android:hint="@string/layer_filter_hint" >
+
+        <requestFocus />
+    </MultiAutoCompleteTextView>
+
+    <com.lmn.Arbiter_Android.ListViews.AddLayersListView
+        android:id="@+id/listView1"
+        android:layout_marginTop="10dip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+    </com.lmn.Arbiter_Android.ListViews.AddLayersListView>
+
+</LinearLayout>

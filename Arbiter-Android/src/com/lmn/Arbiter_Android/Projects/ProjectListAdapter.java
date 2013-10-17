@@ -1,29 +1,27 @@
 package com.lmn.Arbiter_Android.Projects;
 
-import java.util.ArrayList;
-
 import com.lmn.Arbiter_Android.R;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-public class ProjectListAdapter extends ArrayAdapter<ProjectListItem> {
-
-	private ArrayList<ProjectListItem> items;
+public class ProjectListAdapter extends BaseAdapter{
+	private ProjectListItem[] items;
+	private final LayoutInflater inflater;
 	
-	public ProjectListAdapter(Context context, int resource) {
-		super(context, resource);
-		// TODO Auto-generated constructor stub
+	public ProjectListAdapter(Context context){
+			inflater = LayoutInflater.from(context);
+			items = new ProjectListItem[0];
 	}
 	
-	public ProjectListAdapter(Context context, int resource, ArrayList<ProjectListItem> items){
-		super(context, resource, items);
+	public void setData(ProjectListItem[] data){
+		items = data;
 		
-		this.items = items;
+		notifyDataSetChanged();
 	}
 	
 	@Override
@@ -32,21 +30,39 @@ public class ProjectListAdapter extends ArrayAdapter<ProjectListItem> {
 		
 		// Inflate the layout
 		if(view == null){
-			LayoutInflater inflater = LayoutInflater.from(getContext());
 			view = inflater.inflate(R.layout.project_list_item, null);
-		}
+		} 
 		
-		ProjectListItem listItem = items.get(position);
+		ProjectListItem listItem = items[position];
 		
 		if(listItem != null){
-			TextView layerName = (TextView) view.findViewById(R.id.projectName);
+			TextView projectName = (TextView) view.findViewById(R.id.projectName);
 			
-			if(layerName != null){
-				layerName.setText(listItem.getProjectName());
+			if(projectName != null){
+				projectName.setText(listItem.getProjectName());
 			}
 		}
 		
 		return view;
+	}
+
+	@Override
+	public int getCount() {
+		if(items == null){
+			return 0;
+		}
+		
+		return items.length;
+	}
+
+	@Override
+	public Object getItem(int position) {
+		return items[position];
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return position;
 	}
 
 }

@@ -1,26 +1,24 @@
 package com.lmn.Arbiter_Android;
 
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
-import com.lmn.Arbiter_Android.Projects.ProjectList;
 import com.lmn.Arbiter_Android.Projects.ProjectListAdapter;
+import com.lmn.Arbiter_Android.Projects.ProjectListItem;
+import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 
-public class ProjectsActivity extends FragmentActivity {
+public class ProjectsActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<ProjectListItem[]>{
 
 	private ListView listView;
-	private ProjectList projectList;
 	private ArbiterDialogs dialogs;
-	
-	public ProjectsActivity(){
-		super();
-		
-		this.projectList = new ProjectList();
-	}
+	private ProjectListAdapter projectAdapter;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -30,8 +28,13 @@ public class ProjectsActivity extends FragmentActivity {
 	    dialogs = new ArbiterDialogs(getResources(), getSupportFragmentManager());
 	    
 	    this.listView = (ListView) findViewById(R.id.projectListView);
-	    ProjectListAdapter adapter = new ProjectListAdapter(this, R.layout.project_list_item, projectList.getList());
-	    this.listView.setAdapter(adapter);
+	   // ProjectListAdapter adapter = new ProjectListAdapter(this, R.layout.project_list_item, projectList.getList());
+	    this.projectAdapter = new ProjectListAdapter(this.getApplicationContext());
+	    this.listView.setAdapter(this.projectAdapter);
+	    
+	    // Prepare the loader.  Either re-connect with an existing one,
+        // or start a new one.
+        getSupportLoaderManager().initLoader(0, null, this);
 	}
 
 	@Override
@@ -52,4 +55,24 @@ public class ProjectsActivity extends FragmentActivity {
     			return super.onOptionsItemSelected(item);
     	}
     }
+
+	@Override
+	public Loader<ProjectListItem[]> onCreateLoader(int id, Bundle bundle) {
+		// This is called when a new Loader needs to be created.  This
+        // sample only has one Loader with no arguments, so it is simple.
+		Log.w("PROJECTS_ACTIVITY", "ON CREATE LOADER");
+        return new ProjectsListLoader(this.getApplicationContext());
+	}
+
+	@Override
+	public void onLoadFinished(Loader<ProjectListItem[]> loader, ProjectListItem[] data) {
+		Log.w("PROJECTS_ACTIVITY", "ON LOAD FINISHED");
+		projectAdapter.setData(data);
+	}
+
+	@Override
+	public void onLoaderReset(Loader<ProjectListItem[]> loader) {
+		Log.w("PROJECTS_ACTIVITY", "ON LOADER RESET");
+		projectAdapter.setData(null);
+	}	
 }

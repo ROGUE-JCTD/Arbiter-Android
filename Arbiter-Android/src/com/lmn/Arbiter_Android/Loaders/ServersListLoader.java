@@ -5,29 +5,29 @@ import android.content.IntentFilter;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.lmn.Arbiter_Android.BroadcastReceivers.ProjectBroadcastReceiver;
+import com.lmn.Arbiter_Android.BroadcastReceivers.ServerBroadcastReceiver;
 import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
-import com.lmn.Arbiter_Android.Projects.ProjectListItem;
+import com.lmn.Arbiter_Android.ListItems.ServerListItem;
 
-public class ProjectsListLoader extends AsyncTaskLoader<ProjectListItem[]> {
-	public static final String PROJECT_LIST_UPDATED = "PROJECT_LIST_UPDATED";
+public class ServersListLoader extends AsyncTaskLoader<ServerListItem[]> {
+	public static final String SERVER_LIST_UPDATED = "SERVER_LIST_UPDATED";
 	
-	private ProjectBroadcastReceiver loaderBroadcastReceiver = null;
-	private ProjectListItem[] projects;
+	private ServerBroadcastReceiver loaderBroadcastReceiver = null;
+	private ServerListItem[] servers;
 	private GlobalDatabaseHelper globalDbHelper = null;
 	
-	public ProjectsListLoader(Context context) {
+	public ServersListLoader(Context context) {
 		super(context);
 		
 		globalDbHelper = DbHelpers.getDbHelpers(context).getGlobalDbHelper();
 	}
 
 	@Override
-	public ProjectListItem[] loadInBackground() {
-		ProjectListItem[] projects = globalDbHelper.getProjects();
+	public ServerListItem[] loadInBackground() {
+		ServerListItem[] servers = globalDbHelper.getServers();
 		
-		return projects;
+		return servers;
 	}
 	
 	/**
@@ -35,29 +35,29 @@ public class ProjectsListLoader extends AsyncTaskLoader<ProjectListItem[]> {
      * super class will take care of delivering it; the implementation
      * here just adds a little more logic.
      */
-    @Override public void deliverResult(ProjectListItem[] _projects) {
+    @Override public void deliverResult(ServerListItem[] _servers) {
         if (isReset()) {
             // An async query came in while the loader is stopped.  We
             // don't need the result.
-            if (projects != null) {
+            if (servers != null) {
           //      onReleaseResources(cursor);
             }
         }
         
-        ProjectListItem[] oldProjects = _projects;
-        projects = _projects;
+        ServerListItem[] oldServers = _servers;
+        servers = _servers;
 
         if (isStarted()) {
             // If the Loader is currently started, we can immediately
             // deliver its results.
-            super.deliverResult(projects);
+            super.deliverResult(servers);
         }
 
         // At this point we can release the resources associated with
         // 'oldApps' if needed; now that the new result is delivered we
         // know that it is no longer in use.
-        if (oldProjects != null) {
-            onReleaseResources(oldProjects);
+        if (oldServers != null) {
+            onReleaseResources(oldServers);
         }
     }
     
@@ -65,20 +65,21 @@ public class ProjectsListLoader extends AsyncTaskLoader<ProjectListItem[]> {
      * Handles a request to start the Loader.
      */
     @Override protected void onStartLoading() {
-        if (projects != null) {
+        if (servers != null) {
             // If we currently have a result available, deliver it
             // immediately.
-            deliverResult(projects);
+            deliverResult(servers);
         }
 
         // Start watching for changes in the app data.
         if (loaderBroadcastReceiver == null) {
-        	loaderBroadcastReceiver = new ProjectBroadcastReceiver(this);
+        	loaderBroadcastReceiver = new ServerBroadcastReceiver(this);
         	LocalBroadcastManager.getInstance(getContext()).
-        		registerReceiver(loaderBroadcastReceiver, new IntentFilter(ProjectsListLoader.PROJECT_LIST_UPDATED));
+        		registerReceiver(loaderBroadcastReceiver, 
+        				new IntentFilter(ServersListLoader.SERVER_LIST_UPDATED));
         }
 
-        if (takeContentChanged() || projects == null) {
+        if (takeContentChanged() || servers == null) {
             // If the data has changed since the last time it was loaded
             // or is not currently available, start a load.
             forceLoad();
@@ -96,12 +97,12 @@ public class ProjectsListLoader extends AsyncTaskLoader<ProjectListItem[]> {
     /**
      * Handles a request to cancel a load.
      */
-    @Override public void onCanceled(ProjectListItem[] _projects) {
-        super.onCanceled(_projects);
+    @Override public void onCanceled(ServerListItem[] _servers) {
+        super.onCanceled(_servers);
 
         // At this point we can release the resources associated with 'apps'
         // if needed.
-        onReleaseResources(_projects);
+        onReleaseResources(_servers);
     }
 
     /**
@@ -115,9 +116,9 @@ public class ProjectsListLoader extends AsyncTaskLoader<ProjectListItem[]> {
 
         // At this point we can release the resources associated with 'apps'
         // if needed.
-        if (projects != null) {
-            onReleaseResources(projects);
-            projects = null;
+        if (servers != null) {
+            onReleaseResources(servers);
+            servers = null;
         }
 
         // Stop monitoring for changes.
@@ -132,7 +133,7 @@ public class ProjectsListLoader extends AsyncTaskLoader<ProjectListItem[]> {
      * Helper function to take care of releasing resources associated
      * with an actively loaded data set.
      */
-    protected void onReleaseResources(ProjectListItem[] _projects) {
+    protected void onReleaseResources(ServerListItem[] _servers) {
         // For a simple List<> there is nothing to do.  For something
         // like a Cursor, we would close it here.
     	

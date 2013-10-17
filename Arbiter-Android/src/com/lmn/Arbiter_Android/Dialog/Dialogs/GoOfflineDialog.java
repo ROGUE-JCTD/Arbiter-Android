@@ -31,7 +31,7 @@ public class GoOfflineDialog extends ArbiterDialogFragment{
 	}
 
 	@Override
-	public void registerCustomListeners(View view) {
+	public void beforeCreateDialog(View view) {
 		// TODO Auto-generated method stub
 		
 	}

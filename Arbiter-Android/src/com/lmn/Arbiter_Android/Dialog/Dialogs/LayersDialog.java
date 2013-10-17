@@ -55,8 +55,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 	}
 
 	@Override
-	public void registerCustomListeners(View view) {
-		
+	public void beforeCreateDialog(View view) {
 		if(view != null){
 			ImageButton button = (ImageButton) view.findViewById(R.id.add_layers_button);
 			if(button != null){
@@ -65,7 +64,8 @@ public class LayersDialog extends ArbiterDialogFragment{
 					@Override
 					public void onClick(View v) {
 						// Open the add layers dialog
-						(new ArbiterDialogs(getActivity().getResources(), getActivity().getSupportFragmentManager())).showAddLayersDialog();
+						(new ArbiterDialogs(getActivity().getResources(), 
+								getActivity().getSupportFragmentManager())).showAddLayersDialog();
 					}
 				});
 			}

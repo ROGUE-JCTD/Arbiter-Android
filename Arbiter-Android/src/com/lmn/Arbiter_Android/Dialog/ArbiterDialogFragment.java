@@ -1,6 +1,7 @@
 package com.lmn.Arbiter_Android.Dialog;
 
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Projects.ProjectComponents;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -18,6 +19,7 @@ public abstract class ArbiterDialogFragment extends DialogFragment {
 	private String ok;
 	private String cancel;
 	private int layout;
+	private ProjectComponents project;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -30,7 +32,7 @@ public abstract class ArbiterDialogFragment extends DialogFragment {
 	public Dialog onCreateDialog(Bundle savedInstanceState){
 		LayoutInflater inflater = getActivity().getLayoutInflater();
 		View view = inflater.inflate(getLayout(), null);
-		registerCustomListeners(view);
+		beforeCreateDialog(view);
 		AlertDialog dialog = new AlertDialog.Builder(getActivity())
 			.setIcon(R.drawable.icon)
 			.setTitle(getTitle())
@@ -89,7 +91,15 @@ public abstract class ArbiterDialogFragment extends DialogFragment {
 		this.layout = layout;
 	}
 	
-	public abstract void registerCustomListeners(View view);
+	public void setProject(ProjectComponents project){
+		this.project = project;
+	}
+	
+	public ProjectComponents getProject(){
+		return this.project;
+	}
+	
+	public abstract void beforeCreateDialog(View view);
 	public abstract void onPositiveClick();
 	public abstract void onNegativeClick();
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.ListItems.AddLayersListItem;
+import com.lmn.Arbiter_Android.Projects.ProjectComponents;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -25,6 +26,11 @@ public class AddLayersListAdapter extends ArrayAdapter<AddLayersListItem> {
 		super(context, resource, items);
 		
 		this.items = items;
+	}
+	
+	public void setData(ArrayList<AddLayersListItem> items){
+		this.items = items;
+		this.notifyDataSetChanged();
 	}
 	
 	/**
@@ -67,7 +73,16 @@ public class AddLayersListAdapter extends ArrayAdapter<AddLayersListItem> {
 					public void onClick(View v) {
 						Integer position = (Integer) ((CheckBox) v).getTag();
 						AddLayersListItem listItem = items.get(position);
-						listItem.setChecked(!listItem.isChecked());
+						boolean checked = !listItem.isChecked();
+						
+						listItem.setChecked(checked);
+						ProjectComponents project = ProjectComponents.getProjectComponents();
+						
+						if(checked){
+							project.addLayer(listItem);
+						}else{
+							project.removeLayer(listItem);
+						}
 					}
 				});
 			}

@@ -14,6 +14,7 @@ import com.lmn.Arbiter_Android.Dialog.Dialogs.LayersDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ProjectNameDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ServersDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.WelcomeDialog;
+import com.lmn.Arbiter_Android.Projects.ProjectComponents;
 
 public class ArbiterDialogs {
 	private Resources resources;
@@ -78,7 +79,8 @@ public class ArbiterDialogs {
 		String cancel = resources.getString(android.R.string.cancel);
 		int layout = R.layout.add_layers_dialog;
 		
-		DialogFragment dialog = AddLayersDialog.newInstance(title, ok, cancel, layout);
+		DialogFragment dialog = AddLayersDialog.
+				newInstance(title, ok, cancel, layout);
 		dialog.show(fragManager, "addLayersDialog");
 	}
 	

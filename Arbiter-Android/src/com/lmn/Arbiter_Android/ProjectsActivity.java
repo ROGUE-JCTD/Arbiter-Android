@@ -1,6 +1,7 @@
 package com.lmn.Arbiter_Android;
 
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
+import com.lmn.Arbiter_Android.Projects.ProjectComponents;
 import com.lmn.Arbiter_Android.Projects.ProjectListAdapter;
 import com.lmn.Arbiter_Android.Projects.ProjectListItem;
 import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
@@ -34,7 +35,7 @@ public class ProjectsActivity extends FragmentActivity implements LoaderManager.
 	    
 	    // Prepare the loader.  Either re-connect with an existing one,
         // or start a new one.
-        getSupportLoaderManager().initLoader(0, null, this);
+        getSupportLoaderManager().initLoader(R.id.loader_projects, null, this);
 	}
 
 	@Override
@@ -60,19 +61,16 @@ public class ProjectsActivity extends FragmentActivity implements LoaderManager.
 	public Loader<ProjectListItem[]> onCreateLoader(int id, Bundle bundle) {
 		// This is called when a new Loader needs to be created.  This
         // sample only has one Loader with no arguments, so it is simple.
-		Log.w("PROJECTS_ACTIVITY", "ON CREATE LOADER");
         return new ProjectsListLoader(this.getApplicationContext());
 	}
 
 	@Override
 	public void onLoadFinished(Loader<ProjectListItem[]> loader, ProjectListItem[] data) {
-		Log.w("PROJECTS_ACTIVITY", "ON LOAD FINISHED");
 		projectAdapter.setData(data);
 	}
 
 	@Override
 	public void onLoaderReset(Loader<ProjectListItem[]> loader) {
-		Log.w("PROJECTS_ACTIVITY", "ON LOADER RESET");
 		projectAdapter.setData(null);
 	}	
 }

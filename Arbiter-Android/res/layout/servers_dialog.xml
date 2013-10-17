@@ -11,10 +11,10 @@
         android:contentDescription="@string/add_server_button"
         android:src="@drawable/content_new" />
     
-    <com.lmn.Arbiter_Android.ListViews.ServersListView
+    <ListView
         android:id="@+id/serverListView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:dividerHeight="1dp" >
-    </com.lmn.Arbiter_Android.ListViews.ServersListView>
+    </ListView>
 </LinearLayout>

@@ -19,6 +19,16 @@ public class ServerListAdapter extends BaseAdapter{
 	private int dropDownLayout;
 	
 	public ServerListAdapter(Context context, int itemLayout, 
+			int textId){
+		
+			inflater = LayoutInflater.from(context);
+			items = new ServerListItem[0];
+			this.itemLayout = itemLayout;
+			this.textId = textId;
+			this.dropDownLayout = R.layout.drop_down_item;
+	}
+	
+	public ServerListAdapter(Context context, int itemLayout, 
 			int textId, Integer dropDownLayout){
 		
 			inflater = LayoutInflater.from(context);

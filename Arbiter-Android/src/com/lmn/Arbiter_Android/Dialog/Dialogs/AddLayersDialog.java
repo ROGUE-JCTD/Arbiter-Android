@@ -3,7 +3,7 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
-import com.lmn.Arbiter_Android.ListAdapters.ServerSpinnerAdapter;
+import com.lmn.Arbiter_Android.ListAdapters.ServerListAdapter;
 import com.lmn.Arbiter_Android.ListItems.ServerListItem;
 import com.lmn.Arbiter_Android.Loaders.ServersListLoader;
 import com.lmn.Arbiter_Android.Projects.ProjectComponents;
@@ -17,7 +17,7 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 
 public class AddLayersDialog extends ArbiterDialogFragment implements LoaderManager.LoaderCallbacks<ServerListItem[]>{
-	private ServerSpinnerAdapter serverAdapter;
+	private ServerListAdapter serverAdapter;
 	private Spinner spinner;
 	
 	public static AddLayersDialog newInstance(String title, String ok, 
@@ -57,7 +57,9 @@ public class AddLayersDialog extends ArbiterDialogFragment implements LoaderMana
 	@Override
 	public void beforeCreateDialog(View view) {
 		if(view != null){
-			this.serverAdapter = new ServerSpinnerAdapter(this.getActivity().getApplicationContext());
+			this.serverAdapter = new ServerListAdapter(this.getActivity().
+					getApplicationContext(), R.layout.spinner_item, 
+					R.id.spinnerText, R.layout.drop_down_item);
 			
 			this.spinner = (Spinner) view.findViewById(R.id.serversSpinner);
 			

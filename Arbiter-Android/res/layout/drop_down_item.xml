@@ -8,7 +8,7 @@
         android:id="@+id/spinnerText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="20dip"
+        android:layout_margin="20dip"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/server_name_hint"
         android:textColor="#000" />

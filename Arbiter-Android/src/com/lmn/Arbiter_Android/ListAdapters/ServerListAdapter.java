@@ -14,10 +14,18 @@ public class ServerListAdapter extends BaseAdapter{
 
 	private ServerListItem[] items;
 	private final LayoutInflater inflater;
+	private int itemLayout;
+	private int textId;
+	private int dropDownLayout;
 	
-	public ServerListAdapter(Context context){
+	public ServerListAdapter(Context context, int itemLayout, 
+			int textId, Integer dropDownLayout){
+		
 			inflater = LayoutInflater.from(context);
 			items = new ServerListItem[0];
+			this.itemLayout = itemLayout;
+			this.textId = textId;
+			this.dropDownLayout = dropDownLayout;
 	}
 	
 	public void setData(ServerListItem[] data){
@@ -32,14 +40,35 @@ public class ServerListAdapter extends BaseAdapter{
 		
 		// Inflate the layout
 		if(view == null){
-			view = inflater.inflate(R.layout.server_list_item, null);
+			view = inflater.inflate(itemLayout, null);
 		}
 		
 		ServerListItem listItem = items[position];
 		
 		if(listItem != null){
-			TextView serverName = (TextView) view.findViewById(R.id.serverName);
+			TextView serverName = (TextView) view.findViewById(textId);
 			
+			if(serverName != null){
+				serverName.setText(listItem.getServerName());
+			}
+		}
+		
+		return view;
+	}
+	
+	@Override
+	public View getDropDownView(int position, View convertView, ViewGroup parent){
+		View view = convertView;
+		
+		if(view == null){
+			view = inflater.inflate(dropDownLayout, null);
+		}
+		
+		ServerListItem listItem = items[position];
+	
+		if(listItem != null){
+			TextView serverName = (TextView) view.findViewById(textId);
+		
 			if(serverName != null){
 				serverName.setText(listItem.getServerName());
 			}

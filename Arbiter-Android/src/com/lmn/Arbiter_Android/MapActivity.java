@@ -1,5 +1,7 @@
 package com.lmn.Arbiter_Android;
 
+import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
+import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandList;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 
 import android.os.Bundle;
@@ -27,8 +29,7 @@ public class MapActivity extends FragmentActivity {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_map);
             
-            restoreState(savedInstanceState);
-            setListeners();
+            Init(savedInstanceState);
             
             dialogs = new ArbiterDialogs(getResources(), getSupportFragmentManager());
 
@@ -51,6 +52,24 @@ public class MapActivity extends FragmentActivity {
             }
         }
 
+        public void Init(Bundle savedInstanceState){
+        	restoreState(savedInstanceState);
+            setListeners();
+            InitDatabases();
+            InitCommandList();
+        }
+        
+        public void InitDatabases(){
+        	DbHelpers.getDbHelpers(getApplicationContext());
+        }
+
+        /**
+         * Get's the CommandList singleton, which starts the CommandExecutor thread
+         */
+        public void InitCommandList(){
+        	CommandList.getCommandList();
+        }
+        
         /**
          * Set listeners
          */

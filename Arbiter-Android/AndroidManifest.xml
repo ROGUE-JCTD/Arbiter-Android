@@ -16,7 +16,8 @@
         <activity
             android:name="com.lmn.Arbiter_Android.MapActivity"
             android:label="@string/map_activity_name" 
-            android:icon="@drawable/icon">
+            android:icon="@drawable/icon"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

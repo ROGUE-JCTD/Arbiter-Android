@@ -1,50 +1,56 @@
 package com.lmn.Arbiter_Android;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.apache.cordova.Config;
+import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.api.CordovaInterface;
+import org.apache.cordova.api.CordovaPlugin;
+
 import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandList;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 
 import android.os.Bundle;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.ImageButton;
 import android.widget.ToggleButton;
 
 @SuppressLint("SetJavaScriptEnabled")
-public class MapActivity extends FragmentActivity {
-        private WebView mWebView;
+public class MapActivity extends FragmentActivity implements CordovaInterface{
        // private MapMenuEvents menuEvents;
         private ArbiterDialogs dialogs;
         private boolean welcomed;
+        
+        private CordovaWebView cordovaWebview;
+        private String TAG = "MAP_ACTIVITY";
+        private final ExecutorService threadPool = Executors.newCachedThreadPool();
         
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_map);
+            Config.init(this);
             
             Init(savedInstanceState);
             
             dialogs = new ArbiterDialogs(getResources(), getSupportFragmentManager());
 
-            mWebView = (WebView) findViewById(R.id.webView1);
-            mWebView.getSettings().setJavaScriptEnabled(true);
-            mWebView.setWebViewClient(new WebViewClient(){
-            	@Override
-                public boolean shouldOverrideUrlLoading(WebView view, String url) 
-                {
-                    view.loadUrl(url);
-                    return true;
-                }
-            });
+            cordovaWebview = (CordovaWebView) findViewById(R.id.webView1);
             
-            mWebView.loadUrl("http://openstreetmap.org");
+            
+            String url = "file:///android_asset/www/index.html";
+            cordovaWebview.loadUrl(url, 5000);
             
             if(!welcomed){
             	displayWelcomeDialog();
@@ -150,5 +156,68 @@ public class MapActivity extends FragmentActivity {
 
     		}
     	}
+
+        @Override
+        protected void onPause() {
+                super.onPause();
+                Log.d(TAG, "onPause");
+        }
+        
+        @Override 
+        protected void onResume(){
+        	super.onResume();
+        	Log.d(TAG, "onResume");
+        }
+        
+        @Override
+        protected void onDestroy(){
+        	super.onDestroy();
+        	if(this.cordovaWebview != null){
+        		this.cordovaWebview
+                .loadUrl("javascript:try{cordova.require('cordova/channel').onDestroy.fire();}catch(e){console.log('exception firing destroy event from native');};");
+        		this.cordovaWebview.loadUrl("about:blank");
+        		cordovaWebview.handleDestroy();
+        	}
+        }
+        
+        @Override
+        public void onConfigurationChanged(Configuration newConfig) 
+        {
+            super.onConfigurationChanged(newConfig);
+        }
+        
+        /**
+         * Cordova methods
+         */
+		@Override
+		public Activity getActivity() {
+			return this;
+		}
+
+		@Override
+		public ExecutorService getThreadPool() {
+			return threadPool;
+		}
+
+		@Override
+		public Object onMessage(String message, Object obj) {
+			Log.d(TAG, message);
+            if (message.equalsIgnoreCase("exit")) {
+                    super.finish();
+            }
+            return null;
+		}
+		
+		@Override
+		public void setActivityResultCallback(CordovaPlugin cordovaPlugin) {
+			Log.d(TAG, "setActivityResultCallback is unimplemented");
+			
+		}
+
+		@Override
+		public void startActivityForResult(CordovaPlugin cordovaPlugin, Intent intent, int resultCode) {
+			Log.d(TAG, "startActivityForResult is unimplemented");
+			
+		}
 }
 

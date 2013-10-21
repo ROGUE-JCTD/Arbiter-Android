@@ -42,11 +42,11 @@
         <requestFocus />
     </MultiAutoCompleteTextView>
 
-    <com.lmn.Arbiter_Android.ListViews.AddLayersListView
-        android:id="@+id/listView1"
+    <ListView
+        android:id="@+id/addLayersListView"
         android:layout_marginTop="10dip"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
-    </com.lmn.Arbiter_Android.ListViews.AddLayersListView>
+    </ListView>
 
 </LinearLayout>

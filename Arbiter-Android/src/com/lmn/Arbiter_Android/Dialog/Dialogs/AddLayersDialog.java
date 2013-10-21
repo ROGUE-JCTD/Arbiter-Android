@@ -3,21 +3,32 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
+import com.lmn.Arbiter_Android.ListAdapters.AddLayersListAdapter;
 import com.lmn.Arbiter_Android.ListAdapters.ServerListAdapter;
-import com.lmn.Arbiter_Android.ListItems.ServerListItem;
-import com.lmn.Arbiter_Android.Loaders.ServersListLoader;
-import com.lmn.Arbiter_Android.Projects.ProjectComponents;
+import com.lmn.Arbiter_Android.LoaderCallbacks.AddLayersLoaderCallbacks;
+import com.lmn.Arbiter_Android.LoaderCallbacks.ServerLoaderCallbacks;
+import com.lmn.Arbiter_Android.Loaders.AddLayersListLoader;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.Spinner;
 
-public class AddLayersDialog extends ArbiterDialogFragment implements LoaderManager.LoaderCallbacks<ServerListItem[]>{
+public class AddLayersDialog extends ArbiterDialogFragment{
+	@SuppressWarnings("unused")
+	private ServerLoaderCallbacks serverLoaderCallbacks;
+	@SuppressWarnings("unused")
+	private AddLayersLoaderCallbacks addLayersLoaderCallbacks;
+	
+	private ListView listView;
 	private ServerListAdapter serverAdapter;
+	private AddLayersListAdapter addLayersAdapter;
 	private Spinner spinner;
 	
 	public static AddLayersDialog newInstance(String title, String ok, 
@@ -57,47 +68,68 @@ public class AddLayersDialog extends ArbiterDialogFragment implements LoaderMana
 	@Override
 	public void beforeCreateDialog(View view) {
 		if(view != null){
-			this.serverAdapter = new ServerListAdapter(this.getActivity().
-					getApplicationContext(), R.layout.spinner_item, 
-					R.id.spinnerText, R.layout.drop_down_item);
-			
-			this.spinner = (Spinner) view.findViewById(R.id.serversSpinner);
-			
-			this.spinner.setAdapter(this.serverAdapter);
-			
-			ImageButton button = (ImageButton) view.findViewById(R.id.add_server_button);
-			
-			if(button != null){
-				button.setOnClickListener(new OnClickListener(){
-
-					@Override
-					public void onClick(View v) {
-						(new ArbiterDialogs(getActivity().getResources(), 
-								getActivity().getSupportFragmentManager())).showAddServerDialog();
-					}
-				});
-			}
+			registerListeners(view);
+			populateAddLayersList(view);
 		}
+	}
+	
+	private void registerListeners(View view){
+		ImageButton button = (ImageButton) view.findViewById(R.id.add_server_button);
+		
+		if(button != null){
+			button.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					(new ArbiterDialogs(getActivity().getResources(), 
+							getActivity().getSupportFragmentManager())).showAddServerDialog();
+				}
+			});
+		}
+		
+		this.serverAdapter = new ServerListAdapter(this.getActivity().
+				getApplicationContext(), R.layout.spinner_item, 
+				R.id.spinnerText, R.layout.drop_down_item);
+		
+		this.spinner = (Spinner) view.findViewById(R.id.serversSpinner);
+		
+		final Context context = this.getActivity().getApplicationContext();
+		
+		this.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+			@Override
+		    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+		        // Server was selected so force the AddLayersListLoader to load
+				LocalBroadcastManager.getInstance(context).
+					sendBroadcast(new Intent(AddLayersListLoader.ADD_LAYERS_LIST_UPDATED));
+		    }
+
+		    @Override
+		    public void onNothingSelected(AdapterView<?> parentView) {
+		        // TODO
+		    }
+		});
+		
+		this.spinner.setAdapter(this.serverAdapter);
 		
 		// Prepare the loader.  Either re-connect with an existing one,
         // or start a new one.
-        this.getActivity().getSupportLoaderManager().initLoader(R.id.loader_servers, null, this);
+        this.serverLoaderCallbacks = new ServerLoaderCallbacks(this, this.serverAdapter, R.id.loader_servers_dropdown);
 	}
 	
-	@Override
-	public Loader<ServerListItem[]> onCreateLoader(int id, Bundle bundle) {
-		// This is called when a new Loader needs to be created.  This
-        // sample only has one Loader with no arguments, so it is simple.
-        return new ServersListLoader(this.getActivity().getApplicationContext());
+	private void populateAddLayersList(View view){
+		this.listView = (ListView) view.findViewById(R.id.addLayersListView);
+		this.addLayersAdapter = new AddLayersListAdapter(this.getActivity().
+				getApplicationContext(), R.layout.add_layers_list_item);
+		this.listView.setAdapter(this.addLayersAdapter);
+		
+		this.addLayersLoaderCallbacks = new AddLayersLoaderCallbacks(this, this.addLayersAdapter, R.id.loader_add_layers);
 	}
-
-	@Override
-	public void onLoadFinished(Loader<ServerListItem[]> loader, ServerListItem[] data) {
-		serverAdapter.setData(data);
+	
+	public Spinner getSpinner(){
+		return this.spinner;
 	}
-
-	@Override
-	public void onLoaderReset(Loader<ServerListItem[]> loader) {
-		serverAdapter.setData(null);
+	
+	public ServerListAdapter getAdapter(){
+		return this.serverAdapter;
 	}
 }

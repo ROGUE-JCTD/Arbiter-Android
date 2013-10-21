@@ -33,7 +33,7 @@
     <!--  ListRow Left sied ToggleButton -->
 
     <CheckBox
-        android:id="@+id/add_layer_checkbox"
+        android:id="@+id/addLayerCheckbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"

@@ -29,7 +29,7 @@ public class AddLayersListView extends CustomListView<AddLayersListItem> {
 	
 	@Override
 	public void setListAdapter(){
-		setAdapter(new AddLayersListAdapter(getContext(), layout, getList()));
+		//setAdapter(new AddLayersListAdapter(getContext(), layout, getList()));
 	}
 	
 	/**
@@ -39,7 +39,7 @@ public class AddLayersListView extends CustomListView<AddLayersListItem> {
 	public ArrayList<AddLayersListItem> getList() {
 		ArrayList<AddLayersListItem> list = new ArrayList<AddLayersListItem>();
 		
-		list.add(new AddLayersListItem("Layer1", "Server1"));
+		/*list.add(new AddLayersListItem("Layer1", "Server1"));
 		list.add(new AddLayersListItem("Layer2", "Server1"));
 		list.add(new AddLayersListItem("Layer3", "Server1"));
 		list.add(new AddLayersListItem("Layer4", "Server1"));
@@ -56,7 +56,7 @@ public class AddLayersListView extends CustomListView<AddLayersListItem> {
 		list.add(new AddLayersListItem("Layer15", "Server1"));
 		list.add(new AddLayersListItem("Layer16", "Server1"));
 		list.add(new AddLayersListItem("Layer17", "Server1"));
-		list.add(new AddLayersListItem("Layer18", "Server1"));
+		list.add(new AddLayersListItem("Layer18", "Server1"));*/
 		
 		return list;
 	}

@@ -11,21 +11,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-public class AddLayersListAdapter extends ArrayAdapter<AddLayersListItem> {
+public class AddLayersListAdapter extends BaseAdapter {
 	private ArrayList<AddLayersListItem> items;
+	private LayoutInflater inflater;
+	private int itemLayout;
 	
-	public AddLayersListAdapter(Context context, int resource) {
-		super(context, resource);
-	}
-
-	public AddLayersListAdapter(Context context, int resource, ArrayList<AddLayersListItem> items){
-		super(context, resource, items);
-		
-		this.items = items;
+	public AddLayersListAdapter(Context context, int itemLayout) {
+		inflater = LayoutInflater.from(context);
+		this.items = new ArrayList<AddLayersListItem>();
+		this.itemLayout = itemLayout;
 	}
 	
 	public void setData(ArrayList<AddLayersListItem> items){
@@ -43,8 +41,7 @@ public class AddLayersListAdapter extends ArrayAdapter<AddLayersListItem> {
 		View view = convertView;
 		
 		if(view == null){
-			LayoutInflater inflater = LayoutInflater.from(getContext());
-			view = inflater.inflate(R.layout.add_layers_list_item, null);
+			view = inflater.inflate(itemLayout, null);
 		}
 		
 		AddLayersListItem listItem = items.get(position);
@@ -52,7 +49,7 @@ public class AddLayersListAdapter extends ArrayAdapter<AddLayersListItem> {
 		if(listItem != null){
 			TextView layerName = (TextView) view.findViewById(R.id.layerName);
 			TextView serverName = (TextView) view.findViewById(R.id.serverName);
-			CheckBox checkbox = (CheckBox) view.findViewById(R.id.add_layer_checkbox);
+			CheckBox checkbox = (CheckBox) view.findViewById(R.id.addLayerCheckbox);
 			
 			if(layerName != null){
 				layerName.setText(listItem.getLayerName());
@@ -89,5 +86,20 @@ public class AddLayersListAdapter extends ArrayAdapter<AddLayersListItem> {
 		}
 		
 		return view;
+	}
+
+	@Override
+	public int getCount() {
+		return this.items.size();
+	}
+
+	@Override
+	public Object getItem(int position) {
+		return this.items.get(position);
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return position;
 	}
 }

@@ -13,7 +13,6 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandList;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 
 import android.os.Bundle;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -26,7 +25,6 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ToggleButton;
 
-@SuppressLint("SetJavaScriptEnabled")
 public class MapActivity extends FragmentActivity implements CordovaInterface{
        // private MapMenuEvents menuEvents;
         private ArbiterDialogs dialogs;
@@ -173,9 +171,6 @@ public class MapActivity extends FragmentActivity implements CordovaInterface{
         protected void onDestroy(){
         	super.onDestroy();
         	if(this.cordovaWebview != null){
-        		this.cordovaWebview
-                .loadUrl("javascript:try{cordova.require('cordova/channel').onDestroy.fire();}catch(e){console.log('exception firing destroy event from native');};");
-        		this.cordovaWebview.loadUrl("about:blank");
         		cordovaWebview.handleDestroy();
         	}
         }

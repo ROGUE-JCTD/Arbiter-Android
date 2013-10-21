@@ -97,7 +97,7 @@ public class ServerListAdapter extends BaseAdapter{
 	}
 
 	@Override
-	public Object getItem(int position) {
+	public ServerListItem getItem(int position) {
 		return items[position];
 	}
 

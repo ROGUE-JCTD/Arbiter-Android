@@ -2,8 +2,6 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
 
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
@@ -13,12 +11,13 @@ import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.ListAdapters.ServerListAdapter;
-import com.lmn.Arbiter_Android.ListItems.ServerListItem;
-import com.lmn.Arbiter_Android.Loaders.ServersListLoader;
+import com.lmn.Arbiter_Android.LoaderCallbacks.ServerLoaderCallbacks;
 
-public class ServersDialog extends ArbiterDialogFragment implements LoaderManager.LoaderCallbacks<ServerListItem[]>{
+public class ServersDialog extends ArbiterDialogFragment{
 	private ServerListAdapter serverAdapter;
 	private ListView listView;
+	@SuppressWarnings("unused")
+	private ServerLoaderCallbacks serverLoaderCallbacks;
 	
 	public static ServersDialog newInstance(String title, String ok, 
 			String cancel, int layout){
@@ -76,23 +75,6 @@ public class ServersDialog extends ArbiterDialogFragment implements LoaderManage
 		
 		// Prepare the loader.  Either re-connect with an existing one,
         // or start a new one.
-        this.getActivity().getSupportLoaderManager().initLoader(0, null, this);
+        this.serverLoaderCallbacks = new ServerLoaderCallbacks(this, this.serverAdapter, R.id.loader_servers_list);
 	}
-
-	@Override
-	public Loader<ServerListItem[]> onCreateLoader(int id, Bundle bundle) {
-		// This is called when a new Loader needs to be created.  This
-        // sample only has one Loader with no arguments, so it is simple.
-        return new ServersListLoader(this.getActivity().getApplicationContext());
-	}
-
-	@Override
-	public void onLoadFinished(Loader<ServerListItem[]> loader, ServerListItem[] data) {
-		serverAdapter.setData(data);
-	}
-
-	@Override
-	public void onLoaderReset(Loader<ServerListItem[]> loader) {
-		serverAdapter.setData(null);
-	}	
 }

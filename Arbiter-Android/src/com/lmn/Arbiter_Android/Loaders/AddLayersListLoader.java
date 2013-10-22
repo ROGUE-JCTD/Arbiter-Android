@@ -15,7 +15,6 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import android.content.Context;
 import android.content.IntentFilter;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.LocalBroadcastManager;
@@ -25,16 +24,14 @@ import android.util.Log;
 import com.lmn.Arbiter_Android.BroadcastReceivers.AddLayersBroadcastReceiver;
 import com.lmn.Arbiter_Android.Comparators.CompareAddLayersListItems;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.AddLayersDialog;
-import com.lmn.Arbiter_Android.ListItems.AddLayersListItem;
+import com.lmn.Arbiter_Android.ListItems.Layer;
 import com.lmn.Arbiter_Android.ListItems.ServerListItem;
-import com.lmn.Arbiter_Android.R;
 
-public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<AddLayersListItem>> {
+public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 	public static final String ADD_LAYERS_LIST_UPDATED = "ADD_LAYERS_LIST_UPDATED";
-	private static final String TEST_CREDENTIALS = "a3p1c3k6enVzeTE="; 
 	
 	private static final String LAYER_TAG = "Layer";
-	private static final String LAYER_NAME = "Name";
+	private static final String FEATURE_TYPE = "Name";
 	private static final String LAYER_TITLE = "Title";
 	private static final String LAYER_BOUNDING_BOX = "BoundingBox";
 	private static final String LAYER_SRS = "SRS";
@@ -42,7 +39,7 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<AddLayersList
 	private AddLayersBroadcastReceiver loaderBroadcastReceiver = null;
 	private AddLayersDialog dialog = null;
 	
-	private ArrayList<AddLayersListItem> layers;
+	private ArrayList<Layer> layers;
 	
 	public AddLayersListLoader(AddLayersDialog dialog) {
 		super(dialog.getActivity().getApplicationContext());
@@ -50,8 +47,8 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<AddLayersList
 	}
 
 	@Override
-	public ArrayList<AddLayersListItem> loadInBackground() {
-		ArrayList<AddLayersListItem> _layers = null;
+	public ArrayList<Layer> loadInBackground() {
+		ArrayList<Layer> _layers = null;
 		
 		try {
 			_layers = getLayers(getSelectedServer());
@@ -72,7 +69,7 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<AddLayersList
 		return dialog.getAdapter().getItem(selectedIndex);
 	}
 	
-	public ArrayList<AddLayersListItem> getLayers(ServerListItem server) throws Exception {
+	public ArrayList<Layer> getLayers(ServerListItem server) throws Exception {
 		if(server != null){
 			String url = server.getUrl() + "/wms?service=wms&version=1.1.1&request=getCapabilities";
 			
@@ -92,13 +89,13 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<AddLayersList
 			BufferedReader reader = new BufferedReader(
 					new InputStreamReader(response.getEntity().getContent()));
 			
-			return parseGetCapabilities(server.getServerName(), reader);
+			return parseGetCapabilities(server, reader);
 		}
 		
 		return null;
 	}
 	
-	private ArrayList<AddLayersListItem> parseGetCapabilities(String serverName, BufferedReader reader) throws XmlPullParserException, IOException{
+	private ArrayList<Layer> parseGetCapabilities(ServerListItem server, BufferedReader reader) throws XmlPullParserException, IOException{
 		XmlPullParserFactory factory;
 		factory = XmlPullParserFactory.newInstance();
 		factory.setNamespaceAware(false);
@@ -106,7 +103,7 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<AddLayersList
 		XmlPullParser pullParser = factory.newPullParser();
 		pullParser.setInput(reader);
 		
-		String name = null;
+		String featureType = null;
 		String title = null;
 		String srs = null;
 		
@@ -122,8 +119,8 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<AddLayersList
 		// if not, we don't care about any of the data.
 		boolean inLayerTag = false;
 		
-		List<AddLayersListItem> layers = new ArrayList<AddLayersListItem>();
-		
+		List<Layer> layers = new ArrayList<Layer>();
+		// TODO There was a bug here where the style 
 		int eventType = pullParser.getEventType();
 		while (eventType != XmlPullParser.END_DOCUMENT){
 			eventName = pullParser.getName();
@@ -131,17 +128,23 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<AddLayersList
 			if(inLayerTag){
 				if(eventType == XmlPullParser.START_TAG){
 					
-					if(eventName.equalsIgnoreCase(AddLayersListLoader.LAYER_NAME)){
+					if(eventName.equalsIgnoreCase(AddLayersListLoader.FEATURE_TYPE)){
 						if(pullParser.next() == XmlPullParser.TEXT){
-							name = pullParser.getText();
+							if(featureType == null){
+								featureType = pullParser.getText();
+							}
 						}
 					} else if(eventName.equalsIgnoreCase(AddLayersListLoader.LAYER_TITLE)){
 						if(pullParser.next() == XmlPullParser.TEXT){
-							title = pullParser.getText();
+							if(title == null){
+								title = pullParser.getText();
+							}
 						}
 					} else if(eventName.equalsIgnoreCase(AddLayersListLoader.LAYER_SRS)){
 						if(pullParser.next() == XmlPullParser.TEXT){
-							srs = pullParser.getText();
+							if(srs == null){
+								srs = pullParser.getText();
+							}
 						}
 					} else if(eventName.equalsIgnoreCase(AddLayersListLoader.LAYER_BOUNDING_BOX)){
 						minx = pullParser.getAttributeValue(null, "minx");
@@ -149,15 +152,25 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<AddLayersList
 						maxx = pullParser.getAttributeValue(null, "maxx");
 						maxy = pullParser.getAttributeValue(null, "maxy");
 						
-						boundingBox = minx + ", " + miny + ", " + maxx + ", " + maxy;
+						if(boundingBox == null){
+							boundingBox = minx + ", " + miny + ", " + maxx + ", " + maxy;
+						}
 					}
 				}else if(eventType == XmlPullParser.END_TAG){
 					if(eventName.equalsIgnoreCase(AddLayersListLoader.LAYER_TAG)){
 						// Create the new layer object, and since this was the end of 
 						// the layer element, specify that we're out.
-						layers.add(new AddLayersListItem(name, serverName, title,
+						Log.w("ADDLAYERSLISTLOADER", "ADDLAYERSLISTLOADER id: " + server.getId());
+						layers.add(new Layer(featureType, server.getId(), server.getServerName(), title,
 																srs, boundingBox));
 						inLayerTag = false;
+						
+						// Reset the fields to prepare for the next layer
+						// Needed for the null checks
+						featureType = null;
+						title = null;
+						srs = null;
+						boundingBox = null;
 					}
 				}
 			}else{
@@ -175,7 +188,7 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<AddLayersList
 		
 		Collections.sort(layers, new CompareAddLayersListItems());
 		
-		return (ArrayList<AddLayersListItem>) layers;
+		return (ArrayList<Layer>) layers;
 	}
 	
 	/**
@@ -183,7 +196,7 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<AddLayersList
      * super class will take care of delivering it; the implementation
      * here just adds a little more logic.
      */
-    @Override public void deliverResult(ArrayList<AddLayersListItem> _layers) {
+    @Override public void deliverResult(ArrayList<Layer> _layers) {
         if (isReset()) {
             // An async query came in while the loader is stopped.  We
             // don't need the result.
@@ -192,7 +205,7 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<AddLayersList
             }
         }
         
-        ArrayList<AddLayersListItem> oldLayers = _layers;
+        ArrayList<Layer> oldLayers = _layers;
         layers = _layers;
 
         if (isStarted()) {
@@ -244,7 +257,7 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<AddLayersList
     /**
      * Handles a request to cancel a load.
      */
-    @Override public void onCanceled(ArrayList<AddLayersListItem> _layers) {
+    @Override public void onCanceled(ArrayList<Layer> _layers) {
         super.onCanceled(_layers);
 
         // At this point we can release the resources associated with 'apps'
@@ -280,7 +293,7 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<AddLayersList
      * Helper function to take care of releasing resources associated
      * with an actively loaded data set.
      */
-    protected void onReleaseResources(ArrayList<AddLayersListItem> _layers) {
+    protected void onReleaseResources(ArrayList<Layer> _layers) {
         // For a simple List<> there is nothing to do.  For something
         // like a Cursor, we would close it here.
     	

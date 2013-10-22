@@ -11,10 +11,10 @@
         android:contentDescription="@string/add_layers_button"
         android:src="@drawable/content_new" />
     
-    <com.lmn.Arbiter_Android.ListViews.LayersListView
-        android:id="@+id/layerListView"
+    <ListView
+        android:id="@+id/layersListView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:dividerHeight="1dp" >
-    </com.lmn.Arbiter_Android.ListViews.LayersListView>
+    </ListView>
 </LinearLayout>

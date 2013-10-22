@@ -44,11 +44,15 @@ public class AddServerDialog extends ArbiterDialogFragment{
 				EditText usernameField = (EditText) view.findViewById(R.id.server_username);
 				EditText passwordField = (EditText) view.findViewById(R.id.server_password);
 				
-				helper.createServer(context, new ServerListItem(
-												nameField.getText().toString(),
-												urlField.getText().toString(),
-												usernameField.getText().toString(),
-												passwordField.getText().toString()));
+				ServerListItem[] list = new ServerListItem[1];
+				list[0] = new ServerListItem(
+						nameField.getText().toString(),
+						urlField.getText().toString(),
+						usernameField.getText().toString(),
+						passwordField.getText().toString(),
+						-1);
+				
+				helper.getServersHelper().insert(helper.getWritableDatabase(), context, list);
 			}
 		});
 		

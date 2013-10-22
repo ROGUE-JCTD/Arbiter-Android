@@ -14,7 +14,6 @@ import com.lmn.Arbiter_Android.Dialog.Dialogs.LayersDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ProjectNameDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ServersDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.WelcomeDialog;
-import com.lmn.Arbiter_Android.Projects.ProjectComponents;
 
 public class ArbiterDialogs {
 	private Resources resources;

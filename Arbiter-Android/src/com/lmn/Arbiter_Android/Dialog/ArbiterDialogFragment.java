@@ -1,7 +1,6 @@
 package com.lmn.Arbiter_Android.Dialog;
 
 import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.Projects.ProjectComponents;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -19,7 +18,6 @@ public abstract class ArbiterDialogFragment extends DialogFragment {
 	private String ok;
 	private String cancel;
 	private int layout;
-	private ProjectComponents project;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -89,14 +87,6 @@ public abstract class ArbiterDialogFragment extends DialogFragment {
 	
 	public void setLayout(int layout){
 		this.layout = layout;
-	}
-	
-	public void setProject(ProjectComponents project){
-		this.project = project;
-	}
-	
-	public ProjectComponents getProject(){
-		return this.project;
 	}
 	
 	public abstract void beforeCreateDialog(View view);

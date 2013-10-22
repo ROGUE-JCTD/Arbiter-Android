@@ -6,7 +6,6 @@ import android.widget.EditText;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
-import com.lmn.Arbiter_Android.Projects.ProjectComponents;
 
 public class ProjectNameDialog extends ArbiterDialogFragment{
 	//private CommandList commandList;
@@ -45,7 +44,6 @@ public class ProjectNameDialog extends ArbiterDialogFragment{
 	@Override
 	public void onPositiveClick() {
 		EditText projectNameField = (EditText) view.findViewById(R.id.project_name_edittext);
-		ProjectComponents.getProjectComponents().setName(projectNameField.getText().toString());
 		
 		transitionNext();
 	}

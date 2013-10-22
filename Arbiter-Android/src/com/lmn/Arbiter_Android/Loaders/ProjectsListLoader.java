@@ -25,7 +25,8 @@ public class ProjectsListLoader extends AsyncTaskLoader<ProjectListItem[]> {
 
 	@Override
 	public ProjectListItem[] loadInBackground() {
-		ProjectListItem[] projects = globalDbHelper.getProjects();
+		ProjectListItem[] projects = globalDbHelper.getProjectsHelper().
+				getAll(globalDbHelper.getWritableDatabase());
 		
 		return projects;
 	}

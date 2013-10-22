@@ -3,8 +3,7 @@ package com.lmn.Arbiter_Android.ListAdapters;
 import java.util.ArrayList;
 
 import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.ListItems.AddLayersListItem;
-import com.lmn.Arbiter_Android.Projects.ProjectComponents;
+import com.lmn.Arbiter_Android.ListItems.Layer;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -16,19 +15,19 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 public class AddLayersListAdapter extends BaseAdapter {
-	private ArrayList<AddLayersListItem> items;
-	private ArrayList<AddLayersListItem> checkedLayers;
+	private ArrayList<Layer> items;
+	private ArrayList<Layer> checkedLayers;
 	private LayoutInflater inflater;
 	private int itemLayout;
 	
 	public AddLayersListAdapter(Context context, int itemLayout) {
 		inflater = LayoutInflater.from(context);
-		this.items = new ArrayList<AddLayersListItem>();
-		this.checkedLayers = new ArrayList<AddLayersListItem>();
+		this.items = new ArrayList<Layer>();
+		this.checkedLayers = new ArrayList<Layer>();
 		this.itemLayout = itemLayout;
 	}
 	
-	public void setData(ArrayList<AddLayersListItem> items){
+	public void setData(ArrayList<Layer> items){
 		this.items = items;
 		this.notifyDataSetChanged();
 	}
@@ -46,7 +45,7 @@ public class AddLayersListAdapter extends BaseAdapter {
 			view = inflater.inflate(itemLayout, null);
 		}
 		
-		AddLayersListItem listItem = items.get(position);
+		Layer listItem = items.get(position);
 		
 		if(listItem != null){
 			TextView layerName = (TextView) view.findViewById(R.id.layerName);
@@ -54,7 +53,7 @@ public class AddLayersListAdapter extends BaseAdapter {
 			CheckBox checkbox = (CheckBox) view.findViewById(R.id.addLayerCheckbox);
 			
 			if(layerName != null){
-				layerName.setText(listItem.getLayerName());
+				layerName.setText(listItem.getLayerTitle());
 			}
 			
 			if(serverName != null){
@@ -81,7 +80,7 @@ public class AddLayersListAdapter extends BaseAdapter {
 					@Override
 					public void onClick(View v) {
 						Integer position = (Integer) ((CheckBox) v).getTag();
-						AddLayersListItem listItem = items.get(position);
+						Layer listItem = items.get(position);
 						boolean checked = !listItem.isChecked();
 						
 						listItem.setChecked(checked);
@@ -108,7 +107,7 @@ public class AddLayersListAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public Object getItem(int position) {
+	public Layer getItem(int position) {
 		return this.items.get(position);
 	}
 
@@ -117,7 +116,7 @@ public class AddLayersListAdapter extends BaseAdapter {
 		return position;
 	}
 	
-	public ArrayList<AddLayersListItem> getCheckedLayers(){
+	public ArrayList<Layer> getCheckedLayers(){
 		return this.checkedLayers;
 	}
 }

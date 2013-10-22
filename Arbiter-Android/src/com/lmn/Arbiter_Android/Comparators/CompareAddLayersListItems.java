@@ -2,13 +2,13 @@ package com.lmn.Arbiter_Android.Comparators;
 
 import java.util.Comparator;
 
-import com.lmn.Arbiter_Android.ListItems.AddLayersListItem;
+import com.lmn.Arbiter_Android.ListItems.Layer;
 
-public class CompareAddLayersListItems implements Comparator<AddLayersListItem>{
+public class CompareAddLayersListItems implements Comparator<Layer>{
 
 	@Override
-	public int compare(AddLayersListItem item1, AddLayersListItem item2) {
+	public int compare(Layer item1, Layer item2) {
 		
-		return item1.getLayerName().compareToIgnoreCase(item2.getLayerName());
+		return item1.getLayerTitle().compareToIgnoreCase(item2.getLayerTitle());
 	}
 }

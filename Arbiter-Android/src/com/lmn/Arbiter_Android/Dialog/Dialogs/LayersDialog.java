@@ -3,14 +3,21 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ListView;
 import android.widget.ToggleButton;
 import android.widget.ImageButton;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
+import com.lmn.Arbiter_Android.ListAdapters.LayerListAdapter;
+import com.lmn.Arbiter_Android.LoaderCallbacks.LayerLoaderCallbacks;
 
 public class LayersDialog extends ArbiterDialogFragment{
+	private ListView listView;
+	private LayerListAdapter layersAdapter;
+	@SuppressWarnings("unused")
+	private LayerLoaderCallbacks layerLoaderCallbacks;
 	
 	public static LayersDialog newInstance(String title, String ok, 
 			String cancel, int layout){
@@ -57,18 +64,32 @@ public class LayersDialog extends ArbiterDialogFragment{
 	@Override
 	public void beforeCreateDialog(View view) {
 		if(view != null){
-			ImageButton button = (ImageButton) view.findViewById(R.id.add_layers_button);
-			if(button != null){
-				button.setOnClickListener(new OnClickListener(){
-
-					@Override
-					public void onClick(View v) {
-						// Open the add layers dialog
-						(new ArbiterDialogs(getActivity().getResources(), 
-								getActivity().getSupportFragmentManager())).showAddLayersDialog(false);
-					}
-				});
-			}
+			registerListeners(view);
+			populateListView(view);
 		}
+	}
+	
+	public void registerListeners(View view){
+		ImageButton button = (ImageButton) view.findViewById(R.id.add_layers_button);
+		if(button != null){
+			button.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					// Open the add layers dialog
+					(new ArbiterDialogs(getActivity().getResources(), 
+							getActivity().getSupportFragmentManager())).showAddLayersDialog(false);
+				}
+			});
+		}
+	}
+	
+	public void populateListView(View view){
+		this.listView = (ListView) view.findViewById(R.id.layersListView);
+		this.layersAdapter = new LayerListAdapter(this.getActivity().
+				getApplicationContext(), R.layout.layers_list_item);
+		this.listView.setAdapter(this.layersAdapter);
+		
+		this.layerLoaderCallbacks = new LayerLoaderCallbacks(this, this.layersAdapter, R.id.loader_layers);
 	}
 }

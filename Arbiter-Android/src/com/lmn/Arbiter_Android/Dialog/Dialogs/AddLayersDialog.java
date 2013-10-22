@@ -1,10 +1,16 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
+import java.util.ArrayList;
+
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
+import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandList;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.ListAdapters.AddLayersListAdapter;
 import com.lmn.Arbiter_Android.ListAdapters.ServerListAdapter;
+import com.lmn.Arbiter_Android.ListItems.Layer;
 import com.lmn.Arbiter_Android.LoaderCallbacks.AddLayersLoaderCallbacks;
 import com.lmn.Arbiter_Android.LoaderCallbacks.ServerLoaderCallbacks;
 import com.lmn.Arbiter_Android.Loaders.AddLayersListLoader;
@@ -13,6 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -31,6 +38,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	private AddLayersListAdapter addLayersAdapter;
 	private Spinner spinner;
 	private boolean creatingAProject;
+	private CommandList commandList;
 	
 	public static AddLayersDialog newInstance(String title, String ok, 
 			String cancel, int layout, boolean creatingAProject){
@@ -41,6 +49,8 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		frag.setCancel(cancel);
 		frag.setLayout(layout);
 		frag.setCreatingAProject(creatingAProject);
+		
+		frag.commandList = CommandList.getCommandList();
 		
 		return frag;
 	}
@@ -56,7 +66,29 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	public void onPositiveClick() {
 		if(!creatingAProject){
 			// write the added layers to the database
+			final Context context = getActivity().getApplicationContext();
 			
+			final ArrayList<Layer> list = new ArrayList<Layer>();
+			ArrayList<Layer> checked = this.addLayersAdapter.getCheckedLayers();
+			
+			for(int i = 0; i < checked.size(); i++){
+				list.add(new Layer(checked.get(i)));
+			}
+			
+			commandList.queueCommand(new Runnable(){
+
+				@Override
+				public void run() {
+					GlobalDatabaseHelper helper = DbHelpers.getDbHelpers(context).getGlobalDbHelper();
+					
+					for(int i = 0; i < list.size(); i++){
+						Log.w("ADDLAYERSDIALOG INSERT", "ADDLAYERSDIALOG INSERT: " + list.get(i).toString());
+					}
+					
+					helper.getLayersHelper().insert(helper.getWritableDatabase(), context, list);
+				}
+				
+			});
 			
 		}
 	}

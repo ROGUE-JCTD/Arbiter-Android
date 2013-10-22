@@ -73,14 +73,14 @@ public class ArbiterDialogs {
 		dialog.show(fragManager, "serversDialog");
 	}
 	
-	public void showAddLayersDialog(){
+	public void showAddLayersDialog(boolean creatingAProject){
 		String title = resources.getString(R.string.add_layers_dialog_title);
 		String ok = resources.getString(android.R.string.ok);
 		String cancel = resources.getString(android.R.string.cancel);
 		int layout = R.layout.add_layers_dialog;
 		
 		DialogFragment dialog = AddLayersDialog.
-				newInstance(title, ok, cancel, layout);
+				newInstance(title, ok, cancel, layout, creatingAProject);
 		dialog.show(fragManager, "addLayersDialog");
 	}
 	

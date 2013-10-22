@@ -17,12 +17,14 @@ import android.widget.TextView;
 
 public class AddLayersListAdapter extends BaseAdapter {
 	private ArrayList<AddLayersListItem> items;
+	private ArrayList<AddLayersListItem> checkedLayers;
 	private LayoutInflater inflater;
 	private int itemLayout;
 	
 	public AddLayersListAdapter(Context context, int itemLayout) {
 		inflater = LayoutInflater.from(context);
 		this.items = new ArrayList<AddLayersListItem>();
+		this.checkedLayers = new ArrayList<AddLayersListItem>();
 		this.itemLayout = itemLayout;
 	}
 	
@@ -59,6 +61,16 @@ public class AddLayersListAdapter extends BaseAdapter {
 				serverName.setText(listItem.getServerName());
 			}
 			
+			view.setOnClickListener(new OnClickListener(){
+				
+				@Override
+				public void onClick(View v) {
+					CheckBox checkbox = (CheckBox) v.findViewById(R.id.addLayerCheckbox);
+					checkbox.performClick();
+				}
+				
+			});
+			
 			if(checkbox != null){
 				checkbox.setChecked(listItem.isChecked());
 				
@@ -73,12 +85,14 @@ public class AddLayersListAdapter extends BaseAdapter {
 						boolean checked = !listItem.isChecked();
 						
 						listItem.setChecked(checked);
-						ProjectComponents project = ProjectComponents.getProjectComponents();
+						//ProjectComponents project = ProjectComponents.getProjectComponents();
 						
 						if(checked){
-							project.addLayer(listItem);
+							checkedLayers.add(listItem);
+							//project.addLayer(listItem);
 						}else{
-							project.removeLayer(listItem);
+							checkedLayers.remove(listItem);
+							//project.removeLayer(listItem);
 						}
 					}
 				});
@@ -101,5 +115,9 @@ public class AddLayersListAdapter extends BaseAdapter {
 	@Override
 	public long getItemId(int position) {
 		return position;
+	}
+	
+	public ArrayList<AddLayersListItem> getCheckedLayers(){
+		return this.checkedLayers;
 	}
 }

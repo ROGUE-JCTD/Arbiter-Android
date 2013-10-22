@@ -92,13 +92,13 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<AddLayersList
 			BufferedReader reader = new BufferedReader(
 					new InputStreamReader(response.getEntity().getContent()));
 			
-			return parseGetCapabilities(reader);
+			return parseGetCapabilities(server.getServerName(), reader);
 		}
 		
 		return null;
 	}
 	
-	private ArrayList<AddLayersListItem> parseGetCapabilities(BufferedReader reader) throws XmlPullParserException, IOException{
+	private ArrayList<AddLayersListItem> parseGetCapabilities(String serverName, BufferedReader reader) throws XmlPullParserException, IOException{
 		XmlPullParserFactory factory;
 		factory = XmlPullParserFactory.newInstance();
 		factory.setNamespaceAware(false);
@@ -155,7 +155,7 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<AddLayersList
 					if(eventName.equalsIgnoreCase(AddLayersListLoader.LAYER_TAG)){
 						// Create the new layer object, and since this was the end of 
 						// the layer element, specify that we're out.
-						layers.add(new AddLayersListItem(name, "someServer", title,
+						layers.add(new AddLayersListItem(name, serverName, title,
 																srs, boundingBox));
 						inLayerTag = false;
 					}

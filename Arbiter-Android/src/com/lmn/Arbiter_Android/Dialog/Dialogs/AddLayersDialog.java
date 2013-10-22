@@ -30,15 +30,17 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	private ServerListAdapter serverAdapter;
 	private AddLayersListAdapter addLayersAdapter;
 	private Spinner spinner;
+	private boolean creatingAProject;
 	
 	public static AddLayersDialog newInstance(String title, String ok, 
-			String cancel, int layout){
+			String cancel, int layout, boolean creatingAProject){
 		AddLayersDialog frag = new AddLayersDialog();
 		
 		frag.setTitle(title);
 		frag.setOk(ok);
 		frag.setCancel(cancel);
 		frag.setLayout(layout);
+		frag.setCreatingAProject(creatingAProject);
 		
 		return frag;
 	}
@@ -52,11 +54,11 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 
 	@Override
 	public void onPositiveClick() {
-		//ProjectComponents project = getProject();
-		
-	//	if(project != null){
-			// commit the layers that have been added, to the database
-	//	}
+		if(!creatingAProject){
+			// write the added layers to the database
+			
+			
+		}
 	}
 
 	@Override
@@ -131,5 +133,9 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	
 	public ServerListAdapter getAdapter(){
 		return this.serverAdapter;
+	}
+	
+	public void setCreatingAProject(boolean creatingAProject){
+		this.creatingAProject = creatingAProject;
 	}
 }

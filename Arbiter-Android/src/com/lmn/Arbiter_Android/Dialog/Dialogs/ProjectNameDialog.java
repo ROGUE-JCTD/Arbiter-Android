@@ -8,7 +8,6 @@ import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 
 public class ProjectNameDialog extends ArbiterDialogFragment{
-	//private CommandList commandList;
 	private View view;
 	private ArbiterDialogs arbiterDialogs;
 	

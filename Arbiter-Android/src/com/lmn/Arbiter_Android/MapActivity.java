@@ -9,7 +9,6 @@ import org.apache.cordova.api.CordovaInterface;
 import org.apache.cordova.api.CordovaPlugin;
 
 import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
-import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandList;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 
 import android.os.Bundle;
@@ -60,18 +59,10 @@ public class MapActivity extends FragmentActivity implements CordovaInterface{
         	restoreState(savedInstanceState);
             setListeners();
             InitDatabases();
-            InitCommandList();
         }
         
         public void InitDatabases(){
         	DbHelpers.getDbHelpers(getApplicationContext());
-        }
-
-        /**
-         * Get's the CommandList singleton, which starts the CommandExecutor thread
-         */
-        public void InitCommandList(){
-        	CommandList.getCommandList();
         }
         
         /**

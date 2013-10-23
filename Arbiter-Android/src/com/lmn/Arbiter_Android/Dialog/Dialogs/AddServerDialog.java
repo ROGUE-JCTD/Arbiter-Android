@@ -8,12 +8,11 @@ import android.widget.EditText;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandList;
+import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.ListItems.ServerListItem;
 
 public class AddServerDialog extends ArbiterDialogFragment{
-	private CommandList commandList;
 	private View view;
 	
 	public static AddServerDialog newInstance(String title, String ok, 
@@ -25,7 +24,6 @@ public class AddServerDialog extends ArbiterDialogFragment{
 		frag.setCancel(cancel);
 		frag.setLayout(layout);
 		
-		frag.commandList = CommandList.getCommandList();
 		return frag;
 	}
 	
@@ -34,7 +32,7 @@ public class AddServerDialog extends ArbiterDialogFragment{
 		final Context context = this.getActivity();
 		
 		// Queue the command to insert the project
-		commandList.queueCommand(new Runnable(){
+		CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run() {
 				Log.w("SERVERS DIALOG", "INSERT SERVER");

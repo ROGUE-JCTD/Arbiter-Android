@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandList;
+import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.ListAdapters.AddLayersListAdapter;
@@ -38,7 +38,6 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	private AddLayersListAdapter addLayersAdapter;
 	private Spinner spinner;
 	private boolean creatingAProject;
-	private CommandList commandList;
 	private Layer[] layersInProject;
 	
 	public static AddLayersDialog newInstance(String title, String ok, 
@@ -51,7 +50,6 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		frag.setLayout(layout);
 		frag.setCreatingAProject(creatingAProject);
 		
-		frag.commandList = CommandList.getCommandList();
 		frag.layersInProject = layersInProject;
 		
 		return frag;
@@ -85,8 +83,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 				list.add(new Layer(checked.get(i)));
 			}
 			
-			commandList.queueCommand(new Runnable(){
-
+			CommandExecutor.runProcess(new Runnable(){
 				@Override
 				public void run() {
 					GlobalDatabaseHelper helper = DbHelpers.getDbHelpers(context).getGlobalDbHelper();

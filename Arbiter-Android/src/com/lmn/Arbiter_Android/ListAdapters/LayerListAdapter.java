@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandList;
+import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.ListItems.Layer;
 
 import android.content.Context;
@@ -22,7 +22,6 @@ public class LayerListAdapter extends BaseAdapter{
 	private Layer[] items;
 	private final LayoutInflater inflater;
 	private int itemLayout;
-	private CommandList commandList;
 	private final Context context; 
 	
 	public LayerListAdapter(Context context, int itemLayout){
@@ -30,7 +29,6 @@ public class LayerListAdapter extends BaseAdapter{
 			inflater = LayoutInflater.from(context);
 			items = new Layer[0];
 			this.itemLayout = itemLayout;
-			commandList = CommandList.getCommandList();
 			this.context = context;
 	}
 	
@@ -73,8 +71,7 @@ public class LayerListAdapter extends BaseAdapter{
 						
 						layers.add(new Layer(listItem));
 						
-						commandList.queueCommand(new Runnable(){
-
+						CommandExecutor.runProcess(new Runnable(){
 							@Override
 							public void run() {
 								

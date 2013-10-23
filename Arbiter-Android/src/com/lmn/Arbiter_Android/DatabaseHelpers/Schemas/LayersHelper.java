@@ -76,7 +76,7 @@ public class LayersHelper implements ArbiterDatabaseHelper<Layer, ArrayList<Laye
 		}
 		
 		cursor.close();
-		
+		db.close();
 		return layers;
 	}
 	
@@ -106,6 +106,7 @@ public class LayersHelper implements ArbiterDatabaseHelper<Layer, ArrayList<Laye
 			e.printStackTrace();
 		} finally {
 			db.endTransaction();
+			db.close();
 		}
 	}
 }

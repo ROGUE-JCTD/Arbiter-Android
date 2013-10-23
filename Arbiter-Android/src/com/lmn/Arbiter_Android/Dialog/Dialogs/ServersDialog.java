@@ -39,6 +39,13 @@ public class ServersDialog extends ArbiterDialogFragment{
 	}
 	
 	@Override
+	public void onDestroy(){
+		super.onDestroy();
+		
+		this.getActivity().getSupportLoaderManager().destroyLoader(R.id.loader_servers_list);
+	}
+	
+	@Override
 	public void onPositiveClick() {
 		
 	}

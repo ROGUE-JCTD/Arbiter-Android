@@ -63,6 +63,14 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	}
 
 	@Override
+	public void onDestroy(){
+		super.onDestroy();
+		
+		this.getActivity().getSupportLoaderManager().destroyLoader(R.id.loader_servers_dropdown);
+		this.getActivity().getSupportLoaderManager().destroyLoader(R.id.loader_add_layers);
+	}
+	
+	@Override
 	public void onPositiveClick() {
 		if(!creatingAProject){
 			// write the added layers to the database
@@ -80,11 +88,6 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 				@Override
 				public void run() {
 					GlobalDatabaseHelper helper = DbHelpers.getDbHelpers(context).getGlobalDbHelper();
-					
-					for(int i = 0; i < list.size(); i++){
-						Log.w("ADDLAYERSDIALOG INSERT", "ADDLAYERSDIALOG INSERT: " + list.get(i).toString());
-					}
-					
 					helper.getLayersHelper().insert(helper.getWritableDatabase(), context, list);
 				}
 				

@@ -1,7 +1,5 @@
 package com.lmn.Arbiter_Android.ListItems;
 
-import android.util.Log;
-
 public class Layer {
 	private String featureType;
 	
@@ -22,7 +20,6 @@ public class Layer {
 		this.srs = srs;
 		this.boundingBox = boundingBox;
 		this.serverId = serverId;
-		Log.w("LAYER", "LAYER serverId: " + this.serverId);
 		setChecked(false);
 	}
 	

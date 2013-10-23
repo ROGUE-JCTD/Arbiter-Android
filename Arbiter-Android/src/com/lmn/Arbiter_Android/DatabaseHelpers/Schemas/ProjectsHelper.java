@@ -51,6 +51,7 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<ProjectListItem, Pr
 		
 		cursor.close();
 		
+		db.close();
 		return projects;
 	}
 	
@@ -77,6 +78,7 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<ProjectListItem, Pr
 			e.printStackTrace();
 		} finally {
 			db.endTransaction();
+			db.close();
 		}
 	}
 	

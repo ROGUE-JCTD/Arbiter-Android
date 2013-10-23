@@ -39,6 +39,13 @@ public class LayersDialog extends ArbiterDialogFragment{
 	}
 	
 	@Override
+	public void onDestroy(){
+		super.onDestroy();
+		
+		this.getActivity().getSupportLoaderManager().destroyLoader(R.id.loader_layers);
+	}
+	
+	@Override
 	public void onPositiveClick() {
 		// TODO Auto-generated method stub
 		

@@ -34,7 +34,7 @@ public class ProjectNameDialog extends ArbiterDialogFragment{
 	}
 	
 	public void transitionNext(){
-		getArbiterDialogs().showAddLayersDialog(true);
+		getArbiterDialogs().showAddLayersDialog(true, null);
 	}
 	
 	public void transitionBack(){

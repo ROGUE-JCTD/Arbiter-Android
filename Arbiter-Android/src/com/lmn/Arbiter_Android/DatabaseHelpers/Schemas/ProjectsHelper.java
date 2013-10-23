@@ -51,7 +51,6 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<ProjectListItem, Pr
 		
 		cursor.close();
 		
-		db.close();
 		return projects;
 	}
 	
@@ -78,8 +77,14 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<ProjectListItem, Pr
 			e.printStackTrace();
 		} finally {
 			db.endTransaction();
-			db.close();
 		}
+	}
+
+	@Override
+	public void delete(SQLiteDatabase db, Context context,
+			ProjectListItem[] list) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

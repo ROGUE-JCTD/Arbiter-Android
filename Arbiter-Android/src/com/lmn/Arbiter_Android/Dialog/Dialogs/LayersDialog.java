@@ -1,6 +1,7 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ListView;
@@ -11,6 +12,7 @@ import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.ListAdapters.LayerListAdapter;
+import com.lmn.Arbiter_Android.ListItems.Layer;
 import com.lmn.Arbiter_Android.LoaderCallbacks.LayerLoaderCallbacks;
 
 public class LayersDialog extends ArbiterDialogFragment{
@@ -71,21 +73,24 @@ public class LayersDialog extends ArbiterDialogFragment{
 	@Override
 	public void beforeCreateDialog(View view) {
 		if(view != null){
-			registerListeners(view);
 			populateListView(view);
+			registerListeners(view);
 		}
 	}
 	
 	public void registerListeners(View view){
 		ImageButton button = (ImageButton) view.findViewById(R.id.add_layers_button);
+		final LayersDialog frag = this;
+		
 		if(button != null){
+			
 			button.setOnClickListener(new OnClickListener(){
 
 				@Override
 				public void onClick(View v) {
 					// Open the add layers dialog
 					(new ArbiterDialogs(getActivity().getResources(), 
-							getActivity().getSupportFragmentManager())).showAddLayersDialog(false);
+							getActivity().getSupportFragmentManager())).showAddLayersDialog(false, frag.getCopyOfLayers());
 				}
 			});
 		}
@@ -98,5 +103,18 @@ public class LayersDialog extends ArbiterDialogFragment{
 		this.listView.setAdapter(this.layersAdapter);
 		
 		this.layerLoaderCallbacks = new LayerLoaderCallbacks(this, this.layersAdapter, R.id.loader_layers);
+	}
+	
+	public Layer[] getCopyOfLayers(){
+		Layer[] layers = this.layersAdapter.getLayers();
+		final Layer[] mLayers = new Layer[layers.length];
+		
+		// Make a deep copy of the layers
+		for(int i = 0; i < layers.length; i++){
+			mLayers[i] = new Layer(layers[i]);
+		}
+				
+		Log.w("LAYERSDIALOG", "LAYERSDIALOG count: " + mLayers.length);
+		return mLayers;
 	}
 }

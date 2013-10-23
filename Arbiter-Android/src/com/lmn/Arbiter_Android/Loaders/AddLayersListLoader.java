@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
@@ -64,11 +65,74 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 		return _layers;
 	}
 	
+	// TODO: CAN AVOID ITERATING THOUGH THE LIST OF PULLED IN LAYERS AGAIN
+	// BY CHECKING THE HASHMAP BEFORE THE LAYER EVEN GETS ADDED TO THE LIST
+	// INSIDE OF THE PARSEGETCAPABILITIES METHOD
+	/**
+	 * Remove layers that are already in the project
+	 * @param pulledLayers
+	 * @param myLayers
+	 */
+	public void removeDuplicates(List<Layer> pulledLayers, Layer[] projectLayers){
+		// key: server_id:featuretype
+		// value: Boolean
+		HashMap<String, Boolean> layersInProject = new HashMap<String, Boolean>();
+		String key = null;
+		Layer currentLayer = null;
+		int i;
+		
+		Log.w("ADDLAYERSLISTLOADER", "ADDLAYERSLISTLOADER pulledLayers: " + 
+				pulledLayers.size() + ", projectLayers: " + projectLayers.length);
+		
+		// Add all of the layers in the project already to the hashmap
+		for(i = 0; i < projectLayers.length; i++){
+			currentLayer = projectLayers[i];
+			
+			key = buildLayerKey(currentLayer);
+			
+			if(!layersInProject.containsKey(key)){
+				layersInProject.put(key, true);
+			}
+		}
+		
+		// If the layer is already in the project, remove it
+		for(i = 0; i < pulledLayers.size(); i++){
+			currentLayer = pulledLayers.get(i);
+			
+			key = buildLayerKey(currentLayer);
+			
+			if(layersInProject.containsKey(key)){
+				Log.w("ADDLAYERSLISTLOADER", "ADDLAYERSLISTLOADER REMOVING: " + key);
+				pulledLayers.remove(i);
+			}
+		}
+	}
+	
+	/**
+	 * Create a key for the removeDuplicates method
+	 * @param layer Layer to create the key with
+	 * @return
+	 */
+	private String buildLayerKey(Layer layer){
+		return Integer.valueOf(layer.getServerId()).toString() + ":" +
+				layer.getFeatureType();
+	}
+	
+	/**
+	 * Get the selected server from the dropdown
+	 * @return The selected server
+	 */
 	public ServerListItem getSelectedServer(){
 		int selectedIndex = dialog.getSpinner().getSelectedItemPosition();
 		return dialog.getAdapter().getItem(selectedIndex);
 	}
 	
+	/**
+	 * Send the getCapabilities request and get the layers back
+	 * @param server
+	 * @return
+	 * @throws Exception
+	 */
 	public ArrayList<Layer> getLayers(ServerListItem server) throws Exception {
 		if(server != null){
 			String url = server.getUrl() + "/wms?service=wms&version=1.1.1&request=getCapabilities";
@@ -95,6 +159,14 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 		return null;
 	}
 	
+	/**
+	 * Parse the getCapabilities request
+	 * @param server Object with the current servers info
+	 * @param reader The reader for reading in the request response
+	 * @return An ArrayList of parsed Layer objects containing the layers info
+	 * @throws XmlPullParserException
+	 * @throws IOException
+	 */
 	private ArrayList<Layer> parseGetCapabilities(ServerListItem server, BufferedReader reader) throws XmlPullParserException, IOException{
 		XmlPullParserFactory factory;
 		factory = XmlPullParserFactory.newInstance();
@@ -160,7 +232,7 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 					if(eventName.equalsIgnoreCase(AddLayersListLoader.LAYER_TAG)){
 						// Create the new layer object, and since this was the end of 
 						// the layer element, specify that we're out.
-						layers.add(new Layer(featureType, server.getId(), server.getServerName(), title,
+						layers.add(new Layer(-1, featureType, server.getId(), server.getServerName(), title,
 																srs, boundingBox));
 						inLayerTag = false;
 						
@@ -184,6 +256,8 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 			
 			eventType = pullParser.next();
 		}
+		
+		removeDuplicates(layers, dialog.getLayersInProject());
 		
 		Collections.sort(layers, new CompareAddLayersListItems());
 		

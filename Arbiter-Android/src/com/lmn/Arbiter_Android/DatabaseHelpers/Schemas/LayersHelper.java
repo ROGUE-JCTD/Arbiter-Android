@@ -42,12 +42,13 @@ public class LayersHelper implements ArbiterDatabaseHelper<Layer, ArrayList<Laye
 	public Layer[] getAll(SQLiteDatabase db){
 		// Projection - columns to get back
 		String[] columns = {
-			FEATURE_TYPE, // 0
-			SERVER_ID, // 1
-			ServersHelper.SERVER_NAME, // 2
-			LAYER_TITLE, // 3
-			LAYER_SRS, // 4
-			BOUNDING_BOX // 5
+			LAYERS_TABLE_NAME + "." + _ID, // 0
+			FEATURE_TYPE, // 1
+			SERVER_ID, // 2
+			ServersHelper.SERVER_NAME, // 3
+			LAYER_TITLE, // 4
+			LAYER_SRS, // 5
+			BOUNDING_BOX // 6
 		};
 		
 		// How to sort the results
@@ -69,14 +70,13 @@ public class LayersHelper implements ArbiterDatabaseHelper<Layer, ArrayList<Laye
 		
 		//Traverse the cursors to populate the projects array
 		for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-			layers[i] = new Layer(cursor.getString(0),
-					cursor.getInt(1), cursor.getString(2), cursor.getString(3),
-					cursor.getString(4), cursor.getString(5));
+			layers[i] = new Layer(cursor.getInt(0),
+					cursor.getString(1), cursor.getInt(2), cursor.getString(3),
+					cursor.getString(4), cursor.getString(5), cursor.getString(6));
 			i++;
 		}
 		
 		cursor.close();
-		db.close();
 		return layers;
 	}
 	
@@ -106,7 +106,37 @@ public class LayersHelper implements ArbiterDatabaseHelper<Layer, ArrayList<Laye
 			e.printStackTrace();
 		} finally {
 			db.endTransaction();
-			db.close();
 		}
 	}
+
+	@Override
+	public void delete(SQLiteDatabase db, Context context, ArrayList<Layer> list) {
+		Log.w("LAYERSHELPER", "LAYERSHELPER delete");
+		db.beginTransaction();
+		
+		try {
+			String whereClause = _ID + "=?";
+			String[] whereArgs;
+			String id;
+			
+			for(int i = 0; i < list.size(); i++){
+				whereArgs = new String[1];
+				id = Integer.valueOf(list.get(i).getLayerId()).toString();
+				Log.w("LAYERSHELPER", "LAYER DELETE ID: " + id);
+				whereArgs[0] = id;
+				db.delete(LAYERS_TABLE_NAME, whereClause, whereArgs);
+			}
+			
+			db.setTransactionSuccessful();
+			
+			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
+		} catch (Exception e){
+			e.printStackTrace();
+		} finally {
+			db.endTransaction();
+		}
+		
+	}
+	
+	
 }

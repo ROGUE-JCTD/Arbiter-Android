@@ -1,6 +1,7 @@
 package com.lmn.Arbiter_Android.ListItems;
 
 public class Layer {
+	private int layerId;
 	private String featureType;
 	
 	// Only for the adapter, for displaying
@@ -12,8 +13,9 @@ public class Layer {
 	private int serverId;
 	private boolean checked;
 	
-	public Layer(String featureType, int serverId, String serverName, 
+	public Layer(int layerId, String featureType, int serverId, String serverName, 
 			String title, String srs, String boundingBox){
+		this.layerId = layerId;
 		this.featureType = featureType;
 		this.serverName = serverName;
 		this.title = title;
@@ -25,6 +27,7 @@ public class Layer {
 	
 	// For cloning
 	public Layer(Layer item){
+		this.layerId = item.getLayerId();
 		this.featureType = item.getFeatureType();
 		this.serverName = item.getServerName();
 		this.title = item.getLayerTitle();
@@ -32,6 +35,10 @@ public class Layer {
 		this.boundingBox = item.getLayerBBOX();
 		this.checked = item.isChecked();
 		this.serverId = item.getServerId();
+	}
+	
+	public int getLayerId(){
+		return layerId;
 	}
 	
 	public String getFeatureType(){

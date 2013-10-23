@@ -56,7 +56,6 @@ public class ServersHelper implements ArbiterDatabaseHelper<ServerListItem, Serv
 		
 		cursor.close();
 		
-		db.close();
 		return servers;
 	}
 	
@@ -84,7 +83,12 @@ public class ServersHelper implements ArbiterDatabaseHelper<ServerListItem, Serv
 			e.printStackTrace();
 		} finally {
 			db.endTransaction();
-			db.close();
 		}
+	}
+
+	@Override
+	public void delete(SQLiteDatabase db, Context context, ServerListItem[] list) {
+		// TODO Auto-generated method stub
+		
 	}
 }

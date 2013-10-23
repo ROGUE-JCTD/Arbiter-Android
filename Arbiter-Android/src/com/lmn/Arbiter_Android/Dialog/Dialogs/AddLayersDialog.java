@@ -39,9 +39,10 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	private Spinner spinner;
 	private boolean creatingAProject;
 	private CommandList commandList;
+	private Layer[] layersInProject;
 	
 	public static AddLayersDialog newInstance(String title, String ok, 
-			String cancel, int layout, boolean creatingAProject){
+			String cancel, int layout, boolean creatingAProject, Layer[] layersInProject){
 		AddLayersDialog frag = new AddLayersDialog();
 		
 		frag.setTitle(title);
@@ -51,6 +52,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		frag.setCreatingAProject(creatingAProject);
 		
 		frag.commandList = CommandList.getCommandList();
+		frag.layersInProject = layersInProject;
 		
 		return frag;
 	}
@@ -172,5 +174,9 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	
 	public void setCreatingAProject(boolean creatingAProject){
 		this.creatingAProject = creatingAProject;
+	}
+	
+	public Layer[] getLayersInProject(){
+		return this.layersInProject;
 	}
 }

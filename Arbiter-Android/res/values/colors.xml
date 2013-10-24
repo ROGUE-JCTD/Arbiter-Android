@@ -3,4 +3,7 @@
     <color name="layer_list_item">#96CDCD</color>
     <color name="layer_list_item_pressed">#7093DB</color>
     <color name="remove_list_item_pressed">#bf0000</color>
+    <color name="aoi_background">#B8000000</color>
+    <color name="aoi_title_bar">#FFFF0000</color>
+    <color name="holo_blue_light">#ff33b5e5</color>
 </resources>

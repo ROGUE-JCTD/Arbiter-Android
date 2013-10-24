@@ -1,4 +1,4 @@
-package com.lmn.Arbiter_Android.DatabaseHelpers.Schemas;
+package com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -22,7 +22,7 @@ public interface ArbiterDatabaseHelper<TableListItem, List> {
 	 * @param context Context to send broadcasts
 	 * @param list The list of items to be inserted
 	 */
-	public void insert(SQLiteDatabase db, Context context, List list);
+	public long[] insert(SQLiteDatabase db, Context context, List list);
 	
 	/**
 	 * Delete the items in the list from the table

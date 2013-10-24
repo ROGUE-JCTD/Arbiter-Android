@@ -33,7 +33,6 @@
         android:layout_height="55dip"
         android:layout_alignParentRight="true"
         android:gravity="center"
-        android:background="@drawable/list_item_delete_selector"
         android:clickable="true">
         
 	    <!-- Remove Layer button -->

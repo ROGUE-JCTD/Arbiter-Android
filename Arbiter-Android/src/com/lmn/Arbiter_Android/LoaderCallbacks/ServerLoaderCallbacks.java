@@ -5,11 +5,11 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 
+import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.ListAdapters.ServerListAdapter;
-import com.lmn.Arbiter_Android.ListItems.ServerListItem;
 import com.lmn.Arbiter_Android.Loaders.ServersListLoader;
 
-public class ServerLoaderCallbacks implements LoaderManager.LoaderCallbacks<ServerListItem[]>{
+public class ServerLoaderCallbacks implements LoaderManager.LoaderCallbacks<Server[]>{
 
 	private ServerListAdapter serverAdapter;
 	private DialogFragment fragment;
@@ -22,19 +22,19 @@ public class ServerLoaderCallbacks implements LoaderManager.LoaderCallbacks<Serv
 	}
 	
 	@Override
-	public Loader<ServerListItem[]> onCreateLoader(int id, Bundle bundle) {
+	public Loader<Server[]> onCreateLoader(int id, Bundle bundle) {
 		// This is called when a new Loader needs to be created.  This
         // sample only has one Loader with no arguments, so it is simple.
         return new ServersListLoader(this.fragment.getActivity().getApplicationContext());
 	}
 
 	@Override
-	public void onLoadFinished(Loader<ServerListItem[]> loader, ServerListItem[] data) {
+	public void onLoadFinished(Loader<Server[]> loader, Server[] data) {
 		serverAdapter.setData(data);
 	}
 
 	@Override
-	public void onLoaderReset(Loader<ServerListItem[]> loader) {
+	public void onLoaderReset(Loader<Server[]> loader) {
 		serverAdapter.setData(null);
 	}	
 }

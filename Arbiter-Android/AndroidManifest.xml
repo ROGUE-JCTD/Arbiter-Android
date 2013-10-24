@@ -14,7 +14,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.lmn.Arbiter_Android.MapActivity"
+            android:name="com.lmn.Arbiter_Android.Activities.MapActivity"
             android:label="@string/map_activity_name" 
             android:icon="@drawable/icon"
             android:configChanges="orientation|screenSize">
@@ -25,9 +25,10 @@
             </intent-filter>
         </activity>
         <activity 
-            android:name="ProjectsActivity"
+            android:name="com.lmn.Arbiter_Android.Activities.ProjectsActivity"
             android:label="@string/projects_activity_name"
-            android:icon="@drawable/icon">
+            android:icon="@drawable/icon"
+            android:configChanges="orientation|screenSize">s
             
         </activity>
     </application>

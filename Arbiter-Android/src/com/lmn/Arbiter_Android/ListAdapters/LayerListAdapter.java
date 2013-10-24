@@ -3,10 +3,10 @@ package com.lmn.Arbiter_Android.ListAdapters;
 import java.util.ArrayList;
 
 import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
+import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
-import com.lmn.Arbiter_Android.ListItems.Layer;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -75,8 +75,8 @@ public class LayerListAdapter extends BaseAdapter{
 							@Override
 							public void run() {
 								
-								GlobalDatabaseHelper helper = DbHelpers.getDbHelpers(context).getGlobalDbHelper();
-								helper.getLayersHelper().delete(helper.getWritableDatabase(), context, layers);;
+								GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+								LayersHelper.getLayersHelper().delete(helper.getWritableDatabase(), context, layers);;
 								
 							}
 							

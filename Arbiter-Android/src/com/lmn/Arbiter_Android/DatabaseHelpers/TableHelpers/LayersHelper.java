@@ -1,4 +1,4 @@
-package com.lmn.Arbiter_Android.DatabaseHelpers.Schemas;
+package com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers;
 
 import java.util.ArrayList;
 
@@ -12,10 +12,10 @@ import android.provider.BaseColumns;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.lmn.Arbiter_Android.ListItems.Layer;
+import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
 
-public class LayersHelper implements ArbiterDatabaseHelper<Layer, ArrayList<Layer>>, BaseColumns{
+public class LayersHelper implements BaseColumns{
 	public static final String LAYERS_TABLE_NAME = "layers";
 	public static final String LAYER_TITLE = "layer_title";
 	// Feature type with prefix ex. geonode:roads
@@ -23,6 +23,19 @@ public class LayersHelper implements ArbiterDatabaseHelper<Layer, ArrayList<Laye
 	public static final String SERVER_ID = "server_id";
 	public static final String LAYER_SRS = "srs";
 	public static final String BOUNDING_BOX = "bbox";
+	public static final String PROJECT_ID = "project_id";
+	
+	private LayersHelper(){}
+	
+	private static LayersHelper helper = null;
+	
+	public static LayersHelper getLayersHelper(){
+		if(helper == null){
+			helper = new LayersHelper();
+		}
+		
+		return helper;
+	}
 	
 	public void createTable(SQLiteDatabase db){
 		String sql = "CREATE TABLE " + LAYERS_TABLE_NAME + " (" +
@@ -32,14 +45,26 @@ public class LayersHelper implements ArbiterDatabaseHelper<Layer, ArrayList<Laye
 					FEATURE_TYPE + " TEXT, " +
 					LAYER_SRS + " TEXT, " +
 					BOUNDING_BOX + " TEXT, " +
+					PROJECT_ID + " TEXT, " +
 					SERVER_ID + " INTEGER, " + 
 					" FOREIGN KEY (" + SERVER_ID + ") REFERENCES " + 
-					ServersHelper.SERVERS_TABLE_NAME + " (" + ServersHelper._ID + "));";
+					ServersHelper.SERVERS_TABLE_NAME + " (" + ServersHelper._ID + ") " +
+					" FOREIGN KEY (" + PROJECT_ID + ") REFERENCES " +
+					ProjectsHelper.PROJECTS_TABLE_NAME + " (" + ProjectsHelper._ID + "));";
 		
 		db.execSQL(sql);
+		
+		createDeleteLayersTrigger(db);
 	}
 	
-	public Layer[] getAll(SQLiteDatabase db){
+	private void createDeleteLayersTrigger(SQLiteDatabase db){
+		db.execSQL("CREATE TRIGGER delete_layers_by_project BEFORE DELETE ON " +
+					ProjectsHelper.PROJECTS_TABLE_NAME + " FOR EACH ROW BEGIN " +
+					"DELETE FROM " + LAYERS_TABLE_NAME + " WHERE " + 
+					PROJECT_ID + " = " + "OLD." + ProjectsHelper._ID + "; END;");
+	}
+	
+	public Layer[] getAll(SQLiteDatabase db, long projectId){
 		// Projection - columns to get back
 		String[] columns = {
 			LAYERS_TABLE_NAME + "." + _ID, // 0
@@ -60,7 +85,10 @@ public class LayersHelper implements ArbiterDatabaseHelper<Layer, ArrayList<Laye
 				ServersHelper.SERVERS_TABLE_NAME + " ON " + LAYERS_TABLE_NAME + "." + 
 				SERVER_ID + " = " + ServersHelper.SERVERS_TABLE_NAME + "." + ServersHelper._ID);
 		
-		Cursor cursor = builder.query(db, columns, null, null, null, null, orderBy);
+		String where = LAYERS_TABLE_NAME + "." + PROJECT_ID + "=?";
+		String[] whereArgs = { Long.toString(projectId) };
+		
+		Cursor cursor = builder.query(db, columns, where, whereArgs, null, null, orderBy);
 		
 		Log.w("LAYERS HELPER", "GET LAYER COUNT: " + cursor.getCount());
 		
@@ -80,36 +108,55 @@ public class LayersHelper implements ArbiterDatabaseHelper<Layer, ArrayList<Laye
 		return layers;
 	}
 	
-	public void insert(SQLiteDatabase db, Context context, ArrayList<Layer> newLayers){
-		
+	public long[] insert(SQLiteDatabase db, Context context, ArrayList<Layer> newLayers, long projectId){
 		db.beginTransaction();
+		
+		long[] layerIds = new long[newLayers.size()];
+		
 		try {
 			ContentValues values;
+			boolean somethingWentWrong = false;
+			int i;
 			
-			for(int i = 0; i < newLayers.size(); i++){
+			for(i = 0; i < newLayers.size(); i++){
 				values = new ContentValues();
-				values.put(LayersHelper.LAYER_TITLE, newLayers.get(i).getLayerTitle());
-				values.put(LayersHelper.SERVER_ID, newLayers.get(i).getServerId());
-				values.put(LayersHelper.FEATURE_TYPE, newLayers.get(i).getFeatureType());
-				values.put(LayersHelper.BOUNDING_BOX, newLayers.get(i).getLayerBBOX());
-				values.put(LayersHelper.LAYER_SRS, newLayers.get(i).getLayerSRS());
+				values.put(LAYER_TITLE, newLayers.get(i).getLayerTitle());
+				values.put(SERVER_ID, newLayers.get(i).getServerId());
+				values.put(FEATURE_TYPE, newLayers.get(i).getFeatureType());
+				values.put(BOUNDING_BOX, newLayers.get(i).getLayerBBOX());
+				values.put(LAYER_SRS, newLayers.get(i).getLayerSRS());
+				values.put(PROJECT_ID, projectId);
 				
+				layerIds[i] = db.insert(LAYERS_TABLE_NAME, null, values);
 				
-				db.insert(LAYERS_TABLE_NAME, null, values);
-				Log.w("LAYERSHELPER", "LAYERS HELPER INSERT");
+				if(layerIds[i] == -1){
+					somethingWentWrong = true;
+					break;
+				}
 			}
 			
-			db.setTransactionSuccessful();
-			
-			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
+			if(!somethingWentWrong){
+				db.setTransactionSuccessful();
+				
+				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
+			}else{
+				Log.w("LAYERSHELPER", "LAYERSHELPER Something went wrong inserting layer: " + newLayers.get(i).getFeatureType());
+			}
 		} catch (Exception e){
 			e.printStackTrace();
 		} finally {
 			db.endTransaction();
 		}
+		
+		return layerIds;
 	}
 
-	@Override
+	/**
+	 * Delete the list of layers
+	 * @param db The database the layers reside in
+	 * @param context The context to send a broadcast notifying the layers have been updated
+	 * @param list The list of layers to be deleted
+	 */
 	public void delete(SQLiteDatabase db, Context context, ArrayList<Layer> list) {
 		Log.w("LAYERSHELPER", "LAYERSHELPER delete");
 		db.beginTransaction();
@@ -137,6 +184,4 @@ public class LayersHelper implements ArbiterDatabaseHelper<Layer, ArrayList<Laye
 		}
 		
 	}
-	
-	
 }

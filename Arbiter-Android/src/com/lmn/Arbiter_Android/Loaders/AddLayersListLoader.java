@@ -22,11 +22,11 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Base64;
 import android.util.Log;
 
+import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.BroadcastReceivers.AddLayersBroadcastReceiver;
 import com.lmn.Arbiter_Android.Comparators.CompareAddLayersListItems;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.AddLayersDialog;
-import com.lmn.Arbiter_Android.ListItems.Layer;
-import com.lmn.Arbiter_Android.ListItems.ServerListItem;
 
 public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 	public static final String ADD_LAYERS_LIST_UPDATED = "ADD_LAYERS_LIST_UPDATED";
@@ -74,36 +74,34 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 	 * @param myLayers
 	 */
 	public void removeDuplicates(List<Layer> pulledLayers, Layer[] projectLayers){
-		// key: server_id:featuretype
-		// value: Boolean
-		HashMap<String, Boolean> layersInProject = new HashMap<String, Boolean>();
-		String key = null;
-		Layer currentLayer = null;
-		int i;
-		
-		Log.w("ADDLAYERSLISTLOADER", "ADDLAYERSLISTLOADER pulledLayers: " + 
-				pulledLayers.size() + ", projectLayers: " + projectLayers.length);
-		
-		// Add all of the layers in the project already to the hashmap
-		for(i = 0; i < projectLayers.length; i++){
-			currentLayer = projectLayers[i];
+		if(projectLayers != null){
+			// key: server_id:featuretype
+			// value: Boolean
+			HashMap<String, Boolean> layersInProject = new HashMap<String, Boolean>();
+			String key = null;
+			Layer currentLayer = null;
+			int i;
 			
-			key = buildLayerKey(currentLayer);
-			
-			if(!layersInProject.containsKey(key)){
-				layersInProject.put(key, true);
+			// Add all of the layers in the project already to the hashmap
+			for(i = 0; i < projectLayers.length; i++){
+				currentLayer = projectLayers[i];
+				
+				key = buildLayerKey(currentLayer);
+				
+				if(!layersInProject.containsKey(key)){
+					layersInProject.put(key, true);
+				}
 			}
-		}
-		
-		// If the layer is already in the project, remove it
-		for(i = 0; i < pulledLayers.size(); i++){
-			currentLayer = pulledLayers.get(i);
 			
-			key = buildLayerKey(currentLayer);
-			
-			if(layersInProject.containsKey(key)){
-				Log.w("ADDLAYERSLISTLOADER", "ADDLAYERSLISTLOADER REMOVING: " + key);
-				pulledLayers.remove(i);
+			// If the layer is already in the project, remove it
+			for(i = 0; i < pulledLayers.size(); i++){
+				currentLayer = pulledLayers.get(i);
+				
+				key = buildLayerKey(currentLayer);
+				
+				if(layersInProject.containsKey(key)){
+					pulledLayers.remove(i);
+				}
 			}
 		}
 	}
@@ -122,9 +120,13 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 	 * Get the selected server from the dropdown
 	 * @return The selected server
 	 */
-	public ServerListItem getSelectedServer(){
+	public Server getSelectedServer(){
 		int selectedIndex = dialog.getSpinner().getSelectedItemPosition();
-		return dialog.getAdapter().getItem(selectedIndex);
+		
+		if(selectedIndex > -1)
+			return dialog.getAdapter().getItem(selectedIndex);
+		else
+			return null;
 	}
 	
 	/**
@@ -133,7 +135,7 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 	 * @return
 	 * @throws Exception
 	 */
-	public ArrayList<Layer> getLayers(ServerListItem server) throws Exception {
+	public ArrayList<Layer> getLayers(Server server) throws Exception {
 		if(server != null){
 			String url = server.getUrl() + "/wms?service=wms&version=1.1.1&request=getCapabilities";
 			
@@ -153,6 +155,10 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 			BufferedReader reader = new BufferedReader(
 					new InputStreamReader(response.getEntity().getContent()));
 			
+			/*BufferedReader reader = new BufferedReader(
+					new InputStreamReader(this.dialog.getActivity().
+							getApplicationContext().getResources().getAssets().open("getcapabilities.xml")));*/
+				
 			return parseGetCapabilities(server, reader);
 		}
 		
@@ -167,7 +173,7 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 	 * @throws XmlPullParserException
 	 * @throws IOException
 	 */
-	private ArrayList<Layer> parseGetCapabilities(ServerListItem server, BufferedReader reader) throws XmlPullParserException, IOException{
+	private ArrayList<Layer> parseGetCapabilities(Server server, BufferedReader reader) throws XmlPullParserException, IOException{
 		XmlPullParserFactory factory;
 		factory = XmlPullParserFactory.newInstance();
 		factory.setNamespaceAware(false);

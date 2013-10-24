@@ -1,7 +1,7 @@
 package com.lmn.Arbiter_Android.ListAdapters;
 
 import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.ListItems.ServerListItem;
+import com.lmn.Arbiter_Android.BaseClasses.Server;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 public class ServerListAdapter extends BaseAdapter{
 
-	private ServerListItem[] items;
+	private Server[] items;
 	private final LayoutInflater inflater;
 	private int itemLayout;
 	private int textId;
@@ -22,7 +22,7 @@ public class ServerListAdapter extends BaseAdapter{
 			int textId){
 		
 			inflater = LayoutInflater.from(context);
-			items = new ServerListItem[0];
+			items = new Server[0];
 			this.itemLayout = itemLayout;
 			this.textId = textId;
 			this.dropDownLayout = R.layout.drop_down_item;
@@ -32,13 +32,13 @@ public class ServerListAdapter extends BaseAdapter{
 			int textId, Integer dropDownLayout){
 		
 			inflater = LayoutInflater.from(context);
-			items = new ServerListItem[0];
+			items = new Server[0];
 			this.itemLayout = itemLayout;
 			this.textId = textId;
 			this.dropDownLayout = dropDownLayout;
 	}
 	
-	public void setData(ServerListItem[] data){
+	public void setData(Server[] data){
 		items = data;
 		
 		notifyDataSetChanged();
@@ -53,7 +53,7 @@ public class ServerListAdapter extends BaseAdapter{
 			view = inflater.inflate(itemLayout, null);
 		}
 		
-		ServerListItem listItem = items[position];
+		Server listItem = items[position];
 		
 		if(listItem != null){
 			TextView serverName = (TextView) view.findViewById(textId);
@@ -74,7 +74,7 @@ public class ServerListAdapter extends BaseAdapter{
 			view = inflater.inflate(dropDownLayout, null);
 		}
 		
-		ServerListItem listItem = items[position];
+		Server listItem = items[position];
 	
 		if(listItem != null){
 			TextView serverName = (TextView) view.findViewById(textId);
@@ -97,7 +97,7 @@ public class ServerListAdapter extends BaseAdapter{
 	}
 
 	@Override
-	public ServerListItem getItem(int position) {
+	public Server getItem(int position) {
 		return items[position];
 	}
 

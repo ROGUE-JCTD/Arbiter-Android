@@ -6,10 +6,10 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 
+import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.AddLayersDialog;
 import com.lmn.Arbiter_Android.Loaders.AddLayersListLoader;
 import com.lmn.Arbiter_Android.ListAdapters.AddLayersListAdapter;
-import com.lmn.Arbiter_Android.ListItems.Layer;
 
 public class AddLayersLoaderCallbacks implements LoaderManager.LoaderCallbacks<ArrayList<Layer>>{
 	private AddLayersListAdapter addLayersAdapter;

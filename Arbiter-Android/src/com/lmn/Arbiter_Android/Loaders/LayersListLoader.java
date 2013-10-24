@@ -5,10 +5,12 @@ import android.content.IntentFilter;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.lmn.Arbiter_Android.ArbiterProject;
+import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BroadcastReceivers.LayerBroadcastReceiver;
-import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
+//import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
-import com.lmn.Arbiter_Android.ListItems.Layer;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 
 public class LayersListLoader extends AsyncTaskLoader<Layer[]> {
 	public static final String LAYERS_LIST_UPDATED = "LAYERS_LIST_UPDATED";
@@ -16,17 +18,18 @@ public class LayersListLoader extends AsyncTaskLoader<Layer[]> {
 	private LayerBroadcastReceiver loaderBroadcastReceiver = null;
 	private Layer[] layers;
 	private GlobalDatabaseHelper globalDbHelper = null;
+	private long projectId;
 	
 	public LayersListLoader(Context context) {
 		super(context);
-		
-		globalDbHelper = DbHelpers.getDbHelpers(context).getGlobalDbHelper();
+		this.projectId = ArbiterProject.getArbiterProject().getOpenProject(context);
+		globalDbHelper = GlobalDatabaseHelper.getGlobalHelper(context);
 	}
 
 	@Override
 	public Layer[] loadInBackground() {
-		Layer[] projects = globalDbHelper.getLayersHelper().
-				getAll(globalDbHelper.getWritableDatabase());
+		Layer[] projects = LayersHelper.getLayersHelper().
+				getAll(globalDbHelper.getWritableDatabase(), projectId);
 		
 		return projects;
 	}

@@ -1,11 +1,12 @@
-package com.lmn.Arbiter_Android;
+package com.lmn.Arbiter_Android.Activities;
 
+import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
-import com.lmn.Arbiter_Android.Projects.ProjectListAdapter;
+import com.lmn.Arbiter_Android.ListAdapters.ProjectListAdapter;
 import com.lmn.Arbiter_Android.LoaderCallbacks.ProjectsLoaderCallbacks;
-
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -27,12 +28,11 @@ public class ProjectsActivity extends FragmentActivity{
 	    
 	    listView = (ListView) findViewById(R.id.projectListView);
 	   // ProjectListAdapter adapter = new ProjectListAdapter(this, R.layout.project_list_item, projectList.getList());
-	    this.projectAdapter = new ProjectListAdapter(this.getApplicationContext());
+	    this.projectAdapter = new ProjectListAdapter(this);
 	    this.listView.setAdapter(this.projectAdapter);
-	    
 	    this.projectsLoaderCallbacks = new ProjectsLoaderCallbacks(this, this.projectAdapter);
 	}
-
+	
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -51,4 +51,11 @@ public class ProjectsActivity extends FragmentActivity{
     			return super.onOptionsItemSelected(item);
     	}
     }
+	
+	@Override
+	public void onDestroy(){
+		super.onDestroy();
+		
+		getSupportLoaderManager().destroyLoader(R.id.loader_projects);
+	}
 }

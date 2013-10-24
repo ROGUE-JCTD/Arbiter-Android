@@ -6,11 +6,11 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
+import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
-import com.lmn.Arbiter_Android.ListItems.ServerListItem;
 
 public class AddServerDialog extends ArbiterDialogFragment{
 	private View view;
@@ -36,21 +36,21 @@ public class AddServerDialog extends ArbiterDialogFragment{
 			@Override
 			public void run() {
 				Log.w("SERVERS DIALOG", "INSERT SERVER");
-				GlobalDatabaseHelper helper = DbHelpers.getDbHelpers(context).getGlobalDbHelper();
+				GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
 				EditText nameField = (EditText) view.findViewById(R.id.server_name);
 				EditText urlField = (EditText) view.findViewById(R.id.server_url);
 				EditText usernameField = (EditText) view.findViewById(R.id.server_username);
 				EditText passwordField = (EditText) view.findViewById(R.id.server_password);
 				
-				ServerListItem[] list = new ServerListItem[1];
-				list[0] = new ServerListItem(
+				Server[] list = new Server[1];
+				list[0] = new Server(
 						nameField.getText().toString(),
 						urlField.getText().toString(),
 						usernameField.getText().toString(),
 						passwordField.getText().toString(),
 						-1);
 				
-				helper.getServersHelper().insert(helper.getWritableDatabase(), context, list);
+				ServersHelper.getServersHelper().insert(helper.getWritableDatabase(), context, list);
 			}
 		});
 		

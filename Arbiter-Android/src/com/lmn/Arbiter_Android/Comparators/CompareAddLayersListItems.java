@@ -2,7 +2,7 @@ package com.lmn.Arbiter_Android.Comparators;
 
 import java.util.Comparator;
 
-import com.lmn.Arbiter_Android.ListItems.Layer;
+import com.lmn.Arbiter_Android.BaseClasses.Layer;
 
 public class CompareAddLayersListItems implements Comparator<Layer>{
 

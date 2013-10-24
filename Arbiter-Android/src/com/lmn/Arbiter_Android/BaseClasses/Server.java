@@ -1,13 +1,13 @@
-package com.lmn.Arbiter_Android.ListItems;
+package com.lmn.Arbiter_Android.BaseClasses;
 
-public class ServerListItem {
+public class Server {
 	private int id;
 	private String serverName;
 	private String url;
 	private String username;
 	private String password;
 	
-	public ServerListItem(String serverName, String url, 
+	public Server(String serverName, String url, 
 			String username, String password, int id){
 		this.serverName = serverName;
 		this.url = url;

@@ -8,11 +8,12 @@ import android.widget.ListView;
 import android.widget.ToggleButton;
 import android.widget.ImageButton;
 
+import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.ListAdapters.LayerListAdapter;
-import com.lmn.Arbiter_Android.ListItems.Layer;
 import com.lmn.Arbiter_Android.LoaderCallbacks.LayerLoaderCallbacks;
 
 public class LayersDialog extends ArbiterDialogFragment{
@@ -20,6 +21,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 	private LayerListAdapter layersAdapter;
 	@SuppressWarnings("unused")
 	private LayerLoaderCallbacks layerLoaderCallbacks;
+	private long projectId;
 	
 	public static LayersDialog newInstance(String title, String ok, 
 			String cancel, int layout){
@@ -73,6 +75,8 @@ public class LayersDialog extends ArbiterDialogFragment{
 	@Override
 	public void beforeCreateDialog(View view) {
 		if(view != null){
+			projectId = ArbiterProject.getArbiterProject().getOpenProject(
+					getActivity().getApplicationContext());
 			populateListView(view);
 			registerListeners(view);
 		}
@@ -90,7 +94,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 				public void onClick(View v) {
 					// Open the add layers dialog
 					(new ArbiterDialogs(getActivity().getResources(), 
-							getActivity().getSupportFragmentManager())).showAddLayersDialog(false, frag.getCopyOfLayers());
+							getActivity().getSupportFragmentManager())).showAddLayersDialog(frag.getCopyOfLayers());
 				}
 			});
 		}
@@ -102,7 +106,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 				getApplicationContext(), R.layout.layers_list_item);
 		this.listView.setAdapter(this.layersAdapter);
 		
-		this.layerLoaderCallbacks = new LayerLoaderCallbacks(this, this.layersAdapter, R.id.loader_layers);
+		this.layerLoaderCallbacks = new LayerLoaderCallbacks(this.getActivity(), this.layersAdapter, R.id.loader_layers);
 	}
 	
 	public Layer[] getCopyOfLayers(){

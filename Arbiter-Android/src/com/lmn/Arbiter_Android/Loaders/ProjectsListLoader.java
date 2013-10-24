@@ -4,28 +4,30 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
+import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.BroadcastReceivers.ProjectBroadcastReceiver;
-import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
+//import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
-import com.lmn.Arbiter_Android.Projects.ProjectListItem;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 
-public class ProjectsListLoader extends AsyncTaskLoader<ProjectListItem[]> {
+public class ProjectsListLoader extends AsyncTaskLoader<Project[]> {
 	public static final String PROJECT_LIST_UPDATED = "PROJECT_LIST_UPDATED";
 	
 	private ProjectBroadcastReceiver loaderBroadcastReceiver = null;
-	private ProjectListItem[] projects;
+	private Project[] projects;
 	private GlobalDatabaseHelper globalDbHelper = null;
 	
 	public ProjectsListLoader(Context context) {
 		super(context);
 		
-		globalDbHelper = DbHelpers.getDbHelpers(context).getGlobalDbHelper();
+		globalDbHelper = GlobalDatabaseHelper.getGlobalHelper(context);
 	}
 
 	@Override
-	public ProjectListItem[] loadInBackground() {
-		ProjectListItem[] projects = globalDbHelper.getProjectsHelper().
+	public Project[] loadInBackground() {
+		Project[] projects = ProjectsHelper.getProjectsHelper().
 				getAll(globalDbHelper.getWritableDatabase());
 		
 		return projects;
@@ -36,7 +38,7 @@ public class ProjectsListLoader extends AsyncTaskLoader<ProjectListItem[]> {
      * super class will take care of delivering it; the implementation
      * here just adds a little more logic.
      */
-    @Override public void deliverResult(ProjectListItem[] _projects) {
+    @Override public void deliverResult(Project[] _projects) {
         if (isReset()) {
             // An async query came in while the loader is stopped.  We
             // don't need the result.
@@ -45,7 +47,7 @@ public class ProjectsListLoader extends AsyncTaskLoader<ProjectListItem[]> {
             }
         }
         
-        ProjectListItem[] oldProjects = _projects;
+        Project[] oldProjects = _projects;
         projects = _projects;
 
         if (isStarted()) {
@@ -97,7 +99,7 @@ public class ProjectsListLoader extends AsyncTaskLoader<ProjectListItem[]> {
     /**
      * Handles a request to cancel a load.
      */
-    @Override public void onCanceled(ProjectListItem[] _projects) {
+    @Override public void onCanceled(Project[] _projects) {
         super.onCanceled(_projects);
 
         // At this point we can release the resources associated with 'apps'
@@ -133,7 +135,7 @@ public class ProjectsListLoader extends AsyncTaskLoader<ProjectListItem[]> {
      * Helper function to take care of releasing resources associated
      * with an actively loaded data set.
      */
-    protected void onReleaseResources(ProjectListItem[] _projects) {
+    protected void onReleaseResources(Project[] _projects) {
         // For a simple List<> there is nothing to do.  For something
         // like a Cursor, we would close it here.
     	

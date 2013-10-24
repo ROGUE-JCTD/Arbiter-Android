@@ -3,7 +3,7 @@ package com.lmn.Arbiter_Android.ListAdapters;
 import java.util.ArrayList;
 
 import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.ListItems.Layer;
+import com.lmn.Arbiter_Android.BaseClasses.Layer;
 
 import android.content.Context;
 import android.view.LayoutInflater;

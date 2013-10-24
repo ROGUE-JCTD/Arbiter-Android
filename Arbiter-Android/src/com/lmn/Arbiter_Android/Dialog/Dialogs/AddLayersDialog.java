@@ -2,15 +2,17 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
 import java.util.ArrayList;
 
+import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
+import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.ListAdapters.AddLayersListAdapter;
 import com.lmn.Arbiter_Android.ListAdapters.ServerListAdapter;
-import com.lmn.Arbiter_Android.ListItems.Layer;
 import com.lmn.Arbiter_Android.LoaderCallbacks.AddLayersLoaderCallbacks;
 import com.lmn.Arbiter_Android.LoaderCallbacks.ServerLoaderCallbacks;
 import com.lmn.Arbiter_Android.Loaders.AddLayersListLoader;
@@ -37,24 +39,39 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	private ServerListAdapter serverAdapter;
 	private AddLayersListAdapter addLayersAdapter;
 	private Spinner spinner;
-	private boolean creatingAProject;
 	private Layer[] layersInProject;
+	private Project project;
+	private ArbiterDialogs arbiterDialogs;
 	
 	public static AddLayersDialog newInstance(String title, String ok, 
-			String cancel, int layout, boolean creatingAProject, Layer[] layersInProject){
+			String cancel, int layout, Layer[] layersInProject){
 		AddLayersDialog frag = new AddLayersDialog();
 		
 		frag.setTitle(title);
 		frag.setOk(ok);
 		frag.setCancel(cancel);
 		frag.setLayout(layout);
-		frag.setCreatingAProject(creatingAProject);
 		
 		frag.layersInProject = layersInProject;
+		frag.project = null;
 		
 		return frag;
 	}
 
+	public static AddLayersDialog newInstance(String title, String ok, 
+			String cancel, int layout, Project project){
+		AddLayersDialog frag = new AddLayersDialog();
+		
+		frag.setTitle(title);
+		frag.setOk(ok);
+		frag.setCancel(cancel);
+		frag.setLayout(layout);
+		frag.project = project;
+		frag.layersInProject = null;
+		
+		return frag;
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -70,15 +87,27 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		this.getActivity().getSupportLoaderManager().destroyLoader(R.id.loader_add_layers);
 	}
 	
+	private ArbiterDialogs getArbiterDialogs(){
+		if(arbiterDialogs == null){
+			arbiterDialogs = new ArbiterDialogs(getActivity().getApplicationContext().getResources(),
+								getActivity().getSupportFragmentManager());
+		}
+		
+		return arbiterDialogs;
+	}
+	
 	@Override
 	public void onPositiveClick() {
-		if(!creatingAProject){
+		// TODO: THIS IS GOING TO CHANGE...
+		// If project is null, then we're adding a layer in project
+		if(project == null){
 			// write the added layers to the database
 			final Context context = getActivity().getApplicationContext();
 			
 			final ArrayList<Layer> list = new ArrayList<Layer>();
 			ArrayList<Layer> checked = this.addLayersAdapter.getCheckedLayers();
 			
+			// Create a deep copy of the list of the checked layers
 			for(int i = 0; i < checked.size(); i++){
 				list.add(new Layer(checked.get(i)));
 			}
@@ -86,12 +115,17 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 			CommandExecutor.runProcess(new Runnable(){
 				@Override
 				public void run() {
-					GlobalDatabaseHelper helper = DbHelpers.getDbHelpers(context).getGlobalDbHelper();
-					helper.getLayersHelper().insert(helper.getWritableDatabase(), context, list);
+					long projectId = ArbiterProject.getArbiterProject().getOpenProject(context);
+					GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+					LayersHelper.getLayersHelper().insert(helper.getWritableDatabase(), context, list, projectId);
 				}
 				
 			});
 			
+		}else{
+			// Add the layers to the ProjectListItem
+			project.addLayers(this.addLayersAdapter.getCheckedLayers());
+			getArbiterDialogs().showGoOfflineDialog(project);
 		}
 	}
 
@@ -167,10 +201,6 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	
 	public ServerListAdapter getAdapter(){
 		return this.serverAdapter;
-	}
-	
-	public void setCreatingAProject(boolean creatingAProject){
-		this.creatingAProject = creatingAProject;
 	}
 	
 	public Layer[] getLayersInProject(){

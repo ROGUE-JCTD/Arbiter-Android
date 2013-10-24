@@ -5,6 +5,8 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.AddLayersDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.AddServerDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseAOIDialog;
@@ -14,7 +16,6 @@ import com.lmn.Arbiter_Android.Dialog.Dialogs.LayersDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ProjectNameDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ServersDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.WelcomeDialog;
-import com.lmn.Arbiter_Android.ListItems.Layer;
 
 public class ArbiterDialogs {
 	private Resources resources;
@@ -73,26 +74,41 @@ public class ArbiterDialogs {
 		dialog.show(fragManager, "serversDialog");
 	}
 	
-	public void showAddLayersDialog(boolean creatingAProject, Layer[] layersInProject){
+	public void showAddLayersDialog(Layer[] layersInProject){
 		String title = resources.getString(R.string.add_layers_dialog_title);
 		String ok = resources.getString(android.R.string.ok);
 		String cancel = resources.getString(android.R.string.cancel);
 		int layout = R.layout.add_layers_dialog;
 		
-		DialogFragment dialog = AddLayersDialog.
-				newInstance(title, ok, cancel, layout, 
-						creatingAProject, layersInProject);
+		DialogFragment dialog;
+		
+		dialog = AddLayersDialog.
+				newInstance(title, ok, cancel, layout, layersInProject);
 		
 		dialog.show(fragManager, "addLayersDialog");
 	}
 	
-	public void showGoOfflineDialog(){
+	public void showAddLayersDialog(Project project){
+		String title = resources.getString(R.string.add_layers_dialog_title);
+		String ok = resources.getString(android.R.string.ok);
+		String cancel = resources.getString(android.R.string.cancel);
+		int layout = R.layout.add_layers_dialog;
+		
+		DialogFragment dialog;
+		
+		dialog = AddLayersDialog.
+				newInstance(title, ok, cancel, layout, project);
+		
+		dialog.show(fragManager, "addLayersDialog");
+	}
+	
+	public void showGoOfflineDialog(Project project){
 		String title = resources.getString(R.string.go_offline_dialog_title);
 		String ok = resources.getString(android.R.string.ok);
 		String cancel = resources.getString(android.R.string.cancel);
 		int layout = R.layout.add_layers_dialog;
 		
-		DialogFragment dialog = GoOfflineDialog.newInstance(title, ok, cancel, layout);
+		DialogFragment dialog = GoOfflineDialog.newInstance(title, ok, cancel, layout, project);
 		dialog.show(fragManager, "goOfflineDialog");
 	}
 	

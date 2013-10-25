@@ -2,12 +2,17 @@ package com.lmn.Arbiter_Android.ListAdapters;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
+import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 public class ServerListAdapter extends BaseAdapter{
@@ -17,6 +22,7 @@ public class ServerListAdapter extends BaseAdapter{
 	private int itemLayout;
 	private int textId;
 	private int dropDownLayout;
+	private final Context context;
 	
 	public ServerListAdapter(Context context, int itemLayout, 
 			int textId){
@@ -26,6 +32,7 @@ public class ServerListAdapter extends BaseAdapter{
 			this.itemLayout = itemLayout;
 			this.textId = textId;
 			this.dropDownLayout = R.layout.drop_down_item;
+			this.context = context;
 	}
 	
 	public ServerListAdapter(Context context, int itemLayout, 
@@ -36,6 +43,7 @@ public class ServerListAdapter extends BaseAdapter{
 			this.itemLayout = itemLayout;
 			this.textId = textId;
 			this.dropDownLayout = dropDownLayout;
+			this.context = context;
 	}
 	
 	public void setData(Server[] data){
@@ -53,14 +61,36 @@ public class ServerListAdapter extends BaseAdapter{
 			view = inflater.inflate(itemLayout, null);
 		}
 		
-		Server listItem = items[position];
+		final Server server = items[position];
 		
-		if(listItem != null){
+		if(server != null){
 			TextView serverName = (TextView) view.findViewById(textId);
 			
 			if(serverName != null){
-				serverName.setText(listItem.getServerName());
+				serverName.setText(server.getServerName());
 			}
+			
+			ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteServer);
+			
+			if(deleteButton != null){
+            	deleteButton.setOnClickListener(new OnClickListener(){
+
+					@Override
+					public void onClick(View v) {
+						CommandExecutor.runProcess(new Runnable(){
+							@Override
+							public void run() {
+								
+								GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+								ServersHelper.getServersHelper().delete(helper.getWritableDatabase(), context, server);;
+								
+							}
+							
+						});
+					}
+            		
+            	});
+            }
 		}
 		
 		return view;

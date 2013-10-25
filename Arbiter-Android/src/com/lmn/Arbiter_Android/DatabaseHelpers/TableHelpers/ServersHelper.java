@@ -10,9 +10,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.BaseClasses.Server;
+import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 import com.lmn.Arbiter_Android.Loaders.ServersListLoader;
 
-public class ServersHelper implements ArbiterDatabaseHelper<Server, Server[]>, BaseColumns{
+public class ServersHelper implements BaseColumns{
 	public static final String SERVER_NAME = "server_name";
 	public static final String SERVER_URL = "url";
 	public static final String SERVER_USERNAME = "username";
@@ -110,9 +111,28 @@ public class ServersHelper implements ArbiterDatabaseHelper<Server, Server[]>, B
 		return serverIds;
 	}
 
-	@Override
-	public void delete(SQLiteDatabase db, Context context, Server[] list) {
-		// TODO Auto-generated method stub
+	public void delete(SQLiteDatabase db, Context context, Server server) {
+		Log.w("SERVERSHELPER", "SERVERSHELPER delete");
+		db.beginTransaction();
 		
+		try {
+			
+			String whereClause = _ID + "=?";
+			String[] whereArgs = {
+					Long.toString(server.getId())	
+			};
+			
+			int affectedRow = db.delete(SERVERS_TABLE_NAME, whereClause, whereArgs);
+			
+			Log.w("SERVERSHELPER", "SERVERSHELPER delete" + Integer.toString(affectedRow));
+			
+			db.setTransactionSuccessful();
+			
+			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ServersListLoader.SERVER_LIST_UPDATED));
+		} catch (Exception e){
+			e.printStackTrace();
+		} finally {
+			db.endTransaction();
+		}
 	}
 }

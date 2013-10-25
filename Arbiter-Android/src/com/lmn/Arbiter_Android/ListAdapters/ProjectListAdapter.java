@@ -54,14 +54,17 @@ public class ProjectListAdapter extends BaseAdapter{
 		view.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v){
-				Resources resources = activity.getResources();
-				String title = resources.getString(R.string.switch_project_title);
-				String ok = resources.getString(android.R.string.ok);
-				String cancel = resources.getString(android.R.string.cancel);
-				int layout = R.layout.switch_project;
-				
-				DialogFragment dialog = SwitchProjectDialog.newInstance(title, ok, cancel, layout, project.getId());
-				dialog.show(activity.getSupportFragmentManager(), "switchProjectDialog");
+				if(project.getId() != ArbiterProject.
+						getArbiterProject().getOpenProject(context)){
+					Resources resources = activity.getResources();
+					String title = resources.getString(R.string.switch_project_title);
+					String ok = resources.getString(android.R.string.ok);
+					String cancel = resources.getString(android.R.string.cancel);
+					int layout = R.layout.switch_project;
+					
+					DialogFragment dialog = SwitchProjectDialog.newInstance(title, ok, cancel, layout, project.getId());
+					dialog.show(activity.getSupportFragmentManager(), "switchProjectDialog");
+				}
 			}
 		});
 		

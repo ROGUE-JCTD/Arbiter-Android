@@ -21,7 +21,7 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 	
 	private ProjectsHelper(){}
 	
-	public static ProjectsHelper helper = null;
+	private static ProjectsHelper helper = null;
 	
 	public static ProjectsHelper getProjectsHelper(){
 		if(helper == null){

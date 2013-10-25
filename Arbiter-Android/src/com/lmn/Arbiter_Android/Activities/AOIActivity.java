@@ -8,10 +8,15 @@ import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.api.CordovaInterface;
 import org.apache.cordova.api.CordovaPlugin;
 
+import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.util.Log;
@@ -46,6 +51,27 @@ public class AOIActivity extends Activity implements CordovaInterface{
         	@Override
         	public void onClick(View v){
         		activity.finish();
+        	}
+        });
+        
+        View ok = (View) findViewById(R.id.okButton);
+        
+        ok.setOnClickListener(new OnClickListener(){
+        	@Override
+        	public void onClick(View v){
+        		CommandExecutor.runProcess(new Runnable(){
+
+    				@Override
+    				public void run() {
+    					GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(activity.getApplicationContext());
+    					ProjectsHelper.getProjectsHelper().insert(helper.
+    							getWritableDatabase(), activity.getApplicationContext(),
+    							ArbiterProject.getArbiterProject().getNewProject());
+    					
+    					activity.finish();
+    				}
+    				
+    			});
         	}
         });
 	}

@@ -3,15 +3,14 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs;
 import android.view.View;
 import android.widget.EditText;
 
+import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 
 public class ProjectNameDialog extends ArbiterDialogFragment{
 	private View view;
 	private ArbiterDialogs arbiterDialogs;
-	private Project project;
 	
 	public static ProjectNameDialog newInstance(String title, String ok, 
 			String cancel, int layout){
@@ -38,9 +37,10 @@ public class ProjectNameDialog extends ArbiterDialogFragment{
 	public void onPositiveClick() {
 		EditText projectNameField = (EditText) view.findViewById(R.id.project_name_edittext);
 		
-		project = new Project(-1, projectNameField.getText().toString());
+		ArbiterProject.getArbiterProject().
+			createNewProject(projectNameField.getText().toString());
 		
-		getArbiterDialogs().showAddLayersDialog(project);
+		getArbiterDialogs().showAddLayersDialog(true);
 	}
 
 	@Override

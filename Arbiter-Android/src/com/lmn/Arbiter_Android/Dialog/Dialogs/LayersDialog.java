@@ -21,7 +21,6 @@ public class LayersDialog extends ArbiterDialogFragment{
 	private LayerListAdapter layersAdapter;
 	@SuppressWarnings("unused")
 	private LayerLoaderCallbacks layerLoaderCallbacks;
-	private long projectId;
 	
 	public static LayersDialog newInstance(String title, String ok, 
 			String cancel, int layout){
@@ -75,8 +74,6 @@ public class LayersDialog extends ArbiterDialogFragment{
 	@Override
 	public void beforeCreateDialog(View view) {
 		if(view != null){
-			projectId = ArbiterProject.getArbiterProject().getOpenProject(
-					getActivity().getApplicationContext());
 			populateListView(view);
 			registerListeners(view);
 		}

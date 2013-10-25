@@ -3,11 +3,11 @@ package com.lmn.Arbiter_Android.BaseClasses;
 import java.util.ArrayList;
 
 public class Project {
-	private int id;
+	private long id;
 	private String projectName;
 	private ArrayList<Layer> layers;
 	
-	public Project(int projectId, String projectName){
+	public Project(long projectId, String projectName){
 		this.projectName = projectName;
 		this.layers = new ArrayList<Layer>();
 		this.id = projectId;
@@ -32,7 +32,7 @@ public class Project {
 		layers.add(layer);
 	}
 	
-	public int getId(){
+	public long getId(){
 		return id;
 	}
 	

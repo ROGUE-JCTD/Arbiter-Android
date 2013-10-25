@@ -88,7 +88,7 @@ public class ArbiterDialogs {
 		dialog.show(fragManager, "addLayersDialog");
 	}
 	
-	public void showAddLayersDialog(Project project){
+	public void showAddLayersDialog(boolean creatingProject){
 		String title = resources.getString(R.string.add_layers_dialog_title);
 		String ok = resources.getString(android.R.string.ok);
 		String cancel = resources.getString(android.R.string.cancel);
@@ -97,18 +97,18 @@ public class ArbiterDialogs {
 		DialogFragment dialog;
 		
 		dialog = AddLayersDialog.
-				newInstance(title, ok, cancel, layout, project);
+				newInstance(title, ok, cancel, layout, creatingProject);
 		
 		dialog.show(fragManager, "addLayersDialog");
 	}
 	
-	public void showGoOfflineDialog(Project project){
+	public void showGoOfflineDialog(boolean creatingProject){
 		String title = resources.getString(R.string.go_offline_dialog_title);
 		String ok = resources.getString(android.R.string.ok);
 		String cancel = resources.getString(android.R.string.cancel);
 		int layout = R.layout.add_layers_dialog;
 		
-		DialogFragment dialog = GoOfflineDialog.newInstance(title, ok, cancel, layout, project);
+		DialogFragment dialog = GoOfflineDialog.newInstance(title, ok, cancel, layout, creatingProject);
 		dialog.show(fragManager, "goOfflineDialog");
 	}
 	

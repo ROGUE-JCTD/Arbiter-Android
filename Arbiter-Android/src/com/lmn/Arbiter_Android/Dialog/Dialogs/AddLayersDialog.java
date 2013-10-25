@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Activities.AOIActivity;
+import com.lmn.Arbiter_Android.Activities.ProjectsActivity;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
@@ -40,7 +42,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	private AddLayersListAdapter addLayersAdapter;
 	private Spinner spinner;
 	private Layer[] layersInProject;
-	private Project project;
+	private boolean creatingProject;
 	private ArbiterDialogs arbiterDialogs;
 	
 	public static AddLayersDialog newInstance(String title, String ok, 
@@ -53,20 +55,19 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		frag.setLayout(layout);
 		
 		frag.layersInProject = layersInProject;
-		frag.project = null;
 		
 		return frag;
 	}
 
 	public static AddLayersDialog newInstance(String title, String ok, 
-			String cancel, int layout, Project project){
+			String cancel, int layout, boolean creatingProject){
 		AddLayersDialog frag = new AddLayersDialog();
 		
 		frag.setTitle(title);
 		frag.setOk(ok);
 		frag.setCancel(cancel);
 		frag.setLayout(layout);
-		frag.project = project;
+		frag.creatingProject = creatingProject;
 		frag.layersInProject = null;
 		
 		return frag;
@@ -87,20 +88,11 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		this.getActivity().getSupportLoaderManager().destroyLoader(R.id.loader_add_layers);
 	}
 	
-	private ArbiterDialogs getArbiterDialogs(){
-		if(arbiterDialogs == null){
-			arbiterDialogs = new ArbiterDialogs(getActivity().getApplicationContext().getResources(),
-								getActivity().getSupportFragmentManager());
-		}
-		
-		return arbiterDialogs;
-	}
-	
 	@Override
 	public void onPositiveClick() {
 		// TODO: THIS IS GOING TO CHANGE...
 		// If project is null, then we're adding a layer in project
-		if(project == null){
+		if(!creatingProject){
 			// write the added layers to the database
 			final Context context = getActivity().getApplicationContext();
 			
@@ -124,8 +116,9 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 			
 		}else{
 			// Add the layers to the ProjectListItem
-			project.addLayers(this.addLayersAdapter.getCheckedLayers());
-			getArbiterDialogs().showGoOfflineDialog(project);
+			ArbiterProject.getArbiterProject().getNewProject().addLayers(this.addLayersAdapter.getCheckedLayers());
+			Intent projectsIntent = new Intent(getActivity(), AOIActivity.class);
+    		this.startActivity(projectsIntent);
 		}
 	}
 

@@ -107,7 +107,7 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 			
 			String whereClause = ProjectsHelper._ID + "=?";
 			String[] whereArgs = new String[1];
-			whereArgs[0] = Integer.valueOf(project.getId()).toString();;
+			whereArgs[0] = Long.toString(project.getId());
 			
 			int affectedRow = db.delete(PROJECTS_TABLE_NAME, whereClause, whereArgs);
 			

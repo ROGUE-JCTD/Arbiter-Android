@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v4.app.FragmentActivity;
 
+import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 
@@ -16,6 +17,7 @@ public class ArbiterProject {
 	private ArbiterProject(){}
 	
 	private static ArbiterProject project = null;
+	private Project newProject;
 	
 	public static ArbiterProject getArbiterProject(){
 		if(project == null){
@@ -48,5 +50,13 @@ public class ArbiterProject {
     	}
 		
 		return projectId;
+	}
+	
+	public void createNewProject(String name){
+		newProject = new Project(-1, name);
+	}
+	
+	public Project getNewProject(){
+		return newProject;
 	}
 }

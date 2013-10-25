@@ -111,11 +111,13 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 			
 			int affectedRow = db.delete(PROJECTS_TABLE_NAME, whereClause, whereArgs);
 			
+			Log.w("PROJECTSHELPER", "PROJECTSHELPER delete" + Integer.valueOf(affectedRow).toString());
+			
+			ensureProjectExists(db, context);
+			
 			db.setTransactionSuccessful();
 			
 			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));
-			
-			Log.w("PROJECTSHELPER", "PROJECTSHELPER delete" + Integer.valueOf(affectedRow).toString());
 		} catch (Exception e){
 			e.printStackTrace();
 		} finally {

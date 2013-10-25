@@ -150,8 +150,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 			});
 		}
 		
-		this.serverAdapter = new ServerListAdapter(this.getActivity().
-				getApplicationContext(), R.layout.spinner_item, 
+		this.serverAdapter = new ServerListAdapter(this.getActivity(), R.layout.spinner_item, 
 				R.id.spinnerText, R.layout.drop_down_item);
 		
 		this.spinner = (Spinner) view.findViewById(R.id.serversSpinner);

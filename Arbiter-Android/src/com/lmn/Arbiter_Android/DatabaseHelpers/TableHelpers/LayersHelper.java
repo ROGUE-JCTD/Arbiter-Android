@@ -54,14 +54,22 @@ public class LayersHelper implements BaseColumns{
 		
 		db.execSQL(sql);
 		
-		createDeleteLayersTrigger(db);
+		createDeleteLayersByProjectTrigger(db);
+		createDeleteLayersByServerTrigger(db);
 	}
 	
-	private void createDeleteLayersTrigger(SQLiteDatabase db){
+	private void createDeleteLayersByProjectTrigger(SQLiteDatabase db){
 		db.execSQL("CREATE TRIGGER delete_layers_by_project BEFORE DELETE ON " +
 					ProjectsHelper.PROJECTS_TABLE_NAME + " FOR EACH ROW BEGIN " +
 					"DELETE FROM " + LAYERS_TABLE_NAME + " WHERE " + 
 					PROJECT_ID + " = " + "OLD." + ProjectsHelper._ID + "; END;");
+	}
+	
+	private void createDeleteLayersByServerTrigger(SQLiteDatabase db){
+		db.execSQL("CREATE TRIGGER delete_layers_by_server BEFORE DELETE ON " +
+					ServersHelper.SERVERS_TABLE_NAME + " FOR EACH ROW BEGIN " +
+					"DELETE FROM " + LAYERS_TABLE_NAME + " WHERE " + 
+					SERVER_ID + " = " + "OLD." + ServersHelper._ID + "; END;");
 	}
 	
 	public Layer[] getAll(SQLiteDatabase db, long projectId){

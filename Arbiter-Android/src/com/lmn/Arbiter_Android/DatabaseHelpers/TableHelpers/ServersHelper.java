@@ -1,7 +1,11 @@
 package com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -9,6 +13,7 @@ import android.provider.BaseColumns;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 import com.lmn.Arbiter_Android.Loaders.ServersListLoader;
@@ -134,5 +139,29 @@ public class ServersHelper implements BaseColumns{
 		} finally {
 			db.endTransaction();
 		}
+	}
+	
+	public void deletionAlert(Activity activity, final Runnable deleteIt){
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		
+		builder.setTitle(R.string.delete_server_title);
+		builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
+		builder.setMessage(R.string.delete_server_alert);
+		builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener(){
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				deleteIt.run();
+			}
+		});
+		
+		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener(){
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				
+			}
+		});
+		
+		builder.create().show();
 	}
 }

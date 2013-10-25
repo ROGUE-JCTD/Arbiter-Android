@@ -61,8 +61,7 @@ public class ServersDialog extends ArbiterDialogFragment{
 		
 		// Initialize the list of servers
 		this.listView = (ListView) view.findViewById(R.id.serverListView);
-		this.serverAdapter = new ServerListAdapter(this.getActivity().
-				getApplicationContext(), R.layout.server_list_item, R.id.serverName);
+		this.serverAdapter = new ServerListAdapter(this.getActivity(), R.layout.server_list_item, R.id.serverName);
 		this.listView.setAdapter(this.serverAdapter);
 		    
 		ImageButton button = (ImageButton) view.findViewById(R.id.add_server_button);

@@ -6,7 +6,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 
-import android.content.Context;
+import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,28 +22,29 @@ public class ServerListAdapter extends BaseAdapter{
 	private int itemLayout;
 	private int textId;
 	private int dropDownLayout;
-	private final Context context;
+	private final Activity activity;
 	
-	public ServerListAdapter(Context context, int itemLayout, 
+	public ServerListAdapter(Activity activity, int itemLayout, 
 			int textId){
 		
-			inflater = LayoutInflater.from(context);
+			inflater = LayoutInflater.from(activity.getApplicationContext());
 			items = new Server[0];
 			this.itemLayout = itemLayout;
 			this.textId = textId;
 			this.dropDownLayout = R.layout.drop_down_item;
-			this.context = context;
+			this.activity = activity;
 	}
 	
-	public ServerListAdapter(Context context, int itemLayout, 
+	public ServerListAdapter(Activity activity, int itemLayout, 
 			int textId, Integer dropDownLayout){
 		
-			inflater = LayoutInflater.from(context);
+			inflater = LayoutInflater.from(activity.getApplicationContext());
 			items = new Server[0];
 			this.itemLayout = itemLayout;
 			this.textId = textId;
 			this.dropDownLayout = dropDownLayout;
-			this.context = context;
+			this.activity = activity;
+			
 	}
 	
 	public void setData(Server[] data){
@@ -77,15 +78,24 @@ public class ServerListAdapter extends BaseAdapter{
 
 					@Override
 					public void onClick(View v) {
-						CommandExecutor.runProcess(new Runnable(){
+						
+						ServersHelper.getServersHelper().deletionAlert(activity, new Runnable(){
+
 							@Override
 							public void run() {
-								
-								GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
-								ServersHelper.getServersHelper().delete(helper.getWritableDatabase(), context, server);;
-								
+								CommandExecutor.runProcess(new Runnable(){
+									@Override
+									public void run() {
+										
+										GlobalDatabaseHelper helper = GlobalDatabaseHelper.
+												getGlobalHelper(activity.getApplicationContext());
+										ServersHelper.getServersHelper().delete(helper.getWritableDatabase(),
+												activity.getApplicationContext(), server);;
+										
+									}
+									
+								});
 							}
-							
 						});
 					}
             		

@@ -4,7 +4,8 @@
     <string name="app_name">Arbiter-Android</string>
     <string name="action_findme">Find me</string>
     <string name="default_project_name">MyProject</string>
-
+	<string name="delete">Delete</string>
+	
     <!-- MAP ACTIVITY STRINGS -->
     <string name="map_activity_name">Arbiter</string>
     <string name="action_new_feature">Draw</string>
@@ -55,7 +56,8 @@
 
     <string name="server_dialog_title">Servers</string>
     <string name="add_server_button">Add Server</string>
-
+    <string name="delete_server_alert">This will delete all layers in all projects associated with this server!</string>
+	<string name="delete_server_title">Warning!!!</string>
     <!-- ADD SERVER DIALOG STRINGS -->
 
     <string name="add_server_dialog_title">Add Server</string>

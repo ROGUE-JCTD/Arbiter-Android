@@ -11,10 +11,12 @@ import org.apache.cordova.CordovaWebView;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v4.app.FragmentActivity;
@@ -51,10 +53,10 @@ public class MapActivity extends FragmentActivity implements CordovaInterface{
         String url = "file:///android_asset/www/index.html";
         cordovaWebview.loadUrl(url, 5000);
         
-        if(!welcomed){
+       /* if(!welcomed){
         	displayWelcomeDialog();
         	welcomed = true;
-        }
+        }*/
     }
 
     public void Init(Bundle savedInstanceState){
@@ -80,12 +82,28 @@ public class MapActivity extends FragmentActivity implements CordovaInterface{
      * Set listeners
      */
     public void setListeners(){
-    	ImageButton imgButton = (ImageButton) findViewById(R.id.layersButton);
+    	ImageButton layersButton = (ImageButton) findViewById(R.id.layersButton);
     	
-    	imgButton.setOnClickListener(new OnClickListener(){
+    	layersButton.setOnClickListener(new OnClickListener(){
     		@Override
     		public void onClick(View v){
     			dialogs.showLayersDialog();
+    		}
+    	});
+    	
+    	ImageButton aoiButton = (ImageButton) findViewById(R.id.AOIButton);
+    	
+    	final Context context = this.getApplicationContext();
+    	
+    	aoiButton.setOnClickListener(new OnClickListener(){
+    		@Override
+    		public void onClick(View v){
+    			GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+    			String aoi = ProjectsHelper.getProjectsHelper().getProjectAOI(
+    					helper.getWritableDatabase(), context, 
+    					ArbiterProject.getArbiterProject().getOpenProject(context));
+    			
+    			cordovaWebview.loadUrl("javascript:app.zoomToAOI(" + aoi + ")");
     		}
     	});
     }

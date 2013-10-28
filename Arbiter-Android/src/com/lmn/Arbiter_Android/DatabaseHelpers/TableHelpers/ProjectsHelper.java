@@ -18,6 +18,7 @@ import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, BaseColumns{
 	public static final String PROJECT_NAME = "name";
 	public static final String PROJECTS_TABLE_NAME = "projects";
+	public static final String PROJECT_AOI = "aoi";
 	
 	private ProjectsHelper(){}
 	
@@ -35,7 +36,8 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 		String sql = "CREATE TABLE " + PROJECTS_TABLE_NAME + " (" +
 					_ID +
 					" INTEGER PRIMARY KEY AUTOINCREMENT, " + 
-					ProjectsHelper.PROJECT_NAME + " TEXT);";
+					PROJECT_NAME + " TEXT, " +
+					PROJECT_AOI + " TEXT);";
 		
 		Log.w("PROJECTSHELPER", "PROJECTSHELPER : " + sql);
 		db.execSQL(sql);
@@ -45,7 +47,8 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 		// Projection - columns to get back
 		String[] columns = {
 				_ID, // 0
-				ProjectsHelper.PROJECT_NAME // 1
+				PROJECT_NAME, // 1
+				PROJECT_AOI // 2
 		};
 		
 		// How to sort the results
@@ -59,7 +62,8 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 		int i = 0;
 		//Traverse the cursors to populate the projects array
 		for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-			projects[i] = new Project(cursor.getInt(0), cursor.getString(1));
+			projects[i] = new Project(cursor.getInt(0), 
+					cursor.getString(1), cursor.getString(2));
 			i++;
 		}
 		
@@ -76,7 +80,8 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 		try {
 			ContentValues values = new ContentValues();
 			values.put(PROJECT_NAME, newProject.getProjectName());
-				
+			values.put(PROJECT_AOI, newProject.getAOI());
+			
 			projectId[0] = db.insert(PROJECTS_TABLE_NAME, null, values);
 			
 			if(projectId[0] != -1){
@@ -127,6 +132,7 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 		
 	}
 	
+	//TODO NEED TO FIX THE AOI THATS INSERTED INTO THE DEFAULT PROJECT
 	public long ensureProjectExists(SQLiteDatabase db, Context context){
     	String[] columns = {
     		ProjectsHelper._ID
@@ -138,11 +144,35 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
     	long[] projectId = {-1};
     	
     	if(cursor.getCount() < 1){
-    		projectId = insert(db, context, new Project(-1, context.getResources().getString(R.string.default_project_name)));
+    		projectId = insert(db, context, new Project(-1, context.getResources().getString(R.string.default_project_name), ""));
     	}
     	
     	cursor.close();
     	
     	return projectId[0];
     }
+	
+	public String getProjectAOI(SQLiteDatabase db, Context context, long projectId){
+		String[] columns = {
+			PROJECT_AOI	// 0
+		};
+		
+		String where = ProjectsHelper._ID + "=?";
+		String[] whereArgs = {
+				Long.toString(projectId)	
+		};
+		
+		Cursor cursor = db.query(PROJECTS_TABLE_NAME, columns, where, whereArgs, null, null, null);
+		boolean hasResult = cursor.moveToFirst();
+		String aoi = "";
+		
+		if(hasResult){
+			aoi = cursor.getString(0);
+			Log.w("PROJECTSHELPER", "GETPROJECTSAOI: " + aoi);
+		}
+		
+		cursor.close();
+		
+		return aoi;
+	}
 }

@@ -16,7 +16,8 @@
     <string name="layers_button">Layers</string>
     <string name="sync_button">Sync</string>
     <string name="location_button">Find me</string>
-
+	<string name="aoi_button">Zoom to AOI</string>
+	
     <!-- PROJECTS ACTIVITY STRINGS -->
     <string name="projects_activity_name">Projects</string>
     <string name="delete_project">Delete project</string>

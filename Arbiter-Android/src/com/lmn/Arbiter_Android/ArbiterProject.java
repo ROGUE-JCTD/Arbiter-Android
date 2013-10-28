@@ -53,7 +53,7 @@ public class ArbiterProject {
 	}
 	
 	public void createNewProject(String name){
-		newProject = new Project(-1, name);
+		newProject = new Project(-1, name, "");
 	}
 	
 	public Project getNewProject(){

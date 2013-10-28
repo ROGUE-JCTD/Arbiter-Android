@@ -16,7 +16,6 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 
 import android.os.Bundle;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.util.Log;
@@ -38,6 +37,7 @@ public class AOIActivity extends Activity implements CordovaInterface{
 		Config.init(this);
 		
 		cordovaWebview = (CordovaWebView) findViewById(R.id.aoiWebView);
+		//final CordovaWebView webview = cordovaWebview;
         
         
         String url = "file:///android_asset/www/index.html";
@@ -59,19 +59,7 @@ public class AOIActivity extends Activity implements CordovaInterface{
         ok.setOnClickListener(new OnClickListener(){
         	@Override
         	public void onClick(View v){
-        		CommandExecutor.runProcess(new Runnable(){
-
-    				@Override
-    				public void run() {
-    					GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(activity.getApplicationContext());
-    					ProjectsHelper.getProjectsHelper().insert(helper.
-    							getWritableDatabase(), activity.getApplicationContext(),
-    							ArbiterProject.getArbiterProject().getNewProject());
-    					
-    					activity.finish();
-    				}
-    				
-    			});
+        		cordovaWebview.loadUrl("javascript:app.setNewProjectsAOI()");
         	}
         });
 	}

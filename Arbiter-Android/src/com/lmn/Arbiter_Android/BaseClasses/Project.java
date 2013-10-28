@@ -6,22 +6,33 @@ public class Project {
 	private long id;
 	private String projectName;
 	private ArrayList<Layer> layers;
+	private String aoi;
 	
-	public Project(long projectId, String projectName){
+	public Project(long projectId, String projectName, String aoi){
 		this.projectName = projectName;
 		this.layers = new ArrayList<Layer>();
 		this.id = projectId;
+		this.aoi = aoi;
 	}
 	
 	public Project(Project project){
 		this.projectName = project.getProjectName();
 		this.id = project.getId();
+		this.aoi = project.getAOI();
 		
 		this.layers = new ArrayList<Layer>();
 		ArrayList<Layer> pLayers = project.getLayers();
 		for(int i = 0; i < pLayers.size(); i++){
 			this.layers.add(new Layer(pLayers.get(i)));
 		}
+	}
+	
+	public String getAOI(){
+		return this.aoi;
+	}
+	
+	public void setAOI(String aoi){
+		this.aoi = aoi;
 	}
 	
 	public String getProjectName(){

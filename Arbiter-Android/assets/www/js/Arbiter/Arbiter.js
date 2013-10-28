@@ -40,6 +40,14 @@ Arbiter.Map = (function(){
 		
 		getMap: function(){
 			return map; 
+		},
+		
+		getCurrentExtent: function(){
+			return map.getExtent();
+		},
+		
+		zoomToExtent: function(left, bottom, right, top){
+			map.zoomToExtent([left, bottom, right, top]);
 		}
 	};
 })();
@@ -48,40 +56,6 @@ Arbiter.Map.Layers = (function(){
 	
 	return {
 		
-		/**
-		 * Gets a list of layers from the url
-		 */
-		getLayers: function(url){
-			/*var request = new OpenLayers.Request.GET({
-				url: serverInfo.url + "/wms?service=wms&version=1.1.1&request=getCapabilities",
-				headers: {
-					Authorization : 'Basic ' + encodedCredentials
-				},
-				user: serverInfo.username,
-				password: serverInfo.password,
-				callback: function(response){
-					var capes = capabilitiesFormatter.read(response.responseText);
-					
-					if(capes && capes.capability && capes.capability.layers){
-						var layer;
-						var layersrs;
-						var layerList = capes.capability.layers;
-						layerList.sort(function(a, b){
-							var titleA = a.title.toLowerCase();
-							var titleB = b.title.toLowerCase();
-							if(titleA < titleB) return -1;
-							if(titleA > titleB) return 1;
-							return 0;
-						});
-					}
-				}*/
-			
-			return [{
-				layername: "layer1"
-			},{
-				layername: "layer2"
-			}];
-		},
 		
 		/**
 		 * Create a layer
@@ -104,13 +78,11 @@ Arbiter.Map.Layers = (function(){
 		},
 		
 		/**
-		 * 
+		 * Remove the layer from the map
+		 * @param layer Layer to remove from the map
 		 */
-		removeLayer: function(){
-			
+		removeLayer: function(layer){
+			Arbiter.Map.getMap().removeLayer(layer);
 		}
 	};
 })();
-
-
-Arbiter.Init();

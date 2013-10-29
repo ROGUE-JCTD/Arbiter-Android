@@ -9,17 +9,19 @@ import android.util.Log;
 
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 
-public class Map {
+public class Map{
 	private CordovaWebView webview;
 	
 	public Map(CordovaWebView webview){
 		this.webview = webview;
 	}
 	
-	public void loadMap(Layer[] layers){
+	public void loadMap(final Layer[] layers){
+		Log.w("MAP", "LOADMAP");
 		try {
-			webview.loadUrl("javascript:Arbiter.waitForInit(new Function(app.loadMap(" 
-					+ getLayersJSON(layers) + ")))");
+			webview.loadUrl("javascript:app.loadMap(" 
+					+ getLayersJSON(layers) + ")");
+			
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

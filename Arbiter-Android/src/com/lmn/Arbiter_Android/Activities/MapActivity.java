@@ -9,6 +9,7 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
+import com.lmn.Arbiter_Android.Map;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
@@ -33,8 +34,9 @@ public class MapActivity extends FragmentActivity implements CordovaInterface{
     private ArbiterDialogs dialogs;
     private boolean welcomed;
     private String TAG = "MAP_ACTIVITY";
-    @SuppressWarnings("unused")
+    private ArbiterProject arbiterProject;
 	private MapLoaderCallbacks mapLoaderCallbacks;
+    private static final String cordovaUrl = "file:///android_asset/www/index.html";
     
     // For CORDOVA
     private CordovaWebView cordovaWebview;
@@ -52,16 +54,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface{
 
         cordovaWebview = (CordovaWebView) findViewById(R.id.webView1);
         
-        
-        String url = "file:///android_asset/www/index.html";
-        cordovaWebview.loadUrl(url, 5000);
-        
-        this.mapLoaderCallbacks = new MapLoaderCallbacks(this, cordovaWebview , R.id.loader_map);
-        
-       /* if(!welcomed){
-        	displayWelcomeDialog();
-        	welcomed = true;
-        }*/
+        cordovaWebview.loadUrl(cordovaUrl, 5000);
     }
 
     public void Init(Bundle savedInstanceState){
@@ -80,7 +73,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface{
     }
     
     public void InitArbiterProject(){
-    	ArbiterProject.getArbiterProject().getOpenProject(getApplicationContext());
+    	arbiterProject = ArbiterProject.getArbiterProject();
+    	arbiterProject.getOpenProject(getApplicationContext());
     }
     
     /**
@@ -183,14 +177,18 @@ public class MapActivity extends FragmentActivity implements CordovaInterface{
 
     @Override
     protected void onPause() {
-            super.onPause();
-            Log.d(TAG, "onPause");
+    	super.onPause();
+        Log.d(TAG, "onPause");  
     }
     
     @Override 
     protected void onResume(){
     	super.onResume();
     	Log.d(TAG, "onResume");
+    	if((arbiterProject != null) && !arbiterProject.isSameProject() && (this.mapLoaderCallbacks != null)){
+    		this.mapLoaderCallbacks.loadMap();
+    		arbiterProject.makeSameProject();
+    	}
     }
     
     @Override
@@ -225,6 +223,11 @@ public class MapActivity extends FragmentActivity implements CordovaInterface{
 		Log.d(TAG, message);
         if (message.equalsIgnoreCase("exit")) {
                 super.finish();
+        }else if(message.equals("onPageFinished")){
+        	if(obj instanceof String && ((String) obj).equals(cordovaUrl)){
+        		this.mapLoaderCallbacks = new MapLoaderCallbacks(this, cordovaWebview , R.id.loader_map);
+                this.arbiterProject.makeSameProject();	
+        	}
         }
         return null;
 	}

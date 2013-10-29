@@ -12,6 +12,12 @@ public class ArbiterProject {
 	private static final String ARBITER_PREFERENCES = "ArbiterPreferences";
 	private static final String OPEN_PROJECT = "openProject";
 	
+	// The id of the project that was open.
+	// This is used in MapActivity to decide whether or not
+	// to load the map
+	private long oldProjectId = -1;
+	
+	// The id of the project that is open
 	private long projectId = -1;
 	
 	private ArbiterProject(){}
@@ -50,6 +56,14 @@ public class ArbiterProject {
     	}
 		
 		return projectId;
+	}
+	
+	public boolean isSameProject(){
+		return oldProjectId == projectId;
+	}
+	
+	public void makeSameProject(){	
+		oldProjectId = projectId;
 	}
 	
 	public void createNewProject(String name){

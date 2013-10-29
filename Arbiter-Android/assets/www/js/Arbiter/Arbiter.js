@@ -1,38 +1,8 @@
 Arbiter = (function(){
-	var inited = false;
-	
-	// List of functions to call
-	var funcToCall = [];
-	
-	/**
-	 * Execute the functions that depend on init
-	 */
-	var executeFuncs = function(){
-		inited = true;
-		
-		for(var i = 0; i < funcToCall.length; i++){
-			funcToCall.call();
-		}
-	};
 	
 	return {
 		Init: function(){
 			Arbiter.Map.createMap();
-			
-			executeFuncs();
-		},
-		
-		/**
-		 * Make sure the app has been initialized, before executing func.
-		 * This is necessary for the loading calls on the native side.
-		 */
-		waitForInit: function(func){
-			if(inited === false){
-				funcToCall.push(func);
-				return;
-			}
-			
-			func.call();
 		}
 	};
 })();
@@ -51,6 +21,7 @@ Arbiter.Map = (function(){
 				displayProjection: WGS84,
 				theme: null,
 				numZoomLevels: 19,
+				allOverlayers: true,
 				controls: [
 				   // new OpenLayers.Control.Attribution(),
 				    new OpenLayers.Control.TouchNavigation({
@@ -88,7 +59,6 @@ Arbiter.Map.Layers = (function(){
 	
 	return {
 		
-		
 		/**
 		 * Create a layer
 		 */
@@ -100,6 +70,11 @@ Arbiter.Map.Layers = (function(){
 			});
 			
 			return layer;
+		},
+		
+		setNewBaseLayer: function(layer){
+			var map = Arbiter.Map.getMap();
+			map.setBaseLayer(layer);
 		},
 		
 		/**
@@ -114,7 +89,14 @@ Arbiter.Map.Layers = (function(){
 		 * @param layer Layer to remove from the map
 		 */
 		removeLayer: function(layer){
-			Arbiter.Map.getMap().removeLayer(layer);
+			var isBaseLayer = layer.isBaseLayer;
+			var map = Arbiter.Map.getMap();
+			
+			map.removeLayer(layer);
+			
+			if(map.layers.length > 0 && isBaseLayer){
+				setNewBaseLayer(layer);
+			}
 		},
 		
 		/**

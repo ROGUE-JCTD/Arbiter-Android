@@ -1,35 +1,31 @@
 package com.lmn.Arbiter_Android.Loaders;
 
 import android.content.Context;
-import android.content.IntentFilter;
 import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
-import com.lmn.Arbiter_Android.BroadcastReceivers.ProjectBroadcastReceiver;
-//import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 
 public class MapLoader extends AsyncTaskLoader<Layer[]> {
 	public static final String PROJECT_LIST_UPDATED = "PROJECT_LIST_UPDATED";
 	
-	private ProjectBroadcastReceiver<Layer[]> loaderBroadcastReceiver = null;
 	private Layer[] layers;
 	private GlobalDatabaseHelper globalDbHelper = null;
-	private long projectId;
+	private Context context;
 	
 	public MapLoader(Context context) {
 		super(context);
-		this.projectId = ArbiterProject.getArbiterProject().getOpenProject(context);
+		this.context = context;
 		globalDbHelper = GlobalDatabaseHelper.getGlobalHelper(context);
 	}
 
 	@Override
 	public Layer[] loadInBackground() {
 		Layer[] layers = LayersHelper.getLayersHelper().
-				getAll(globalDbHelper.getWritableDatabase(), projectId);
+				getAll(globalDbHelper.getWritableDatabase(), 
+						ArbiterProject.getArbiterProject().getOpenProject(context));
 		
 		return layers;
 	}
@@ -75,13 +71,6 @@ public class MapLoader extends AsyncTaskLoader<Layer[]> {
             deliverResult(layers);
         }
 
-        // Start watching for changes in the app data.
-        if (loaderBroadcastReceiver == null) {
-        	loaderBroadcastReceiver = new ProjectBroadcastReceiver<Layer[]>(this);
-        	LocalBroadcastManager.getInstance(getContext()).
-        		registerReceiver(loaderBroadcastReceiver, new IntentFilter(PROJECT_LIST_UPDATED));
-        }
-
         if (takeContentChanged() || layers == null) {
             // If the data has changed since the last time it was loaded
             // or is not currently available, start a load.
@@ -122,13 +111,6 @@ public class MapLoader extends AsyncTaskLoader<Layer[]> {
         if (layers != null) {
             onReleaseResources(layers);
             layers = null;
-        }
-
-        // Stop monitoring for changes.
-        if (loaderBroadcastReceiver != null) {
-        	LocalBroadcastManager.getInstance(getContext()).
-        		unregisterReceiver(loaderBroadcastReceiver);
-            loaderBroadcastReceiver = null;
         }
     }
 

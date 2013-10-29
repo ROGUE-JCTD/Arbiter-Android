@@ -14,7 +14,13 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 
 public class ArbiterCordova extends CordovaPlugin{
-
+	private final ArbiterProject arbiterProject;
+	
+	public ArbiterCordova(){
+		super();
+		this.arbiterProject = ArbiterProject.getArbiterProject();
+	}
+	
 	@Override
 	public boolean execute(String action, JSONArray args,
 			final CallbackContext callbackContext) throws JSONException {
@@ -52,7 +58,7 @@ public class ArbiterCordova extends CordovaPlugin{
     					GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(activity.getApplicationContext());
     					ProjectsHelper.getProjectsHelper().insert(helper.
     							getWritableDatabase(), activity.getApplicationContext(),
-    							ArbiterProject.getArbiterProject().getNewProject());
+    							arbiterProject.getNewProject());
     					
     					callbackContext.success(); // Thread-safe.
     					

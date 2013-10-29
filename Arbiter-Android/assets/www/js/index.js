@@ -21,8 +21,6 @@ var app = (function(){
 	     * On device ready
 	     */
 	    onDeviceReady: function() {
-	    	
-	    	// Initialize Arbiter
 	    	Arbiter.Init();
 	    },
 	    
@@ -51,7 +49,7 @@ var app = (function(){
 	    	
 	    	for(var i = 0; i < layers.length; i++){
 	    		
-	    		layer = new OpenLayers.Layer.WMS(i, layers[i].serverUrl + "/wms", 
+	    		layer = new OpenLayers.Layer.WMS(Arbiter.Map.Layers.getLayerName(layers[i].layerId, "wms"), layers[i].serverUrl + "/wms", 
 	    				{
 	    					layers: layers[i].featureType,
 	    					transparent: true,
@@ -71,27 +69,11 @@ var app = (function(){
 	    	if(map.layers.length){
 	        	Arbiter.Map.Layers.setNewBaseLayer(map.layers[0]);
 	    	}
-	    }
+	    },
 	    
-	    /*getLayerProtocol: function(layer){
-	    	console.log("getLayerProtocol", layer);
-	    	
-	    	var colonIndex = layer.featureType.indexOf(":");
-	    	var featureType = layer.featureType.substring(0, colonIndex);
-	    	
-	    	console.log("featureType: ", featureType);
-	    	
-	    	var protocol = new OpenLayers.Protocol.WFS({
-	    		version : "1.0.0",
-	    		url : layer.serverUrl,
-	    		srsName : layer.srs,
-	    		geometryName: layer.geomName,
-	    		featureType: featureType,
-	    		featureNS: layer.namespace
-	    	});
-	    	
-	    	return protocol;
-	    }*/
+	    removeLayer: function(layerId){
+	    	Arbiter.Map.Layers.removeLayer(layerId);
+	    }
 	};
 })();
 

@@ -60,6 +60,22 @@ Arbiter.Map.Layers = (function(){
 	return {
 		
 		/**
+		 * Get a name for the layer, supplying a com.lmn.Arbiter_Android.BaseClasses.Layer
+		 * and a type (wms or wfs)
+		 */
+		getLayerName: function(layerId, type){
+			if(layerId === null || layerId === undefined){
+				throw "Arbiter.Map.Layers.getLayerName: id must not be " + layerId;
+			}
+			
+			if(type === "wms" || type === "wfs"){
+				return layerId + "-" + type;
+			}
+			
+			throw "Arbiter.Map.Layers.getLayerName: " + type + " is not a valid type!";
+		},
+		
+		/**
 		 * Create a layer
 		 */
 		createLayer: function(lastId, params){
@@ -88,14 +104,34 @@ Arbiter.Map.Layers = (function(){
 		 * Remove the layer from the map
 		 * @param layer Layer to remove from the map
 		 */
-		removeLayer: function(layer){
-			var isBaseLayer = layer.isBaseLayer;
+		removeLayer: function(layerId){
+			console.log("Arbiter.Map.Layer.removeLayer");
 			var map = Arbiter.Map.getMap();
 			
-			map.removeLayer(layer);
+			var wmsName = this.getLayerName(layerId, "wms");
+			var wfsName = this.getLayerName(layerId, "wfs");
+			
+			console.log("Arbiter.Map.Layer.removeLayer: wmsName = " + wmsName);
+			console.log("Arbiter.Map.Layer.removeLayer: wfsName = " + wfsName);
+			
+			var wmsLayer = map.getLayersByName(wmsName);
+			var wfsLayer = map.getLayersByName(wfsName);
+			
+			console.log("wmsLayer & wfsLayer", wmsLayer, wfsLayer);
+			
+			var isBaseLayer;
+			
+			if(wmsLayer && wmsLayer.length > 0){
+				isBaseLayer = wmsLayer[0].isBaseLayer;
+				map.removeLayer(wmsLayer[0]);
+			}
+			
+			if(wfsLayer && wfsLayer.length > 0){
+				map.removeLayer(wfsLayer[0]);
+			}
 			
 			if(map.layers.length > 0 && isBaseLayer){
-				setNewBaseLayer(layer);
+				setNewBaseLayer(map.layers[0]);
 			}
 		},
 		
@@ -107,7 +143,7 @@ Arbiter.Map.Layers = (function(){
 			var layerCount = map.layers.length;
 			
 			for(var i = 0; i < layerCount; i++){
-				this.removeLayer(map.layers[0]);
+				map.removeLayer(map.layers[0]);
 			}
 		}
 	};

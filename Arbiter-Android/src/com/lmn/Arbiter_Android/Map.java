@@ -10,13 +10,19 @@ import android.util.Log;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 
 public class Map{
-	private CordovaWebView webview;
+	private Map(){}
 	
-	public Map(CordovaWebView webview){
-		this.webview = webview;
+	private static Map map = null;
+	
+	public static Map getMap(){
+		if(map == null){
+			map = new Map();
+		}
+		
+		return map;
 	}
 	
-	public void loadMap(final Layer[] layers){
+	public void loadMap(CordovaWebView webview, final Layer[] layers){
 		Log.w("MAP", "LOADMAP");
 		try {
 			webview.loadUrl("javascript:app.loadMap(" 
@@ -46,5 +52,11 @@ public class Map{
 		}
 		
 		return jsonArray;
+	}
+	
+	public void deleteLayer(CordovaWebView webview, long layerId){
+		webview.loadUrl("javascript:app.removeLayer(" 
+			+ Long.toString(layerId) + ")");
+			
 	}
 }

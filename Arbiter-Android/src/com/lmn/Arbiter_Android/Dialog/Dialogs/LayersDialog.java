@@ -8,7 +8,6 @@ import android.widget.ListView;
 import android.widget.ToggleButton;
 import android.widget.ImageButton;
 
-import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
@@ -17,6 +16,7 @@ import com.lmn.Arbiter_Android.ListAdapters.LayerListAdapter;
 import com.lmn.Arbiter_Android.LoaderCallbacks.LayerLoaderCallbacks;
 
 public class LayersDialog extends ArbiterDialogFragment{
+	
 	private ListView listView;
 	private LayerListAdapter layersAdapter;
 	@SuppressWarnings("unused")
@@ -99,8 +99,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 	
 	public void populateListView(View view){
 		this.listView = (ListView) view.findViewById(R.id.layersListView);
-		this.layersAdapter = new LayerListAdapter(this.getActivity().
-				getApplicationContext(), R.layout.layers_list_item);
+		this.layersAdapter = new LayerListAdapter(this.getActivity(), R.layout.layers_list_item);
 		this.listView.setAdapter(this.layersAdapter);
 		
 		this.layerLoaderCallbacks = new LayerLoaderCallbacks(this.getActivity(), this.layersAdapter, R.id.loader_layers);

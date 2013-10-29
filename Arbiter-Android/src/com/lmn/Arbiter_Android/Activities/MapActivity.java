@@ -15,6 +15,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.LoaderCallbacks.MapLoaderCallbacks;
+import com.lmn.Arbiter_Android.ListAdapters.LayerListAdapter;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -30,7 +31,7 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ToggleButton;
 
-public class MapActivity extends FragmentActivity implements CordovaInterface{
+public class MapActivity extends FragmentActivity implements CordovaInterface, LayerListAdapter.LayerChangeListener{
     private ArbiterDialogs dialogs;
     private boolean welcomed;
     private String TAG = "MAP_ACTIVITY";
@@ -67,12 +68,12 @@ public class MapActivity extends FragmentActivity implements CordovaInterface{
     /**
      * Make sure that the database gets initialized and a project exists
      */
-    public void InitDatabases(){
+    private void InitDatabases(){
     	GlobalDatabaseHelper
     			.getGlobalHelper(getApplicationContext());
     }
     
-    public void InitArbiterProject(){
+    private void InitArbiterProject(){
     	arbiterProject = ArbiterProject.getArbiterProject();
     	arbiterProject.getOpenProject(getApplicationContext());
     }
@@ -80,7 +81,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface{
     /**
      * Set listeners
      */
-    public void setListeners(){
+    private void setListeners(){
     	ImageButton layersButton = (ImageButton) findViewById(R.id.layersButton);
     	
     	layersButton.setOnClickListener(new OnClickListener(){
@@ -205,6 +206,19 @@ public class MapActivity extends FragmentActivity implements CordovaInterface{
         super.onConfigurationChanged(newConfig);
     }
     
+    /**
+	 * LayerChangeListener events
+	 */
+	@Override
+	public void onLayerDeleted(long layerId) {
+		Map.getMap().deleteLayer(cordovaWebview, layerId);
+	}
+
+	@Override
+	public void onLayerVisibilityChanged(long layerId) {
+		
+	}
+	
     /**
      * Cordova methods
      */

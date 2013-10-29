@@ -14,12 +14,12 @@ import com.lmn.Arbiter_Android.Loaders.MapLoader;
 public class MapLoaderCallbacks implements LoaderManager.LoaderCallbacks<Layer[]>{
 
 	private FragmentActivity activity;
-	private Map map;
+	private CordovaWebView webview;
 	private Loader<Layer[]> loader;
 	
 	public MapLoaderCallbacks(FragmentActivity activity, CordovaWebView webview, int loaderId){
 		this.activity = activity;
-		this.map = new Map(webview);
+		this.webview = webview;
 		activity.getSupportLoaderManager().initLoader(loaderId, null, this);
 	}
 	
@@ -33,12 +33,12 @@ public class MapLoaderCallbacks implements LoaderManager.LoaderCallbacks<Layer[]
 
 	@Override
 	public void onLoadFinished(Loader<Layer[]> loader, Layer[] layers) {
-		map.loadMap(layers);
+		Map.getMap().loadMap(webview, layers);
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Layer[]> loader) {
-		map.loadMap(null);
+		Map.getMap().loadMap(webview, null);
 	}	
 	
 	public void loadMap(){

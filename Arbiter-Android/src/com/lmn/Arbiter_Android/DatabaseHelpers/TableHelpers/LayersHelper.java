@@ -166,26 +166,25 @@ public class LayersHelper implements BaseColumns{
 	 * @param context The context to send a broadcast notifying the layers have been updated
 	 * @param list The list of layers to be deleted
 	 */
-	public void delete(SQLiteDatabase db, Context context, ArrayList<Layer> list) {
+	public void delete(SQLiteDatabase db, Context context, Layer layer, Runnable callback) {
 		Log.w("LAYERSHELPER", "LAYERSHELPER delete");
 		db.beginTransaction();
 		
 		try {
 			String whereClause = _ID + "=?";
-			String[] whereArgs;
-			String id;
+			String[] whereArgs = {
+				Long.toString(layer.getLayerId())
+			};
 			
-			for(int i = 0; i < list.size(); i++){
-				whereArgs = new String[1];
-				id = Integer.valueOf(list.get(i).getLayerId()).toString();
-				Log.w("LAYERSHELPER", "LAYER DELETE ID: " + id);
-				whereArgs[0] = id;
-				db.delete(LAYERS_TABLE_NAME, whereClause, whereArgs);
-			}
+			db.delete(LAYERS_TABLE_NAME, whereClause, whereArgs);
 			
 			db.setTransactionSuccessful();
 			
 			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
+			
+			if(callback != null){
+				callback.run();
+			}
 		} catch (Exception e){
 			e.printStackTrace();
 		} finally {

@@ -1,7 +1,5 @@
 package com.lmn.Arbiter_Android.ListAdapters;
 
-import java.util.ArrayList;
-
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
@@ -9,6 +7,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 
 import android.content.Context;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,17 +18,34 @@ import android.widget.TextView;
 
 public class LayerListAdapter extends BaseAdapter{
 
+	private LayerChangeListener layerChangeListener;
+	
+	public interface LayerChangeListener {
+		public void onLayerDeleted(long layerId);
+		
+		public void onLayerVisibilityChanged(long layerId);
+	}
+	
 	private Layer[] items;
 	private final LayoutInflater inflater;
 	private int itemLayout;
-	private final Context context; 
+	private final FragmentActivity activity;
+	private final Context context;
 	
-	public LayerListAdapter(Context context, int itemLayout){
+	public LayerListAdapter(FragmentActivity activity, int itemLayout){
 		
-			inflater = LayoutInflater.from(context);
-			items = new Layer[0];
-			this.itemLayout = itemLayout;
-			this.context = context;
+		this.context = activity.getApplicationContext();
+		this.inflater = LayoutInflater.from(this.context);
+		this.items = new Layer[0];
+		this.itemLayout = itemLayout;
+		this.activity = activity;
+		
+		try {
+			layerChangeListener = (LayerChangeListener) activity;
+		} catch (ClassCastException e){
+			throw new ClassCastException(activity.toString() 
+					+ " must implement LayerChangeListener");
+		}
 	}
 	
 	public void setData(Layer[] data){
@@ -67,19 +83,30 @@ public class LayerListAdapter extends BaseAdapter{
 
 					@Override
 					public void onClick(View v) {
-						final ArrayList<Layer> layers = new ArrayList<Layer>();
-						
-						layers.add(new Layer(listItem));
+						final Layer layer = new Layer(listItem);
 						
 						CommandExecutor.runProcess(new Runnable(){
 							@Override
 							public void run() {
-								
+								final long layerId = layer.getLayerId();
 								GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
-								LayersHelper.getLayersHelper().delete(helper.getWritableDatabase(), context, layers);;
-								
+								LayersHelper.getLayersHelper().delete(
+										helper.getWritableDatabase(), context, layer, new Runnable(){
+
+											@Override
+											public void run() {
+												activity.runOnUiThread(new Runnable(){
+
+													@Override
+													public void run() {
+														layerChangeListener.onLayerDeleted(layerId);
+													}
+												});
+												
+											}
+											
+										});
 							}
-							
 						});
 					}
             		

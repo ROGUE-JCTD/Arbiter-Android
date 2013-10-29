@@ -1,15 +1,14 @@
 package com.lmn.Arbiter_Android.BroadcastReceivers;
 
-import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.AsyncTaskLoader;
 
-public class ProjectBroadcastReceiver extends BroadcastReceiver {
-	private ProjectsListLoader loader;
+public class ProjectBroadcastReceiver<Type> extends BroadcastReceiver {
+	private AsyncTaskLoader<Type> loader;
 	
-	public ProjectBroadcastReceiver(ProjectsListLoader projectsListLoader){
+	public ProjectBroadcastReceiver(AsyncTaskLoader<Type> projectsListLoader){
 		this.loader = projectsListLoader;
 	}
 	

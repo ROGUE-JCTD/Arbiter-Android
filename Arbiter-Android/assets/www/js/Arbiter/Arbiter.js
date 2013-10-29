@@ -1,8 +1,38 @@
 Arbiter = (function(){
+	var inited = false;
+	
+	// List of functions to call
+	var funcToCall = [];
+	
+	/**
+	 * Execute the functions that depend on init
+	 */
+	var executeFuncs = function(){
+		inited = true;
+		
+		for(var i = 0; i < funcToCall.length; i++){
+			funcToCall.call();
+		}
+	};
 	
 	return {
 		Init: function(){
 			Arbiter.Map.createMap();
+			
+			executeFuncs();
+		},
+		
+		/**
+		 * Make sure the app has been initialized, before executing func.
+		 * This is necessary for the loading calls on the native side.
+		 */
+		waitForInit: function(func){
+			if(inited === false){
+				funcToCall.push(func);
+				return;
+			}
+			
+			func.call();
 		}
 	};
 })();
@@ -12,11 +42,13 @@ Arbiter.Map = (function(){
 	
 	return {
 		createMap: function(){
-			//var WGS84_Google_Mercator = new OpenLayers.Projection("EPSG:900913");
-			//var WGS84 = new OpenLayers.Projection("EPSG:4326");
+			var WGS84_Google_Mercator = new OpenLayers.Projection("EPSG:900913");
+			var WGS84 = new OpenLayers.Projection("EPSG:4326");
 			
 			map = new OpenLayers.Map({
 				div: "map",
+				projection: WGS84_Google_Mercator,
+				displayProjection: WGS84,
 				theme: null,
 				numZoomLevels: 19,
 				controls: [
@@ -74,7 +106,7 @@ Arbiter.Map.Layers = (function(){
 		 * Add a layer to the map
 		 */
 		addLayer: function(layer){
-			Arbiter.Map.getMap().addLayers([layer]);
+			Arbiter.Map.getMap().addLayer(layer);
 		},
 		
 		/**
@@ -83,6 +115,18 @@ Arbiter.Map.Layers = (function(){
 		 */
 		removeLayer: function(layer){
 			Arbiter.Map.getMap().removeLayer(layer);
+		},
+		
+		/**
+		 * Remove all layers from the map
+		 */
+		removeAllLayers: function(){
+			var map = Arbiter.Map.getMap();
+			var layerCount = map.layers.length;
+			
+			for(var i = 0; i < layerCount; i++){
+				this.removeLayer(map.layers[0]);
+			}
 		}
 	};
 })();

@@ -6,6 +6,7 @@ public class Layer {
 	
 	// Only for the adapter, for displaying
 	private String serverName;
+	private String serverUrl;
 	
 	private String title;
 	private String srs;
@@ -13,7 +14,7 @@ public class Layer {
 	private int serverId;
 	private boolean checked;
 	
-	public Layer(int layerId, String featureType, int serverId, String serverName, 
+	public Layer(int layerId, String featureType, int serverId, String serverName, String serverUrl,
 			String title, String srs, String boundingBox){
 		this.layerId = layerId;
 		this.featureType = featureType;
@@ -22,6 +23,7 @@ public class Layer {
 		this.srs = srs;
 		this.boundingBox = boundingBox;
 		this.serverId = serverId;
+		this.serverUrl = serverUrl;
 		setChecked(false);
 	}
 	
@@ -35,6 +37,7 @@ public class Layer {
 		this.boundingBox = item.getLayerBBOX();
 		this.checked = item.isChecked();
 		this.serverId = item.getServerId();
+		this.serverUrl = item.getServerUrl();
 	}
 	
 	public int getLayerId(){
@@ -67,6 +70,10 @@ public class Layer {
 	
 	public int getServerId(){
 		return this.serverId;
+	}
+	
+	public String getServerUrl(){
+		return this.serverUrl;
 	}
 	
 	public void setChecked(boolean check){

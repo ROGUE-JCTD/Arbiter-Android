@@ -13,6 +13,7 @@ import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
+import com.lmn.Arbiter_Android.LoaderCallbacks.MapLoaderCallbacks;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -32,6 +33,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface{
     private ArbiterDialogs dialogs;
     private boolean welcomed;
     private String TAG = "MAP_ACTIVITY";
+    @SuppressWarnings("unused")
+	private MapLoaderCallbacks mapLoaderCallbacks;
     
     // For CORDOVA
     private CordovaWebView cordovaWebview;
@@ -52,6 +55,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface{
         
         String url = "file:///android_asset/www/index.html";
         cordovaWebview.loadUrl(url, 5000);
+        
+        this.mapLoaderCallbacks = new MapLoaderCallbacks(this, cordovaWebview , R.id.loader_map);
         
        /* if(!welcomed){
         	displayWelcomeDialog();

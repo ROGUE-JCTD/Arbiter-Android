@@ -79,9 +79,10 @@ public class LayersHelper implements BaseColumns{
 			FEATURE_TYPE, // 1
 			SERVER_ID, // 2
 			ServersHelper.SERVER_NAME, // 3
-			LAYER_TITLE, // 4
-			LAYER_SRS, // 5
-			BOUNDING_BOX // 6
+			ServersHelper.SERVER_URL, // 4
+			LAYER_TITLE, // 5
+			LAYER_SRS, // 6
+			BOUNDING_BOX // 7
 		};
 		
 		// How to sort the results
@@ -108,7 +109,7 @@ public class LayersHelper implements BaseColumns{
 		for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 			layers[i] = new Layer(cursor.getInt(0),
 					cursor.getString(1), cursor.getInt(2), cursor.getString(3),
-					cursor.getString(4), cursor.getString(5), cursor.getString(6));
+					cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7));
 			i++;
 		}
 		

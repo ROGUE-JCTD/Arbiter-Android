@@ -238,8 +238,8 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 					if(eventName.equalsIgnoreCase(AddLayersListLoader.LAYER_TAG)){
 						// Create the new layer object, and since this was the end of 
 						// the layer element, specify that we're out.
-						layers.add(new Layer(-1, featureType, server.getId(), server.getServerName(), title,
-																srs, boundingBox));
+						layers.add(new Layer(-1, featureType, server.getId(), server.getServerName(), 
+								server.getUrl(), title, srs, boundingBox));
 						inLayerTag = false;
 						
 						// Reset the fields to prepare for the next layer

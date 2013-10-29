@@ -4,33 +4,34 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
-import com.lmn.Arbiter_Android.BaseClasses.Project;
+import com.lmn.Arbiter_Android.ArbiterProject;
+import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BroadcastReceivers.ProjectBroadcastReceiver;
 //import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 
-public class ProjectsListLoader extends AsyncTaskLoader<Project[]> {
+public class MapLoader extends AsyncTaskLoader<Layer[]> {
 	public static final String PROJECT_LIST_UPDATED = "PROJECT_LIST_UPDATED";
 	
-	private ProjectBroadcastReceiver<Project[]> loaderBroadcastReceiver = null;
-	private Project[] projects;
+	private ProjectBroadcastReceiver<Layer[]> loaderBroadcastReceiver = null;
+	private Layer[] layers;
 	private GlobalDatabaseHelper globalDbHelper = null;
+	private long projectId;
 	
-	public ProjectsListLoader(Context context) {
+	public MapLoader(Context context) {
 		super(context);
-		
+		this.projectId = ArbiterProject.getArbiterProject().getOpenProject(context);
 		globalDbHelper = GlobalDatabaseHelper.getGlobalHelper(context);
 	}
 
 	@Override
-	public Project[] loadInBackground() {
-		Project[] projects = ProjectsHelper.getProjectsHelper().
-				getAll(globalDbHelper.getWritableDatabase());
+	public Layer[] loadInBackground() {
+		Layer[] layers = LayersHelper.getLayersHelper().
+				getAll(globalDbHelper.getWritableDatabase(), projectId);
 		
-		return projects;
+		return layers;
 	}
 	
 	/**
@@ -38,29 +39,29 @@ public class ProjectsListLoader extends AsyncTaskLoader<Project[]> {
      * super class will take care of delivering it; the implementation
      * here just adds a little more logic.
      */
-    @Override public void deliverResult(Project[] _projects) {
+    @Override public void deliverResult(Layer[] _layers) {
         if (isReset()) {
             // An async query came in while the loader is stopped.  We
             // don't need the result.
-            if (projects != null) {
+            if (layers != null) {
           //      onReleaseResources(cursor);
             }
         }
         
-        Project[] oldProjects = _projects;
-        projects = _projects;
+        Layer[] oldLayers = _layers;
+        layers = _layers;
 
         if (isStarted()) {
             // If the Loader is currently started, we can immediately
             // deliver its results.
-            super.deliverResult(projects);
+            super.deliverResult(layers);
         }
 
         // At this point we can release the resources associated with
         // 'oldApps' if needed; now that the new result is delivered we
         // know that it is no longer in use.
-        if (oldProjects != null) {
-            onReleaseResources(oldProjects);
+        if (oldLayers != null) {
+            onReleaseResources(oldLayers);
         }
     }
     
@@ -68,20 +69,20 @@ public class ProjectsListLoader extends AsyncTaskLoader<Project[]> {
      * Handles a request to start the Loader.
      */
     @Override protected void onStartLoading() {
-        if (projects != null) {
+        if (layers != null) {
             // If we currently have a result available, deliver it
             // immediately.
-            deliverResult(projects);
+            deliverResult(layers);
         }
 
         // Start watching for changes in the app data.
         if (loaderBroadcastReceiver == null) {
-        	loaderBroadcastReceiver = new ProjectBroadcastReceiver<Project[]>(this);
+        	loaderBroadcastReceiver = new ProjectBroadcastReceiver<Layer[]>(this);
         	LocalBroadcastManager.getInstance(getContext()).
-        		registerReceiver(loaderBroadcastReceiver, new IntentFilter(ProjectsListLoader.PROJECT_LIST_UPDATED));
+        		registerReceiver(loaderBroadcastReceiver, new IntentFilter(PROJECT_LIST_UPDATED));
         }
 
-        if (takeContentChanged() || projects == null) {
+        if (takeContentChanged() || layers == null) {
             // If the data has changed since the last time it was loaded
             // or is not currently available, start a load.
             forceLoad();
@@ -99,7 +100,7 @@ public class ProjectsListLoader extends AsyncTaskLoader<Project[]> {
     /**
      * Handles a request to cancel a load.
      */
-    @Override public void onCanceled(Project[] _projects) {
+    @Override public void onCanceled(Layer[] _projects) {
         super.onCanceled(_projects);
 
         // At this point we can release the resources associated with 'apps'
@@ -118,9 +119,9 @@ public class ProjectsListLoader extends AsyncTaskLoader<Project[]> {
 
         // At this point we can release the resources associated with 'apps'
         // if needed.
-        if (projects != null) {
-            onReleaseResources(projects);
-            projects = null;
+        if (layers != null) {
+            onReleaseResources(layers);
+            layers = null;
         }
 
         // Stop monitoring for changes.
@@ -135,7 +136,7 @@ public class ProjectsListLoader extends AsyncTaskLoader<Project[]> {
      * Helper function to take care of releasing resources associated
      * with an actively loaded data set.
      */
-    protected void onReleaseResources(Project[] _projects) {
+    protected void onReleaseResources(Layer[] _projects) {
         // For a simple List<> there is nothing to do.  For something
         // like a Cursor, we would close it here.
     	

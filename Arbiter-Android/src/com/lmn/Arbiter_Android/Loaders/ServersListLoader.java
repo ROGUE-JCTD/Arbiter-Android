@@ -1,5 +1,7 @@
 package com.lmn.Arbiter_Android.Loaders;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.content.IntentFilter;
 import android.support.v4.content.AsyncTaskLoader;
@@ -11,11 +13,11 @@ import com.lmn.Arbiter_Android.BroadcastReceivers.ServerBroadcastReceiver;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 
-public class ServersListLoader extends AsyncTaskLoader<Server[]> {
+public class ServersListLoader extends AsyncTaskLoader<ArrayList<Server>> {
 	public static final String SERVER_LIST_UPDATED = "SERVER_LIST_UPDATED";
 	
 	private ServerBroadcastReceiver loaderBroadcastReceiver = null;
-	private Server[] servers;
+	private ArrayList<Server> servers;
 	private GlobalDatabaseHelper globalDbHelper = null;
 	
 	public ServersListLoader(Context context) {
@@ -25,9 +27,9 @@ public class ServersListLoader extends AsyncTaskLoader<Server[]> {
 	}
 
 	@Override
-	public Server[] loadInBackground() {
+	public ArrayList<Server> loadInBackground() {
 		
-		Server[] servers = ServersHelper.getServersHelper().
+		ArrayList<Server> servers = ServersHelper.getServersHelper().
 				getAll(globalDbHelper.getWritableDatabase());
 		
 		return servers;
@@ -38,7 +40,7 @@ public class ServersListLoader extends AsyncTaskLoader<Server[]> {
      * super class will take care of delivering it; the implementation
      * here just adds a little more logic.
      */
-    @Override public void deliverResult(Server[] _servers) {
+    @Override public void deliverResult(ArrayList<Server> _servers) {
         if (isReset()) {
             // An async query came in while the loader is stopped.  We
             // don't need the result.
@@ -47,7 +49,7 @@ public class ServersListLoader extends AsyncTaskLoader<Server[]> {
             }
         }
         
-        Server[] oldServers = _servers;
+        ArrayList<Server> oldServers = _servers;
         servers = _servers;
 
         if (isStarted()) {
@@ -100,7 +102,7 @@ public class ServersListLoader extends AsyncTaskLoader<Server[]> {
     /**
      * Handles a request to cancel a load.
      */
-    @Override public void onCanceled(Server[] _servers) {
+    @Override public void onCanceled(ArrayList<Server> _servers) {
         super.onCanceled(_servers);
 
         // At this point we can release the resources associated with 'apps'
@@ -136,7 +138,7 @@ public class ServersListLoader extends AsyncTaskLoader<Server[]> {
      * Helper function to take care of releasing resources associated
      * with an actively loaded data set.
      */
-    protected void onReleaseResources(Server[] _servers) {
+    protected void onReleaseResources(ArrayList<Server> _servers) {
         // For a simple List<> there is nothing to do.  For something
         // like a Cursor, we would close it here.
     	

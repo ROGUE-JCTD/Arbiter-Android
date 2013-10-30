@@ -1,5 +1,7 @@
 package com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -49,7 +51,7 @@ public class ServersHelper implements BaseColumns{
 		db.execSQL(sql);
 	}
 	
-	public Server[] getAll(SQLiteDatabase db){
+	public ArrayList<Server> getAll(SQLiteDatabase db){
 		// Projection - columns to get back
 		String[] columns = {SERVER_NAME, SERVER_URL, 
 				SERVER_USERNAME, SERVER_PASSWORD, _ID};
@@ -60,16 +62,15 @@ public class ServersHelper implements BaseColumns{
 		Cursor cursor =  db.query(SERVERS_TABLE_NAME, columns, 
 				null, null, null, null, orderBy);
 		
-		Server[] servers = new Server[cursor.getCount()];
-		
-		int i = 0;
+		// Create an array list with initial capacity equal to the
+		// number of servers +1 for the default OSM server
+		ArrayList<Server> servers = new ArrayList<Server>(cursor.getCount() + 1);
 		
 		//Traverse the cursors to populate the projects array
 		for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 			Log.w("SERVERS HELPER", "SERVERS HELPER GET ALL id: " + cursor.getInt(4));
-			servers[i] = new Server(cursor.getString(0),
-					cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getInt(4));
-			i++;
+			servers.add(new Server(cursor.getString(0),
+					cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getInt(4)));
 		}
 		
 		cursor.close();

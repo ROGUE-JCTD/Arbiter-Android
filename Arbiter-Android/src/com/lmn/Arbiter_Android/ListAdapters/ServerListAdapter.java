@@ -1,5 +1,7 @@
 package com.lmn.Arbiter_Android.ListAdapters;
 
+import java.util.ArrayList;
+
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
@@ -17,7 +19,7 @@ import android.widget.TextView;
 
 public class ServerListAdapter extends BaseAdapter{
 
-	private Server[] items;
+	private ArrayList<Server> items;
 	private final LayoutInflater inflater;
 	private int itemLayout;
 	private int textId;
@@ -28,7 +30,7 @@ public class ServerListAdapter extends BaseAdapter{
 			int textId){
 		
 			inflater = LayoutInflater.from(activity.getApplicationContext());
-			items = new Server[0];
+			items = new ArrayList<Server>();
 			this.itemLayout = itemLayout;
 			this.textId = textId;
 			this.dropDownLayout = R.layout.drop_down_item;
@@ -39,7 +41,7 @@ public class ServerListAdapter extends BaseAdapter{
 			int textId, Integer dropDownLayout){
 		
 			inflater = LayoutInflater.from(activity.getApplicationContext());
-			items = new Server[0];
+			items = new ArrayList<Server>();
 			this.itemLayout = itemLayout;
 			this.textId = textId;
 			this.dropDownLayout = dropDownLayout;
@@ -47,7 +49,7 @@ public class ServerListAdapter extends BaseAdapter{
 			
 	}
 	
-	public void setData(Server[] data){
+	public void setData(ArrayList<Server> data){
 		items = data;
 		
 		notifyDataSetChanged();
@@ -62,7 +64,7 @@ public class ServerListAdapter extends BaseAdapter{
 			view = inflater.inflate(itemLayout, null);
 		}
 		
-		final Server server = items[position];
+		final Server server = getItem(position);
 		
 		if(server != null){
 			TextView serverName = (TextView) view.findViewById(textId);
@@ -114,7 +116,7 @@ public class ServerListAdapter extends BaseAdapter{
 			view = inflater.inflate(dropDownLayout, null);
 		}
 		
-		Server listItem = items[position];
+		Server listItem = getItem(position);
 	
 		if(listItem != null){
 			TextView serverName = (TextView) view.findViewById(textId);
@@ -133,12 +135,12 @@ public class ServerListAdapter extends BaseAdapter{
 			return 0;
 		}
 		
-		return items.length;
+		return items.size();
 	}
 
 	@Override
 	public Server getItem(int position) {
-		return items[position];
+		return items.get(position);
 	}
 
 	@Override

@@ -5,9 +5,7 @@ import java.util.ArrayList;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Activities.AOIActivity;
-import com.lmn.Arbiter_Android.Activities.ProjectsActivity;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
-import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
@@ -43,7 +41,6 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	private Spinner spinner;
 	private ArrayList<Layer> layersInProject;
 	private boolean creatingProject;
-	private ArbiterDialogs arbiterDialogs;
 	
 	public static AddLayersDialog newInstance(String title, String ok, 
 			String cancel, int layout, ArrayList<Layer> layersInProject){

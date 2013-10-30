@@ -1,0 +1,133 @@
+package com.lmn.Arbiter_Android.Map.Helpers.Parsers;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
+import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.BaseClasses.Server;
+
+public class ParseGetCapabilities {
+	private static final String LAYER_TAG = "Layer";
+	private static final String FEATURE_TYPE = "Name";
+	private static final String LAYER_TITLE = "Title";
+	private static final String LAYER_BOUNDING_BOX = "BoundingBox";
+	private static final String LAYER_SRS = "SRS";
+	
+	private ParseGetCapabilities(){}
+	
+	private static ParseGetCapabilities parser = null;
+	
+	public static ParseGetCapabilities getParser(){
+		if(parser == null){
+			parser = new ParseGetCapabilities();
+		}
+		
+		return parser;
+	}
+	
+	/**
+	 * Parse the getCapabilities request
+	 * @param server Object with the current servers info
+	 * @param reader The reader for reading in the request response
+	 * @return An ArrayList of parsed Layer objects containing the layers info
+	 * @throws XmlPullParserException
+	 * @throws IOException
+	 */
+	public ArrayList<Layer> parseGetCapabilities(Server server, BufferedReader reader) throws XmlPullParserException, IOException{
+		XmlPullParserFactory factory;
+		factory = XmlPullParserFactory.newInstance();
+		factory.setNamespaceAware(false);
+		
+		XmlPullParser pullParser = factory.newPullParser();
+		pullParser.setInput(reader);
+		
+		String featureType = null;
+		String title = null;
+		String srs = null;
+		
+		String boundingBox = null;
+		String minx = null; 
+		String miny = null;
+		String maxx = null;
+		String maxy = null;
+		
+		String eventName;
+		
+		// For checking to see if the parser is in a layer element because
+		// if not, we don't care about any of the data.
+		boolean inLayerTag = false;
+		
+		ArrayList<Layer> layers = new ArrayList<Layer>();
+		// TODO There was a bug here where the style 
+		int eventType = pullParser.getEventType();
+		while (eventType != XmlPullParser.END_DOCUMENT){
+			eventName = pullParser.getName();
+			
+			if(inLayerTag){
+				if(eventType == XmlPullParser.START_TAG){
+					
+					if(eventName.equalsIgnoreCase(FEATURE_TYPE)){
+						if(pullParser.next() == XmlPullParser.TEXT){
+							if(featureType == null){
+								featureType = pullParser.getText();
+							}
+						}
+					} else if(eventName.equalsIgnoreCase(LAYER_TITLE)){
+						if(pullParser.next() == XmlPullParser.TEXT){
+							if(title == null){
+								title = pullParser.getText();
+							}
+						}
+					} else if(eventName.equalsIgnoreCase(LAYER_SRS)){
+						if(pullParser.next() == XmlPullParser.TEXT){
+							if(srs == null){
+								srs = pullParser.getText();
+							}
+						}
+					} else if(eventName.equalsIgnoreCase(LAYER_BOUNDING_BOX)){
+						minx = pullParser.getAttributeValue(null, "minx");
+						miny = pullParser.getAttributeValue(null, "miny");
+						maxx = pullParser.getAttributeValue(null, "maxx");
+						maxy = pullParser.getAttributeValue(null, "maxy");
+						
+						if(boundingBox == null){
+							boundingBox = minx + ", " + miny + ", " + maxx + ", " + maxy;
+						}
+					}
+				}else if(eventType == XmlPullParser.END_TAG){
+					if(eventName.equalsIgnoreCase(LAYER_TAG)){
+						// Create the new layer object, and since this was the end of 
+						// the layer element, specify that we're out.
+						layers.add(new Layer(-1, featureType, server.getId(), server.getServerName(), 
+								server.getUrl(), title, srs, boundingBox));
+						inLayerTag = false;
+						
+						// Reset the fields to prepare for the next layer
+						// Needed for the null checks
+						featureType = null;
+						title = null;
+						srs = null;
+						boundingBox = null;
+					}
+				}
+			}else{
+				if(eventType == XmlPullParser.START_TAG){
+					eventName = pullParser.getName();
+					
+					if(eventName.equalsIgnoreCase(LAYER_TAG)){
+						inLayerTag = true;
+					}
+				}
+			}
+			
+			eventType = pullParser.next();
+		}
+		
+		return layers;
+	}
+}

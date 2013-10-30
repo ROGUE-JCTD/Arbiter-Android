@@ -60,7 +60,7 @@ public class ParseGetCapabilities {
 		
 		// For checking to see if the parser is in a layer element because
 		// if not, we don't care about any of the data.
-		boolean inLayerTag = false;
+		int inLayerTag = 0;
 		
 		ArrayList<Layer> layers = new ArrayList<Layer>();
 		// TODO There was a bug here where the style 
@@ -68,7 +68,7 @@ public class ParseGetCapabilities {
 		while (eventType != XmlPullParser.END_DOCUMENT){
 			eventName = pullParser.getName();
 			
-			if(inLayerTag){
+			if(inLayerTag == 2){
 				if(eventType == XmlPullParser.START_TAG){
 					
 					if(eventName.equalsIgnoreCase(FEATURE_TYPE)){
@@ -105,7 +105,7 @@ public class ParseGetCapabilities {
 						// the layer element, specify that we're out.
 						layers.add(new Layer(-1, featureType, server.getId(), server.getServerName(), 
 								server.getUrl(), title, srs, boundingBox));
-						inLayerTag = false;
+						inLayerTag -= 1;
 						
 						// Reset the fields to prepare for the next layer
 						// Needed for the null checks
@@ -120,7 +120,11 @@ public class ParseGetCapabilities {
 					eventName = pullParser.getName();
 					
 					if(eventName.equalsIgnoreCase(LAYER_TAG)){
-						inLayerTag = true;
+						inLayerTag += 1;
+					}
+				}else if(eventType == XmlPullParser.END_TAG){
+					if(eventName.equalsIgnoreCase(LAYER_TAG)){
+						inLayerTag -= 1;
 					}
 				}
 			}

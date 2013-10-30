@@ -72,7 +72,7 @@ public class LayersHelper implements BaseColumns{
 					SERVER_ID + " = " + "OLD." + ServersHelper._ID + "; END;");
 	}
 	
-	public Layer[] getAll(SQLiteDatabase db, long projectId){
+	public ArrayList<Layer> getAll(SQLiteDatabase db, long projectId){
 		// Projection - columns to get back
 		String[] columns = {
 			LAYERS_TABLE_NAME + "." + _ID, // 0
@@ -101,19 +101,18 @@ public class LayersHelper implements BaseColumns{
 		
 		Log.w("LAYERS HELPER", "GET LAYER COUNT: " + cursor.getCount());
 		
-		Layer[] layers = new Layer[cursor.getCount()];
-		
-		int i = 0;
+		// Create an array list with initial capacity equal to the number of layers +1 for the default layer
+		ArrayList<Layer> layers = new ArrayList<Layer>(cursor.getCount() + 1);
 		
 		//Traverse the cursors to populate the projects array
 		for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-			layers[i] = new Layer(cursor.getInt(0),
+			layers.add(new Layer(cursor.getInt(0),
 					cursor.getString(1), cursor.getInt(2), cursor.getString(3),
-					cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7));
-			i++;
+					cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7)));
 		}
 		
 		cursor.close();
+		
 		return layers;
 	}
 	

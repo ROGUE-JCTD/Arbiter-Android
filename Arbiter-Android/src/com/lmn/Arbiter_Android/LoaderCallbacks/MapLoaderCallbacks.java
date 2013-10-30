@@ -1,5 +1,7 @@
 package com.lmn.Arbiter_Android.LoaderCallbacks;
 
+import java.util.ArrayList;
+
 import org.apache.cordova.CordovaWebView;
 
 import android.os.Bundle;
@@ -12,11 +14,11 @@ import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.Loaders.MapLoader;
 import com.lmn.Arbiter_Android.Map.Map;
 
-public class MapLoaderCallbacks implements LoaderManager.LoaderCallbacks<Layer[]>{
+public class MapLoaderCallbacks implements LoaderManager.LoaderCallbacks<ArrayList<Layer>>{
 
 	private FragmentActivity activity;
 	private CordovaWebView webview;
-	private Loader<Layer[]> loader;
+	private Loader<ArrayList<Layer>> loader;
 	
 	public MapLoaderCallbacks(FragmentActivity activity, CordovaWebView webview, int loaderId){
 		this.activity = activity;
@@ -25,7 +27,7 @@ public class MapLoaderCallbacks implements LoaderManager.LoaderCallbacks<Layer[]
 	}
 	
 	@Override
-	public Loader<Layer[]> onCreateLoader(int id, Bundle bundle) {
+	public Loader<ArrayList<Layer>> onCreateLoader(int id, Bundle bundle) {
 		// This is called when a new Loader needs to be created.  This
         // sample only has one Loader with no arguments, so it is simple.
 		this.loader = new MapLoader(activity.getApplicationContext());
@@ -33,13 +35,13 @@ public class MapLoaderCallbacks implements LoaderManager.LoaderCallbacks<Layer[]
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Layer[]> loader, Layer[] layers) {
+	public void onLoadFinished(Loader<ArrayList<Layer>> loader, ArrayList<Layer> layers) {
 		Map.getMap().loadMap(webview, layers, 
 				ArbiterProject.getArbiterProject().includeDefaultLayer());
 	}
-
+	
 	@Override
-	public void onLoaderReset(Loader<Layer[]> loader) {
+	public void onLoaderReset(Loader<ArrayList<Layer>> loader) {
 		Map.getMap().loadMap(webview, null, 
 				ArbiterProject.getArbiterProject().includeDefaultLayer());
 	}	

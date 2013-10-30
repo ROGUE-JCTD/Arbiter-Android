@@ -41,12 +41,12 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	private ServerListAdapter serverAdapter;
 	private AddLayersListAdapter addLayersAdapter;
 	private Spinner spinner;
-	private Layer[] layersInProject;
+	private ArrayList<Layer> layersInProject;
 	private boolean creatingProject;
 	private ArbiterDialogs arbiterDialogs;
 	
 	public static AddLayersDialog newInstance(String title, String ok, 
-			String cancel, int layout, Layer[] layersInProject){
+			String cancel, int layout, ArrayList<Layer> layersInProject){
 		AddLayersDialog frag = new AddLayersDialog();
 		
 		frag.setTitle(title);
@@ -195,7 +195,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		return this.serverAdapter;
 	}
 	
-	public Layer[] getLayersInProject(){
+	public ArrayList<Layer> getLayersInProject(){
 		return this.layersInProject;
 	}
 }

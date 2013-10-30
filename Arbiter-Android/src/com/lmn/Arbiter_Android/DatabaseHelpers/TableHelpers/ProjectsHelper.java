@@ -13,6 +13,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.BaseClasses.Project;
+import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
 import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 
 public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, BaseColumns{
@@ -96,7 +97,7 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 				
 				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));
 				
-				ArbiterProject.getArbiterProject().setOpenProject(context, projectId[0]);
+				ArbiterProject.getArbiterProject().setOpenProject(context, projectId[0], newProject.includeDefaultLayer());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -109,7 +110,6 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 
 	@Override
 	public void delete(SQLiteDatabase db, Context context, Project project) {
-		Log.w("PROJECTSHELPER", "PROJECTSHELPER delete");
 		db.beginTransaction();
 		
 		try {
@@ -119,9 +119,7 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 					Long.toString(project.getId())	
 			};
 			
-			int affectedRow = db.delete(PROJECTS_TABLE_NAME, whereClause, whereArgs);
-			
-			Log.w("PROJECTSHELPER", "PROJECTSHELPER delete" + Integer.valueOf(affectedRow).toString());
+			db.delete(PROJECTS_TABLE_NAME, whereClause, whereArgs);
 			
 			ensureProjectExists(db, context);
 			
@@ -133,7 +131,6 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 		} finally {
 			db.endTransaction();
 		}
-		
 	}
 	
 	//TODO NEED TO FIX THE AOI THATS INSERTED INTO THE DEFAULT PROJECT
@@ -174,7 +171,6 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 		
 		if(hasResult){
 			aoi = cursor.getString(0);
-			Log.w("PROJECTSHELPER", "GETPROJECTSAOI: " + aoi);
 		}
 		
 		cursor.close();
@@ -203,5 +199,35 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 		cursor.close();
 		
 		return Project.getIncludeDefaultLayer(includeDefaultLayer);
+	}
+	
+	public void setIncludeDefaultLayer(SQLiteDatabase db, Context context, 
+			long projectId, boolean includeDefaultLayer, Runnable callback){
+		
+		db.beginTransaction();
+		
+		try {
+			
+			String whereClause = ProjectsHelper._ID + "=?";
+			String[] whereArgs = {
+					Long.toString(projectId)	
+			};
+			
+			ContentValues values = new ContentValues();
+			
+			values.put(INCLUDE_DEFAULT_LAYER, (includeDefaultLayer) ? 1 : 0);
+			
+			db.update(PROJECTS_TABLE_NAME, values, whereClause, whereArgs);
+			
+			db.setTransactionSuccessful();
+			
+			if(callback != null){
+				callback.run();
+			}
+		} catch (Exception e){
+			e.printStackTrace();
+		} finally {
+			db.endTransaction();
+		}
 	}
 }

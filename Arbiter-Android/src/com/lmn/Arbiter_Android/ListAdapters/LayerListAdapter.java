@@ -1,13 +1,21 @@
 package com.lmn.Arbiter_Android.ListAdapters;
 
+import java.util.ArrayList;
+
+import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
+import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -26,7 +34,7 @@ public class LayerListAdapter extends BaseAdapter{
 		public void onLayerVisibilityChanged(long layerId);
 	}
 	
-	private Layer[] items;
+	private ArrayList<Layer> items;
 	private final LayoutInflater inflater;
 	private int itemLayout;
 	private final FragmentActivity activity;
@@ -36,7 +44,7 @@ public class LayerListAdapter extends BaseAdapter{
 		
 		this.context = activity.getApplicationContext();
 		this.inflater = LayoutInflater.from(this.context);
-		this.items = new Layer[0];
+		this.items = new ArrayList<Layer>();
 		this.itemLayout = itemLayout;
 		this.activity = activity;
 		
@@ -48,9 +56,21 @@ public class LayerListAdapter extends BaseAdapter{
 		}
 	}
 	
-	public void setData(Layer[] data){
+	private void addDefaultLayer(ArrayList<Layer> layers){
+		if(layers != null){
+			if(ArbiterProject.getArbiterProject().includeDefaultLayer()){
+				layers.add(0, new Layer(-1, null, -1, null, null,
+						context.getResources().getString(R.string.default_layer_name), null, null));
+				layers.get(0).setIsDefaultLayer(true);
+			}
+		}
+	}
+	
+	public void setData(ArrayList<Layer> data){
 		items = data;
 		
+		addDefaultLayer(items);
+
 		notifyDataSetChanged();
 	}
 	
@@ -63,19 +83,22 @@ public class LayerListAdapter extends BaseAdapter{
 			view = inflater.inflate(itemLayout, null);
 		}
 		
-		final Layer listItem = items[position];
+		final Layer listItem = getItem(position);
 		
 		if(listItem != null){
-            TextView layerName = (TextView) view.findViewById(R.id.layerName);
-            TextView serverName = (TextView) view.findViewById(R.id.serverName);
+            TextView layerNameView = (TextView) view.findViewById(R.id.layerName);
+            TextView serverNameView = (TextView) view.findViewById(R.id.serverName);
             ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteLayer);
             
-            if(layerName != null){
-            	layerName.setText(listItem.getLayerTitle());
+            final boolean isDefaultLayer = listItem.isDefaultLayer();
+            
+            if(layerNameView != null){
+            	layerNameView.setText(listItem.getLayerTitle());
             }
             
-            if(serverName != null){
-            	serverName.setText(listItem.getServerName());
+            if(serverNameView != null){
+            	serverNameView.setText((isDefaultLayer) ? context.getResources().
+            			getString(R.string.default_layer_name) : listItem.getServerName());
             }
             
             if(deleteButton != null){
@@ -83,31 +106,11 @@ public class LayerListAdapter extends BaseAdapter{
 
 					@Override
 					public void onClick(View v) {
-						final Layer layer = new Layer(listItem);
-						
-						CommandExecutor.runProcess(new Runnable(){
-							@Override
-							public void run() {
-								final long layerId = layer.getLayerId();
-								GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
-								LayersHelper.getLayersHelper().delete(
-										helper.getWritableDatabase(), context, layer, new Runnable(){
-
-											@Override
-											public void run() {
-												activity.runOnUiThread(new Runnable(){
-
-													@Override
-													public void run() {
-														layerChangeListener.onLayerDeleted(layerId);
-													}
-												});
-												
-											}
-											
-										});
-							}
-						});
+						if(!isDefaultLayer){
+							deleteLayer(new Layer(listItem));
+						}else{
+							deleteDefaultLayer();
+						}
 					}
             		
             	});
@@ -117,18 +120,60 @@ public class LayerListAdapter extends BaseAdapter{
 		return view;
 	}
 	
+	private void deleteDefaultLayer(){
+		GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+		ProjectsHelper.getProjectsHelper().setIncludeDefaultLayer(helper.getWritableDatabase(), 
+				context, ArbiterProject.getArbiterProject().getOpenProject(context), false, new Runnable(){
+			@Override
+			public void run(){
+				ArbiterProject.getArbiterProject().setIncludeDefaultLayer(false);
+				
+				layerChangeListener.onLayerDeleted(-1);
+				
+				LocalBroadcastManager.getInstance(context).
+					sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
+			}
+		});
+	}
+	
+	private void deleteLayer(final Layer layer){
+		CommandExecutor.runProcess(new Runnable(){
+			@Override
+			public void run() {
+				final long layerId = layer.getLayerId();
+				GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+				LayersHelper.getLayersHelper().delete(
+						helper.getWritableDatabase(), context, layer, new Runnable(){
+
+							@Override
+							public void run() {
+								activity.runOnUiThread(new Runnable(){
+
+									@Override
+									public void run() {
+										layerChangeListener.onLayerDeleted(layerId);
+									}
+								});
+								
+							}
+							
+						});
+			}
+		});
+	}
+	
 	@Override
 	public int getCount() {
 		if(items == null){
 			return 0;
 		}
 		
-		return items.length;
+		return items.size();
 	}
 
 	@Override
 	public Layer getItem(int position) {
-		return items[position];
+		return items.get(position);
 	}
 
 	@Override
@@ -136,7 +181,7 @@ public class LayerListAdapter extends BaseAdapter{
 		return position;
 	}
 
-	public Layer[] getLayers(){
+	public ArrayList<Layer> getLayers(){
 		return items;
 	}
 }

@@ -3,6 +3,7 @@ package com.lmn.Arbiter_Android;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
@@ -35,30 +36,56 @@ public class ArbiterProject {
 		return project;
 	}
 	
-	public void setOpenProject(Context context, long projectId){
-		this.projectId = projectId;
+	/**
+	 * Update SharedPreferences with the projectId, and keep the open project id 
+	 * and whether or not the current project includes the default layer.
+	 * 
+	 * @param context
+	 * @param projectId
+	 * @param includeDefaultLayer
+	 */
+	public void setOpenProject(Context context, long projectId, boolean includeDefaultLayer){
+		
+		// Save the open project id to shared preferences for persistent storage
 		SharedPreferences settings = context.getSharedPreferences(ARBITER_PREFERENCES, FragmentActivity.MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putLong(OPEN_PROJECT, projectId);
 		editor.commit();
 		
-		GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
-		this.includeDefaultLayer = ProjectsHelper.getProjectsHelper().
-				getIncludeDefaultLayer(helper.getWritableDatabase(), context, projectId);
+		// Set the new project Id
+		this.projectId = projectId;
+		
+		// Set includeDefaultLayer
+		setIncludeDefaultLayer(includeDefaultLayer);
 	}
 	
+	/**
+	 * Get the open project's id.  The projectId should never be negative, so if it is
+	 * that means the projectId either hasn't been read from SharedPreferences yet, or
+	 * there are no projects, so create one.
+	 * 
+	 * @param context
+	 * @return
+	 */
 	public long getOpenProject(Context context){
 		if(projectId == -1){
-    		SharedPreferences settings = context.getSharedPreferences(ARBITER_PREFERENCES, FragmentActivity.MODE_PRIVATE);
+    		SharedPreferences settings = context.
+    				getSharedPreferences(ARBITER_PREFERENCES, FragmentActivity.MODE_PRIVATE);
+    		
     		projectId = settings.getLong(OPEN_PROJECT, -1);
+    		
+    		GlobalDatabaseHelper helper = GlobalDatabaseHelper
+	    			.getGlobalHelper(context);
     		
     		// If openProject is STILL -1, then there wasn't a previously opened project  
     		if(projectId == -1){
-    			GlobalDatabaseHelper helper = GlobalDatabaseHelper
-    	    			.getGlobalHelper(context);
     			projectId = ProjectsHelper.getProjectsHelper().ensureProjectExists(
     	    			helper.getWritableDatabase(), context);
     		}
+    		
+    		// Get whether or not this project includes the default layer
+    		setIncludeDefaultLayer(ProjectsHelper.getProjectsHelper().
+					getIncludeDefaultLayer(helper.getWritableDatabase(), context, projectId));
     	}
 		
 		return projectId;
@@ -82,5 +109,9 @@ public class ArbiterProject {
 	
 	public boolean includeDefaultLayer(){
 		return this.includeDefaultLayer;
+	}
+	
+	public void setIncludeDefaultLayer(boolean includeDefaultLayer){
+		this.includeDefaultLayer = includeDefaultLayer;
 	}
 }

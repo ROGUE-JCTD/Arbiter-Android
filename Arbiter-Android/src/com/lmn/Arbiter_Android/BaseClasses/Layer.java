@@ -13,6 +13,7 @@ public class Layer {
 	private String boundingBox;
 	private int serverId;
 	private boolean checked;
+	private boolean isDefaultLayer;
 	
 	public Layer(int layerId, String featureType, int serverId, String serverName, String serverUrl,
 			String title, String srs, String boundingBox){
@@ -24,6 +25,8 @@ public class Layer {
 		this.boundingBox = boundingBox;
 		this.serverId = serverId;
 		this.serverUrl = serverUrl;
+		this.isDefaultLayer = false;
+		
 		setChecked(false);
 	}
 	
@@ -38,6 +41,15 @@ public class Layer {
 		this.checked = item.isChecked();
 		this.serverId = item.getServerId();
 		this.serverUrl = item.getServerUrl();
+		this.isDefaultLayer = item.isDefaultLayer();
+	}
+	
+	public boolean isDefaultLayer(){
+		return this.isDefaultLayer;
+	}
+	
+	public void setIsDefaultLayer(boolean isDefaultLayer){
+		this.isDefaultLayer = isDefaultLayer;
 	}
 	
 	public int getLayerId(){
@@ -82,7 +94,8 @@ public class Layer {
 	
 	@Override
 	public String toString(){
-		return "\t featureType: " + featureType + 
+		return  "\t layerId: " + layerId +
+				"\n\t featureType: " + featureType + 
 				"\n\t serverName: " + serverName +
 				"\n\t serverId: " + serverId +
 				"\n\t title: " + title + 

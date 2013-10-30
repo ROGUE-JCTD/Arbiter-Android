@@ -1,5 +1,7 @@
 package com.lmn.Arbiter_Android.LoaderCallbacks;
 
+import java.util.ArrayList;
+
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
@@ -9,7 +11,7 @@ import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.ListAdapters.LayerListAdapter;
 import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
 
-public class LayerLoaderCallbacks implements LoaderManager.LoaderCallbacks<Layer[]>{
+public class LayerLoaderCallbacks implements LoaderManager.LoaderCallbacks<ArrayList<Layer>>{
 
 	private LayerListAdapter layerAdapter;
 	private FragmentActivity activity;
@@ -23,19 +25,19 @@ public class LayerLoaderCallbacks implements LoaderManager.LoaderCallbacks<Layer
 	}
 	
 	@Override
-	public Loader<Layer[]> onCreateLoader(int id, Bundle bundle) {
+	public Loader<ArrayList<Layer>> onCreateLoader(int id, Bundle bundle) {
 		// This is called when a new Loader needs to be created.  This
         // sample only has one Loader with no arguments, so it is simple.
         return new LayersListLoader(activity.getApplicationContext());
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Layer[]> loader, Layer[] data) {
+	public void onLoadFinished(Loader<ArrayList<Layer>> loader, ArrayList<Layer> data) {
 		layerAdapter.setData(data);
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Layer[]> loader) {
+	public void onLoaderReset(Loader<ArrayList<Layer>> loader) {
 		layerAdapter.setData(null);
 	}	
 }

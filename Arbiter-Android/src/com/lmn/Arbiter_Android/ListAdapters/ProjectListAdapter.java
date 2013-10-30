@@ -62,7 +62,8 @@ public class ProjectListAdapter extends BaseAdapter{
 					String cancel = resources.getString(android.R.string.cancel);
 					int layout = R.layout.switch_project;
 					
-					DialogFragment dialog = SwitchProjectDialog.newInstance(title, ok, cancel, layout, project.getId());
+					DialogFragment dialog = SwitchProjectDialog.newInstance(
+							title, ok, cancel, layout, project.getId(), project.includeDefaultLayer());
 					dialog.show(activity.getSupportFragmentManager(), "switchProjectDialog");
 				}
 			}

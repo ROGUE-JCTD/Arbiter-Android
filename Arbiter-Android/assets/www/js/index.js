@@ -78,7 +78,11 @@ var app = (function(){
 	    },
 	    
 	    removeLayer: function(layerId){
-	    	Arbiter.Map.Layers.removeLayer(layerId);
+	    	Arbiter.Map.Layers.removeLayerById(layerId);
+	    },
+	    
+	    removeDefaultLayer: function(){
+	    	Arbiter.Map.Layers.removeLayerByName("OpenStreetMap");
 	    }
 	};
 })();

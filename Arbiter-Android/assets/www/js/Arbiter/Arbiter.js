@@ -105,7 +105,7 @@ Arbiter.Map.Layers = (function(){
 		 * Remove the layer from the map
 		 * @param layer Layer to remove from the map
 		 */
-		removeLayer: function(layerId){
+		removeLayerById: function(layerId){
 			console.log("Arbiter.Map.Layer.removeLayer");
 			var map = Arbiter.Map.getMap();
 			
@@ -115,24 +115,23 @@ Arbiter.Map.Layers = (function(){
 			console.log("Arbiter.Map.Layer.removeLayer: wmsName = " + wmsName);
 			console.log("Arbiter.Map.Layer.removeLayer: wfsName = " + wfsName);
 			
-			var wmsLayer = map.getLayersByName(wmsName);
-			var wfsLayer = map.getLayersByName(wfsName);
+			this.removeLayerByName(wmsName);
+			this.removeLayerByName(wfsName);
+		},
+		
+		removeLayerByName: function(layerName){
+			var map = Arbiter.Map.getMap();
+			var isBaseLayer = false;
 			
-			console.log("wmsLayer & wfsLayer", wmsLayer, wfsLayer);
+			var layers = map.getLayersByName(layerName);
 			
-			var isBaseLayer;
-			
-			if(wmsLayer && wmsLayer.length > 0){
-				isBaseLayer = wmsLayer[0].isBaseLayer;
-				map.removeLayer(wmsLayer[0]);
+			if(layers && layers.length > 0){
+				isBaseLayer = layers[0].isBaseLayer;
+				map.removeLayer(layers[0]);
 			}
 			
-			if(wfsLayer && wfsLayer.length > 0){
-				map.removeLayer(wfsLayer[0]);
-			}
-			
-			if(map.layers.length > 0 && isBaseLayer){
-				setNewBaseLayer(map.layers[0]);
+			if((map.layers.length > 0) && (isBaseLayer === true)){
+				this.setNewBaseLayer(map.layers[0]);
 			}
 		},
 		

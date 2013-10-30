@@ -1,5 +1,7 @@
 package com.lmn.Arbiter_Android.Map;
 
+import java.util.ArrayList;
+
 import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,7 +24,7 @@ public class Map{
 		return map;
 	}
 	
-	public void loadMap(CordovaWebView webview, final Layer[] layers, boolean includeDefaultLayer){
+	public void loadMap(CordovaWebView webview, final ArrayList<Layer> layers, boolean includeDefaultLayer){
 		Log.w("MAP", "LOADMAP");
 		try {
 			webview.loadUrl("javascript:app.loadMap(" 
@@ -33,30 +35,35 @@ public class Map{
 		}
 	}
 	
-	private JSONArray getLayersJSON(Layer[] layers) throws JSONException{
+	private JSONArray getLayersJSON(ArrayList<Layer> layers) throws JSONException{
 		if(layers == null){
 			return null;
 		}
 		
 		JSONArray jsonArray = new JSONArray();
-		JSONObject layer;
+		JSONObject jsonLayer;
+		Layer layer;
 		
-		for(int i = 0; i < layers.length; i++){
-			layer = new JSONObject();
-			layer.put("layerId", layers[i].getLayerId());
-			layer.put("featureType", layers[i].getFeatureType());
-			layer.put("srs", layers[i].getLayerSRS());
-			layer.put("serverUrl", layers[i].getServerUrl());
+		for(int i = 0; i < layers.size(); i++){
+			layer = layers.get(i);
+			jsonLayer = new JSONObject();
+			jsonLayer.put("layerId", layer.getLayerId());
+			jsonLayer.put("featureType", layer.getFeatureType());
+			jsonLayer.put("srs", layer.getLayerSRS());
+			jsonLayer.put("serverUrl", layer.getServerUrl());
 			
-			jsonArray.put(layer);
+			jsonArray.put(jsonLayer);
 		}
 		
 		return jsonArray;
 	}
 	
 	public void deleteLayer(CordovaWebView webview, long layerId){
-		webview.loadUrl("javascript:app.removeLayer(" 
-			+ Long.toString(layerId) + ")");
-			
+		if(layerId == -1){
+			webview.loadUrl("javascript:app.removeDefaultLayer()");
+		}else{
+			webview.loadUrl("javascript:app.removeLayer(" 
+					+ Long.toString(layerId) + ")");
+		}	
 	}
 }

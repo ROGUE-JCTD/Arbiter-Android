@@ -1,5 +1,9 @@
 package com.lmn.Arbiter_Android.Dialog;
 
+import java.util.ArrayList;
+
+import org.apache.cordova.CordovaWebView;
+
 import android.content.res.Resources;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -74,7 +78,7 @@ public class ArbiterDialogs {
 		dialog.show(fragManager, "serversDialog");
 	}
 	
-	public void showAddLayersDialog(Layer[] layersInProject){
+	public void showAddLayersDialog(ArrayList<Layer> layersInProject){
 		String title = resources.getString(R.string.add_layers_dialog_title);
 		String ok = resources.getString(android.R.string.ok);
 		String cancel = resources.getString(android.R.string.cancel);

@@ -33,7 +33,7 @@ public class GetCapabilities {
 	 * @return
 	 * @throws Exception
 	 */
-	public ArrayList<Layer> getLayers(Server server, Layer[] layersInProject) throws Exception {
+	public ArrayList<Layer> getLayers(Server server, ArrayList<Layer> layersInProject) throws Exception {
 		if(server != null){
 			String url = server.getUrl() + "/wms?service=wms&version=1.1.1&request=getCapabilities";
 			
@@ -77,7 +77,7 @@ public class GetCapabilities {
 	 * @param pulledLayers
 	 * @param myLayers
 	 */
-	public void removeDuplicates(List<Layer> pulledLayers, Layer[] projectLayers){
+	public void removeDuplicates(List<Layer> pulledLayers, ArrayList<Layer> projectLayers){
 		if(projectLayers != null){
 			// key: server_id:featuretype
 			// value: Boolean
@@ -87,8 +87,8 @@ public class GetCapabilities {
 			int i;
 			
 			// Add all of the layers in the project already to the hashmap
-			for(i = 0; i < projectLayers.length; i++){
-				currentLayer = projectLayers[i];
+			for(i = 0; i < projectLayers.size(); i++){
+				currentLayer = projectLayers.get(i);
 				
 				key = buildLayerKey(currentLayer);
 				

@@ -1,5 +1,7 @@
 package com.lmn.Arbiter_Android.Loaders;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 
@@ -8,10 +10,10 @@ import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 
-public class MapLoader extends AsyncTaskLoader<Layer[]> {
+public class MapLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 	public static final String PROJECT_LIST_UPDATED = "PROJECT_LIST_UPDATED";
 	
-	private Layer[] layers;
+	private ArrayList<Layer> layers;
 	private GlobalDatabaseHelper globalDbHelper = null;
 	private Context context;
 	
@@ -22,8 +24,8 @@ public class MapLoader extends AsyncTaskLoader<Layer[]> {
 	}
 
 	@Override
-	public Layer[] loadInBackground() {
-		Layer[] layers = LayersHelper.getLayersHelper().
+	public ArrayList<Layer> loadInBackground() {
+		ArrayList<Layer> layers = LayersHelper.getLayersHelper().
 				getAll(globalDbHelper.getWritableDatabase(), 
 						ArbiterProject.getArbiterProject().getOpenProject(context));
 		
@@ -35,7 +37,7 @@ public class MapLoader extends AsyncTaskLoader<Layer[]> {
      * super class will take care of delivering it; the implementation
      * here just adds a little more logic.
      */
-    @Override public void deliverResult(Layer[] _layers) {
+    @Override public void deliverResult(ArrayList<Layer> _layers) {
         if (isReset()) {
             // An async query came in while the loader is stopped.  We
             // don't need the result.
@@ -44,7 +46,7 @@ public class MapLoader extends AsyncTaskLoader<Layer[]> {
             }
         }
         
-        Layer[] oldLayers = _layers;
+        ArrayList<Layer> oldLayers = _layers;
         layers = _layers;
 
         if (isStarted()) {
@@ -89,12 +91,12 @@ public class MapLoader extends AsyncTaskLoader<Layer[]> {
     /**
      * Handles a request to cancel a load.
      */
-    @Override public void onCanceled(Layer[] _projects) {
-        super.onCanceled(_projects);
+    @Override public void onCanceled(ArrayList<Layer> _layers) {
+        super.onCanceled(_layers);
 
         // At this point we can release the resources associated with 'apps'
         // if needed.
-        onReleaseResources(_projects);
+        onReleaseResources(_layers);
     }
 
     /**
@@ -118,7 +120,7 @@ public class MapLoader extends AsyncTaskLoader<Layer[]> {
      * Helper function to take care of releasing resources associated
      * with an actively loaded data set.
      */
-    protected void onReleaseResources(Layer[] _projects) {
+    protected void onReleaseResources(ArrayList<Layer> _layers) {
         // For a simple List<> there is nothing to do.  For something
         // like a Cursor, we would close it here.
     	

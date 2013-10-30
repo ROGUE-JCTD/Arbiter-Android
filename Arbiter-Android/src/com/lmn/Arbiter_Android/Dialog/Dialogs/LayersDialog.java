@@ -1,5 +1,7 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
+import java.util.ArrayList;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -105,16 +107,17 @@ public class LayersDialog extends ArbiterDialogFragment{
 		this.layerLoaderCallbacks = new LayerLoaderCallbacks(this.getActivity(), this.layersAdapter, R.id.loader_layers);
 	}
 	
-	public Layer[] getCopyOfLayers(){
-		Layer[] layers = this.layersAdapter.getLayers();
-		final Layer[] mLayers = new Layer[layers.length];
+	public ArrayList<Layer> getCopyOfLayers(){
+		ArrayList<Layer> layers = this.layersAdapter.getLayers();
+		
+		final ArrayList<Layer> mLayers = new ArrayList<Layer>(layers.size());
 		
 		// Make a deep copy of the layers
-		for(int i = 0; i < layers.length; i++){
-			mLayers[i] = new Layer(layers[i]);
+		for(int i = 0; i < layers.size(); i++){
+			mLayers.add(new Layer(layers.get(i)));
 		}
 				
-		Log.w("LAYERSDIALOG", "LAYERSDIALOG count: " + mLayers.length);
+		Log.w("LAYERSDIALOG", "LAYERSDIALOG count: " + mLayers.size());
 		return mLayers;
 	}
 }

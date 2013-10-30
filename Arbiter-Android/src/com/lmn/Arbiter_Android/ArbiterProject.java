@@ -20,6 +20,8 @@ public class ArbiterProject {
 	// The id of the project that is open
 	private long projectId = -1;
 	
+	private boolean includeDefaultLayer = true;
+	
 	private ArbiterProject(){}
 	
 	private static ArbiterProject project = null;
@@ -39,6 +41,10 @@ public class ArbiterProject {
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putLong(OPEN_PROJECT, projectId);
 		editor.commit();
+		
+		GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+		this.includeDefaultLayer = ProjectsHelper.getProjectsHelper().
+				getIncludeDefaultLayer(helper.getWritableDatabase(), context, projectId);
 	}
 	
 	public long getOpenProject(Context context){
@@ -67,10 +73,14 @@ public class ArbiterProject {
 	}
 	
 	public void createNewProject(String name){
-		newProject = new Project(-1, name, "");
+		newProject = new Project(-1, name, "", true);
 	}
 	
 	public Project getNewProject(){
 		return newProject;
+	}
+	
+	public boolean includeDefaultLayer(){
+		return this.includeDefaultLayer;
 	}
 }

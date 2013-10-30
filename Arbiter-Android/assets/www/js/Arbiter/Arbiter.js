@@ -58,10 +58,11 @@ Arbiter.Map = (function(){
 Arbiter.Map.Layers = (function(){
 	
 	return {
-		
 		/**
 		 * Get a name for the layer, supplying a com.lmn.Arbiter_Android.BaseClasses.Layer
 		 * and a type (wms or wfs)
+		 * @param layerId The id of the layer
+		 * @param type The type of the layer
 		 */
 		getLayerName: function(layerId, type){
 			if(layerId === null || layerId === undefined){

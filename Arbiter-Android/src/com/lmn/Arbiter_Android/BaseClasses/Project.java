@@ -7,18 +7,29 @@ public class Project {
 	private String projectName;
 	private ArrayList<Layer> layers;
 	private String aoi;
+	private boolean includeDefaultLayer;
 	
-	public Project(long projectId, String projectName, String aoi){
+	public Project(long projectId, String projectName, String aoi, boolean includeDefaultLayer){
 		this.projectName = projectName;
 		this.layers = new ArrayList<Layer>();
 		this.id = projectId;
 		this.aoi = aoi;
+		this.includeDefaultLayer = includeDefaultLayer;
+	}
+	
+	public Project(long projectId, String projectName, String aoi, int includeDefaultLayer){
+		this.projectName = projectName;
+		this.layers = new ArrayList<Layer>();
+		this.id = projectId;
+		this.aoi = aoi;
+		this.includeDefaultLayer = getIncludeDefaultLayer(includeDefaultLayer);
 	}
 	
 	public Project(Project project){
 		this.projectName = project.getProjectName();
 		this.id = project.getId();
 		this.aoi = project.getAOI();
+		this.includeDefaultLayer = project.includeDefaultLayer();
 		
 		this.layers = new ArrayList<Layer>();
 		ArrayList<Layer> pLayers = project.getLayers();
@@ -45,6 +56,14 @@ public class Project {
 	
 	public long getId(){
 		return id;
+	}
+	
+	public boolean includeDefaultLayer(){
+		return includeDefaultLayer;
+	}
+	
+	public static boolean getIncludeDefaultLayer(int includeDefaultLayer){
+		return (includeDefaultLayer > 0) ? true : false;
 	}
 	
 	/**

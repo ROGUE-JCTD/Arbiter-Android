@@ -19,6 +19,7 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 	public static final String PROJECT_NAME = "name";
 	public static final String PROJECTS_TABLE_NAME = "projects";
 	public static final String PROJECT_AOI = "aoi";
+	public static final String INCLUDE_DEFAULT_LAYER = "default_layer";
 	
 	private ProjectsHelper(){}
 	
@@ -37,7 +38,8 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 					_ID +
 					" INTEGER PRIMARY KEY AUTOINCREMENT, " + 
 					PROJECT_NAME + " TEXT, " +
-					PROJECT_AOI + " TEXT);";
+					PROJECT_AOI + " TEXT, " +
+					INCLUDE_DEFAULT_LAYER + " BOOLEAN);";
 		
 		Log.w("PROJECTSHELPER", "PROJECTSHELPER : " + sql);
 		db.execSQL(sql);
@@ -48,7 +50,8 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 		String[] columns = {
 				_ID, // 0
 				PROJECT_NAME, // 1
-				PROJECT_AOI // 2
+				PROJECT_AOI, // 2
+				INCLUDE_DEFAULT_LAYER // 3
 		};
 		
 		// How to sort the results
@@ -63,7 +66,7 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 		//Traverse the cursors to populate the projects array
 		for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 			projects[i] = new Project(cursor.getInt(0), 
-					cursor.getString(1), cursor.getString(2));
+					cursor.getString(1), cursor.getString(2), cursor.getInt(3));
 			i++;
 		}
 		
@@ -81,6 +84,7 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 			ContentValues values = new ContentValues();
 			values.put(PROJECT_NAME, newProject.getProjectName());
 			values.put(PROJECT_AOI, newProject.getAOI());
+			values.put(INCLUDE_DEFAULT_LAYER, newProject.includeDefaultLayer());
 			
 			projectId[0] = db.insert(PROJECTS_TABLE_NAME, null, values);
 			
@@ -144,7 +148,9 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
     	long[] projectId = {-1};
     	
     	if(cursor.getCount() < 1){
-    		projectId = insert(db, context, new Project(-1, context.getResources().getString(R.string.default_project_name), ""));
+    		// Insert the default project
+    		projectId = insert(db, context, new Project(-1, 
+    				context.getResources().getString(R.string.default_project_name), "", true));
     	}
     	
     	cursor.close();
@@ -157,9 +163,9 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 			PROJECT_AOI	// 0
 		};
 		
-		String where = ProjectsHelper._ID + "=?";
+		String where = _ID + "=?";
 		String[] whereArgs = {
-				Long.toString(projectId)	
+			Long.toString(projectId)	
 		};
 		
 		Cursor cursor = db.query(PROJECTS_TABLE_NAME, columns, where, whereArgs, null, null, null);
@@ -174,5 +180,28 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 		cursor.close();
 		
 		return aoi;
+	}
+	
+	public boolean getIncludeDefaultLayer(SQLiteDatabase db, Context context, long projectId){
+		String[] columns = {
+			INCLUDE_DEFAULT_LAYER // 0	
+		};
+		
+		String where = _ID + "=?";
+		String[] whereArgs = {
+			Long.toString(projectId)
+		};
+		
+		Cursor cursor = db.query(PROJECTS_TABLE_NAME, columns, where, whereArgs, null, null, null);
+		boolean hasResult = cursor.moveToFirst();
+		int includeDefaultLayer = 1;
+		
+		if(hasResult){
+			includeDefaultLayer = cursor.getInt(0);
+		}
+		
+		cursor.close();
+		
+		return Project.getIncludeDefaultLayer(includeDefaultLayer);
 	}
 }

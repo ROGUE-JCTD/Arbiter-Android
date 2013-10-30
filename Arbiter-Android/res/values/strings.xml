@@ -5,6 +5,7 @@
     <string name="action_findme">Find me</string>
     <string name="default_project_name">MyProject</string>
 	<string name="delete">Delete</string>
+	<string name="default_layer_name">OpenStreetMap</string>
 	
     <!-- MAP ACTIVITY STRINGS -->
     <string name="map_activity_name">Arbiter</string>

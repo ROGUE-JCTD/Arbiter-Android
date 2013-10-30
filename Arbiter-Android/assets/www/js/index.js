@@ -41,11 +41,17 @@ var app = (function(){
 	    	Arbiter.Map.Layers.removeAllLayers();
 	    },
 	    
-	    loadMap: function(layers){
+	    loadMap: function(layers, includeDefaultLayer){
 	    	this.clearMap();
 	    	
 	    	var protocol;
 	    	var layer;
+	    	
+	    	if(includeDefaultLayer){
+	    		Arbiter.Map.Layers.addLayer(new OpenLayers.Layer.OSM("OpenStreetMap", null, {
+	    			transitionEffect: 'resize'
+				}));
+	    	}
 	    	
 	    	for(var i = 0; i < layers.length; i++){
 	    		

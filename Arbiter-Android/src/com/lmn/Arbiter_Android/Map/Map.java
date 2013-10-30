@@ -22,11 +22,11 @@ public class Map{
 		return map;
 	}
 	
-	public void loadMap(CordovaWebView webview, final Layer[] layers){
+	public void loadMap(CordovaWebView webview, final Layer[] layers, boolean includeDefaultLayer){
 		Log.w("MAP", "LOADMAP");
 		try {
 			webview.loadUrl("javascript:app.loadMap(" 
-					+ getLayersJSON(layers) + ")");
+					+ getLayersJSON(layers) + ", " + Boolean.toString(includeDefaultLayer)  + ")");
 			
 		} catch (JSONException e) {
 			e.printStackTrace();

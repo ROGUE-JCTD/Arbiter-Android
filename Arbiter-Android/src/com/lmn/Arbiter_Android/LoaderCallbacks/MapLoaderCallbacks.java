@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 
+import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.Loaders.MapLoader;
 import com.lmn.Arbiter_Android.Map.Map;
@@ -33,12 +34,14 @@ public class MapLoaderCallbacks implements LoaderManager.LoaderCallbacks<Layer[]
 
 	@Override
 	public void onLoadFinished(Loader<Layer[]> loader, Layer[] layers) {
-		Map.getMap().loadMap(webview, layers);
+		Map.getMap().loadMap(webview, layers, 
+				ArbiterProject.getArbiterProject().includeDefaultLayer());
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Layer[]> loader) {
-		Map.getMap().loadMap(webview, null);
+		Map.getMap().loadMap(webview, null, 
+				ArbiterProject.getArbiterProject().includeDefaultLayer());
 	}	
 	
 	public void loadMap(){

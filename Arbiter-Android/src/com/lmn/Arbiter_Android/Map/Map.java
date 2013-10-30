@@ -1,4 +1,4 @@
-package com.lmn.Arbiter_Android;
+package com.lmn.Arbiter_Android.Map;
 
 import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;

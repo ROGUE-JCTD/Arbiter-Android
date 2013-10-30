@@ -9,13 +9,13 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
-import com.lmn.Arbiter_Android.Map;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.LoaderCallbacks.MapLoaderCallbacks;
 import com.lmn.Arbiter_Android.ListAdapters.LayerListAdapter;
+import com.lmn.Arbiter_Android.Map.Map;
 
 import android.os.Bundle;
 import android.app.Activity;

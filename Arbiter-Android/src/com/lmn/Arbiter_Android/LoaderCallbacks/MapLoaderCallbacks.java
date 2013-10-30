@@ -7,9 +7,9 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 
-import com.lmn.Arbiter_Android.Map;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.Loaders.MapLoader;
+import com.lmn.Arbiter_Android.Map.Map;
 
 public class MapLoaderCallbacks implements LoaderManager.LoaderCallbacks<Layer[]>{
 

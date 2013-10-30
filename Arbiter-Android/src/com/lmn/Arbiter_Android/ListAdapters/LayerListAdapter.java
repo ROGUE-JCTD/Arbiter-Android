@@ -59,9 +59,9 @@ public class LayerListAdapter extends BaseAdapter{
 	private void addDefaultLayer(ArrayList<Layer> layers){
 		if(layers != null){
 			if(ArbiterProject.getArbiterProject().includeDefaultLayer()){
-				layers.add(0, new Layer(-1, null, -1, null, null,
+				layers.add(new Layer(-1, null, -1, null, null,
 						context.getResources().getString(R.string.default_layer_name), null, null));
-				layers.get(0).setIsDefaultLayer(true);
+				layers.get(layers.size() - 1).setIsDefaultLayer(true);
 			}
 		}
 	}

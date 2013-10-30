@@ -1,6 +1,8 @@
 package com.lmn.Arbiter_Android.BaseClasses;
 
 public class Server {
+	public static final int DEFAULT_FLAG = -1;
+	
 	private int id;
 	private String serverName;
 	private String url;

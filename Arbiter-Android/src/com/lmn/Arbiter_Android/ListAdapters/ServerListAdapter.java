@@ -2,6 +2,7 @@ package com.lmn.Arbiter_Android.ListAdapters;
 
 import java.util.ArrayList;
 
+import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
@@ -9,6 +10,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,8 +51,20 @@ public class ServerListAdapter extends BaseAdapter{
 			
 	}
 	
+	private void addDefaultServer(ArrayList<Server> servers){
+		if(servers != null){
+			if(!ArbiterProject.getArbiterProject().includeDefaultLayer()){
+				servers.add(new Server(activity.getApplicationContext().
+						getResources().getString(R.string.default_layer_name), null, 
+						null, null, Server.DEFAULT_FLAG));
+			}
+		}
+	}
+	
 	public void setData(ArrayList<Server> data){
 		items = data;
+		
+		addDefaultServer(items);
 		
 		notifyDataSetChanged();
 	}
@@ -76,36 +90,43 @@ public class ServerListAdapter extends BaseAdapter{
 			ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteServer);
 			
 			if(deleteButton != null){
-            	deleteButton.setOnClickListener(new OnClickListener(){
+				if(server.getId() == Server.DEFAULT_FLAG){
+					deleteButton.setEnabled(false);
+				}else{
+					deleteButton.setEnabled(true);
+					deleteButton.setOnClickListener(new OnClickListener(){
 
-					@Override
-					public void onClick(View v) {
-						
-						ServersHelper.getServersHelper().deletionAlert(activity, new Runnable(){
-
-							@Override
-							public void run() {
-								CommandExecutor.runProcess(new Runnable(){
-									@Override
-									public void run() {
-										
-										GlobalDatabaseHelper helper = GlobalDatabaseHelper.
-												getGlobalHelper(activity.getApplicationContext());
-										ServersHelper.getServersHelper().delete(helper.getWritableDatabase(),
-												activity.getApplicationContext(), server);;
-										
-									}
-									
-								});
-							}
-						});
-					}
-            		
-            	});
+						@Override
+						public void onClick(View v) {
+							displayDeletionAlert(server);
+						}
+	            		
+	            	});
+				}
             }
 		}
 		
 		return view;
+	}
+	
+	private void displayDeletionAlert(final Server server){
+		ServersHelper.getServersHelper().deletionAlert(activity, new Runnable(){
+
+			@Override
+			public void run() {
+				CommandExecutor.runProcess(new Runnable(){
+					@Override
+					public void run() {
+						
+						GlobalDatabaseHelper helper = GlobalDatabaseHelper.
+								getGlobalHelper(activity.getApplicationContext());
+						ServersHelper.getServersHelper().delete(helper.getWritableDatabase(),
+								activity.getApplicationContext(), server);
+					}
+					
+				});
+			}
+		});
 	}
 	
 	@Override
@@ -140,6 +161,7 @@ public class ServerListAdapter extends BaseAdapter{
 
 	@Override
 	public Server getItem(int position) {
+		Log.w("SERVERLISTADAPTER", "SERVERLISTADAPTER: getItem(" + Integer.toString(position) + ") out of " + items.size());
 		return items.get(position);
 	}
 

@@ -13,7 +13,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.BaseClasses.Project;
-import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
 import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 
 public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, BaseColumns{
@@ -89,6 +88,8 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 			
 			projectId[0] = db.insert(PROJECTS_TABLE_NAME, null, values);
 			
+			// If the project successfully inserted,
+			// insert the layers with the projects id
 			if(projectId[0] != -1){
 				
 				LayersHelper.getLayersHelper().insert(db, context, newProject.getLayers(), projectId[0]);

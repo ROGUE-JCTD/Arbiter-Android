@@ -1,11 +1,13 @@
 package com.lmn.Arbiter_Android.ListAdapters;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -35,7 +37,66 @@ public class AddLayersListAdapter extends BaseAdapter {
 	public void setData(ArrayList<Layer> items){
 		this.items = items;
 		
+		setCheckedLayers();
+		
 		notifyDataSetChanged();
+	}
+	
+	private void setCheckedLayers(){
+		if(items != null && !items.isEmpty()
+				&& (!checkedLayers.isEmpty() || includeDefaultLayer)){
+			
+			// key: server_id:featuretype
+			// value: Boolean
+			HashMap<String, Integer> layersAlreadyChecked = new HashMap<String, Integer>();
+			
+			String key = null;
+			Layer currentLayer = null;
+			int i;
+			
+			// Add all of the layers that are checked
+			for(i = 0; i < checkedLayers.size(); i++){
+				currentLayer = checkedLayers.get(i);
+				
+				key = Layer.buildLayerKey(currentLayer);
+				
+				if(!layersAlreadyChecked.containsKey(key)){
+					layersAlreadyChecked.put(key, i);
+				}
+			}
+			
+			// If the layer is supposed to be checked, check it
+			for(i = 0; i < items.size(); i++){
+				currentLayer = items.get(i);
+				
+				// If the current layer being checked is,
+				// the default layer, set checked to
+				// includeDefaultLayer, which should be
+				// true if the layer was checked
+				if(currentLayer.isDefaultLayer()){
+					currentLayer.setChecked(includeDefaultLayer);
+				}else{
+					key = Layer.buildLayerKey(currentLayer);
+					
+					if(layersAlreadyChecked.containsKey(key)){
+						currentLayer.setChecked(true);
+						
+						// Replace the Layer in the checkedLayers list
+						// with the Layer from the new list, for
+						// unchecking to work properly
+						replaceCheckedLayer(layersAlreadyChecked, key, currentLayer);
+					}
+				}
+			}
+		}
+	}
+	
+	private void replaceCheckedLayer(HashMap<String, Integer> layersAlreadyChecked, 
+			String key, Layer layer){
+		
+		int replaceAt = layersAlreadyChecked.get(key);
+		
+		checkedLayers.set(replaceAt, layer);
 	}
 	
 	/**

@@ -4,6 +4,16 @@ public class Layer {
 	public static final int DEFAULT_FLAG = -1;
 	public static final String DEFAULT_LAYER_NAME = "OpenStreetMap";
 	
+	/**
+	 * Create a key for the methods requiring a key (removeDuplicates, setCheckedLayers..)
+	 * @param layer Layer to create the key with
+	 * @return
+	 */
+	public static String buildLayerKey(Layer layer){
+		return Integer.valueOf(layer.getServerId()).toString() + ":" +
+				layer.getFeatureType();
+	}
+	
 	private int layerId;
 	private String featureType;
 	

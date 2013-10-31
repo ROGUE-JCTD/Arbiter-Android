@@ -9,14 +9,13 @@ import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
+import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -27,13 +26,7 @@ import android.widget.TextView;
 
 public class LayerListAdapter extends BaseAdapter{
 
-	private LayerChangeListener layerChangeListener;
-	
-	public interface LayerChangeListener {
-		public void onLayerDeleted(long layerId);
-		
-		public void onLayerVisibilityChanged(long layerId);
-	}
+	private MapChangeListener mapChangeListener;
 	
 	private ArrayList<Layer> items;
 	private final LayoutInflater inflater;
@@ -50,10 +43,10 @@ public class LayerListAdapter extends BaseAdapter{
 		this.activity = activity;
 		
 		try {
-			layerChangeListener = (LayerChangeListener) activity;
+			mapChangeListener = (MapChangeListener) activity;
 		} catch (ClassCastException e){
 			throw new ClassCastException(activity.toString() 
-					+ " must implement LayerChangeListener");
+					+ " must implement MapChangeListener");
 		}
 	}
 	
@@ -124,7 +117,7 @@ public class LayerListAdapter extends BaseAdapter{
 		ArbiterProject.getArbiterProject().setIncludeDefaultLayer(context, false, new Runnable(){
 			@Override
 			public void run(){
-				layerChangeListener.onLayerDeleted(-1);
+				mapChangeListener.onLayerDeleted(Layer.DEFAULT_FLAG);
 				
 				LocalBroadcastManager.getInstance(context).
 					sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
@@ -143,14 +136,7 @@ public class LayerListAdapter extends BaseAdapter{
 
 							@Override
 							public void run() {
-								activity.runOnUiThread(new Runnable(){
-
-									@Override
-									public void run() {
-										layerChangeListener.onLayerDeleted(layerId);
-									}
-								});
-								
+								mapChangeListener.onLayerDeleted(layerId);
 							}
 							
 						});

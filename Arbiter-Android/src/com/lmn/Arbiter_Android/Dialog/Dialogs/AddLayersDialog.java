@@ -10,7 +10,6 @@ import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.ListAdapters.AddLayersListAdapter;
@@ -19,6 +18,7 @@ import com.lmn.Arbiter_Android.LoaderCallbacks.AddLayersLoaderCallbacks;
 import com.lmn.Arbiter_Android.LoaderCallbacks.ServerLoaderCallbacks;
 import com.lmn.Arbiter_Android.Loaders.AddLayersListLoader;
 import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
+import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 
 import android.content.Context;
 import android.content.Intent;
@@ -44,6 +44,8 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	private Spinner spinner;
 	private ArrayList<Layer> layersInProject;
 	private boolean creatingProject;
+	
+	private MapChangeListener mapChangeListener;
 	
 	public static AddLayersDialog newInstance(String title, String ok, 
 			String cancel, int layout, ArrayList<Layer> layersInProject){
@@ -78,6 +80,14 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		super.onCreate(savedInstanceState);
 		
 		setRetainInstance(true);
+		
+		try {
+			mapChangeListener = (MapChangeListener) getActivity();
+		} catch (ClassCastException e){
+			e.printStackTrace();
+			throw new ClassCastException(getActivity().toString() 
+					+ " must implement MapChangeListener");
+		}
 	}
 
 	@Override
@@ -90,18 +100,16 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	
 	@Override
 	public void onPositiveClick() {
-		// TODO: THIS IS GOING TO CHANGE...
-		// If project is null, then we're adding a layer in project
 		if(!creatingProject){
 			// write the added layers to the database
 			final Context context = getActivity().getApplicationContext();
 			
-			final ArrayList<Layer> list = new ArrayList<Layer>();
+			final ArrayList<Layer> layers = new ArrayList<Layer>();
 			ArrayList<Layer> checked = this.addLayersAdapter.getCheckedLayers();
 			
 			// Create a deep copy of the list of the checked layers
 			for(int i = 0; i < checked.size(); i++){
-				list.add(new Layer(checked.get(i)));
+				layers.add(new Layer(checked.get(i)));
 			}
 			
 			final boolean includeDefaultLayer = this.addLayersAdapter.includeDefaultLayer();
@@ -111,9 +119,14 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 				public void run() {
 					long projectId = ArbiterProject.getArbiterProject().getOpenProject(context);
 					GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
-					LayersHelper.getLayersHelper().insert(helper.getWritableDatabase(), context, list, projectId);
+					long[] layerIds = LayersHelper.getLayersHelper().
+								insert(helper.getWritableDatabase(), context, layers, projectId);
 					
-					setIncludeDefaultLayer(includeDefaultLayer);
+					if(includeDefaultLayer){
+						setIncludeDefaultLayer(includeDefaultLayer);
+					}
+					
+					mapChangeListener.onLayersAdded(layers, layerIds, includeDefaultLayer);
 				}
 				
 			});

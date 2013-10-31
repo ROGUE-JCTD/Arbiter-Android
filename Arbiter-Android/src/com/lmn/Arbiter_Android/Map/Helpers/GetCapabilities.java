@@ -77,7 +77,7 @@ public class GetCapabilities {
 	 * @param pulledLayers
 	 * @param myLayers
 	 */
-	public void removeDuplicates(List<Layer> pulledLayers, ArrayList<Layer> projectLayers){
+	private void removeDuplicates(List<Layer> pulledLayers, ArrayList<Layer> projectLayers){
 		if(projectLayers != null){
 			// key: server_id:featuretype
 			// value: Boolean
@@ -90,7 +90,7 @@ public class GetCapabilities {
 			for(i = 0; i < projectLayers.size(); i++){
 				currentLayer = projectLayers.get(i);
 				
-				key = buildLayerKey(currentLayer);
+				key = Layer.buildLayerKey(currentLayer);
 				
 				if(!layersInProject.containsKey(key)){
 					layersInProject.put(key, true);
@@ -101,22 +101,12 @@ public class GetCapabilities {
 			for(i = 0; i < pulledLayers.size(); i++){
 				currentLayer = pulledLayers.get(i);
 				
-				key = buildLayerKey(currentLayer);
+				key = Layer.buildLayerKey(currentLayer);
 				
 				if(layersInProject.containsKey(key)){
 					pulledLayers.remove(i);
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Create a key for the removeDuplicates method
-	 * @param layer Layer to create the key with
-	 * @return
-	 */
-	private String buildLayerKey(Layer layer){
-		return Integer.valueOf(layer.getServerId()).toString() + ":" +
-				layer.getFeatureType();
 	}
 }

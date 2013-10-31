@@ -1,5 +1,6 @@
 package com.lmn.Arbiter_Android.Activities;
 
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -10,11 +11,11 @@ import org.apache.cordova.CordovaWebView;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.LoaderCallbacks.MapLoaderCallbacks;
-import com.lmn.Arbiter_Android.ListAdapters.LayerListAdapter;
 import com.lmn.Arbiter_Android.Map.Map;
 
 import android.os.Bundle;
@@ -31,7 +32,7 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ToggleButton;
 
-public class MapActivity extends FragmentActivity implements CordovaInterface, LayerListAdapter.LayerChangeListener{
+public class MapActivity extends FragmentActivity implements CordovaInterface, Map.MapChangeListener{
     private ArbiterDialogs dialogs;
     private boolean welcomed;
     private String TAG = "MAP_ACTIVITY";
@@ -40,7 +41,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, L
     private static final String cordovaUrl = "file:///android_asset/www/index.html";
     
     // For CORDOVA
-    private CordovaWebView cordovaWebview;
+    private CordovaWebView cordovaWebView;
     private final ExecutorService threadPool = Executors.newCachedThreadPool();
     
     @Override
@@ -53,9 +54,9 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, L
         
         dialogs = new ArbiterDialogs(getResources(), getSupportFragmentManager());
 
-        cordovaWebview = (CordovaWebView) findViewById(R.id.webView1);
+        cordovaWebView = (CordovaWebView) findViewById(R.id.webView1);
         
-        cordovaWebview.loadUrl(cordovaUrl, 5000);
+        cordovaWebView.loadUrl(cordovaUrl, 5000);
     }
 
     public void Init(Bundle savedInstanceState){
@@ -103,7 +104,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, L
     					helper.getWritableDatabase(), context, 
     					ArbiterProject.getArbiterProject().getOpenProject(context));
     			
-    			cordovaWebview.loadUrl("javascript:app.zoomToAOI(" + aoi + ")");
+    			cordovaWebView.loadUrl("javascript:app.zoomToAOI(" + aoi + ")");
     		}
     	});
     }
@@ -195,8 +196,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, L
     @Override
     protected void onDestroy(){
     	super.onDestroy();
-    	if(this.cordovaWebview != null){
-    		cordovaWebview.handleDestroy();
+    	if(this.cordovaWebView != null){
+    		cordovaWebView.handleDestroy();
     	}
     }
     
@@ -210,13 +211,31 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, L
 	 * LayerChangeListener events
 	 */
 	@Override
-	public void onLayerDeleted(long layerId) {
-		Map.getMap().deleteLayer(cordovaWebview, layerId);
+	public void onLayerDeleted(final long layerId) {
+		runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				Map.getMap().deleteLayer(cordovaWebView, layerId);
+			}
+		});
 	}
 
 	@Override
 	public void onLayerVisibilityChanged(long layerId) {
 		
+	}
+	
+	@Override
+	public void onLayersAdded(final ArrayList<Layer> layers, final long[] layerIds,
+			final boolean includeDefaultLayer) {
+		
+		runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				Map.getMap().addLayers(cordovaWebView, 
+						layers, layerIds, includeDefaultLayer);
+			}
+		});
 	}
 	
     /**
@@ -239,7 +258,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, L
                 super.finish();
         }else if(message.equals("onPageFinished")){
         	if(obj instanceof String && ((String) obj).equals(cordovaUrl)){
-        		this.mapLoaderCallbacks = new MapLoaderCallbacks(this, cordovaWebview , R.id.loader_map);
+        		this.mapLoaderCallbacks = new MapLoaderCallbacks(this, cordovaWebView , R.id.loader_map);
                 this.arbiterProject.makeSameProject();	
         	}
         }

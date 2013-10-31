@@ -41,10 +41,7 @@ var app = (function(){
 	    	Arbiter.Map.Layers.removeAllLayers();
 	    },
 	    
-	    loadMap: function(layers, includeDefaultLayer){
-	    	this.clearMap();
-	    	
-	    	var protocol;
+	    addLayers: function(layers, includeDefaultLayer){
 	    	var layer;
 	    	
 	    	if(includeDefaultLayer){
@@ -70,6 +67,12 @@ var app = (function(){
 	    		
 	    		Arbiter.Map.Layers.addLayer(layer);
 	    	}
+	    },
+	    
+	    loadMap: function(layers, includeDefaultLayer){
+	    	this.clearMap();
+	    	
+	    	this.addLayers(layers, includeDefaultLayer);
 	    	
 	    	var map = Arbiter.Map.getMap();
 	    	if(map.layers.length){

@@ -8,6 +8,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.IntentFilter;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
@@ -38,15 +39,10 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 			
 			_layers = getCapabilities.getLayers(server,
 					dialog.getLayersInProject());
-			
-			if((_layers == null) && 
-					Server.isDefaultServer(server.getId())){
-				_layers = new ArrayList<Layer>();
 				
-				addDefaultLayer(_layers, server);
-			}
+			_layers = addDefaultLayer(_layers, server);
+			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (XmlPullParserException e){
 			e.printStackTrace();
@@ -57,14 +53,19 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 		return _layers;
 	}
 	
-	private void addDefaultLayer(ArrayList<Layer> layers, Server server){
-		if(layers != null && (server != null) && 
+	private ArrayList<Layer> addDefaultLayer(ArrayList<Layer> layers, Server server){
+		if(layers == null){
+			layers = new ArrayList<Layer>();
+		}
+		
+		if((server != null) && 
 				Server.isDefaultServer(server.getId())){
-			
 			layers.add(new Layer(Layer.DEFAULT_FLAG, null, Server.DEFAULT_FLAG, Server.DEFAULT_SERVER_NAME, null,
 					Layer.DEFAULT_LAYER_NAME, null, null));
 			layers.get(layers.size() - 1).setIsDefaultLayer(true);
 		}
+		
+		return layers;
 	}
 	
 	/**

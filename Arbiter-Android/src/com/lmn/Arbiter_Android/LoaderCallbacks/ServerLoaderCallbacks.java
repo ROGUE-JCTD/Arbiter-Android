@@ -2,13 +2,16 @@ package com.lmn.Arbiter_Android.LoaderCallbacks;
 
 import java.util.ArrayList;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.ListAdapters.ServerListAdapter;
+import com.lmn.Arbiter_Android.Loaders.AddLayersListLoader;
 import com.lmn.Arbiter_Android.Loaders.ServersListLoader;
 
 public class ServerLoaderCallbacks implements LoaderManager.LoaderCallbacks<ArrayList<Server>>{
@@ -33,6 +36,11 @@ public class ServerLoaderCallbacks implements LoaderManager.LoaderCallbacks<Arra
 	@Override
 	public void onLoadFinished(Loader<ArrayList<Server>> loader, ArrayList<Server> data) {
 		serverAdapter.setData(data);
+		
+		// Needed to update the AddLayers list if a new server gets added above
+		// the other servers in the dropdown.
+		LocalBroadcastManager.getInstance(fragment.getActivity().getApplicationContext()).
+			sendBroadcast(new Intent(AddLayersListLoader.ADD_LAYERS_LIST_UPDATED));
 	}
 
 	@Override

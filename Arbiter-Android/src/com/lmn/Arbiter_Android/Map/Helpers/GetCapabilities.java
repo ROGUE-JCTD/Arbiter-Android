@@ -34,7 +34,7 @@ public class GetCapabilities {
 	 * @throws Exception
 	 */
 	public ArrayList<Layer> getLayers(Server server, ArrayList<Layer> layersInProject) throws Exception {
-		if(server != null){
+		if(server != null && server.getUrl() != null){
 			String url = server.getUrl() + "/wms?service=wms&version=1.1.1&request=getCapabilities";
 			
 			HttpClient client = new DefaultHttpClient();

@@ -1,6 +1,9 @@
 package com.lmn.Arbiter_Android.BaseClasses;
 
 public class Layer {
+	public static final int DEFAULT_FLAG = -1;
+	public static final String DEFAULT_LAYER_NAME = "OpenStreetMap";
+	
 	private int layerId;
 	private String featureType;
 	

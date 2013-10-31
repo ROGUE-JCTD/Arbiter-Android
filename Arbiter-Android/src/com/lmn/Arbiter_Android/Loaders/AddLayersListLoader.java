@@ -32,10 +32,19 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 	@Override
 	public ArrayList<Layer> loadInBackground() {
 		ArrayList<Layer> _layers = null;
+		Server server = dialog.getSelectedServer();
 		
 		try {
-			_layers = getCapabilities.getLayers(getSelectedServer(),
+			
+			_layers = getCapabilities.getLayers(server,
 					dialog.getLayersInProject());
+			
+			if((_layers == null) && 
+					Server.isDefaultServer(server.getId())){
+				_layers = new ArrayList<Layer>();
+				
+				addDefaultLayer(_layers, server);
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -48,17 +57,14 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 		return _layers;
 	}
 	
-	/**
-	 * Get the selected server from the dropdown
-	 * @return The selected server
-	 */
-	public Server getSelectedServer(){
-		int selectedIndex = dialog.getSpinner().getSelectedItemPosition();
-		
-		if(selectedIndex > -1)
-			return dialog.getAdapter().getItem(selectedIndex);
-		else
-			return null;
+	private void addDefaultLayer(ArrayList<Layer> layers, Server server){
+		if(layers != null && (server != null) && 
+				Server.isDefaultServer(server.getId())){
+			
+			layers.add(new Layer(Layer.DEFAULT_FLAG, null, Server.DEFAULT_FLAG, Server.DEFAULT_SERVER_NAME, null,
+					Layer.DEFAULT_LAYER_NAME, null, null));
+			layers.get(layers.size() - 1).setIsDefaultLayer(true);
+		}
 	}
 	
 	/**

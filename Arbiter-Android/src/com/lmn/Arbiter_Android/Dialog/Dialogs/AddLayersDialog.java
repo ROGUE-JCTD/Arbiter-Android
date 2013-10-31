@@ -6,6 +6,7 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Activities.AOIActivity;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
@@ -172,13 +173,27 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		
 		// Prepare the loader.  Either re-connect with an existing one,
         // or start a new one.
-        this.serverLoaderCallbacks = new ServerLoaderCallbacks(this, this.serverAdapter, R.id.loader_servers_dropdown);
+        this.serverLoaderCallbacks = new ServerLoaderCallbacks(this, 
+        		this.serverAdapter, R.id.loader_servers_dropdown);
+	}
+	
+	/**
+	 * Get the selected server from the dropdown
+	 * @return The selected server
+	 */
+	public Server getSelectedServer(){
+		int selectedIndex = getSpinner().getSelectedItemPosition();
+		
+		if(selectedIndex > -1)
+			return getAdapter().getItem(selectedIndex);
+		else
+			return null;
 	}
 	
 	private void populateAddLayersList(View view){
 		this.listView = (ListView) view.findViewById(R.id.addLayersListView);
-		this.addLayersAdapter = new AddLayersListAdapter(this.getActivity().
-				getApplicationContext(), R.layout.add_layers_list_item);
+		this.addLayersAdapter = new AddLayersListAdapter
+				(this.getActivity().getApplicationContext(), R.layout.add_layers_list_item);
 		this.listView.setAdapter(this.addLayersAdapter);
 		
 		this.addLayersLoaderCallbacks = new AddLayersLoaderCallbacks(this, this.addLayersAdapter, R.id.loader_add_layers);

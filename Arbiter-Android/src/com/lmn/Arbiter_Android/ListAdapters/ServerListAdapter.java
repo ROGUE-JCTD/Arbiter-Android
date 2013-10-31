@@ -10,7 +10,6 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 
 import android.app.Activity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,8 +53,7 @@ public class ServerListAdapter extends BaseAdapter{
 	private void addDefaultServer(ArrayList<Server> servers){
 		if(servers != null){
 			if(!ArbiterProject.getArbiterProject().includeDefaultLayer()){
-				servers.add(new Server(activity.getApplicationContext().
-						getResources().getString(R.string.default_layer_name), null, 
+				servers.add(new Server(Server.DEFAULT_SERVER_NAME, null, 
 						null, null, Server.DEFAULT_FLAG));
 			}
 		}
@@ -90,7 +88,7 @@ public class ServerListAdapter extends BaseAdapter{
 			ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteServer);
 			
 			if(deleteButton != null){
-				if(server.getId() == Server.DEFAULT_FLAG){
+				if(Server.isDefaultServer(server.getId())){
 					deleteButton.setEnabled(false);
 				}else{
 					deleteButton.setEnabled(true);
@@ -161,7 +159,6 @@ public class ServerListAdapter extends BaseAdapter{
 
 	@Override
 	public Server getItem(int position) {
-		Log.w("SERVERLISTADAPTER", "SERVERLISTADAPTER: getItem(" + Integer.toString(position) + ") out of " + items.size());
 		return items.get(position);
 	}
 

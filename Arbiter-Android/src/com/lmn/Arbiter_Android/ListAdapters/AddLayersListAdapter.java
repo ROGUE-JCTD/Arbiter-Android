@@ -19,9 +19,11 @@ public class AddLayersListAdapter extends BaseAdapter {
 	private ArrayList<Layer> checkedLayers;
 	private LayoutInflater inflater;
 	private int itemLayout;
+	private Context context;
 	
 	public AddLayersListAdapter(Context context, int itemLayout) {
-		inflater = LayoutInflater.from(context);
+		this.context = context;
+		inflater = LayoutInflater.from(this.context);
 		this.items = new ArrayList<Layer>();
 		this.checkedLayers = new ArrayList<Layer>();
 		this.itemLayout = itemLayout;
@@ -29,7 +31,8 @@ public class AddLayersListAdapter extends BaseAdapter {
 	
 	public void setData(ArrayList<Layer> items){
 		this.items = items;
-		this.notifyDataSetChanged();
+		
+		notifyDataSetChanged();
 	}
 	
 	/**
@@ -84,14 +87,11 @@ public class AddLayersListAdapter extends BaseAdapter {
 						boolean checked = !listItem.isChecked();
 						
 						listItem.setChecked(checked);
-						//ProjectComponents project = ProjectComponents.getProjectComponents();
 						
 						if(checked){
 							checkedLayers.add(listItem);
-							//project.addLayer(listItem);
 						}else{
 							checkedLayers.remove(listItem);
-							//project.removeLayer(listItem);
 						}
 					}
 				});

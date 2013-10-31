@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
@@ -59,8 +60,8 @@ public class LayerListAdapter extends BaseAdapter{
 	private void addDefaultLayer(ArrayList<Layer> layers){
 		if(layers != null){
 			if(ArbiterProject.getArbiterProject().includeDefaultLayer()){
-				layers.add(new Layer(-1, null, -1, null, null,
-						context.getResources().getString(R.string.default_layer_name), null, null));
+				layers.add(new Layer(Layer.DEFAULT_FLAG, null, Server.DEFAULT_FLAG, null, null,
+						Layer.DEFAULT_LAYER_NAME, null, null));
 				layers.get(layers.size() - 1).setIsDefaultLayer(true);
 			}
 		}
@@ -97,8 +98,7 @@ public class LayerListAdapter extends BaseAdapter{
             }
             
             if(serverNameView != null){
-            	serverNameView.setText((isDefaultLayer) ? context.getResources().
-            			getString(R.string.default_layer_name) : listItem.getServerName());
+            	serverNameView.setText((isDefaultLayer) ? Server.DEFAULT_SERVER_NAME : listItem.getServerName());
             }
             
             if(deleteButton != null){

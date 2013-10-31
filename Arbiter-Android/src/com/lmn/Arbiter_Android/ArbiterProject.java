@@ -114,4 +114,18 @@ public class ArbiterProject {
 	public void setIncludeDefaultLayer(boolean includeDefaultLayer){
 		this.includeDefaultLayer = includeDefaultLayer;
 	}
+	
+	public void setIncludeDefaultLayer(final Context context, final boolean includeDefaultLayer, final Runnable callback){
+		
+		GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+		ProjectsHelper.getProjectsHelper().setIncludeDefaultLayer(helper.getWritableDatabase(), 
+				context, getOpenProject(context), includeDefaultLayer, new Runnable(){
+			@Override
+			public void run(){
+				setIncludeDefaultLayer(includeDefaultLayer);
+				
+				callback.run();
+			}
+		});
+	}
 }

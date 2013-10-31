@@ -121,13 +121,9 @@ public class LayerListAdapter extends BaseAdapter{
 	}
 	
 	private void deleteDefaultLayer(){
-		GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
-		ProjectsHelper.getProjectsHelper().setIncludeDefaultLayer(helper.getWritableDatabase(), 
-				context, ArbiterProject.getArbiterProject().getOpenProject(context), false, new Runnable(){
+		ArbiterProject.getArbiterProject().setIncludeDefaultLayer(context, false, new Runnable(){
 			@Override
 			public void run(){
-				ArbiterProject.getArbiterProject().setIncludeDefaultLayer(false);
-				
 				layerChangeListener.onLayerDeleted(-1);
 				
 				LocalBroadcastManager.getInstance(context).

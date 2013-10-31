@@ -10,6 +10,7 @@ import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.ListAdapters.AddLayersListAdapter;
@@ -17,6 +18,7 @@ import com.lmn.Arbiter_Android.ListAdapters.ServerListAdapter;
 import com.lmn.Arbiter_Android.LoaderCallbacks.AddLayersLoaderCallbacks;
 import com.lmn.Arbiter_Android.LoaderCallbacks.ServerLoaderCallbacks;
 import com.lmn.Arbiter_Android.Loaders.AddLayersListLoader;
+import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
 
 import android.content.Context;
 import android.content.Intent;
@@ -102,12 +104,16 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 				list.add(new Layer(checked.get(i)));
 			}
 			
+			final boolean includeDefaultLayer = this.addLayersAdapter.includeDefaultLayer();
+			
 			CommandExecutor.runProcess(new Runnable(){
 				@Override
 				public void run() {
 					long projectId = ArbiterProject.getArbiterProject().getOpenProject(context);
 					GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
 					LayersHelper.getLayersHelper().insert(helper.getWritableDatabase(), context, list, projectId);
+					
+					setIncludeDefaultLayer(includeDefaultLayer);
 				}
 				
 			});
@@ -119,7 +125,19 @@ public class AddLayersDialog extends ArbiterDialogFragment{
     		this.startActivity(projectsIntent);
 		}
 	}
-
+	
+	private void setIncludeDefaultLayer(boolean includeDefaultLayer){
+		final Context context = getActivity().getApplicationContext();
+		
+		ArbiterProject.getArbiterProject().setIncludeDefaultLayer(context, includeDefaultLayer, new Runnable(){
+			@Override
+			public void run(){
+				LocalBroadcastManager.getInstance(context).
+					sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
+			}
+		});
+	}
+	
 	@Override
 	public void onNegativeClick() {
 		// TODO Auto-generated method stub

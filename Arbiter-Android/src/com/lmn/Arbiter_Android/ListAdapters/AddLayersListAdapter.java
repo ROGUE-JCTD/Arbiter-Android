@@ -17,16 +17,19 @@ import android.widget.TextView;
 public class AddLayersListAdapter extends BaseAdapter {
 	private ArrayList<Layer> items;
 	private ArrayList<Layer> checkedLayers;
+	private boolean includeDefaultLayer;
+	
 	private LayoutInflater inflater;
 	private int itemLayout;
 	private Context context;
 	
 	public AddLayersListAdapter(Context context, int itemLayout) {
 		this.context = context;
-		inflater = LayoutInflater.from(this.context);
+		this.inflater = LayoutInflater.from(this.context);
 		this.items = new ArrayList<Layer>();
 		this.checkedLayers = new ArrayList<Layer>();
 		this.itemLayout = itemLayout;
+		this.includeDefaultLayer = false;
 	}
 	
 	public void setData(ArrayList<Layer> items){
@@ -89,9 +92,17 @@ public class AddLayersListAdapter extends BaseAdapter {
 						listItem.setChecked(checked);
 						
 						if(checked){
-							checkedLayers.add(listItem);
+							if(listItem.isDefaultLayer()){
+								includeDefaultLayer = true;
+							}else{
+								checkedLayers.add(listItem);
+							}
 						}else{
-							checkedLayers.remove(listItem);
+							if(listItem.isDefaultLayer()){
+								includeDefaultLayer = false;
+							}else{
+								checkedLayers.remove(listItem);
+							}
 						}
 					}
 				});
@@ -118,5 +129,9 @@ public class AddLayersListAdapter extends BaseAdapter {
 	
 	public ArrayList<Layer> getCheckedLayers(){
 		return this.checkedLayers;
+	}
+	
+	public boolean includeDefaultLayer(){
+		return this.includeDefaultLayer;
 	}
 }

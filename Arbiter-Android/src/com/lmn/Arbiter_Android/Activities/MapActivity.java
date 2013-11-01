@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.cordova.Config;
+import org.apache.cordova.CordovaChromeClient;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
@@ -104,6 +105,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     					helper.getWritableDatabase(), context, 
     					ArbiterProject.getArbiterProject().getOpenProject(context));
     			
+    			Log.w(TAG, "aoi: " + aoi);
     			cordovaWebView.loadUrl("javascript:app.zoomToAOI(" + aoi + ")");
     		}
     	});
@@ -139,11 +141,16 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
         		
         		return true;
         	
-        	case R.id.action_make_available_offline:
+        	case R.id.action_aoi:
+        		// Make the app aware that the aoi is being changed
+        		ArbiterProject.getArbiterProject().isSettingAOI(true);
+        		
+        		Intent aoiIntent = new Intent(this, AOIActivity.class);
+        		this.startActivity(aoiIntent);
         		
         		return true;
         		
-        	case R.id.action_settings:
+        	case R.id.action_language:
         		//menuEvents.showSettings(this);
         		return true;
     		
@@ -259,7 +266,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
         }else if(message.equals("onPageFinished")){
         	if(obj instanceof String && ((String) obj).equals(cordovaUrl)){
         		this.mapLoaderCallbacks = new MapLoaderCallbacks(this, cordovaWebView , R.id.loader_map);
-                this.arbiterProject.makeSameProject();	
+                this.arbiterProject.makeSameProject();
         	}
         }
         return null;

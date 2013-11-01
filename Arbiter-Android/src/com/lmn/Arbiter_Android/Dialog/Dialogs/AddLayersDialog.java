@@ -6,6 +6,7 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Activities.AOIActivity;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
@@ -81,12 +82,14 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		
 		setRetainInstance(true);
 		
-		try {
-			mapChangeListener = (MapChangeListener) getActivity();
-		} catch (ClassCastException e){
-			e.printStackTrace();
-			throw new ClassCastException(getActivity().toString() 
-					+ " must implement MapChangeListener");
+		if(!creatingProject){
+			try {
+				mapChangeListener = (MapChangeListener) getActivity();
+			} catch (ClassCastException e){
+				e.printStackTrace();
+				throw new ClassCastException(getActivity().toString() 
+						+ " must implement MapChangeListener");
+			}
 		}
 	}
 
@@ -100,20 +103,21 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	
 	@Override
 	public void onPositiveClick() {
+		
+		final Context context = getActivity().getApplicationContext();
+		
+		final ArrayList<Layer> layers = new ArrayList<Layer>();
+		ArrayList<Layer> checked = this.addLayersAdapter.getCheckedLayers();
+		
+		// Create a deep copy of the list of the checked layers
+		for(int i = 0; i < checked.size(); i++){
+			layers.add(new Layer(checked.get(i)));
+		}
+		
+		final boolean includeDefaultLayer = this.addLayersAdapter.includeDefaultLayer();
+		
 		if(!creatingProject){
 			// write the added layers to the database
-			final Context context = getActivity().getApplicationContext();
-			
-			final ArrayList<Layer> layers = new ArrayList<Layer>();
-			ArrayList<Layer> checked = this.addLayersAdapter.getCheckedLayers();
-			
-			// Create a deep copy of the list of the checked layers
-			for(int i = 0; i < checked.size(); i++){
-				layers.add(new Layer(checked.get(i)));
-			}
-			
-			final boolean includeDefaultLayer = this.addLayersAdapter.includeDefaultLayer();
-			
 			CommandExecutor.runProcess(new Runnable(){
 				@Override
 				public void run() {
@@ -133,7 +137,10 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 			
 		}else{
 			// Add the layers to the ProjectListItem
-			ArbiterProject.getArbiterProject().getNewProject().addLayers(this.addLayersAdapter.getCheckedLayers());
+			Project newProject = ArbiterProject.getArbiterProject().getNewProject();
+			newProject.addLayers(layers);
+			newProject.includeDefaultLayer(includeDefaultLayer);
+			
 			Intent projectsIntent = new Intent(getActivity(), AOIActivity.class);
     		this.startActivity(projectsIntent);
 		}

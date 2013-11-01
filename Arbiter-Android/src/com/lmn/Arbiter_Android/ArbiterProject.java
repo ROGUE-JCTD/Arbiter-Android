@@ -22,6 +22,7 @@ public class ArbiterProject {
 	private long projectId = -1;
 	
 	private boolean includeDefaultLayer = true;
+	private boolean isSettingAOI = false;
 	
 	private ArbiterProject(){}
 	
@@ -113,6 +114,26 @@ public class ArbiterProject {
 	
 	public void setIncludeDefaultLayer(boolean includeDefaultLayer){
 		this.includeDefaultLayer = includeDefaultLayer;
+	}
+	
+	public boolean isSettingAOI(){
+		return this.isSettingAOI;
+	}
+	
+	public void isSettingAOI(boolean settingAOI){
+		this.isSettingAOI = settingAOI;
+	}
+	
+	public void setProjectsAOI(final Context context, final String aoi){
+		GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+		ProjectsHelper.getProjectsHelper().setProjectsAOI(helper.getWritableDatabase(), 
+				context, getOpenProject(context), aoi, new Runnable(){
+			
+			@Override
+			public void run(){
+				isSettingAOI(false);
+			}
+		});
 	}
 	
 	public void setIncludeDefaultLayer(final Context context, final boolean includeDefaultLayer, final Runnable callback){

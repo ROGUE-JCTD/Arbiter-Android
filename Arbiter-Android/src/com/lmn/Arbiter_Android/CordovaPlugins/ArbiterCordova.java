@@ -43,22 +43,23 @@ public class ArbiterCordova extends CordovaPlugin{
 	 */
 	public void setNewProjectsAOI(final String aoi, final CallbackContext callbackContext){
 		final Activity activity = this.cordova.getActivity();
-		Log.w("ARBITERCORDOVA", "ARBITERCORDOVA aoi: " + aoi);
 		
-		cordova.getActivity().runOnUiThread(new Runnable(){
+		activity.runOnUiThread(new Runnable(){
 
 			@Override
 			public void run() {
-				ArbiterProject.getArbiterProject().getNewProject().setAOI(aoi);
 				
 				CommandExecutor.runProcess(new Runnable(){
 
     				@Override
     				public void run() {
-    					GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(activity.getApplicationContext());
-    					ProjectsHelper.getProjectsHelper().insert(helper.
-    							getWritableDatabase(), activity.getApplicationContext(),
-    							arbiterProject.getNewProject());
+    					
+    					if(arbiterProject.isSettingAOI()){
+    						// Save the aoi to the open project
+    						setTheCurrentAOI(activity, aoi);
+    					}else{
+    						insertNewProject(activity, aoi);
+    					}
     					
     					callbackContext.success(); // Thread-safe.
     					
@@ -69,5 +70,18 @@ public class ArbiterCordova extends CordovaPlugin{
 			}
 			
 		});
+	} 
+	
+	private void insertNewProject(final Activity activity, String aoi){
+		arbiterProject.getNewProject().setAOI(aoi);
+		
+		GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(activity.getApplicationContext());
+		ProjectsHelper.getProjectsHelper().insert(helper.
+				getWritableDatabase(), activity.getApplicationContext(),
+				arbiterProject.getNewProject());
+	}
+	
+	private void setTheCurrentAOI(final Activity activity, final String aoi){
+		arbiterProject.setProjectsAOI(activity.getApplicationContext(), aoi);
 	}
 }

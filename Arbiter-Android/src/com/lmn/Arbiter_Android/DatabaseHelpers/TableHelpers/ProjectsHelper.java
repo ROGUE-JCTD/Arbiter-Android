@@ -231,4 +231,34 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 			db.endTransaction();
 		}
 	}
+	
+	public void setProjectsAOI(SQLiteDatabase db, Context context, 
+			long projectId, String aoi, Runnable callback){
+		
+		db.beginTransaction();
+		
+		try {
+			
+			String whereClause = ProjectsHelper._ID + "=?";
+			String[] whereArgs = {
+					Long.toString(projectId)	
+			};
+			
+			ContentValues values = new ContentValues();
+			
+			values.put(PROJECT_AOI, aoi);
+			
+			db.update(PROJECTS_TABLE_NAME, values, whereClause, whereArgs);
+			
+			db.setTransactionSuccessful();
+			
+			if(callback != null){
+				callback.run();
+			}
+		} catch (Exception e){
+			e.printStackTrace();
+		} finally {
+			db.endTransaction();
+		}
+	}
 }

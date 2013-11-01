@@ -12,8 +12,8 @@
     <string name="action_new_feature">Draw</string>
     <string name="action_servers">Servers</string>
     <string name="action_projects">Projects</string>
-    <string name="action_make_available_offline">Make available offline</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_aoi">Area of Interest</string>
+    <string name="action_language">Language</string>
     <string name="layers_button">Layers</string>
     <string name="sync_button">Sync</string>
     <string name="location_button">Find me</string>

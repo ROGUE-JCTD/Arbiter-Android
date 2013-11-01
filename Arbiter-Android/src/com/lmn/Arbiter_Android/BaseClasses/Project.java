@@ -62,6 +62,10 @@ public class Project {
 		return includeDefaultLayer;
 	}
 	
+	public void includeDefaultLayer(boolean includeDefaultLayer){
+		this.includeDefaultLayer = includeDefaultLayer;
+	}
+	
 	public static boolean getIncludeDefaultLayer(int includeDefaultLayer){
 		return (includeDefaultLayer > 0) ? true : false;
 	}

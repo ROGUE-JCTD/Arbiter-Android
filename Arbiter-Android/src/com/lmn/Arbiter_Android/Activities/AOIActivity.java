@@ -10,9 +10,6 @@ import org.apache.cordova.CordovaWebView;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -50,6 +47,8 @@ public class AOIActivity extends Activity implements CordovaInterface{
         cancel.setOnClickListener(new OnClickListener(){
         	@Override
         	public void onClick(View v){
+        		ArbiterProject.getArbiterProject().isSettingAOI(false);
+        		
         		activity.finish();
         	}
         });

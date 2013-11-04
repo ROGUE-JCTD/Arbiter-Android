@@ -5,7 +5,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.cordova.Config;
-import org.apache.cordova.CordovaChromeClient;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
@@ -13,6 +12,7 @@ import org.apache.cordova.CordovaWebView;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
@@ -33,13 +33,12 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ToggleButton;
 
-public class MapActivity extends FragmentActivity implements CordovaInterface, Map.MapChangeListener{
+public class MapActivity extends FragmentActivity implements CordovaInterface, Map.MapChangeListener, Map.CordovaMap{
     private ArbiterDialogs dialogs;
     private boolean welcomed;
     private String TAG = "MAP_ACTIVITY";
     private ArbiterProject arbiterProject;
 	private MapLoaderCallbacks mapLoaderCallbacks;
-    private static final String cordovaUrl = "file:///android_asset/www/index.html";
     
     // For CORDOVA
     private CordovaWebView cordovaWebView;
@@ -57,7 +56,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
 
         cordovaWebView = (CordovaWebView) findViewById(R.id.webView1);
         
-        cordovaWebView.loadUrl(cordovaUrl, 5000);
+        cordovaWebView.loadUrl(ArbiterCordova.cordovaUrl, 5000);
     }
 
     public void Init(Bundle savedInstanceState){
@@ -106,7 +105,15 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     					ArbiterProject.getArbiterProject().getOpenProject(context));
     			
     			Log.w(TAG, "aoi: " + aoi);
-    			cordovaWebView.loadUrl("javascript:app.zoomToAOI(" + aoi + ")");
+    			Map.getMap().zoomToExtent(cordovaWebView, aoi, null);
+    		}
+    	});
+    	
+    	ImageButton freeMem = (ImageButton) findViewById(R.id.freeMemory);
+    	freeMem.setOnClickListener(new OnClickListener(){
+    		@Override
+    		public void onClick(View v){
+    			cordovaWebView.loadUrl("javascript:app.saveCurrentExtent()");
     		}
     	});
     }
@@ -245,6 +252,14 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
 		});
 	}
 	
+	/**
+	 * Map.CordovaMap methods
+	 */
+	@Override
+	public CordovaWebView getWebView(){
+		return this.cordovaWebView;
+	}
+	
     /**
      * Cordova methods
      */
@@ -262,11 +277,20 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
 	public Object onMessage(String message, Object obj) {
 		Log.d(TAG, message);
         if (message.equalsIgnoreCase("exit")) {
-                super.finish();
+        	//super.finish();
         }else if(message.equals("onPageFinished")){
-        	if(obj instanceof String && ((String) obj).equals(cordovaUrl)){
-        		this.mapLoaderCallbacks = new MapLoaderCallbacks(this, cordovaWebView , R.id.loader_map);
-                this.arbiterProject.makeSameProject();
+        	if(obj instanceof String){
+        		if(((String) obj).equals(ArbiterCordova.cordovaUrl)){
+        			if(this.mapLoaderCallbacks == null){
+        				this.mapLoaderCallbacks = new MapLoaderCallbacks(this, cordovaWebView , R.id.loader_map);
+        			}else{
+        				this.mapLoaderCallbacks.loadMap();
+        			}
+        			
+                    this.arbiterProject.makeSameProject();
+        		}else if(((String) obj).equals("about:blank")){
+        			this.cordovaWebView.loadUrl(ArbiterCordova.cordovaUrl);
+        		}
         	}
         }
         return null;

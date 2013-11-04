@@ -29,6 +29,9 @@ public class ArbiterProject {
 	private static ArbiterProject project = null;
 	private Project newProject;
 	
+	private String savedBounds = null;
+	private String savedZoomLevel = null;
+	
 	public static ArbiterProject getArbiterProject(){
 		if(project == null){
 			project = new ArbiterProject();
@@ -122,6 +125,22 @@ public class ArbiterProject {
 	
 	public void isSettingAOI(boolean settingAOI){
 		this.isSettingAOI = settingAOI;
+	}
+	
+	public String getSavedBounds(){
+		return this.savedBounds;
+	}
+	
+	public void setSavedBounds(String savedBounds){
+		this.savedBounds = savedBounds;
+	}
+	
+	public String getSavedZoomLevel(){
+		return this.savedZoomLevel;
+	}
+	
+	public void setSavedZoomLevel(String zoomLevel){
+		this.savedZoomLevel = zoomLevel;
 	}
 	
 	public void setProjectsAOI(final Context context, final String aoi){

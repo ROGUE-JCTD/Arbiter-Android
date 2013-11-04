@@ -10,6 +10,7 @@ import org.apache.cordova.CordovaWebView;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Map.Map;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -20,7 +21,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-public class AOIActivity extends Activity implements CordovaInterface{
+public class AOIActivity extends Activity implements CordovaInterface, Map.CordovaMap{
 	private static final String TAG = "AOIActivity";
 	
 	// For CORDOVA
@@ -94,6 +95,15 @@ public class AOIActivity extends Activity implements CordovaInterface{
     public void onConfigurationChanged(Configuration newConfig) 
     {
         super.onConfigurationChanged(newConfig);
+    }
+
+    /**
+     * Map.CordovaMap methods
+     */
+    
+    @Override
+    public CordovaWebView getWebView(){
+    	return this.cordovaWebview;
     }
     
     /**

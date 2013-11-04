@@ -41,8 +41,7 @@ public class AddServerDialog extends ArbiterDialogFragment{
 		CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run() {
-				GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);		
-				
+				GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
 				
 				boolean insert = false;
 				

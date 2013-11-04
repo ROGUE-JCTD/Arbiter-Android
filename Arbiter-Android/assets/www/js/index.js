@@ -1,7 +1,30 @@
 var app = (function(){
 	
+	var waitFuncs = [];
+	var ArbiterInitialized = false;
+	
 	return {
-			
+		tileCounter: 0,
+		
+		RESET_ARBITER_ON: 200,
+		
+		waitForArbiterInit: function(func){
+			if(!ArbiterInitialized){
+				waitFuncs.push(func);
+			}else{
+				func.call();
+			}
+		},
+	
+		overrideGetURL: function(layer){
+			// Call OpenLayers.Layer.WMS getURL
+			layer.getURL = function(bounds){
+				var url = Object.getPrototypeOf(this).getURL.call(this, bounds);
+				app.tileCounter++;
+				
+				return url;
+			};
+		},
 		
 		/**
 		 * Initialize the app
@@ -21,7 +44,37 @@ var app = (function(){
 	     * On device ready
 	     */
 	    onDeviceReady: function() {
+	    	console.log("Device is ready!");
 	    	Arbiter.Init();
+	    	
+	    	for(var i = 0; i < waitFuncs.length; i++){
+	    		waitFuncs[i].call();
+	    	}
+	    	
+	    	ArbiterInitialized = true;
+	    	
+	    	app.registerMapListeners();
+	    },
+	    
+	    registerMapListeners: function(){
+	    	var map = Arbiter.Map.getMap();
+	    	map.events.register("moveend", this, function(event){
+	    		if(app.tileCounter > app.RESET_ARBITER_ON){
+	    			app.saveCurrentExtent();
+	    		}
+	    	});
+	    },
+	    
+	    /**
+	     * Save the current maps extent
+	     */
+	    saveCurrentExtent: function(){
+	    	console.log("app.saveCurrentExtent");
+	    	var bbox = Arbiter.Map.getCurrentExtent().toBBOX();
+	    	var zoom = Arbiter.Map.getZoom();
+	    	
+	    	cordova.exec(null, null, "ArbiterCordova", "setCurrentExtent", [bbox, zoom]);
+	    	console.log("index.js: saveCurrentExtent()", bbox);
 	    },
 	    
 	    /**
@@ -33,8 +86,12 @@ var app = (function(){
 	    	cordova.exec(null, null, "ArbiterCordova", "setNewProjectsAOI", [bbox]);
 	    },
 	    
-	    zoomToAOI: function(left, bottom, right, top){
-	    	Arbiter.Map.zoomToExtent(left, bottom, right, top);
+	    zoomToExtent: function(left, bottom, right, top, zoomLevel){
+	    	if(zoomLevel === null || zoomLevel === undefined){
+	    		Arbiter.Map.zoomToExtent(left, bottom, right, top);
+	    	}else{
+	    		Arbiter.Map.setCenter(left, bottom, right, top, zoomLevel);
+	    	}
 	    },
 	    
 	    clearMap: function(){
@@ -45,9 +102,13 @@ var app = (function(){
 	    	var layer;
 	    	
 	    	if(includeDefaultLayer){
-	    		Arbiter.Map.Layers.addLayer(new OpenLayers.Layer.OSM("OpenStreetMap", null, {
+	    		var osmLayer = new OpenLayers.Layer.OSM("OpenStreetMap", null, {
 	    			transitionEffect: 'resize'
-				}));
+				});
+	    		
+	    		Arbiter.Map.Layers.addLayer(osmLayer);
+	    		
+	    		this.overrideGetURL(osmLayer);
 	    	}
 	    	
 	    	for(var i = 0; i < layers.length; i++){
@@ -65,11 +126,19 @@ var app = (function(){
 	    					visibility: true
 	    				});
 	    		
+	    		this.overrideGetURL(layer);
+	    		
 	    		Arbiter.Map.Layers.addLayer(layer);
 	    	}
 	    },
 	    
 	    loadMap: function(layers, includeDefaultLayer){
+	    	console.log("loadMap: ", layers, includeDefaultLayer);
+	    	if((layers === null || layers === undefined) 
+	    			&& !includeDefaultLayer){
+	    		return;
+	    	}
+	    	
 	    	this.clearMap();
 	    	
 	    	this.addLayers(layers, includeDefaultLayer);

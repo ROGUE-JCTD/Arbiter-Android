@@ -2,6 +2,7 @@ package com.lmn.Arbiter_Android.CordovaPlugins;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -14,7 +15,9 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 
 public class ArbiterCordova extends CordovaPlugin{
+	private static final String TAG = "ArbiterCordova";
 	private final ArbiterProject arbiterProject;
+	public static final String cordovaUrl = "file:///android_asset/www/index.html";
 	
 	public ArbiterCordova(){
 		super();
@@ -30,6 +33,13 @@ public class ArbiterCordova extends CordovaPlugin{
 			String aoi = args.getString(0);
 			
 			setNewProjectsAOI(aoi, callbackContext);
+			
+			return true;
+		}else if("setCurrentExtent".equals(action)){
+			String extent = args.getString(0);
+			String zoomLevel = args.getString(1);
+			
+			setCurrentExtent(extent, zoomLevel, callbackContext);
 			
 			return true;
 		}
@@ -71,6 +81,20 @@ public class ArbiterCordova extends CordovaPlugin{
 			
 		});
 	} 
+	
+	public void setCurrentExtent(final String currentExtent, final String zoomLevel, final CallbackContext callbackContext){
+		final Activity activity = this.cordova.getActivity();
+		final CordovaWebView webview = this.webView;
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				arbiterProject.setSavedZoomLevel(zoomLevel);
+				arbiterProject.setSavedBounds(currentExtent);
+				webview.loadUrl("about:blank");
+			}
+		});
+	}
 	
 	private void insertNewProject(final Activity activity, String aoi){
 		arbiterProject.getNewProject().setAOI(aoi);

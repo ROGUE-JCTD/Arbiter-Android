@@ -49,8 +49,18 @@ Arbiter.Map = (function(){
 			return map.getExtent();
 		},
 		
+		getZoom: function(){
+			return map.getZoom();
+		},
+		
 		zoomToExtent: function(left, bottom, right, top){
 			map.zoomToExtent([left, bottom, right, top]);
+		},
+		
+		setCenter: function(left, bottom, right, top, zoomLevel){
+			var bounds = new OpenLayers.Bounds(left, bottom, right, top);
+			
+			map.setCenter(bounds.getCenterLonLat(), zoomLevel, true);
 		}
 	};
 })();

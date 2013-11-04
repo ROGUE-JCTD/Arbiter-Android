@@ -7,6 +7,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 
 public class Map{
@@ -22,6 +24,10 @@ public class Map{
 		public void onLayersAdded(ArrayList<Layer> layers, long[] layerIds, boolean includeDefaultLayer);
 	}
 	
+	public interface CordovaMap {
+		public CordovaWebView getWebView();
+	}
+	
 	public static Map getMap(){
 		if(map == null){
 			map = new Map();
@@ -32,8 +38,11 @@ public class Map{
 	
 	public void addLayers(CordovaWebView webview, final ArrayList<Layer> layers, long[] layerIds, boolean includeDefaultLayer){
 		try {
-			webview.loadUrl("javascript:app.addLayers(" 
-					+ getLayersJSON(layers, layerIds) + ", " + Boolean.toString(includeDefaultLayer)  + ")");
+			//webview.loadUrl("javascript:app.addLayers(" 
+			//		+ getLayersJSON(layers, layerIds) + ", " + Boolean.toString(includeDefaultLayer)  + ")");
+			
+			webview.loadUrl("javascript:app.waitForArbiterInit(new Function('app.addLayers(" + getLayersJSON(layers, layerIds)
+					+ ", " + Boolean.toString(includeDefaultLayer) + ")'))");
 			
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -42,12 +51,20 @@ public class Map{
 	
 	public void loadMap(CordovaWebView webview, final ArrayList<Layer> layers, boolean includeDefaultLayer){
 		try {
-			webview.loadUrl("javascript:app.loadMap(" 
-					+ getLayersJSON(layers, null) + ", " + Boolean.toString(includeDefaultLayer)  + ")");
+			Log.w("Map", "Map.loadMap");
+			//webview.loadUrl("javascript:app.loadMap(" 
+			//		+ getLayersJSON(layers, null) + ", " + Boolean.toString(includeDefaultLayer)  + ")");
 			
+			webview.loadUrl("javascript:app.waitForArbiterInit(new Function('app.loadMap(" + getLayersJSON(layers, null)
+					+ ", " + Boolean.toString(includeDefaultLayer) + ")'))");
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void zoomToExtent(CordovaWebView webview, String extent, String zoomLevel){
+		webview.loadUrl("javascript:app.waitForArbiterInit(new Function('app.zoomToExtent(" 
+					+ extent + ", " + zoomLevel + ")'))");
 	}
 	
 	private JSONArray getLayersJSON(ArrayList<Layer> layers, long[] layerIds) throws JSONException{

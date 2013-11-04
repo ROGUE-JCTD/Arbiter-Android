@@ -5,6 +5,7 @@
     <string name="action_findme">Find me</string>
     <string name="default_project_name">MyProject</string>
 	<string name="delete">Delete</string>
+	<string name="update">Update</string>
 	<string name="default_layer_name">OpenStreetMap</string>
 	
     <!-- MAP ACTIVITY STRINGS -->
@@ -60,6 +61,9 @@
     <string name="add_server_button">Add Server</string>
     <string name="delete_server_alert">This will delete all layers in all projects associated with this server!</string>
 	<string name="delete_server_title">Warning!!!</string>
+	<string name="update_server_alert">Are you sure?</string>
+	<string name="update_server_title">Warning!!!</string>
+	
     <!-- ADD SERVER DIALOG STRINGS -->
 
     <string name="add_server_dialog_title">Add Server</string>

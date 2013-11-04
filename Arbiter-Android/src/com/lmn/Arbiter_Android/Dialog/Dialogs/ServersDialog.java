@@ -73,7 +73,7 @@ public class ServersDialog extends ArbiterDialogFragment{
 				public void onClick(View view) {
 					// Open the add server dialog
 					(new ArbiterDialogs(getActivity().getResources(),
-							getActivity().getSupportFragmentManager())).showAddServerDialog();
+							getActivity().getSupportFragmentManager())).showAddServerDialog(null);
 				}
 				
 			});

@@ -103,7 +103,7 @@ public class ParseGetCapabilities {
 					if(eventName.equalsIgnoreCase(LAYER_TAG)){
 						// Create the new layer object, and since this was the end of 
 						// the layer element, specify that we're out.
-						layers.add(new Layer(-1, featureType, server.getId(), server.getServerName(), 
+						layers.add(new Layer(-1, featureType, server.getId(), server.getName(), 
 								server.getUrl(), title, srs, boundingBox));
 						inLayerTag -= 1;
 						

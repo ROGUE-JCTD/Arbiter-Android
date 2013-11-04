@@ -90,7 +90,7 @@ public class ServersHelper implements BaseColumns{
 			
 			for(int i = 0; i < newServers.length; i++){
 				values = new ContentValues();
-				values.put(ServersHelper.SERVER_NAME, newServers[i].getServerName());
+				values.put(ServersHelper.SERVER_NAME, newServers[i].getName());
 				values.put(ServersHelper.SERVER_URL, newServers[i].getUrl());
 				values.put(ServersHelper.SERVER_USERNAME, newServers[i].getUsername());
 				values.put(ServersHelper.SERVER_PASSWORD, newServers[i].getPassword());
@@ -117,6 +117,36 @@ public class ServersHelper implements BaseColumns{
 		return serverIds;
 	}
 
+	public void update(SQLiteDatabase db, Context context, Server server){
+		db.beginTransaction();
+		
+		try {
+			
+			String whereClause = _ID + "=?";
+			String[] whereArgs = {
+					Long.toString(server.getId())	
+			};
+			
+			ContentValues values = new ContentValues();
+			values.put(SERVER_NAME, server.getName());
+			values.put(SERVER_USERNAME, server.getUsername());
+			values.put(SERVER_PASSWORD, server.getPassword());
+			values.put(SERVER_URL, server.getUrl());
+			
+			int affectedRow = db.update(SERVERS_TABLE_NAME, values, whereClause, whereArgs);
+			
+			Log.w("SERVERSHELPER", "SERVERSHELPER update" + Integer.toString(affectedRow));
+			
+			db.setTransactionSuccessful();
+			
+			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ServersListLoader.SERVER_LIST_UPDATED));
+		} catch (Exception e){
+			e.printStackTrace();
+		} finally {
+			db.endTransaction();
+		}
+	}
+	
 	public void delete(SQLiteDatabase db, Context context, Server server) {
 		Log.w("SERVERSHELPER", "SERVERSHELPER delete");
 		db.beginTransaction();
@@ -164,5 +194,34 @@ public class ServersHelper implements BaseColumns{
 		});
 		
 		builder.create().show();
+	}
+	
+	public void updateAlert(final Activity activity, final Runnable updateIt){
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+				
+				builder.setTitle(R.string.update_server_title);
+				builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
+				builder.setMessage(R.string.update_server_alert);
+				builder.setPositiveButton(R.string.update, new DialogInterface.OnClickListener(){
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						updateIt.run();
+					}
+				});
+				
+				builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener(){
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+					}
+				});
+				
+				builder.create().show();
+			}
+		});
 	}
 }

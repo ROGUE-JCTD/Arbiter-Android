@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:focusable="false"
+    android:clickable="false" >
 	
 	<RelativeLayout
 	    android:layout_width="match_parent"
 	    android:layout_height="56dip"
 	    android:background="@drawable/list_selector"
-   		android:clickable="true">
+   		android:focusable="false"
+    	android:clickable="false">
 	    
 	    <!-- Server name -->
 
@@ -22,7 +25,9 @@
 	        android:textColor="#040404"
 	        android:textSize="18sp"
 	        android:textStyle="bold"
-	        android:typeface="sans" />
+	        android:typeface="sans"
+	        android:focusable="false"
+    		android:clickable="false" />
 	    
 	</RelativeLayout>
     
@@ -33,7 +38,8 @@
         android:layout_height="55dip"
         android:layout_alignParentRight="true"
         android:gravity="center"
-        android:clickable="true">
+        android:focusable="false"
+    	android:clickable="false">
         
 	    <!-- Remove Layer button -->
 	    <ImageButton
@@ -42,7 +48,9 @@
 	        android:layout_height="wrap_content"
 	        android:padding="5dip"
 	        android:src="@drawable/ic_action_delete"
-	        android:contentDescription="@string/remove_layer"/>
+	        android:contentDescription="@string/remove_layer"
+	        android:focusable="false"
+   	 		android:clickable="false"/>
 	    
     </LinearLayout>
     

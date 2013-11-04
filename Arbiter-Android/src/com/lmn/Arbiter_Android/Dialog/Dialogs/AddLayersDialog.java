@@ -181,7 +181,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 				@Override
 				public void onClick(View v) {
 					(new ArbiterDialogs(getActivity().getResources(), 
-							getActivity().getSupportFragmentManager())).showAddServerDialog();
+							getActivity().getSupportFragmentManager())).showAddServerDialog(null);
 				}
 			});
 		}

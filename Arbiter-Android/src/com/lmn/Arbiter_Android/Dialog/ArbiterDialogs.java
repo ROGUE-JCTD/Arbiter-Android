@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
+import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.AddLayersDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.AddServerDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseAOIDialog;
@@ -58,13 +59,20 @@ public class ArbiterDialogs {
 		dialog.show(fragManager, "projectNameDialog");
 	}
 	
-	public void showAddServerDialog(){
-		String title = resources.getString(R.string.add_server_dialog_title);
+	public void showAddServerDialog(Server server){
+		String title;
+		
+		if(server != null){
+			title = server.getName();
+		}else{
+			title = resources.getString(R.string.add_server_dialog_title);
+		}
+		
 		String ok = resources.getString(android.R.string.ok);
 		String cancel = resources.getString(android.R.string.cancel);
 		int layout = R.layout.add_server_dialog;
 		
-		DialogFragment dialog = AddServerDialog.newInstance(title, ok, cancel, layout);
+		DialogFragment dialog = AddServerDialog.newInstance(title, ok, cancel, layout, server);
 		dialog.show(fragManager, "addServerDialog");
 	}
 	

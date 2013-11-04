@@ -8,8 +8,9 @@ import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
+import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 
-import android.app.Activity;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,9 +26,9 @@ public class ServerListAdapter extends BaseAdapter{
 	private int itemLayout;
 	private int textId;
 	private int dropDownLayout;
-	private final Activity activity;
+	private final FragmentActivity activity;
 	
-	public ServerListAdapter(Activity activity, int itemLayout, 
+	public ServerListAdapter(FragmentActivity activity, int itemLayout, 
 			int textId){
 		
 			inflater = LayoutInflater.from(activity.getApplicationContext());
@@ -38,7 +39,7 @@ public class ServerListAdapter extends BaseAdapter{
 			this.activity = activity;
 	}
 	
-	public ServerListAdapter(Activity activity, int itemLayout, 
+	public ServerListAdapter(FragmentActivity activity, int itemLayout, 
 			int textId, Integer dropDownLayout){
 		
 			inflater = LayoutInflater.from(activity.getApplicationContext());
@@ -82,8 +83,19 @@ public class ServerListAdapter extends BaseAdapter{
 			TextView serverName = (TextView) view.findViewById(textId);
 			
 			if(serverName != null){
-				serverName.setText(server.getServerName());
+				serverName.setText(server.getName());
 			}
+			
+			view.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					
+					// Open the add server dialog
+					(new ArbiterDialogs(activity.getResources(),
+							activity.getSupportFragmentManager())).showAddServerDialog(server);
+				}
+			});
 			
 			ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteServer);
 			
@@ -141,7 +153,7 @@ public class ServerListAdapter extends BaseAdapter{
 			TextView serverName = (TextView) view.findViewById(textId);
 		
 			if(serverName != null){
-				serverName.setText(listItem.getServerName());
+				serverName.setText(listItem.getName());
 			}
 		}
 		

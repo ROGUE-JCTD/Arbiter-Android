@@ -10,6 +10,14 @@ public class Server {
 	private String username;
 	private String password;
 	
+	public Server(){
+		this.id = -1;
+		this.serverName = null;
+		this.url = null;
+		this.username = null;
+		this.password = null;
+	}
+	
 	public Server(String serverName, String url, 
 			String username, String password, int id){
 		this.serverName = serverName;
@@ -19,20 +27,36 @@ public class Server {
 		this.id = id;
 	}
 	
-	public String getServerName(){
+	public String getName(){
 		return serverName;
+	}
+	
+	public void setName(String name){
+		this.serverName = name;
 	}
 	
 	public String getUrl(){
 		return url;
 	}
 	
+	public void setUrl(String url){
+		this.url = url;
+	}
+	
 	public String getUsername(){
 		return username;
 	}
 	
+	public void setUsername(String username){
+		this.username = username;
+	}
+	
 	public String getPassword(){
 		return password;
+	}
+	
+	public void setPassword(String password){
+		this.password = password;
 	}
 	
 	public int getId(){

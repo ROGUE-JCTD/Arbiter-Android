@@ -12,6 +12,7 @@ import android.provider.BaseColumns;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
 
@@ -24,6 +25,7 @@ public class LayersHelper implements BaseColumns{
 	public static final String LAYER_SRS = "srs";
 	public static final String BOUNDING_BOX = "bbox";
 	public static final String PROJECT_ID = "project_id";
+	public static final String LAYER_VISIBILITY = "visibility";
 	
 	private LayersHelper(){}
 	
@@ -45,6 +47,7 @@ public class LayersHelper implements BaseColumns{
 					FEATURE_TYPE + " TEXT, " +
 					LAYER_SRS + " TEXT, " +
 					BOUNDING_BOX + " TEXT, " +
+					LAYER_VISIBILITY + " TEXT, " +
 					PROJECT_ID + " TEXT, " +
 					SERVER_ID + " INTEGER, " + 
 					" FOREIGN KEY (" + SERVER_ID + ") REFERENCES " + 
@@ -82,7 +85,8 @@ public class LayersHelper implements BaseColumns{
 			ServersHelper.SERVER_URL, // 4
 			LAYER_TITLE, // 5
 			LAYER_SRS, // 6
-			BOUNDING_BOX // 7
+			BOUNDING_BOX, // 7
+			LAYER_VISIBILITY // 8
 		};
 		
 		// How to sort the results
@@ -99,8 +103,6 @@ public class LayersHelper implements BaseColumns{
 		
 		Cursor cursor = builder.query(db, columns, where, whereArgs, null, null, orderBy);
 		
-		Log.w("LAYERS HELPER", "GET LAYER COUNT: " + cursor.getCount());
-		
 		// Create an array list with initial capacity equal to the number of layers +1 for the default layer
 		ArrayList<Layer> layers = new ArrayList<Layer>(cursor.getCount() + 1);
 		
@@ -108,7 +110,8 @@ public class LayersHelper implements BaseColumns{
 		for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 			layers.add(new Layer(cursor.getInt(0),
 					cursor.getString(1), cursor.getInt(2), cursor.getString(3),
-					cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7)));
+					cursor.getString(4), cursor.getString(5), cursor.getString(6), 
+					cursor.getString(7), Util.convertIntToBoolean(cursor.getInt(8))));
 		}
 		
 		cursor.close();
@@ -123,17 +126,21 @@ public class LayersHelper implements BaseColumns{
 		
 		try {
 			ContentValues values;
+			Layer layer;
+			
 			boolean somethingWentWrong = false;
 			int i;
 			
 			for(i = 0; i < newLayers.size(); i++){
 				values = new ContentValues();
-				values.put(LAYER_TITLE, newLayers.get(i).getLayerTitle());
-				values.put(SERVER_ID, newLayers.get(i).getServerId());
-				values.put(FEATURE_TYPE, newLayers.get(i).getFeatureType());
-				values.put(BOUNDING_BOX, newLayers.get(i).getLayerBBOX());
-				values.put(LAYER_SRS, newLayers.get(i).getLayerSRS());
+				layer = newLayers.get(i);
+				values.put(LAYER_TITLE, layer.getLayerTitle());
+				values.put(SERVER_ID, layer.getServerId());
+				values.put(FEATURE_TYPE, layer.getFeatureType());
+				values.put(BOUNDING_BOX, layer.getLayerBBOX());
+				values.put(LAYER_SRS, layer.getLayerSRS());
 				values.put(PROJECT_ID, projectId);
+				values.put(LAYER_VISIBILITY, layer.isChecked());
 				
 				layerIds[i] = db.insert(LAYERS_TABLE_NAME, null, values);
 				
@@ -166,7 +173,6 @@ public class LayersHelper implements BaseColumns{
 	 * @param list The list of layers to be deleted
 	 */
 	public void delete(SQLiteDatabase db, Context context, Layer layer, Runnable callback) {
-		Log.w("LAYERSHELPER", "LAYERSHELPER delete");
 		db.beginTransaction();
 		
 		try {
@@ -190,5 +196,31 @@ public class LayersHelper implements BaseColumns{
 			db.endTransaction();
 		}
 		
+	}
+	
+	public void updateAttributeValues(SQLiteDatabase db, Context context, 
+			long layerId, ContentValues values, Runnable callback){
+		
+		db.beginTransaction();
+		
+		try {
+			
+			String whereClause = _ID + "=?";
+			String[] whereArgs = {
+					Long.toString(layerId)	
+			};
+			
+			db.update(LAYERS_TABLE_NAME, values, whereClause, whereArgs);
+			
+			db.setTransactionSuccessful();
+			
+			if(callback != null){
+				callback.run();
+			}
+		} catch (Exception e){
+			e.printStackTrace();
+		} finally {
+			db.endTransaction();
+		}
 	}
 }

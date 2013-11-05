@@ -61,7 +61,7 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 		if((server != null) && 
 				Server.isDefaultServer(server.getId())){
 			layers.add(new Layer(Layer.DEFAULT_FLAG, null, Server.DEFAULT_FLAG, Server.DEFAULT_SERVER_NAME, null,
-					Layer.DEFAULT_LAYER_NAME, null, null));
+					Layer.DEFAULT_LAYER_NAME, null, null, false));
 			layers.get(layers.size() - 1).setIsDefaultLayer(true);
 		}
 		

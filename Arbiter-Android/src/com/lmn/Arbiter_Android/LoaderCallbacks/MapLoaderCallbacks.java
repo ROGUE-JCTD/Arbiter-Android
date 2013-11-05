@@ -74,8 +74,10 @@ public class MapLoaderCallbacks implements LoaderManager.LoaderCallbacks<ArrayLi
 				activity.runOnUiThread(new Runnable(){
 					@Override
 					public void run(){
+						Log.w("MapLoaderCallbacks", "MapLoaderCallbacks defaultLayerVisibility: " + arbiterProject.getDefaultLayerVisibility());
 						Map.getMap().loadMap(webview, layers, 
-								arbiterProject.includeDefaultLayer());
+								arbiterProject.includeDefaultLayer(),
+								arbiterProject.getDefaultLayerVisibility());
 						
 						Map.getMap().zoomToExtent(webview, extent, savedZoomLevel);
 					}
@@ -88,7 +90,8 @@ public class MapLoaderCallbacks implements LoaderManager.LoaderCallbacks<ArrayLi
 	public void onLoaderReset(Loader<ArrayList<Layer>> loader) {
 		Log.w("MapLoaderCallbacks", "MapLoaderCallbacks: onLoaderReset");
 		Map.getMap().loadMap(webview, null, 
-				ArbiterProject.getArbiterProject().includeDefaultLayer());
+				ArbiterProject.getArbiterProject().includeDefaultLayer(),
+				ArbiterProject.getArbiterProject().getDefaultLayerVisibility());
 	}	
 	
 	public void loadMap(){

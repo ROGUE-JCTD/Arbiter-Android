@@ -95,7 +95,7 @@ var app = (function(){
 	    	Arbiter.Map.Layers.removeAllLayers();
 	    },
 	    
-	    addLayers: function(layers, includeDefaultLayer){
+	    addLayers: function(layers, includeDefaultLayer, defaultLayerVisibility){
 	    	var layer;
 	    	
 	    	if(includeDefaultLayer){
@@ -105,7 +105,13 @@ var app = (function(){
 	    		
 	    		Arbiter.Map.Layers.addLayer(osmLayer);
 	    		
+	    		osmLayer.setVisibility(defaultLayerVisibility);
+	    		
 	    		this.overrideGetURL(osmLayer);
+	    	}
+	    	
+	    	if(layers === null || layers === undefined){
+	    		return;
 	    	}
 	    	
 	    	for(var i = 0; i < layers.length; i++){
@@ -120,7 +126,7 @@ var app = (function(){
 	    				{
 	    					isBaseLayer: false,
 	    					transitionEffect: 'resize',
-	    					visibility: true
+	    					visibility: layers[i].visibility
 	    				});
 	    		
 	    		this.overrideGetURL(layer);
@@ -129,8 +135,8 @@ var app = (function(){
 	    	}
 	    },
 	    
-	    loadMap: function(layers, includeDefaultLayer){
-	    	console.log("loadMap: ", layers, includeDefaultLayer);
+	    loadMap: function(layers, includeDefaultLayer, defaultLayerVisibility){
+	    	console.log("loadMap: ", layers, includeDefaultLayer, defaultLayerVisibility);
 	    	if((layers === null || layers === undefined) 
 	    			&& !includeDefaultLayer){
 	    		return;
@@ -138,7 +144,7 @@ var app = (function(){
 	    	
 	    	this.clearMap();
 	    	
-	    	this.addLayers(layers, includeDefaultLayer);
+	    	this.addLayers(layers, includeDefaultLayer, defaultLayerVisibility);
 	    	
 	    	var map = Arbiter.Map.getMap();
 	    	if(map.layers.length){
@@ -152,7 +158,19 @@ var app = (function(){
 	    
 	    removeDefaultLayer: function(){
 	    	Arbiter.Map.Layers.removeLayerByName("OpenStreetMap");
+	    },
+	    
+	    /**
+	     * Toggle the layers visibility with id = layerId
+	     */
+	    toggleLayerVisibility: function(layerId){
+	    	Arbiter.Map.Layers.toggleLayerVisibilityById(layerId);
+	    },
+	    
+	    toggleDefaultLayerVisibility: function(){
+	    	Arbiter.Map.Layers.toggleLayerVisibilityByName("OpenStreetMap");
 	    }
+	    
 	};
 })();
 

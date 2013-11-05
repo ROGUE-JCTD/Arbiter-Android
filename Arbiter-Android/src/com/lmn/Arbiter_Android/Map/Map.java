@@ -21,7 +21,8 @@ public class Map{
 		
 		public void onLayerVisibilityChanged(long layerId);
 		
-		public void onLayersAdded(ArrayList<Layer> layers, long[] layerIds, boolean includeDefaultLayer);
+		public void onLayersAdded(ArrayList<Layer> layers, long[] layerIds, 
+				boolean includeDefaultLayer, boolean defaultLayerVisibility);
 	}
 	
 	public interface CordovaMap {
@@ -36,43 +37,53 @@ public class Map{
 		return map;
 	}
 	
-	public void addLayers(CordovaWebView webview, final ArrayList<Layer> layers, long[] layerIds, boolean includeDefaultLayer){
+	public void addLayers(CordovaWebView webview, final ArrayList<Layer> layers, long[] layerIds, 
+			boolean includeDefaultLayer, boolean defaultLayerVisibility){
 		try {
 			//webview.loadUrl("javascript:app.addLayers(" 
 			//		+ getLayersJSON(layers, layerIds) + ", " + Boolean.toString(includeDefaultLayer)  + ")");
 			
 			webview.loadUrl("javascript:app.waitForArbiterInit(new Function('app.addLayers(" + getLayersJSON(layers, layerIds)
-					+ ", " + Boolean.toString(includeDefaultLayer) + ")'))");
+					+ ", " + Boolean.toString(includeDefaultLayer) + ", " + Boolean.toString(defaultLayerVisibility) + ")'))");
 			
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public void loadMap(CordovaWebView webview, final ArrayList<Layer> layers, boolean includeDefaultLayer){
+	public void loadMap(CordovaWebView webview, final ArrayList<Layer> layers,
+			boolean includeDefaultLayer, boolean defaultLayerVisibility){
 		try {
-			Log.w("Map", "Map.loadMap");
-			//webview.loadUrl("javascript:app.loadMap(" 
-			//		+ getLayersJSON(layers, null) + ", " + Boolean.toString(includeDefaultLayer)  + ")");
+			Log.w("Map", "Map.loadMap defaultLayerVisibility = " + defaultLayerVisibility);
 			
 			webview.loadUrl("javascript:app.waitForArbiterInit(new Function('app.loadMap(" + getLayersJSON(layers, null)
-					+ ", " + Boolean.toString(includeDefaultLayer) + ")'))");
+					+ ", " + Boolean.toString(includeDefaultLayer) + ", " + Boolean.toString(defaultLayerVisibility) + ")'))");
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	public void zoomToExtent(CordovaWebView webview, String extent, String zoomLevel){
-		webview.loadUrl("javascript:app.waitForArbiterInit(new Function('app.zoomToExtent(" 
-					+ extent + ", " + zoomLevel + ")'))");
+		String url = "javascript:app.waitForArbiterInit(new Function('app.zoomToExtent(" 
+				+ extent;
+		
+		if(zoomLevel != null){
+			url += ", " + zoomLevel;
+		}
+		
+		url += ")'))";
+		
+		Log.w("Map", "Map.zoomToExtent: " + url);
+		webview.loadUrl(url);
 	}
 	
 	private JSONArray getLayersJSON(ArrayList<Layer> layers, long[] layerIds) throws JSONException{
+		JSONArray jsonArray = new JSONArray();
+		
 		if(layers == null){
-			return null;
+			return jsonArray;
 		}
 		
-		JSONArray jsonArray = new JSONArray();
 		JSONObject jsonLayer;
 		Layer layer;
 		
@@ -89,6 +100,7 @@ public class Map{
 			jsonLayer.put("featureType", layer.getFeatureType());
 			jsonLayer.put("srs", layer.getLayerSRS());
 			jsonLayer.put("serverUrl", layer.getServerUrl());
+			jsonLayer.put("visibility", layer.isChecked());
 			
 			jsonArray.put(jsonLayer);
 		}
@@ -101,6 +113,15 @@ public class Map{
 			webview.loadUrl("javascript:app.removeDefaultLayer()");
 		}else{
 			webview.loadUrl("javascript:app.removeLayer(" 
+					+ Long.toString(layerId) + ")");
+		}	
+	}
+	
+	public void toggleLayerVisibility(CordovaWebView webview, long layerId){
+		if(layerId == Layer.DEFAULT_FLAG){
+			webview.loadUrl("javascript:app.toggleDefaultLayerVisibility()");
+		}else{
+			webview.loadUrl("javascript:app.toggleLayerVisibility(" 
 					+ Long.toString(layerId) + ")");
 		}	
 	}

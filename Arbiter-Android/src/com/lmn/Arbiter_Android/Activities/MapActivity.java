@@ -227,19 +227,24 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
 	}
 
 	@Override
-	public void onLayerVisibilityChanged(long layerId) {
-		
+	public void onLayerVisibilityChanged(final long layerId) {
+		runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				Map.getMap().toggleLayerVisibility(cordovaWebView, layerId);
+			}
+		});
 	}
 	
 	@Override
 	public void onLayersAdded(final ArrayList<Layer> layers, final long[] layerIds,
-			final boolean includeDefaultLayer) {
+			final boolean includeDefaultLayer, final boolean defaultLayerVisibility) {
 		
 		runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
 				Map.getMap().addLayers(cordovaWebView, 
-						layers, layerIds, includeDefaultLayer);
+						layers, layerIds, includeDefaultLayer, defaultLayerVisibility);
 			}
 		});
 	}

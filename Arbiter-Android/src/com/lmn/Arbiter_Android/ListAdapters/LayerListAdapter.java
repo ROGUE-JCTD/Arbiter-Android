@@ -9,20 +9,26 @@ import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
+import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 public class LayerListAdapter extends BaseAdapter{
 
@@ -54,7 +60,8 @@ public class LayerListAdapter extends BaseAdapter{
 		if(layers != null){
 			if(ArbiterProject.getArbiterProject().includeDefaultLayer()){
 				layers.add(new Layer(Layer.DEFAULT_FLAG, null, Server.DEFAULT_FLAG, null, null,
-						Layer.DEFAULT_LAYER_NAME, null, null));
+						Layer.DEFAULT_LAYER_NAME, null, null, 
+						ArbiterProject.getArbiterProject().getDefaultLayerVisibility()));
 				layers.get(layers.size() - 1).setIsDefaultLayer(true);
 			}
 		}
@@ -83,6 +90,7 @@ public class LayerListAdapter extends BaseAdapter{
             TextView layerNameView = (TextView) view.findViewById(R.id.layerName);
             TextView serverNameView = (TextView) view.findViewById(R.id.serverName);
             ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteLayer);
+            ToggleButton layerVisibility = (ToggleButton) view.findViewById(R.id.layerVisibility);
             
             final boolean isDefaultLayer = listItem.isDefaultLayer();
             
@@ -108,9 +116,66 @@ public class LayerListAdapter extends BaseAdapter{
             		
             	});
             }
+            
+            if(layerVisibility != null){
+            	// Set the toggle to its appropriate position
+            	layerVisibility.setChecked(listItem.isChecked());
+                
+            	layerVisibility.setOnClickListener(new OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						listItem.setChecked(!listItem.isChecked());
+						if(isDefaultLayer){
+							updateDefaultLayerVisibility(listItem.getLayerId(), listItem.isChecked());
+						}else{
+							updateLayerVisibility(listItem.getLayerId(), listItem.isChecked()); 
+						}
+					}
+				});
+            }
 		}
 		
 		return view;
+	}
+	
+	private void updateDefaultLayerVisibility(final long layerId, final boolean visibility){
+		final long projectId = ArbiterProject.getArbiterProject().getOpenProject(context);
+		
+		CommandExecutor.runProcess(new Runnable(){
+			@Override
+			public void run(){
+				GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+				ProjectsHelper.getProjectsHelper().setDefaultLayerVisibility(
+						helper.getWritableDatabase(), context, projectId, visibility, new Runnable(){
+							@Override
+							public void run(){
+								ArbiterProject.getArbiterProject().setDefaultLayerVisibility(visibility);
+								
+								mapChangeListener.onLayerVisibilityChanged(layerId);
+							}
+						});
+			}
+		});
+	}
+	
+	private void updateLayerVisibility(final long layerId, final boolean visibility){
+		final ContentValues values = new ContentValues();
+		
+		values.put(LayersHelper.LAYER_VISIBILITY, visibility);
+		
+		CommandExecutor.runProcess(new Runnable(){
+			@Override
+			public void run(){
+				GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+				LayersHelper.getLayersHelper().updateAttributeValues(helper.getWritableDatabase(), context, layerId, values, new Runnable(){
+					@Override
+					public void run(){
+						mapChangeListener.onLayerVisibilityChanged(layerId);
+					}
+				});
+			}
+		});
 	}
 	
 	private void deleteDefaultLayer(){

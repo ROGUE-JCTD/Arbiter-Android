@@ -1,5 +1,6 @@
 package com.lmn.Arbiter_Android;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v4.app.FragmentActivity;
@@ -22,6 +23,8 @@ public class ArbiterProject {
 	private long projectId = -1;
 	
 	private boolean includeDefaultLayer = true;
+	private boolean defaultLayerVisibility = true;
+	
 	private boolean isSettingAOI = false;
 	
 	private ArbiterProject(){}
@@ -73,6 +76,8 @@ public class ArbiterProject {
 	 */
 	public long getOpenProject(Context context){
 		if(projectId == -1){
+			// projectId hasn't been set yet so get the
+			// last open project from SharedPreferences
     		SharedPreferences settings = context.
     				getSharedPreferences(ARBITER_PREFERENCES, FragmentActivity.MODE_PRIVATE);
     		
@@ -88,8 +93,14 @@ public class ArbiterProject {
     		}
     		
     		// Get whether or not this project includes the default layer
-    		setIncludeDefaultLayer(ProjectsHelper.getProjectsHelper().
-					getIncludeDefaultLayer(helper.getWritableDatabase(), context, projectId));
+    		// and if so, is it visible
+    		boolean[] defaultLayerInfo = ProjectsHelper.getProjectsHelper().
+					getIncludeDefaultLayer(helper.getWritableDatabase(), context, projectId);
+    		
+    		if(defaultLayerInfo != null){
+        		setIncludeDefaultLayer(defaultLayerInfo[0]);
+        		setDefaultLayerVisibility(defaultLayerInfo[1]);
+    		}
     	}
 		
 		return projectId;
@@ -104,7 +115,7 @@ public class ArbiterProject {
 	}
 	
 	public void createNewProject(String name){
-		newProject = new Project(-1, name, "", true);
+		newProject = new Project(-1, name, "", true, true);
 	}
 	
 	public Project getNewProject(){
@@ -113,10 +124,6 @@ public class ArbiterProject {
 	
 	public boolean includeDefaultLayer(){
 		return this.includeDefaultLayer;
-	}
-	
-	public void setIncludeDefaultLayer(boolean includeDefaultLayer){
-		this.includeDefaultLayer = includeDefaultLayer;
 	}
 	
 	public boolean isSettingAOI(){
@@ -143,6 +150,10 @@ public class ArbiterProject {
 		this.savedZoomLevel = zoomLevel;
 	}
 	
+	public boolean getDefaultLayerVisibility(){
+		return this.defaultLayerVisibility;
+	}
+	
 	public void setProjectsAOI(final Context context, final String aoi){
 		GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
 		ProjectsHelper.getProjectsHelper().setProjectsAOI(helper.getWritableDatabase(), 
@@ -153,6 +164,14 @@ public class ArbiterProject {
 				isSettingAOI(false);
 			}
 		});
+	}
+	
+	public void setDefaultLayerVisibility(boolean defaultLayerVisibility){
+		this.defaultLayerVisibility = defaultLayerVisibility;
+	}
+	
+	public void setIncludeDefaultLayer(boolean includeDefaultLayer){
+		this.includeDefaultLayer = includeDefaultLayer;
 	}
 	
 	public void setIncludeDefaultLayer(final Context context, final boolean includeDefaultLayer, final Runnable callback){
@@ -167,5 +186,13 @@ public class ArbiterProject {
 				callback.run();
 			}
 		});
+	}
+	
+	public void updateAttributeValues(final Context context, final long projectId, 
+			final ContentValues values, final Runnable callback){
+		
+		GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+		ProjectsHelper.getProjectsHelper().updateProjectAttributes(helper.
+				getWritableDatabase(), context, projectId, values, callback);
 	}
 }

@@ -25,11 +25,15 @@ public class Layer {
 	private String srs;
 	private String boundingBox;
 	private int serverId;
+	
+	// Recycled for whether the layer is checked in the AddLayers List
+	// and for the layers visibility
 	private boolean checked;
+	
 	private boolean isDefaultLayer;
 	
 	public Layer(int layerId, String featureType, int serverId, String serverName, String serverUrl,
-			String title, String srs, String boundingBox){
+			String title, String srs, String boundingBox, boolean checked){
 		this.layerId = layerId;
 		this.featureType = featureType;
 		this.serverName = serverName;
@@ -40,7 +44,7 @@ public class Layer {
 		this.serverUrl = serverUrl;
 		this.isDefaultLayer = false;
 		
-		setChecked(false);
+		setChecked(checked);
 	}
 	
 	// For cloning

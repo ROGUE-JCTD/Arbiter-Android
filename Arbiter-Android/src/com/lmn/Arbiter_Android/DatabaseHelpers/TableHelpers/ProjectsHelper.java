@@ -2,6 +2,7 @@ package com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Util;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -20,6 +21,7 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 	public static final String PROJECTS_TABLE_NAME = "projects";
 	public static final String PROJECT_AOI = "aoi";
 	public static final String INCLUDE_DEFAULT_LAYER = "default_layer";
+	public static final String DEFAULT_LAYER_VISIBILITY = "default_layer_visibility";
 	
 	private ProjectsHelper(){}
 	
@@ -39,6 +41,7 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 					" INTEGER PRIMARY KEY AUTOINCREMENT, " + 
 					PROJECT_NAME + " TEXT, " +
 					PROJECT_AOI + " TEXT, " +
+					DEFAULT_LAYER_VISIBILITY + " BOOLEAN, " +
 					INCLUDE_DEFAULT_LAYER + " BOOLEAN);";
 		
 		Log.w("PROJECTSHELPER", "PROJECTSHELPER : " + sql);
@@ -51,7 +54,8 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 				_ID, // 0
 				PROJECT_NAME, // 1
 				PROJECT_AOI, // 2
-				INCLUDE_DEFAULT_LAYER // 3
+				INCLUDE_DEFAULT_LAYER, // 3
+				DEFAULT_LAYER_VISIBILITY // 4
 		};
 		
 		// How to sort the results
@@ -66,7 +70,8 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 		//Traverse the cursors to populate the projects array
 		for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 			projects[i] = new Project(cursor.getInt(0), 
-					cursor.getString(1), cursor.getString(2), cursor.getInt(3));
+					cursor.getString(1), cursor.getString(2), 
+					cursor.getInt(3), cursor.getInt(4));
 			i++;
 		}
 		
@@ -147,8 +152,9 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
     	
     	if(cursor.getCount() < 1){
     		// Insert the default project
-    		projectId = insert(db, context, new Project(-1, 
-    				context.getResources().getString(R.string.default_project_name), "", true));
+    		projectId = insert(db, context, 
+    				new Project(-1, context.getResources().getString(
+    						R.string.default_project_name), "", true, true));
     	}
     	
     	cursor.close();
@@ -179,9 +185,10 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 		return aoi;
 	}
 	
-	public boolean getIncludeDefaultLayer(SQLiteDatabase db, Context context, long projectId){
+	public boolean[] getIncludeDefaultLayer(SQLiteDatabase db, Context context, long projectId){
 		String[] columns = {
-			INCLUDE_DEFAULT_LAYER // 0	
+			INCLUDE_DEFAULT_LAYER, // 0
+			DEFAULT_LAYER_VISIBILITY // 1
 		};
 		
 		String where = _ID + "=?";
@@ -191,15 +198,17 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 		
 		Cursor cursor = db.query(PROJECTS_TABLE_NAME, columns, where, whereArgs, null, null, null);
 		boolean hasResult = cursor.moveToFirst();
-		int includeDefaultLayer = 1;
+		boolean[] defaultLayerInfo = null;
 		
 		if(hasResult){
-			includeDefaultLayer = cursor.getInt(0);
+			defaultLayerInfo = new boolean[2];
+			defaultLayerInfo[0] = Util.convertIntToBoolean(cursor.getInt(0));
+			defaultLayerInfo[1] = Util.convertIntToBoolean(cursor.getInt(1));
 		}
 		
 		cursor.close();
 		
-		return Project.getIncludeDefaultLayer(includeDefaultLayer);
+		return defaultLayerInfo;
 	}
 	
 	public void setIncludeDefaultLayer(SQLiteDatabase db, Context context, 
@@ -226,6 +235,60 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 				callback.run();
 			}
 		} catch (Exception e){
+			e.printStackTrace();
+		} finally {
+			db.endTransaction();
+		}
+	}
+	
+	public void setDefaultLayerVisibility(SQLiteDatabase db, Context context,
+			long projectId, boolean defaultLayerVisibility, Runnable callback){
+		
+		db.beginTransaction();
+		
+		try {
+			
+			String whereClause = ProjectsHelper._ID + "=?";
+			String[] whereArgs = {
+					Long.toString(projectId)	
+			};
+			
+			ContentValues values = new ContentValues();
+			
+			values.put(DEFAULT_LAYER_VISIBILITY, (defaultLayerVisibility) ? 1 : 0);
+			
+			db.update(PROJECTS_TABLE_NAME, values, whereClause, whereArgs);
+			
+			db.setTransactionSuccessful();
+			
+			if(callback != null){
+				callback.run();
+			}
+		} catch (Exception e){
+			e.printStackTrace();
+		} finally {
+			db.endTransaction();
+		}
+	}
+	
+	public void updateProjectAttributes(SQLiteDatabase db, Context context,
+			long projectId, ContentValues values, Runnable callback){
+		db.beginTransaction();
+		
+		try {
+			String whereClause = _ID + "=?";
+			String[] whereArgs = {
+				Long.toString(projectId)
+			};
+			
+			db.update(PROJECTS_TABLE_NAME, values, whereClause, whereArgs);
+			
+			db.setTransactionSuccessful();
+			
+			if(callback != null){
+				callback.run();
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			db.endTransaction();

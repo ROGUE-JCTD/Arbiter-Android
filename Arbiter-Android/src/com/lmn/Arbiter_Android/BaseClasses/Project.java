@@ -2,27 +2,34 @@ package com.lmn.Arbiter_Android.BaseClasses;
 
 import java.util.ArrayList;
 
+import com.lmn.Arbiter_Android.Util;
+
 public class Project {
 	private long id;
 	private String projectName;
 	private ArrayList<Layer> layers;
 	private String aoi;
 	private boolean includeDefaultLayer;
+	private boolean defaultLayerVisibility;
 	
-	public Project(long projectId, String projectName, String aoi, boolean includeDefaultLayer){
+	public Project(long projectId, String projectName, String aoi, 
+			boolean includeDefaultLayer, boolean defaultLayerVisibility){
 		this.projectName = projectName;
 		this.layers = new ArrayList<Layer>();
 		this.id = projectId;
 		this.aoi = aoi;
 		this.includeDefaultLayer = includeDefaultLayer;
+		this.defaultLayerVisibility = defaultLayerVisibility;
 	}
 	
-	public Project(long projectId, String projectName, String aoi, int includeDefaultLayer){
+	public Project(long projectId, String projectName, String aoi, 
+			int includeDefaultLayer, int defaultLayerVisibility){
 		this.projectName = projectName;
 		this.layers = new ArrayList<Layer>();
 		this.id = projectId;
 		this.aoi = aoi;
-		this.includeDefaultLayer = getIncludeDefaultLayer(includeDefaultLayer);
+		this.includeDefaultLayer = Util.convertIntToBoolean(includeDefaultLayer);
+		this.defaultLayerVisibility = Util.convertIntToBoolean(defaultLayerVisibility);
 	}
 	
 	public Project(Project project){
@@ -30,12 +37,21 @@ public class Project {
 		this.id = project.getId();
 		this.aoi = project.getAOI();
 		this.includeDefaultLayer = project.includeDefaultLayer();
+		this.defaultLayerVisibility = project.getDefaultLayerVisibility();
 		
 		this.layers = new ArrayList<Layer>();
 		ArrayList<Layer> pLayers = project.getLayers();
 		for(int i = 0; i < pLayers.size(); i++){
 			this.layers.add(new Layer(pLayers.get(i)));
 		}
+	}
+	
+	public void setDefaultLayerVisibility(boolean visibility){
+		this.defaultLayerVisibility = visibility;
+	}
+	
+	public boolean getDefaultLayerVisibility(){
+		return this.defaultLayerVisibility;
 	}
 	
 	public String getAOI(){
@@ -64,10 +80,6 @@ public class Project {
 	
 	public void includeDefaultLayer(boolean includeDefaultLayer){
 		this.includeDefaultLayer = includeDefaultLayer;
-	}
-	
-	public static boolean getIncludeDefaultLayer(int includeDefaultLayer){
-		return (includeDefaultLayer > 0) ? true : false;
 	}
 	
 	/**

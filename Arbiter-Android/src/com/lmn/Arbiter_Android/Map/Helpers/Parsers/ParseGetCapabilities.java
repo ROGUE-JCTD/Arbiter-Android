@@ -104,7 +104,7 @@ public class ParseGetCapabilities {
 						// Create the new layer object, and since this was the end of 
 						// the layer element, specify that we're out.
 						layers.add(new Layer(-1, featureType, server.getId(), server.getName(), 
-								server.getUrl(), title, srs, boundingBox));
+								server.getUrl(), title, srs, boundingBox, false));
 						inLayerTag -= 1;
 						
 						// Reset the fields to prepare for the next layer

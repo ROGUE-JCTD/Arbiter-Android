@@ -108,14 +108,6 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     			Map.getMap().zoomToExtent(cordovaWebView, aoi, null);
     		}
     	});
-    	
-    	ImageButton freeMem = (ImageButton) findViewById(R.id.freeMemory);
-    	freeMem.setOnClickListener(new OnClickListener(){
-    		@Override
-    		public void onClick(View v){
-    			cordovaWebView.loadUrl("javascript:app.saveCurrentExtent()");
-    		}
-    	});
     }
     
     @Override

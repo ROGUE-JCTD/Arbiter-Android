@@ -6,7 +6,7 @@ var app = (function(){
 	return {
 		tileCounter: 0,
 		
-		RESET_ARBITER_ON: 200,
+		RESET_ARBITER_ON: 150,
 		
 		waitForArbiterInit: function(func){
 			if(!ArbiterInitialized){
@@ -44,7 +44,6 @@ var app = (function(){
 	     * On device ready
 	     */
 	    onDeviceReady: function() {
-	    	console.log("Device is ready!");
 	    	Arbiter.Init();
 	    	
 	    	for(var i = 0; i < waitFuncs.length; i++){
@@ -60,7 +59,7 @@ var app = (function(){
 	    	var map = Arbiter.Map.getMap();
 	    	map.events.register("moveend", this, function(event){
 	    		if(app.tileCounter > app.RESET_ARBITER_ON){
-	    			app.saveCurrentExtent();
+	    			app.resetWebApp();
 	    		}
 	    	});
 	    },
@@ -68,13 +67,11 @@ var app = (function(){
 	    /**
 	     * Save the current maps extent
 	     */
-	    saveCurrentExtent: function(){
-	    	console.log("app.saveCurrentExtent");
+	    resetWebApp: function(){ 
 	    	var bbox = Arbiter.Map.getCurrentExtent().toBBOX();
 	    	var zoom = Arbiter.Map.getZoom();
 	    	
-	    	cordova.exec(null, null, "ArbiterCordova", "setCurrentExtent", [bbox, zoom]);
-	    	console.log("index.js: saveCurrentExtent()", bbox);
+	    	cordova.exec(null, null, "ArbiterCordova", "resetWebApp", [bbox, zoom]);
 	    },
 	    
 	    /**

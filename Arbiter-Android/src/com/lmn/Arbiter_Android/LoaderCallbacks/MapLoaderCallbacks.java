@@ -63,7 +63,6 @@ public class MapLoaderCallbacks implements LoaderManager.LoaderCallbacks<ArrayLi
 				final String savedZoomLevel = arbiterProject.getSavedZoomLevel();
 				
 				if(savedBounds == null){
-					Log.w("MapLoaderCallbacks", "onLoadFinished savedBounds were null");
 					GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
 					savedBounds = ProjectsHelper.getProjectsHelper().getProjectAOI(
 							helper.getWritableDatabase(), context, 

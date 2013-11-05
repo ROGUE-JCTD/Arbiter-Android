@@ -15,7 +15,6 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 
 public class ArbiterCordova extends CordovaPlugin{
-	private static final String TAG = "ArbiterCordova";
 	private final ArbiterProject arbiterProject;
 	public static final String cordovaUrl = "file:///android_asset/www/index.html";
 	
@@ -35,11 +34,11 @@ public class ArbiterCordova extends CordovaPlugin{
 			setNewProjectsAOI(aoi, callbackContext);
 			
 			return true;
-		}else if("setCurrentExtent".equals(action)){
+		}else if("resetWebApp".equals(action)){
 			String extent = args.getString(0);
 			String zoomLevel = args.getString(1);
 			
-			setCurrentExtent(extent, zoomLevel, callbackContext);
+			resetWebApp(extent, zoomLevel, callbackContext);
 			
 			return true;
 		}
@@ -82,7 +81,7 @@ public class ArbiterCordova extends CordovaPlugin{
 		});
 	} 
 	
-	public void setCurrentExtent(final String currentExtent, final String zoomLevel, final CallbackContext callbackContext){
+	public void resetWebApp(final String currentExtent, final String zoomLevel, final CallbackContext callbackContext){
 		final Activity activity = this.cordova.getActivity();
 		final CordovaWebView webview = this.webView;
 		

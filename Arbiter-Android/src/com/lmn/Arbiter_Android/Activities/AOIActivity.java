@@ -10,6 +10,7 @@ import org.apache.cordova.CordovaWebView;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.Map.Map;
 
 import android.os.Bundle;
@@ -48,7 +49,15 @@ public class AOIActivity extends Activity implements CordovaInterface, Map.Cordo
         cancel.setOnClickListener(new OnClickListener(){
         	@Override
         	public void onClick(View v){
-        		ArbiterProject.getArbiterProject().isSettingAOI(false);
+        		ArbiterProject arbiterProject = ArbiterProject.getArbiterProject();
+        		
+        		arbiterProject.isSettingAOI(false);
+        		
+        		Project newProject = arbiterProject.getNewProject();
+        		
+        		if(newProject != null && newProject.isBeingCreated()){
+        			newProject.isBeingCreated(false);
+        		}
         		
         		activity.finish();
         	}

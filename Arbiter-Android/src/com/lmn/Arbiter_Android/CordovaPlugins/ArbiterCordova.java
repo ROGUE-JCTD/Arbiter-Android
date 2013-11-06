@@ -102,6 +102,8 @@ public class ArbiterCordova extends CordovaPlugin{
 		ProjectsHelper.getProjectsHelper().insert(helper.
 				getWritableDatabase(), activity.getApplicationContext(),
 				arbiterProject.getNewProject());
+		
+		arbiterProject.getNewProject().isBeingCreated(false);
 	}
 	
 	private void setTheCurrentAOI(final Activity activity, final String aoi){

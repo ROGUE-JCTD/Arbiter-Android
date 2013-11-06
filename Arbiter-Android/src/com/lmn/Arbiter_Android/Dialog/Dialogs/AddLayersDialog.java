@@ -117,9 +117,11 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		}
 		
 		final boolean includeDefaultLayer = this.addLayersAdapter.includeDefaultLayer();
-		final long projectId = ArbiterProject.getArbiterProject().getOpenProject(context);
 		
 		if(!creatingProject){
+
+			final long projectId = ArbiterProject.getArbiterProject().getOpenProject(context);
+			
 			// write the added layers to the database
 			CommandExecutor.runProcess(new Runnable(){
 				@Override
@@ -150,15 +152,20 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	}
 	
 	private void setDefaultLayerInfo(final long projectId, final boolean includeDefaultLayer){
+		Log.w("AddLayersDialog", "AddLayersDialog.setDefaultLayerInfo " + projectId + ", " + includeDefaultLayer);
 		final Context context = getActivity().getApplicationContext();
+		final ArbiterProject arbiterProject = ArbiterProject.getArbiterProject();
 		
 		ContentValues values = new ContentValues();
-		values.put(ProjectsHelper.INCLUDE_DEFAULT_LAYER, true);
-		values.put(ProjectsHelper.DEFAULT_LAYER_VISIBILITY, true);
+		values.put(ProjectsHelper.INCLUDE_DEFAULT_LAYER, includeDefaultLayer);
+		values.put(ProjectsHelper.DEFAULT_LAYER_VISIBILITY, includeDefaultLayer);
 		
-		ArbiterProject.getArbiterProject().updateAttributeValues(context, projectId, values, new Runnable(){
+		arbiterProject.updateAttributeValues(context, projectId, values, new Runnable(){
 			@Override
 			public void run(){
+				arbiterProject.setIncludeDefaultLayer(includeDefaultLayer);
+				arbiterProject.setDefaultLayerVisibility(includeDefaultLayer);
+				
 				LocalBroadcastManager.getInstance(context).
 				sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
 			}
@@ -167,8 +174,10 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	
 	@Override
 	public void onNegativeClick() {
-		// TODO Auto-generated method stub
 		
+		if(creatingProject){
+			ArbiterProject.getArbiterProject().getNewProject().isBeingCreated(false);
+		}
 	}
 
 	@Override

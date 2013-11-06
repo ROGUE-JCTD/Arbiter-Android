@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
@@ -53,7 +54,10 @@ public class ServerListAdapter extends BaseAdapter{
 	
 	private void addDefaultServer(ArrayList<Server> servers){
 		if(servers != null){
-			if(!ArbiterProject.getArbiterProject().includeDefaultLayer()){
+			ArbiterProject arbiterProject = ArbiterProject.getArbiterProject();
+			Project newProject = arbiterProject.getNewProject();
+			
+			if(!arbiterProject.includeDefaultLayer() || (newProject != null && newProject.isBeingCreated())){
 				servers.add(new Server(Server.DEFAULT_SERVER_NAME, null, 
 						null, null, Server.DEFAULT_FLAG));
 			}

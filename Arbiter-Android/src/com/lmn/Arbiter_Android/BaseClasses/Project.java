@@ -11,6 +11,7 @@ public class Project {
 	private String aoi;
 	private boolean includeDefaultLayer;
 	private boolean defaultLayerVisibility;
+	private boolean inCreation;
 	
 	public Project(long projectId, String projectName, String aoi, 
 			boolean includeDefaultLayer, boolean defaultLayerVisibility){
@@ -20,6 +21,7 @@ public class Project {
 		this.aoi = aoi;
 		this.includeDefaultLayer = includeDefaultLayer;
 		this.defaultLayerVisibility = defaultLayerVisibility;
+		this.inCreation = false;
 	}
 	
 	public Project(long projectId, String projectName, String aoi, 
@@ -30,6 +32,7 @@ public class Project {
 		this.aoi = aoi;
 		this.includeDefaultLayer = Util.convertIntToBoolean(includeDefaultLayer);
 		this.defaultLayerVisibility = Util.convertIntToBoolean(defaultLayerVisibility);
+		this.inCreation = false;
 	}
 	
 	public Project(Project project){
@@ -38,12 +41,21 @@ public class Project {
 		this.aoi = project.getAOI();
 		this.includeDefaultLayer = project.includeDefaultLayer();
 		this.defaultLayerVisibility = project.getDefaultLayerVisibility();
+		this.inCreation = project.isBeingCreated();
 		
 		this.layers = new ArrayList<Layer>();
 		ArrayList<Layer> pLayers = project.getLayers();
 		for(int i = 0; i < pLayers.size(); i++){
 			this.layers.add(new Layer(pLayers.get(i)));
 		}
+	}
+	
+	public boolean isBeingCreated(){
+		return this.inCreation;
+	}
+	
+	public void isBeingCreated(boolean inCreation){
+		this.inCreation = inCreation;
 	}
 	
 	public void setDefaultLayerVisibility(boolean visibility){

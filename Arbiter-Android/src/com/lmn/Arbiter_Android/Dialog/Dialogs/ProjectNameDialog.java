@@ -36,9 +36,11 @@ public class ProjectNameDialog extends ArbiterDialogFragment{
 	@Override
 	public void onPositiveClick() {
 		EditText projectNameField = (EditText) view.findViewById(R.id.project_name_edittext);
+		ArbiterProject arbiterProject = ArbiterProject.getArbiterProject();
 		
-		ArbiterProject.getArbiterProject().
-			createNewProject(projectNameField.getText().toString());
+		arbiterProject.createNewProject(projectNameField.getText().toString());
+		
+		arbiterProject.getNewProject().isBeingCreated(true);
 		
 		getArbiterDialogs().showAddLayersDialog(true);
 	}

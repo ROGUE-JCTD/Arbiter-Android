@@ -90,6 +90,7 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 			values.put(PROJECT_NAME, newProject.getProjectName());
 			values.put(PROJECT_AOI, newProject.getAOI());
 			values.put(INCLUDE_DEFAULT_LAYER, newProject.includeDefaultLayer());
+			values.put(DEFAULT_LAYER_VISIBILITY, newProject.getDefaultLayerVisibility());
 			
 			projectId[0] = db.insert(PROJECTS_TABLE_NAME, null, values);
 			

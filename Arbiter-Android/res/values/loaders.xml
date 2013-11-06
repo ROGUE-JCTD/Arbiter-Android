@@ -6,4 +6,5 @@
 	<item type="id" name="loader_add_layers" />
 	<item type="id" name="loader_layers" />
 	<item type="id" name="loader_map" />
+	<item type="id" name="loader_aoi_map" />
 </resources>

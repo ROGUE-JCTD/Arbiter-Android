@@ -14,6 +14,7 @@ import android.util.Log;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.Loaders.MapLoader;
@@ -61,8 +62,10 @@ public class MapLoaderCallbacks implements LoaderManager.LoaderCallbacks<ArrayLi
 				
 				String savedBounds = arbiterProject.getSavedBounds();
 				final String savedZoomLevel = arbiterProject.getSavedZoomLevel();
+				Project newProject = arbiterProject.getNewProject();
+				final boolean creatingProject = newProject != null && newProject.isBeingCreated();
 				
-				if(savedBounds == null){
+				if(savedBounds == null && !creatingProject){
 					GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
 					savedBounds = ProjectsHelper.getProjectsHelper().getProjectAOI(
 							helper.getWritableDatabase(), context, 
@@ -75,9 +78,12 @@ public class MapLoaderCallbacks implements LoaderManager.LoaderCallbacks<ArrayLi
 					@Override
 					public void run(){
 						Log.w("MapLoaderCallbacks", "MapLoaderCallbacks defaultLayerVisibility: " + arbiterProject.getDefaultLayerVisibility());
-						Map.getMap().loadMap(webview, layers, 
-								arbiterProject.includeDefaultLayer(),
-								arbiterProject.getDefaultLayerVisibility());
+						
+						if(!creatingProject){
+							Map.getMap().loadMap(webview, layers, 
+									arbiterProject.includeDefaultLayer(),
+									arbiterProject.getDefaultLayerVisibility());
+						}
 						
 						Map.getMap().zoomToExtent(webview, extent, savedZoomLevel);
 					}

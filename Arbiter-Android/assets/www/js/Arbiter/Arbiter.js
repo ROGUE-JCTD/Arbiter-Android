@@ -1,8 +1,8 @@
 Arbiter = (function(){
 	
 	return {
-		Init: function(){
-			Arbiter.Map.createMap();
+		Init: function(createMapCallback){
+			Arbiter.Map.createMap(createMapCallback);
 		}
 	};
 })();
@@ -11,7 +11,7 @@ Arbiter.Map = (function(){
 	var map = null;
 	
 	return {
-		createMap: function(){
+		createMap: function(callback){
 			this.WGS84_Google_Mercator = new OpenLayers.Projection("EPSG:900913");
 			this.WGS84 = new OpenLayers.Projection("EPSG:4326");
 			
@@ -39,6 +39,10 @@ Arbiter.Map = (function(){
 				 center: new OpenLayers.LonLat(742000, 5861000),
 				 zoom: 3
 			});
+			
+			if(callback !== null && callback !== undefined){
+				callback.call();
+			}
 		},
 		
 		getMap: function(){

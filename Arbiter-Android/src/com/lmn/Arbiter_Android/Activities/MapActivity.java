@@ -59,7 +59,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
         cordovaWebView.loadUrl(ArbiterCordova.cordovaUrl, 5000);
     }
 
-    public void Init(Bundle savedInstanceState){
+    private void Init(Bundle savedInstanceState){
     	restoreState(savedInstanceState);
         InitDatabases();
         InitArbiterProject();
@@ -77,6 +77,11 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     private void InitArbiterProject(){
     	arbiterProject = ArbiterProject.getArbiterProject();
     	arbiterProject.getOpenProject(getApplicationContext());
+    }
+    
+    private void resetSavedExtent(){
+    	arbiterProject.setSavedBounds(null);
+    	arbiterProject.setSavedZoomLevel(null);
     }
     
     /**
@@ -192,7 +197,10 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     @Override 
     protected void onResume(){
     	super.onResume();
-    	Log.d(TAG, "onResume");
+    	
+    	// Reset the saved extent and zoom level
+    	resetSavedExtent();
+    	
     	if((arbiterProject != null) && !arbiterProject.isSameProject() && (this.mapLoaderCallbacks != null)){
     		this.mapLoaderCallbacks.loadMap();
     		arbiterProject.makeSameProject();
@@ -273,9 +281,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
 	@Override
 	public Object onMessage(String message, Object obj) {
 		Log.d(TAG, message);
-        if (message.equalsIgnoreCase("exit")) {
-        	//super.finish();
-        }else if(message.equals("onPageFinished")){
+        if(message.equals("onPageFinished")){
         	if(obj instanceof String){
         		if(((String) obj).equals(ArbiterCordova.cordovaUrl)){
         			if(this.mapLoaderCallbacks == null){

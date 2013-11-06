@@ -44,7 +44,9 @@ var app = (function(){
 	     * On device ready
 	     */
 	    onDeviceReady: function() {
-	    	Arbiter.Init();
+	    	Arbiter.Init(function(){
+	    		app.overrideGetURL(Arbiter.Map.getMap().layers[0]);
+	    	});
 	    	
 	    	for(var i = 0; i < waitFuncs.length; i++){
 	    		waitFuncs[i].call();

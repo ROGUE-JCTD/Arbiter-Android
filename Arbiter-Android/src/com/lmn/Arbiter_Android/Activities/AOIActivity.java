@@ -11,38 +11,56 @@ import org.apache.cordova.CordovaWebView;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
+import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
+import com.lmn.Arbiter_Android.LoaderCallbacks.MapLoaderCallbacks;
 import com.lmn.Arbiter_Android.Map.Map;
 
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-public class AOIActivity extends Activity implements CordovaInterface, Map.CordovaMap{
+public class AOIActivity extends FragmentActivity implements CordovaInterface, Map.CordovaMap{
 	private static final String TAG = "AOIActivity";
 	
 	// For CORDOVA
-    private CordovaWebView cordovaWebview;
+    private CordovaWebView cordovaWebView;
     private final ExecutorService threadPool = Executors.newCachedThreadPool();
+    private ArbiterProject arbiterProject;
+    private MapLoaderCallbacks mapLoaderCallbacks;
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.choose_aoi_dialog);
+		
 		Config.init(this);
 		
-		cordovaWebview = (CordovaWebView) findViewById(R.id.aoiWebView);
-		//final CordovaWebView webview = cordovaWebview;
-        
-        
-        String url = "file:///android_asset/www/index.html";
-        cordovaWebview.loadUrl(url, 5000);
+		cordovaWebView = (CordovaWebView) findViewById(R.id.aoiWebView);
 		
-        View cancel = (View) findViewById(R.id.cancelButton);
+		Init();
+		
+        String url = "file:///android_asset/www/index.html";
+        cordovaWebView.loadUrl(url, 5000);
+	}
+	
+	private void Init(){
+		arbiterProject = ArbiterProject.getArbiterProject();
+		registerListeners();
+	}
+	
+	private void resetSavedExtent(){
+		arbiterProject.setSavedBounds(null);
+		arbiterProject.setSavedZoomLevel(null);
+	}
+	
+	private void registerListeners(){
+		View cancel = (View) findViewById(R.id.cancelButton);
         
         final AOIActivity activity = this;
         
@@ -68,11 +86,11 @@ public class AOIActivity extends Activity implements CordovaInterface, Map.Cordo
         ok.setOnClickListener(new OnClickListener(){
         	@Override
         	public void onClick(View v){
-        		cordovaWebview.loadUrl("javascript:app.setNewProjectsAOI()");
+        		cordovaWebView.loadUrl("javascript:app.setNewProjectsAOI()");
         	}
         });
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -90,13 +108,15 @@ public class AOIActivity extends Activity implements CordovaInterface, Map.Cordo
     protected void onResume(){
     	super.onResume();
     	Log.d(TAG, "onResume");
+    	
+    	resetSavedExtent();
     }
     
     @Override
     protected void onDestroy(){
     	super.onDestroy();
-    	if(this.cordovaWebview != null){
-    		cordovaWebview.handleDestroy();
+    	if(this.cordovaWebView != null){
+    		cordovaWebView.handleDestroy();
     	}
     }
     
@@ -112,7 +132,7 @@ public class AOIActivity extends Activity implements CordovaInterface, Map.Cordo
     
     @Override
     public CordovaWebView getWebView(){
-    	return this.cordovaWebview;
+    	return this.cordovaWebView;
     }
     
     /**
@@ -131,9 +151,22 @@ public class AOIActivity extends Activity implements CordovaInterface, Map.Cordo
 	@Override
 	public Object onMessage(String message, Object obj) {
 		Log.d(TAG, message);
-        if (message.equalsIgnoreCase("exit")) {
-                super.finish();
+		if(message.equals("onPageFinished")){
+        	if(obj instanceof String){
+        		if(((String) obj).equals(ArbiterCordova.cordovaUrl)){
+        			if(this.mapLoaderCallbacks == null){
+        				this.mapLoaderCallbacks = new MapLoaderCallbacks(this, cordovaWebView , R.id.loader_aoi_map);
+        			}else{
+        				this.mapLoaderCallbacks.loadMap();
+        			}
+        			
+                    this.arbiterProject.makeSameProject();
+        		}else if(((String) obj).equals("about:blank")){
+        			this.cordovaWebView.loadUrl(ArbiterCordova.cordovaUrl);
+        		}
+        	}
         }
+		
         return null;
 	}
 	

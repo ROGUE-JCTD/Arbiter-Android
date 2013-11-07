@@ -8,19 +8,19 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 
-public class GlobalDatabaseHelper extends SQLiteOpenHelper {
+public class ApplicationDatabaseHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "arbiter_global.db";
 	private static int DATABASE_VERSION = 1;
 	
-	private GlobalDatabaseHelper(Context context){
+	private ApplicationDatabaseHelper(Context context){
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 	
-	private static GlobalDatabaseHelper helper = null;
+	private static ApplicationDatabaseHelper helper = null;
 	
-	public static GlobalDatabaseHelper getGlobalHelper(Context context){
+	public static ApplicationDatabaseHelper getHelper(Context context){
 		if(helper == null){
-			helper = new GlobalDatabaseHelper(context);
+			helper = new ApplicationDatabaseHelper(context);
 		}
 		
 		return helper;

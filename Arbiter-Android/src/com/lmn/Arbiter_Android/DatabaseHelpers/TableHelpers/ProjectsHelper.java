@@ -16,7 +16,7 @@ import android.util.Log;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 
-public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, BaseColumns{
+public class ProjectsHelper implements BaseColumns{
 	public static final String PROJECT_NAME = "name";
 	public static final String PROJECTS_TABLE_NAME = "projects";
 	public static final String PROJECT_AOI = "aoi";
@@ -115,7 +115,6 @@ public class ProjectsHelper implements ArbiterDatabaseHelper<Project, Project>, 
 		return projectId;
 	}
 
-	@Override
 	public void delete(SQLiteDatabase db, Context context, Project project) {
 		db.beginTransaction();
 		

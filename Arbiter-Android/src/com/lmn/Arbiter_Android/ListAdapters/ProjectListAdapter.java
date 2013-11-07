@@ -4,7 +4,7 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Activities.ProjectsActivity;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
-import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.SwitchProjectDialog;
@@ -93,7 +93,7 @@ public class ProjectListAdapter extends BaseAdapter{
 							@Override
 							public void run() {
 								
-								GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+								ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
 								ProjectsHelper.getProjectsHelper().delete(helper.getWritableDatabase(), context, project);;
 								
 							}

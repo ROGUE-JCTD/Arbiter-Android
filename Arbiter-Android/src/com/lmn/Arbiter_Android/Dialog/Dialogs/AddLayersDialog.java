@@ -8,7 +8,7 @@ import com.lmn.Arbiter_Android.Activities.AOIActivity;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
-import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
@@ -126,7 +126,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 			CommandExecutor.runProcess(new Runnable(){
 				@Override
 				public void run() {
-					GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+					ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
 					long[] layerIds = LayersHelper.getLayersHelper().
 								insert(helper.getWritableDatabase(), context, layers, projectId);
 					

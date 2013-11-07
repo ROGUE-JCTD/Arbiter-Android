@@ -8,7 +8,7 @@ import android.widget.EditText;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
-import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
@@ -41,7 +41,7 @@ public class AddServerDialog extends ArbiterDialogFragment{
 		CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run() {
-				GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+				ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
 				
 				boolean insert = false;
 				
@@ -76,14 +76,14 @@ public class AddServerDialog extends ArbiterDialogFragment{
 		server.setPassword(passwordField.getText().toString());
 	}
 	
-	private void insertServer(GlobalDatabaseHelper helper, Context context, Server server){	
+	private void insertServer(ApplicationDatabaseHelper helper, Context context, Server server){	
 		Server[] list = new Server[1];
 		list[0] = server;
 		
 		ServersHelper.getServersHelper().insert(helper.getWritableDatabase(), context, list);
 	}
 
-	private void updateServer(final GlobalDatabaseHelper helper, final Context context, final Server server){
+	private void updateServer(final ApplicationDatabaseHelper helper, final Context context, final Server server){
 		final FragmentActivity activity = this.getActivity();
 		
 		ServersHelper.getServersHelper().updateAlert(activity, new Runnable(){

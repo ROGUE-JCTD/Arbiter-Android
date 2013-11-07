@@ -13,7 +13,7 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
-import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.LoaderCallbacks.MapLoaderCallbacks;
@@ -70,8 +70,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
      * Make sure that the database gets initialized and a project exists
      */
     private void InitDatabases(){
-    	GlobalDatabaseHelper
-    			.getGlobalHelper(getApplicationContext());
+    	ApplicationDatabaseHelper
+    			.getHelper(getApplicationContext());
     }
     
     private void InitArbiterProject(){
@@ -104,12 +104,11 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     	aoiButton.setOnClickListener(new OnClickListener(){
     		@Override
     		public void onClick(View v){
-    			GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+    			ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
     			String aoi = ProjectsHelper.getProjectsHelper().getProjectAOI(
     					helper.getWritableDatabase(), context, 
     					ArbiterProject.getArbiterProject().getOpenProject(context));
     			
-    			Log.w(TAG, "aoi: " + aoi);
     			Map.getMap().zoomToExtent(cordovaWebView, aoi, null);
     		}
     	});

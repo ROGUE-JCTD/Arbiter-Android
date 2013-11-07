@@ -6,7 +6,7 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
-import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
@@ -132,8 +132,8 @@ public class ServerListAdapter extends BaseAdapter{
 					@Override
 					public void run() {
 						
-						GlobalDatabaseHelper helper = GlobalDatabaseHelper.
-								getGlobalHelper(activity.getApplicationContext());
+						ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.
+								getHelper(activity.getApplicationContext());
 						ServersHelper.getServersHelper().delete(helper.getWritableDatabase(),
 								activity.getApplicationContext(), server);
 					}

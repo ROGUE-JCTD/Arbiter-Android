@@ -15,7 +15,7 @@ import android.util.Log;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
-import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.Loaders.MapLoader;
 import com.lmn.Arbiter_Android.Map.Map;
@@ -66,7 +66,7 @@ public class MapLoaderCallbacks implements LoaderManager.LoaderCallbacks<ArrayLi
 				final boolean creatingProject = newProject != null && newProject.isBeingCreated();
 				
 				if(savedBounds == null && !creatingProject){
-					GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+					ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
 					savedBounds = ProjectsHelper.getProjectsHelper().getProjectAOI(
 							helper.getWritableDatabase(), context, 
 							ArbiterProject.getArbiterProject().getOpenProject(context));

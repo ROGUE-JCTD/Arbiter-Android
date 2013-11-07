@@ -11,7 +11,7 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BroadcastReceivers.LayerBroadcastReceiver;
 //import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
-import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 
 public class LayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
@@ -19,13 +19,13 @@ public class LayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 	
 	private LayerBroadcastReceiver loaderBroadcastReceiver = null;
 	private ArrayList<Layer> layers;
-	private GlobalDatabaseHelper globalDbHelper = null;
+	private ApplicationDatabaseHelper globalDbHelper = null;
 	private long projectId;
 	
 	public LayersListLoader(Context context) {
 		super(context);
 		this.projectId = ArbiterProject.getArbiterProject().getOpenProject(context);
-		globalDbHelper = GlobalDatabaseHelper.getGlobalHelper(context);
+		globalDbHelper = ApplicationDatabaseHelper.getHelper(context);
 	}
 
 	@Override

@@ -7,7 +7,7 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.BroadcastReceivers.ProjectBroadcastReceiver;
-import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 
 public class ProjectsListLoader extends AsyncTaskLoader<Project[]> {
@@ -15,12 +15,12 @@ public class ProjectsListLoader extends AsyncTaskLoader<Project[]> {
 	
 	private ProjectBroadcastReceiver<Project[]> loaderBroadcastReceiver = null;
 	private Project[] projects;
-	private GlobalDatabaseHelper globalDbHelper = null;
+	private ApplicationDatabaseHelper globalDbHelper = null;
 	
 	public ProjectsListLoader(Context context) {
 		super(context);
 		
-		globalDbHelper = GlobalDatabaseHelper.getGlobalHelper(context);
+		globalDbHelper = ApplicationDatabaseHelper.getHelper(context);
 	}
 
 	@Override

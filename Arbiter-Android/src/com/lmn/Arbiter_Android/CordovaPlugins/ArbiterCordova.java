@@ -10,7 +10,7 @@ import android.app.Activity;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
-import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 
@@ -98,7 +98,7 @@ public class ArbiterCordova extends CordovaPlugin{
 	private void insertNewProject(final Activity activity, String aoi){
 		arbiterProject.getNewProject().setAOI(aoi);
 		
-		GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(activity.getApplicationContext());
+		ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(activity.getApplicationContext());
 		ProjectsHelper.getProjectsHelper().insert(helper.
 				getWritableDatabase(), activity.getApplicationContext(),
 				arbiterProject.getNewProject());

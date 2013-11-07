@@ -7,20 +7,20 @@ import android.support.v4.content.AsyncTaskLoader;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
-import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 
 public class MapLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 	public static final String PROJECT_LIST_UPDATED = "PROJECT_LIST_UPDATED";
 	
 	private ArrayList<Layer> layers;
-	private GlobalDatabaseHelper globalDbHelper = null;
+	private ApplicationDatabaseHelper globalDbHelper = null;
 	private Context context;
 	
 	public MapLoader(Context context) {
 		super(context);
 		this.context = context;
-		globalDbHelper = GlobalDatabaseHelper.getGlobalHelper(context);
+		globalDbHelper = ApplicationDatabaseHelper.getHelper(context);
 	}
 
 	@Override

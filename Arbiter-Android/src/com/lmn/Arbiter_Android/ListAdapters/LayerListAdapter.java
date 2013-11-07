@@ -6,7 +6,7 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
-import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
@@ -145,7 +145,7 @@ public class LayerListAdapter extends BaseAdapter{
 		CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run(){
-				GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+				ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
 				ProjectsHelper.getProjectsHelper().setDefaultLayerVisibility(
 						helper.getWritableDatabase(), context, projectId, visibility, new Runnable(){
 							@Override
@@ -167,7 +167,7 @@ public class LayerListAdapter extends BaseAdapter{
 		CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run(){
-				GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+				ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
 				LayersHelper.getLayersHelper().updateAttributeValues(helper.getWritableDatabase(), context, layerId, values, new Runnable(){
 					@Override
 					public void run(){
@@ -195,7 +195,7 @@ public class LayerListAdapter extends BaseAdapter{
 			@Override
 			public void run() {
 				final long layerId = layer.getLayerId();
-				GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+				ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
 				LayersHelper.getLayersHelper().delete(
 						helper.getWritableDatabase(), context, layer, new Runnable(){
 

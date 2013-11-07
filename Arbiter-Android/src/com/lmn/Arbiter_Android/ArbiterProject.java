@@ -7,7 +7,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.BaseClasses.Project;
-import com.lmn.Arbiter_Android.DatabaseHelpers.GlobalDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 
 public class ArbiterProject {
@@ -83,8 +83,8 @@ public class ArbiterProject {
     		
     		projectId = settings.getLong(OPEN_PROJECT, -1);
     		
-    		GlobalDatabaseHelper helper = GlobalDatabaseHelper
-	    			.getGlobalHelper(context);
+    		ApplicationDatabaseHelper helper = ApplicationDatabaseHelper
+	    			.getHelper(context);
     		
     		// If openProject is STILL -1, then there wasn't a previously opened project  
     		if(projectId == -1){
@@ -155,7 +155,7 @@ public class ArbiterProject {
 	}
 	
 	public void setProjectsAOI(final Context context, final String aoi){
-		GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+		ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
 		ProjectsHelper.getProjectsHelper().setProjectsAOI(helper.getWritableDatabase(), 
 				context, getOpenProject(context), aoi, new Runnable(){
 			
@@ -176,7 +176,7 @@ public class ArbiterProject {
 	
 	public void setIncludeDefaultLayer(final Context context, final boolean includeDefaultLayer, final Runnable callback){
 		
-		GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+		ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
 		ProjectsHelper.getProjectsHelper().setIncludeDefaultLayer(helper.getWritableDatabase(), 
 				context, getOpenProject(context), includeDefaultLayer, new Runnable(){
 			@Override
@@ -191,7 +191,7 @@ public class ArbiterProject {
 	public void updateAttributeValues(final Context context, final long projectId, 
 			final ContentValues values, final Runnable callback){
 		
-		GlobalDatabaseHelper helper = GlobalDatabaseHelper.getGlobalHelper(context);
+		ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
 		ProjectsHelper.getProjectsHelper().updateProjectAttributes(helper.
 				getWritableDatabase(), context, projectId, values, callback);
 	}

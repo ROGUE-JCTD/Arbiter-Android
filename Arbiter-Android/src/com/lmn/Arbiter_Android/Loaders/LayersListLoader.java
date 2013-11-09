@@ -2,36 +2,73 @@ package com.lmn.Arbiter_Android.Loaders;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.SparseArray;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.BroadcastReceivers.LayerBroadcastReceiver;
-//import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
+//import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class LayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 	public static final String LAYERS_LIST_UPDATED = "LAYERS_LIST_UPDATED";
 	
 	private LayerBroadcastReceiver loaderBroadcastReceiver = null;
 	private ArrayList<Layer> layers;
-	private ApplicationDatabaseHelper globalDbHelper = null;
-	private long projectId;
+	private ProjectDatabaseHelper projectDbHelper = null;
+	private ApplicationDatabaseHelper appDbHelper = null;
+	private Activity activity;
+	private Context context;
+	private String projectName;
 	
-	public LayersListLoader(Context context) {
-		super(context);
-		this.projectId = ArbiterProject.getArbiterProject().getOpenProject(context);
-		globalDbHelper = ApplicationDatabaseHelper.getHelper(context);
+	public LayersListLoader(Activity activity) {
+		super(activity.getApplicationContext());
+		this.activity = activity;
+		this.context = activity.getApplicationContext();
+		
+		this.appDbHelper = ApplicationDatabaseHelper.getHelper(this.context);
 	}
 
+	public void updateProjectDbHelper(){
+		this.projectName = ArbiterProject.
+				getArbiterProject().getOpenProjectName(activity);
+		
+		this.projectDbHelper = ProjectDatabaseHelper.getHelper(context,
+				ProjectStructure.getProjectPath(activity.getApplicationContext(), projectName));
+	}
+	
 	@Override
 	public ArrayList<Layer> loadInBackground() {
+		updateProjectDbHelper();
+		
 		ArrayList<Layer> layers = LayersHelper.getLayersHelper().
-				getAll(globalDbHelper.getWritableDatabase(), projectId);
+				getAll(projectDbHelper.getWritableDatabase());
+		
+		SparseArray<Server> servers = ServersHelper.getServersHelper().
+				getAll(appDbHelper.getWritableDatabase());
+		
+		return addServerInfoToLayers(layers, servers);
+	}
+	
+	private ArrayList<Layer> addServerInfoToLayers(ArrayList<Layer> layers, 
+			SparseArray<Server> servers){
+		Server server;
+		
+		for(Layer layer : layers){
+			server = servers.get(layer.getServerId());
+			layer.setServerName(server.getName());
+			layer.setServerUrl(server.getUrl());
+		}
 		
 		return layers;
 	}

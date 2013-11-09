@@ -8,7 +8,7 @@ import com.lmn.Arbiter_Android.Activities.AOIActivity;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
-import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
@@ -21,6 +21,7 @@ import com.lmn.Arbiter_Android.LoaderCallbacks.ServerLoaderCallbacks;
 import com.lmn.Arbiter_Android.Loaders.AddLayersListLoader;
 import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -49,6 +50,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	private boolean creatingProject;
 	
 	private MapChangeListener mapChangeListener;
+	private ArbiterProject arbiterProject;
 	
 	public static AddLayersDialog newInstance(String title, String ok, 
 			String cancel, int layout, ArrayList<Layer> layersInProject){
@@ -60,6 +62,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		frag.setLayout(layout);
 		
 		frag.layersInProject = layersInProject;
+		frag.arbiterProject = ArbiterProject.getArbiterProject();
 		
 		return frag;
 	}
@@ -119,16 +122,19 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		final boolean includeDefaultLayer = this.addLayersAdapter.includeDefaultLayer();
 		
 		if(!creatingProject){
-
-			final long projectId = ArbiterProject.getArbiterProject().getOpenProject(context);
+			
+			final long projectId = arbiterProject.getOpenProject(getActivity());
+			final String projectName = arbiterProject.getOpenProjectName(getActivity());
 			
 			// write the added layers to the database
 			CommandExecutor.runProcess(new Runnable(){
 				@Override
 				public void run() {
-					ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
+					ProjectDatabaseHelper helper = ProjectDatabaseHelper
+							.getHelper(context, ProjectStructure.getProjectPath(context, projectName));
+					
 					long[] layerIds = LayersHelper.getLayersHelper().
-								insert(helper.getWritableDatabase(), context, layers, projectId);
+								insert(helper.getWritableDatabase(), context, layers);
 					
 					if(includeDefaultLayer){
 						setDefaultLayerInfo(projectId, includeDefaultLayer);

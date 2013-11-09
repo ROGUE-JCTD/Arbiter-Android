@@ -18,8 +18,8 @@ public class Layer {
 	private String featureType;
 	
 	// Only for the adapter, for displaying
-	private String serverName;
-	private String serverUrl;
+    private String serverName;
+    private String serverUrl;
 	
 	private String title;
 	private String srs;
@@ -78,7 +78,11 @@ public class Layer {
 	}
 	
 	public String getServerName(){
-		return serverName;
+        return serverName;
+	}
+	
+	public void setServerName(String name){
+		this.serverName = name;
 	}
 	
 	public String getLayerTitle(){
@@ -102,7 +106,11 @@ public class Layer {
 	}
 	
 	public String getServerUrl(){
-		return this.serverUrl;
+        return this.serverUrl;
+	}
+	
+	public void setServerUrl(String url){
+		this.serverUrl = url;
 	}
 	
 	public void setChecked(boolean check){

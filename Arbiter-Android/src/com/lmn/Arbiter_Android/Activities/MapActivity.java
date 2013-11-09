@@ -18,6 +18,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.LoaderCallbacks.MapLoaderCallbacks;
 import com.lmn.Arbiter_Android.Map.Map;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -39,6 +40,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     private String TAG = "MAP_ACTIVITY";
     private ArbiterProject arbiterProject;
 	private MapLoaderCallbacks mapLoaderCallbacks;
+    private ProjectStructure projectStructure;
     
     // For CORDOVA
     private CordovaWebView cordovaWebView;
@@ -61,22 +63,25 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
 
     private void Init(Bundle savedInstanceState){
     	restoreState(savedInstanceState);
-        InitDatabases();
+    	getProjectStructure();
+    	InitApplicationDatabase();
         InitArbiterProject();
         setListeners();
     }
     
-    /**
-     * Make sure that the database gets initialized and a project exists
-     */
-    private void InitDatabases(){
-    	ApplicationDatabaseHelper
-    			.getHelper(getApplicationContext());
+    private void InitApplicationDatabase(){
+    	ApplicationDatabaseHelper.
+    		getHelper(getApplicationContext());
+    }
+    
+    private void getProjectStructure(){
+    	projectStructure = ProjectStructure.getProjectStructure();
+    	projectStructure.ensureProjectExists(this);
     }
     
     private void InitArbiterProject(){
     	arbiterProject = ArbiterProject.getArbiterProject();
-    	arbiterProject.getOpenProject(getApplicationContext());
+    	arbiterProject.getOpenProject(this);
     }
     
     private void resetSavedExtent(){
@@ -100,6 +105,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     	ImageButton aoiButton = (ImageButton) findViewById(R.id.AOIButton);
     	
     	final Context context = this.getApplicationContext();
+    	final Activity activity = this;
     	
     	aoiButton.setOnClickListener(new OnClickListener(){
     		@Override
@@ -107,7 +113,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     			ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
     			String aoi = ProjectsHelper.getProjectsHelper().getProjectAOI(
     					helper.getWritableDatabase(), context, 
-    					ArbiterProject.getArbiterProject().getOpenProject(context));
+    					ArbiterProject.getArbiterProject().getOpenProject(activity));
     			
     			Map.getMap().zoomToExtent(cordovaWebView, aoi, null);
     		}
@@ -201,6 +207,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     	resetSavedExtent();
     	
     	if((arbiterProject != null) && !arbiterProject.isSameProject() && (this.mapLoaderCallbacks != null)){
+    		Log.w(TAG, TAG + ": LOAD MAP AND MAKE SAME PROJECT");
     		this.mapLoaderCallbacks.loadMap();
     		arbiterProject.makeSameProject();
     	}

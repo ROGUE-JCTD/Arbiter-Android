@@ -1,7 +1,5 @@
 package com.lmn.Arbiter_Android.ListAdapters;
 
-import java.util.ArrayList;
-
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
@@ -12,6 +10,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 
 import android.support.v4.app.FragmentActivity;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +21,7 @@ import android.widget.TextView;
 
 public class ServerListAdapter extends BaseAdapter{
 
-	private ArrayList<Server> items;
+	private SparseArray<Server> items;
 	private final LayoutInflater inflater;
 	private int itemLayout;
 	private int textId;
@@ -33,7 +32,7 @@ public class ServerListAdapter extends BaseAdapter{
 			int textId){
 		
 			inflater = LayoutInflater.from(activity.getApplicationContext());
-			items = new ArrayList<Server>();
+			items = new SparseArray<Server>();
 			this.itemLayout = itemLayout;
 			this.textId = textId;
 			this.dropDownLayout = R.layout.drop_down_item;
@@ -44,7 +43,7 @@ public class ServerListAdapter extends BaseAdapter{
 			int textId, Integer dropDownLayout){
 		
 			inflater = LayoutInflater.from(activity.getApplicationContext());
-			items = new ArrayList<Server>();
+			items = new SparseArray<Server>();
 			this.itemLayout = itemLayout;
 			this.textId = textId;
 			this.dropDownLayout = dropDownLayout;
@@ -52,19 +51,19 @@ public class ServerListAdapter extends BaseAdapter{
 			
 	}
 	
-	private void addDefaultServer(ArrayList<Server> servers){
+	private void addDefaultServer(SparseArray<Server> servers){
 		if(servers != null){
 			ArbiterProject arbiterProject = ArbiterProject.getArbiterProject();
 			Project newProject = arbiterProject.getNewProject();
 			
 			if(!arbiterProject.includeDefaultLayer() || (newProject != null && newProject.isBeingCreated())){
-				servers.add(new Server(Server.DEFAULT_SERVER_NAME, null, 
+				servers.put(Server.DEFAULT_FLAG, new Server(Server.DEFAULT_SERVER_NAME, null, 
 						null, null, Server.DEFAULT_FLAG));
 			}
 		}
 	}
 	
-	public void setData(ArrayList<Server> data){
+	public void setData(SparseArray<Server> data){
 		items = data;
 		
 		addDefaultServer(items);
@@ -175,7 +174,7 @@ public class ServerListAdapter extends BaseAdapter{
 
 	@Override
 	public Server getItem(int position) {
-		return items.get(position);
+		return items.valueAt(position);
 	}
 
 	@Override

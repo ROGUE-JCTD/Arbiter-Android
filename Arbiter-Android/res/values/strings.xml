@@ -7,6 +7,10 @@
 	<string name="delete">Delete</string>
 	<string name="update">Update</string>
 	<string name="default_layer_name">OpenStreetMap</string>
+	<string name="project_exists_title">Project Exists</string>
+	<string name="project_already_exists">Project already exists.  Please create a new project with a different name.</string>
+	<string name="project_creation_failed">Project creation failed</string>
+	<string name="project_creation_failed_message">Could not create project.  Check to see if you are out of disk space.</string>
 	
     <!-- MAP ACTIVITY STRINGS -->
     <string name="map_activity_name">Arbiter</string>

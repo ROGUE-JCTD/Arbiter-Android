@@ -66,4 +66,14 @@ public class Server {
 	public static boolean isDefaultServer(int serverId){
 		return (serverId == DEFAULT_FLAG) ? true : false;
 	}
+	
+	@Override
+	public String toString(){
+		return "{" +
+				"\tserverName: " + serverName + "\n" +
+				"\turl: " + url + "\n" +
+				"\tusername: " + username + "\n" +
+				"\tpassword: " + password + "\n" +
+				"}";
+	}
 }

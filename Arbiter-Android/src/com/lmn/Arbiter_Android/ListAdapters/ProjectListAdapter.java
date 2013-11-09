@@ -8,11 +8,11 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.SwitchProjectDialog;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -55,7 +55,7 @@ public class ProjectListAdapter extends BaseAdapter{
 			@Override
 			public void onClick(View v){
 				if(project.getId() != ArbiterProject.
-						getArbiterProject().getOpenProject(context)){
+						getArbiterProject().getOpenProject(activity)){
 					Resources resources = activity.getResources();
 					String title = resources.getString(R.string.switch_project_title);
 					String ok = resources.getString(android.R.string.ok);
@@ -63,23 +63,24 @@ public class ProjectListAdapter extends BaseAdapter{
 					int layout = R.layout.switch_project;
 					
 					DialogFragment dialog = SwitchProjectDialog.newInstance(
-							title, ok, cancel, layout, project.getId(), project.includeDefaultLayer());
+							title, ok, cancel, layout, project.getId(), 
+							project.getProjectName(), project.includeDefaultLayer());
 					dialog.show(activity.getSupportFragmentManager(), "switchProjectDialog");
 				}
 			}
 		});
 		
 		if(project != null){
-			TextView projectName = (TextView) view.findViewById(R.id.projectName);
+			TextView projectNameTextView = (TextView) view.findViewById(R.id.projectName);
 			
-			if(projectName != null){
+			if(projectNameTextView != null){
 				String name = project.getProjectName();
 				if(project.getId() == ArbiterProject.getArbiterProject().
-						getOpenProject(context)){
+						getOpenProject(activity)){
 					name += " [current]";
 				}
 				
-				projectName.setText(name);
+				projectNameTextView.setText(name);
 			}
 			
 			ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteProject);
@@ -94,8 +95,13 @@ public class ProjectListAdapter extends BaseAdapter{
 							public void run() {
 								
 								ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
-								ProjectsHelper.getProjectsHelper().delete(helper.getWritableDatabase(), context, project);;
-								
+								ProjectStructure.getProjectStructure().deleteProject(activity, project.getProjectName());
+								ProjectsHelper.getProjectsHelper().delete(helper.getWritableDatabase(), activity, project, new Runnable(){
+									@Override
+									public void run(){
+										ProjectStructure.getProjectStructure().ensureProjectExists(activity);
+									}
+								});
 							}
 							
 						});

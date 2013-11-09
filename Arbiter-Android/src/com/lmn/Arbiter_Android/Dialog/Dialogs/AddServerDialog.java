@@ -2,7 +2,6 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
@@ -41,7 +40,8 @@ public class AddServerDialog extends ArbiterDialogFragment{
 		CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run() {
-				ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
+				ApplicationDatabaseHelper helper = 
+						ApplicationDatabaseHelper.getHelper(context);
 				
 				boolean insert = false;
 				

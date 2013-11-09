@@ -15,18 +15,18 @@ public class ProjectsListLoader extends AsyncTaskLoader<Project[]> {
 	
 	private ProjectBroadcastReceiver<Project[]> loaderBroadcastReceiver = null;
 	private Project[] projects;
-	private ApplicationDatabaseHelper globalDbHelper = null;
+	private ApplicationDatabaseHelper appDbHelper = null;
 	
 	public ProjectsListLoader(Context context) {
 		super(context);
 		
-		globalDbHelper = ApplicationDatabaseHelper.getHelper(context);
+		appDbHelper = ApplicationDatabaseHelper.getHelper(context);
 	}
 
 	@Override
 	public Project[] loadInBackground() {
 		Project[] projects = ProjectsHelper.getProjectsHelper().
-				getAll(globalDbHelper.getWritableDatabase());
+				getAll(appDbHelper.getWritableDatabase());
 		
 		return projects;
 	}

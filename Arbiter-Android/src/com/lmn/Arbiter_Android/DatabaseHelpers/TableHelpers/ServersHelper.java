@@ -1,10 +1,7 @@
 package com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers;
 
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,10 +11,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
-import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 import com.lmn.Arbiter_Android.Loaders.ServersListLoader;
 
 public class ServersHelper implements BaseColumns{
@@ -51,7 +48,7 @@ public class ServersHelper implements BaseColumns{
 		db.execSQL(sql);
 	}
 	
-	public ArrayList<Server> getAll(SQLiteDatabase db){
+	public SparseArray<Server> getAll(SQLiteDatabase db){
 		// Projection - columns to get back
 		String[] columns = {SERVER_NAME, SERVER_URL, 
 				SERVER_USERNAME, SERVER_PASSWORD, _ID};
@@ -64,13 +61,15 @@ public class ServersHelper implements BaseColumns{
 		
 		// Create an array list with initial capacity equal to the
 		// number of servers +1 for the default OSM server
-		ArrayList<Server> servers = new ArrayList<Server>(cursor.getCount() + 1);
+		SparseArray<Server> servers = new SparseArray<Server>(cursor.getCount() + 1);
+		
+		int key;
 		
 		//Traverse the cursors to populate the projects array
 		for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-			Log.w("SERVERS HELPER", "SERVERS HELPER GET ALL id: " + cursor.getInt(4));
-			servers.add(new Server(cursor.getString(0),
-					cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getInt(4)));
+			key = cursor.getInt(4);
+			servers.put(key, new Server(cursor.getString(0),
+					cursor.getString(1), cursor.getString(2), cursor.getString(3), key));
 		}
 		
 		cursor.close();

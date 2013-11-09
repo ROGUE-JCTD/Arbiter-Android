@@ -4,6 +4,7 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -14,7 +15,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.BaseClasses.Project;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ProjectsHelper implements BaseColumns{
 	public static final String PROJECT_NAME = "name";
@@ -80,9 +83,9 @@ public class ProjectsHelper implements BaseColumns{
 		return projects;
 	}
 	
-	public long[] insert(SQLiteDatabase db, Context context, Project newProject){
+	public long[] insert(SQLiteDatabase appDb, Context context, Project newProject){
 		
-		db.beginTransaction();
+		appDb.beginTransaction();
 		long[] projectId = new long[1];
 		
 		try {
@@ -92,31 +95,38 @@ public class ProjectsHelper implements BaseColumns{
 			values.put(INCLUDE_DEFAULT_LAYER, newProject.includeDefaultLayer());
 			values.put(DEFAULT_LAYER_VISIBILITY, newProject.getDefaultLayerVisibility());
 			
-			projectId[0] = db.insert(PROJECTS_TABLE_NAME, null, values);
+			projectId[0] = appDb.insert(PROJECTS_TABLE_NAME, null, values);
 			
 			// If the project successfully inserted,
 			// insert the layers with the projects id
 			if(projectId[0] != -1){
+				ProjectDatabaseHelper helper = ProjectDatabaseHelper.getHelper(context, ProjectStructure
+						.getProjectPath(context, newProject.getProjectName()));
 				
-				LayersHelper.getLayersHelper().insert(db, context, newProject.getLayers(), projectId[0]);
+				LayersHelper.getLayersHelper().insert(helper.
+						getWritableDatabase(), context, newProject.getLayers());
 				
-				db.setTransactionSuccessful();
+				appDb.setTransactionSuccessful();
 				
-				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));
+				ArbiterProject.getArbiterProject().setOpenProject(context, 
+						projectId[0], newProject.getProjectName(), newProject.includeDefaultLayer());
 				
-				ArbiterProject.getArbiterProject().setOpenProject(context, projectId[0], newProject.includeDefaultLayer());
+				LocalBroadcastManager.getInstance(context).
+					sendBroadcast(new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			db.endTransaction();
+			appDb.endTransaction();
 		}
 		
 		return projectId;
 	}
 
-	public void delete(SQLiteDatabase db, Context context, Project project) {
+	public void delete(SQLiteDatabase db, Activity activity, Project project, Runnable callback) {
 		db.beginTransaction();
+		
+		boolean successful = true;
 		
 		try {
 			
@@ -127,37 +137,44 @@ public class ProjectsHelper implements BaseColumns{
 			
 			db.delete(PROJECTS_TABLE_NAME, whereClause, whereArgs);
 			
-			ensureProjectExists(db, context);
-			
 			db.setTransactionSuccessful();
 			
-			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));
+			LocalBroadcastManager.getInstance(activity.getApplicationContext())
+				.sendBroadcast(new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));
 		} catch (Exception e){
+			successful = false;
 			e.printStackTrace();
 		} finally {
 			db.endTransaction();
 		}
+		
+		if(successful){
+			if(callback != null){
+				callback.run();
+			}
+		}
 	}
 	
 	//TODO NEED TO FIX THE AOI THATS INSERTED INTO THE DEFAULT PROJECT
-	public long ensureProjectExists(SQLiteDatabase db, Context context){
-    	String[] columns = {
-    		ProjectsHelper._ID
-    	};
-    	
-    	Cursor cursor = db.query(ProjectsHelper.PROJECTS_TABLE_NAME,
-    			columns, null, null, null, null, null);
-    	
-    	long[] projectId = {-1};
-    	
-    	if(cursor.getCount() < 1){
-    		// Insert the default project
-    		projectId = insert(db, context, 
-    				new Project(-1, context.getResources().getString(
-    						R.string.default_project_name), "", true, true));
-    	}
-    	
-    	cursor.close();
+	public long ensureProjectExists(SQLiteDatabase appDb, Context context){
+		appDb.beginTransaction();
+		
+		long[] projectId = {-1};
+		
+		try {
+	    	projectId = insert(appDb, context, 
+	    		new Project(-1, context.getResources().getString(
+	    			R.string.default_project_name), "", true, true));
+	    	
+			appDb.setTransactionSuccessful();
+			
+			LocalBroadcastManager.getInstance(context)
+				.sendBroadcast(new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));
+		} catch (Exception e){
+			
+		} finally {
+			appDb.endTransaction();
+		}
     	
     	return projectId[0];
     }

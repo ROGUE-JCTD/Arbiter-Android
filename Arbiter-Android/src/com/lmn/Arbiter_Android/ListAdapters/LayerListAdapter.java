@@ -7,12 +7,14 @@ import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -39,6 +41,7 @@ public class LayerListAdapter extends BaseAdapter{
 	private int itemLayout;
 	private final FragmentActivity activity;
 	private final Context context;
+	private final ArbiterProject arbiterProject;
 	
 	public LayerListAdapter(FragmentActivity activity, int itemLayout){
 		
@@ -47,6 +50,7 @@ public class LayerListAdapter extends BaseAdapter{
 		this.items = new ArrayList<Layer>();
 		this.itemLayout = itemLayout;
 		this.activity = activity;
+		this.arbiterProject = ArbiterProject.getArbiterProject();
 		
 		try {
 			mapChangeListener = (MapChangeListener) activity;
@@ -140,7 +144,7 @@ public class LayerListAdapter extends BaseAdapter{
 	}
 	
 	private void updateDefaultLayerVisibility(final long layerId, final boolean visibility){
-		final long projectId = ArbiterProject.getArbiterProject().getOpenProject(context);
+		final long projectId = ArbiterProject.getArbiterProject().getOpenProject(activity);
 		
 		CommandExecutor.runProcess(new Runnable(){
 			@Override
@@ -161,13 +165,15 @@ public class LayerListAdapter extends BaseAdapter{
 	
 	private void updateLayerVisibility(final long layerId, final boolean visibility){
 		final ContentValues values = new ContentValues();
+		final String projectName = arbiterProject.getOpenProjectName(activity);
 		
 		values.put(LayersHelper.LAYER_VISIBILITY, visibility);
 		
 		CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run(){
-				ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
+				ProjectDatabaseHelper helper = ProjectDatabaseHelper.
+						getHelper(context, ProjectStructure.getProjectPath(context, projectName));
 				LayersHelper.getLayersHelper().updateAttributeValues(helper.getWritableDatabase(), context, layerId, values, new Runnable(){
 					@Override
 					public void run(){
@@ -179,7 +185,9 @@ public class LayerListAdapter extends BaseAdapter{
 	}
 	
 	private void deleteDefaultLayer(){
-		ArbiterProject.getArbiterProject().setIncludeDefaultLayer(context, false, new Runnable(){
+		final long projectId = arbiterProject.getOpenProject(activity);
+		
+		arbiterProject.setIncludeDefaultLayer(context, projectId, false, new Runnable(){
 			@Override
 			public void run(){
 				mapChangeListener.onLayerDeleted(Layer.DEFAULT_FLAG);
@@ -191,11 +199,14 @@ public class LayerListAdapter extends BaseAdapter{
 	}
 	
 	private void deleteLayer(final Layer layer){
+		final String projectName = arbiterProject.getOpenProjectName(activity);
+		
 		CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run() {
 				final long layerId = layer.getLayerId();
-				ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
+				ProjectDatabaseHelper helper = ProjectDatabaseHelper.
+						getHelper(context, ProjectStructure.getProjectPath(context, projectName));
 				LayersHelper.getLayersHelper().delete(
 						helper.getWritableDatabase(), context, layer, new Runnable(){
 

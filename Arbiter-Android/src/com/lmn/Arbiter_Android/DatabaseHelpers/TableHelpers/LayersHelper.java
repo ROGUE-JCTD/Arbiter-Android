@@ -48,60 +48,28 @@ public class LayersHelper implements BaseColumns{
 					LAYER_SRS + " TEXT, " +
 					BOUNDING_BOX + " TEXT, " +
 					LAYER_VISIBILITY + " TEXT, " +
-					PROJECT_ID + " TEXT, " +
-					SERVER_ID + " INTEGER, " + 
-					" FOREIGN KEY (" + SERVER_ID + ") REFERENCES " + 
-					ServersHelper.SERVERS_TABLE_NAME + " (" + ServersHelper._ID + ") " +
-					" FOREIGN KEY (" + PROJECT_ID + ") REFERENCES " +
-					ProjectsHelper.PROJECTS_TABLE_NAME + " (" + ProjectsHelper._ID + "));";
+					SERVER_ID + " INTEGER);";
 		
 		db.execSQL(sql);
-		
-		createDeleteLayersByProjectTrigger(db);
-		createDeleteLayersByServerTrigger(db);
 	}
 	
-	private void createDeleteLayersByProjectTrigger(SQLiteDatabase db){
-		db.execSQL("CREATE TRIGGER delete_layers_by_project BEFORE DELETE ON " +
-					ProjectsHelper.PROJECTS_TABLE_NAME + " FOR EACH ROW BEGIN " +
-					"DELETE FROM " + LAYERS_TABLE_NAME + " WHERE " + 
-					PROJECT_ID + " = " + "OLD." + ProjectsHelper._ID + "; END;");
-	}
-	
-	private void createDeleteLayersByServerTrigger(SQLiteDatabase db){
-		db.execSQL("CREATE TRIGGER delete_layers_by_server BEFORE DELETE ON " +
-					ServersHelper.SERVERS_TABLE_NAME + " FOR EACH ROW BEGIN " +
-					"DELETE FROM " + LAYERS_TABLE_NAME + " WHERE " + 
-					SERVER_ID + " = " + "OLD." + ServersHelper._ID + "; END;");
-	}
-	
-	public ArrayList<Layer> getAll(SQLiteDatabase db, long projectId){
+	public ArrayList<Layer> getAll(SQLiteDatabase db){
 		// Projection - columns to get back
 		String[] columns = {
 			LAYERS_TABLE_NAME + "." + _ID, // 0
 			FEATURE_TYPE, // 1
 			SERVER_ID, // 2
-			ServersHelper.SERVER_NAME, // 3
-			ServersHelper.SERVER_URL, // 4
-			LAYER_TITLE, // 5
-			LAYER_SRS, // 6
-			BOUNDING_BOX, // 7
-			LAYER_VISIBILITY // 8
+			LAYER_TITLE, // 3
+			LAYER_SRS, // 4
+			BOUNDING_BOX, // 5
+			LAYER_VISIBILITY // 6
 		};
 		
+		// get all of the layers and 
 		// How to sort the results
 		String orderBy = LAYER_TITLE + " COLLATE NOCASE";
-				
-		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 		
-		builder.setTables(LAYERS_TABLE_NAME + " INNER JOIN " + 
-				ServersHelper.SERVERS_TABLE_NAME + " ON " + LAYERS_TABLE_NAME + "." + 
-				SERVER_ID + " = " + ServersHelper.SERVERS_TABLE_NAME + "." + ServersHelper._ID);
-		
-		String where = LAYERS_TABLE_NAME + "." + PROJECT_ID + "=?";
-		String[] whereArgs = { Long.toString(projectId) };
-		
-		Cursor cursor = builder.query(db, columns, where, whereArgs, null, null, orderBy);
+		Cursor cursor = db.query(LAYERS_TABLE_NAME, columns, null, null, null, null, orderBy);
 		
 		// Create an array list with initial capacity equal to the number of layers +1 for the default layer
 		ArrayList<Layer> layers = new ArrayList<Layer>(cursor.getCount() + 1);
@@ -109,9 +77,8 @@ public class LayersHelper implements BaseColumns{
 		//Traverse the cursors to populate the projects array
 		for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 			layers.add(new Layer(cursor.getInt(0),
-					cursor.getString(1), cursor.getInt(2), cursor.getString(3),
-					cursor.getString(4), cursor.getString(5), cursor.getString(6), 
-					cursor.getString(7), Util.convertIntToBoolean(cursor.getInt(8))));
+					cursor.getString(1), cursor.getInt(2), null, null, cursor.getString(3), cursor.getString(4), 
+					cursor.getString(5), Util.convertIntToBoolean(cursor.getInt(6))));
 		}
 		
 		cursor.close();
@@ -119,7 +86,7 @@ public class LayersHelper implements BaseColumns{
 		return layers;
 	}
 	
-	public long[] insert(SQLiteDatabase db, Context context, ArrayList<Layer> newLayers, long projectId){
+	public long[] insert(SQLiteDatabase db, Context context, ArrayList<Layer> newLayers){
 		db.beginTransaction();
 		
 		long[] layerIds = new long[newLayers.size()];
@@ -139,7 +106,6 @@ public class LayersHelper implements BaseColumns{
 				values.put(FEATURE_TYPE, layer.getFeatureType());
 				values.put(BOUNDING_BOX, layer.getLayerBBOX());
 				values.put(LAYER_SRS, layer.getLayerSRS());
-				values.put(PROJECT_ID, projectId);
 				values.put(LAYER_VISIBILITY, layer.isChecked());
 				
 				layerIds[i] = db.insert(LAYERS_TABLE_NAME, null, values);

@@ -1,36 +1,34 @@
 package com.lmn.Arbiter_Android.Loaders;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.content.IntentFilter;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.SparseArray;
 
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.BroadcastReceivers.ServerBroadcastReceiver;
-//import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 
-public class ServersListLoader extends AsyncTaskLoader<ArrayList<Server>> {
+public class ServersListLoader extends AsyncTaskLoader<SparseArray<Server>> {
 	public static final String SERVER_LIST_UPDATED = "SERVER_LIST_UPDATED";
 	
 	private ServerBroadcastReceiver loaderBroadcastReceiver = null;
-	private ArrayList<Server> servers;
-	private ApplicationDatabaseHelper globalDbHelper = null;
+	private SparseArray<Server> servers;
+	private ApplicationDatabaseHelper appDbHelper = null;
 	
 	public ServersListLoader(Context context) {
 		super(context);
 		
-		globalDbHelper = ApplicationDatabaseHelper.getHelper(context);
+		appDbHelper = ApplicationDatabaseHelper.getHelper(context);
 	}
 
 	@Override
-	public ArrayList<Server> loadInBackground() {
+	public SparseArray<Server> loadInBackground() {
 		
-		ArrayList<Server> servers = ServersHelper.getServersHelper().
-				getAll(globalDbHelper.getWritableDatabase());
+		SparseArray<Server> servers = ServersHelper.getServersHelper().
+				getAll(appDbHelper.getWritableDatabase());
 		
 		return servers;
 	}
@@ -40,7 +38,7 @@ public class ServersListLoader extends AsyncTaskLoader<ArrayList<Server>> {
      * super class will take care of delivering it; the implementation
      * here just adds a little more logic.
      */
-    @Override public void deliverResult(ArrayList<Server> _servers) {
+    @Override public void deliverResult(SparseArray<Server> _servers) {
         if (isReset()) {
             // An async query came in while the loader is stopped.  We
             // don't need the result.
@@ -49,7 +47,7 @@ public class ServersListLoader extends AsyncTaskLoader<ArrayList<Server>> {
             }
         }
         
-        ArrayList<Server> oldServers = _servers;
+        SparseArray<Server> oldServers = _servers;
         servers = _servers;
 
         if (isStarted()) {
@@ -102,7 +100,7 @@ public class ServersListLoader extends AsyncTaskLoader<ArrayList<Server>> {
     /**
      * Handles a request to cancel a load.
      */
-    @Override public void onCanceled(ArrayList<Server> _servers) {
+    @Override public void onCanceled(SparseArray<Server> _servers) {
         super.onCanceled(_servers);
 
         // At this point we can release the resources associated with 'apps'
@@ -138,7 +136,7 @@ public class ServersListLoader extends AsyncTaskLoader<ArrayList<Server>> {
      * Helper function to take care of releasing resources associated
      * with an actively loaded data set.
      */
-    protected void onReleaseResources(ArrayList<Server> _servers) {
+    protected void onReleaseResources(SparseArray<Server> _servers) {
         // For a simple List<> there is nothing to do.  For something
         // like a Cursor, we would close it here.
     	

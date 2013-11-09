@@ -28,7 +28,7 @@ public class LayerLoaderCallbacks implements LoaderManager.LoaderCallbacks<Array
 	public Loader<ArrayList<Layer>> onCreateLoader(int id, Bundle bundle) {
 		// This is called when a new Loader needs to be created.  This
         // sample only has one Loader with no arguments, so it is simple.
-        return new LayersListLoader(activity.getApplicationContext());
+        return new LayersListLoader(activity);
 	}
 
 	@Override

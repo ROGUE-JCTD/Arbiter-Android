@@ -46,7 +46,7 @@ public class MapLoaderCallbacks implements LoaderManager.LoaderCallbacks<ArrayLi
 	public Loader<ArrayList<Layer>> onCreateLoader(int id, Bundle bundle) {
 		// This is called when a new Loader needs to be created.  This
         // sample only has one Loader with no arguments, so it is simple.
-		this.loader = new MapLoader(activity.getApplicationContext());
+		this.loader = new MapLoader(activity);
         return this.loader;
 	}
 
@@ -66,10 +66,12 @@ public class MapLoaderCallbacks implements LoaderManager.LoaderCallbacks<ArrayLi
 				final boolean creatingProject = newProject != null && newProject.isBeingCreated();
 				
 				if(savedBounds == null && !creatingProject){
-					ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
+					ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.
+							getHelper(context);
+					
 					savedBounds = ProjectsHelper.getProjectsHelper().getProjectAOI(
 							helper.getWritableDatabase(), context, 
-							ArbiterProject.getArbiterProject().getOpenProject(context));
+							ArbiterProject.getArbiterProject().getOpenProject(activity));
 				}
 				
 				final String extent = savedBounds;

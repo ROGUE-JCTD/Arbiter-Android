@@ -10,9 +10,12 @@ import android.app.Activity;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
+import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ArbiterCordova extends CordovaPlugin{
 	private final ArbiterProject arbiterProject;
@@ -52,6 +55,7 @@ public class ArbiterCordova extends CordovaPlugin{
 	 */
 	public void setNewProjectsAOI(final String aoi, final CallbackContext callbackContext){
 		final Activity activity = this.cordova.getActivity();
+		final long projectId = arbiterProject.getOpenProject(activity);
 		
 		activity.runOnUiThread(new Runnable(){
 
@@ -65,7 +69,7 @@ public class ArbiterCordova extends CordovaPlugin{
     					
     					if(arbiterProject.isSettingAOI()){
     						// Save the aoi to the open project
-    						setTheCurrentAOI(activity, aoi);
+    						setTheCurrentAOI(activity, projectId, aoi);
     					}else{
     						insertNewProject(activity, aoi);
     					}
@@ -96,17 +100,26 @@ public class ArbiterCordova extends CordovaPlugin{
 	}
 	
 	private void insertNewProject(final Activity activity, String aoi){
-		arbiterProject.getNewProject().setAOI(aoi);
+		Project newProject = arbiterProject.getNewProject();
 		
-		ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(activity.getApplicationContext());
+		ProjectStructure.getProjectStructure().
+			createProject(activity, newProject.getProjectName(), false);
+		
+		newProject.setAOI(aoi);
+		
+		ApplicationDatabaseHelper helper = 
+				ApplicationDatabaseHelper.getHelper(activity.getApplicationContext());
+		
 		ProjectsHelper.getProjectsHelper().insert(helper.
 				getWritableDatabase(), activity.getApplicationContext(),
-				arbiterProject.getNewProject());
+				newProject);
 		
-		arbiterProject.getNewProject().isBeingCreated(false);
+		newProject.isBeingCreated(false);
 	}
 	
-	private void setTheCurrentAOI(final Activity activity, final String aoi){
-		arbiterProject.setProjectsAOI(activity.getApplicationContext(), aoi);
+	private void setTheCurrentAOI(final Activity activity, 
+			final long projectId, final String aoi){
+		Log.w("ArbiterCordova", "ArbiterCordova: aoi = " + aoi);
+		arbiterProject.setProjectsAOI(activity.getApplicationContext(), projectId, aoi);
 	}
 }

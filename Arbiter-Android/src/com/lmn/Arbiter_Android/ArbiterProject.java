@@ -1,26 +1,30 @@
 package com.lmn.Arbiter_Android;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ArbiterProject {
 	private static final String ARBITER_PREFERENCES = "ArbiterPreferences";
-	private static final String OPEN_PROJECT = "openProject";
+	
+	private static final String OPEN_PROJECT_ID = "openProjectId";
+	private static final String OPEN_PROJECT_NAME = "openProjectName";
 	
 	// The id of the project that was open.
 	// This is used in MapActivity to decide whether or not
 	// to load the map
 	private long oldProjectId = -1;
+	private long openProjectId = -1;
 	
-	// The id of the project that is open
-	private long projectId = -1;
+	private String openProjectName = null;
+	
 	
 	private boolean includeDefaultLayer = true;
 	private boolean defaultLayerVisibility = true;
@@ -51,16 +55,20 @@ public class ArbiterProject {
 	 * @param projectId
 	 * @param includeDefaultLayer
 	 */
-	public void setOpenProject(Context context, long projectId, boolean includeDefaultLayer){
+	public void setOpenProject(Context context, long projectId, 
+			String projectName, boolean includeDefaultLayer){
 		
 		// Save the open project id to shared preferences for persistent storage
-		SharedPreferences settings = context.getSharedPreferences(ARBITER_PREFERENCES, FragmentActivity.MODE_PRIVATE);
+		SharedPreferences settings = context.getSharedPreferences(ARBITER_PREFERENCES, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
-		editor.putLong(OPEN_PROJECT, projectId);
+		editor.putLong(OPEN_PROJECT_ID, projectId);
+		editor.putString(OPEN_PROJECT_NAME, projectName);
+		
 		editor.commit();
 		
 		// Set the new project Id
-		this.projectId = projectId;
+		this.openProjectId = projectId;
+		this.openProjectName = projectName;
 		
 		// Set includeDefaultLayer
 		setIncludeDefaultLayer(includeDefaultLayer);
@@ -74,28 +82,32 @@ public class ArbiterProject {
 	 * @param context
 	 * @return
 	 */
-	public long getOpenProject(Context context){
-		if(projectId == -1){
+	public long getOpenProject(Activity activity){
+		if(!openProjectHasBeenInitialized()){
+			Context context = activity.getApplicationContext();
+			
 			// projectId hasn't been set yet so get the
 			// last open project from SharedPreferences
     		SharedPreferences settings = context.
     				getSharedPreferences(ARBITER_PREFERENCES, FragmentActivity.MODE_PRIVATE);
     		
-    		projectId = settings.getLong(OPEN_PROJECT, -1);
+    		openProjectId = settings.getLong(OPEN_PROJECT_ID, -1);
+    		openProjectName = settings.getString(OPEN_PROJECT_NAME, null);
     		
     		ApplicationDatabaseHelper helper = ApplicationDatabaseHelper
 	    			.getHelper(context);
     		
     		// If openProject is STILL -1, then there wasn't a previously opened project  
-    		if(projectId == -1){
-    			projectId = ProjectsHelper.getProjectsHelper().ensureProjectExists(
-    	    			helper.getWritableDatabase(), context);
+    		if(!openProjectHasBeenInitialized()){
+    			openProjectId = ProjectStructure.
+    					getProjectStructure().ensureProjectExists(activity);
+    			openProjectName = context.getResources().getString(R.string.default_project_name);
     		}
     		
     		// Get whether or not this project includes the default layer
     		// and if so, is it visible
     		boolean[] defaultLayerInfo = ProjectsHelper.getProjectsHelper().
-					getIncludeDefaultLayer(helper.getWritableDatabase(), context, projectId);
+					getIncludeDefaultLayer(helper.getWritableDatabase(), context, openProjectId);
     		
     		if(defaultLayerInfo != null){
         		setIncludeDefaultLayer(defaultLayerInfo[0]);
@@ -103,15 +115,25 @@ public class ArbiterProject {
     		}
     	}
 		
-		return projectId;
+		return openProjectId;
+	}
+	
+	public String getOpenProjectName(Activity activity){
+		getOpenProject(activity);
+		
+		return this.openProjectName;
+	}
+	
+	private boolean openProjectHasBeenInitialized(){
+		return openProjectId != -1;
 	}
 	
 	public boolean isSameProject(){
-		return oldProjectId == projectId;
+		return oldProjectId == openProjectId;
 	}
 	
 	public void makeSameProject(){	
-		oldProjectId = projectId;
+		oldProjectId = openProjectId;
 	}
 	
 	public void createNewProject(String name){
@@ -154,10 +176,10 @@ public class ArbiterProject {
 		return this.defaultLayerVisibility;
 	}
 	
-	public void setProjectsAOI(final Context context, final String aoi){
+	public void setProjectsAOI(final Context context, final long projectId, final String aoi){
 		ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
 		ProjectsHelper.getProjectsHelper().setProjectsAOI(helper.getWritableDatabase(), 
-				context, getOpenProject(context), aoi, new Runnable(){
+				context, projectId, aoi, new Runnable(){
 			
 			@Override
 			public void run(){
@@ -174,11 +196,12 @@ public class ArbiterProject {
 		this.includeDefaultLayer = includeDefaultLayer;
 	}
 	
-	public void setIncludeDefaultLayer(final Context context, final boolean includeDefaultLayer, final Runnable callback){
+	public void setIncludeDefaultLayer(final Context context, final long projectId, 
+			final boolean includeDefaultLayer, final Runnable callback){
 		
 		ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
 		ProjectsHelper.getProjectsHelper().setIncludeDefaultLayer(helper.getWritableDatabase(), 
-				context, getOpenProject(context), includeDefaultLayer, new Runnable(){
+				context, projectId, includeDefaultLayer, new Runnable(){
 			@Override
 			public void run(){
 				setIncludeDefaultLayer(includeDefaultLayer);
@@ -189,10 +212,10 @@ public class ArbiterProject {
 	}
 	
 	public void updateAttributeValues(final Context context, final long projectId, 
-			final ContentValues values, final Runnable callback){
-		
+            final ContentValues values, final Runnable callback){
+    
 		ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
 		ProjectsHelper.getProjectsHelper().updateProjectAttributes(helper.
-				getWritableDatabase(), context, projectId, values, callback);
+                    getWritableDatabase(), context, projectId, values, callback);
 	}
 }

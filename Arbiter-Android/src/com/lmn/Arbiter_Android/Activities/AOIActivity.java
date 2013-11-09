@@ -159,8 +159,6 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface, M
         			}else{
         				this.mapLoaderCallbacks.loadMap();
         			}
-        			
-                    this.arbiterProject.makeSameProject();
         		}else if(((String) obj).equals("about:blank")){
         			this.cordovaWebView.loadUrl(ArbiterCordova.cordovaUrl);
         		}

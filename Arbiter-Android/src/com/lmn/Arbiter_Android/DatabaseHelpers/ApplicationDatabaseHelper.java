@@ -4,11 +4,10 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 
 public class ApplicationDatabaseHelper extends SQLiteOpenHelper {
-	private static final String DATABASE_NAME = "arbiter_global.db";
+	private static final String DATABASE_NAME = "arbiter_application.db";
 	private static int DATABASE_VERSION = 1;
 	
 	private ApplicationDatabaseHelper(Context context){
@@ -27,16 +26,13 @@ public class ApplicationDatabaseHelper extends SQLiteOpenHelper {
 	
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		ProjectsHelper.getProjectsHelper().createTable(db);
 		ServersHelper.getServersHelper().createTable(db);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// TODO: Migrate the tables
-		db.execSQL("DROP TABLE IF EXISTS " + ProjectsHelper.PROJECTS_TABLE_NAME + ";");
 		db.execSQL("DROP TABLE IF EXISTS " + ServersHelper.SERVERS_TABLE_NAME + ";");
-		ProjectsHelper.getProjectsHelper().createTable(db);
 		ServersHelper.getServersHelper().createTable(db);
 	}
 	

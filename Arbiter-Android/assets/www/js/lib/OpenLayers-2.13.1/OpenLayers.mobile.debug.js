@@ -21450,6 +21450,402 @@ OpenLayers.Format.XML.lookupNamespaceURI = OpenLayers.Function.bind(
  */
 OpenLayers.Format.XML.document = null;
 /* ======================================================================
+OpenLayers/Format/WKT.js
+====================================================================== */
+
+/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for
+* full list of contributors). Published under the 2-clause BSD license.
+* See license.txt in the OpenLayers distribution or repository for the
+* full text of the license. */
+
+/**
+* @requires OpenLayers/Format.js
+* @requires OpenLayers/Feature/Vector.js
+* @requires OpenLayers/Geometry/Point.js
+* @requires OpenLayers/Geometry/MultiPoint.js
+* @requires OpenLayers/Geometry/LineString.js
+* @requires OpenLayers/Geometry/MultiLineString.js
+* @requires OpenLayers/Geometry/Polygon.js
+* @requires OpenLayers/Geometry/MultiPolygon.js
+*/
+
+/**
+* Class: OpenLayers.Format.WKT
+* Class for reading and writing Well-Known Text.  Create a new instance
+* with the <OpenLayers.Format.WKT> constructor.
+* 
+* Inherits from:
+*  - <OpenLayers.Format>
+*/
+OpenLayers.Format.WKT = OpenLayers.Class(OpenLayers.Format, {
+
+/**
+ * Constructor: OpenLayers.Format.WKT
+ * Create a new parser for WKT
+ *
+ * Parameters:
+ * options - {Object} An optional object whose properties will be set on
+ *           this instance
+ *
+ * Returns:
+ * {<OpenLayers.Format.WKT>} A new WKT parser.
+ */
+initialize: function(options) {
+    this.regExes = {
+        'typeStr': /^\s*(\w+)\s*\(\s*(.*)\s*\)\s*$/,
+        'spaces': /\s+/,
+        'parenComma': /\)\s*,\s*\(/,
+        'doubleParenComma': /\)\s*\)\s*,\s*\(\s*\(/,  // can't use {2} here
+        'trimParens': /^\s*\(?(.*?)\)?\s*$/
+    };
+    OpenLayers.Format.prototype.initialize.apply(this, [options]);
+},
+
+/**
+ * APIMethod: read
+ * Deserialize a WKT string and return a vector feature or an
+ * array of vector features.  Supports WKT for POINT, MULTIPOINT,
+ * LINESTRING, MULTILINESTRING, POLYGON, MULTIPOLYGON, and
+ * GEOMETRYCOLLECTION.
+ *
+ * Parameters:
+ * wkt - {String} A WKT string
+ *
+ * Returns:
+ * {<OpenLayers.Feature.Vector>|Array} A feature or array of features for
+ * GEOMETRYCOLLECTION WKT.
+ */
+read: function(wkt) {
+    var features, type, str;
+    wkt = wkt.replace(/[\n\r]/g, " ");
+    var matches = this.regExes.typeStr.exec(wkt);
+    if(matches) {
+        type = matches[1].toLowerCase();
+        str = matches[2];
+        if(this.parse[type]) {
+            features = this.parse[type].apply(this, [str]);
+        }
+        if (this.internalProjection && this.externalProjection) {
+            if (features && 
+                features.CLASS_NAME == "OpenLayers.Feature.Vector") {
+                features.geometry.transform(this.externalProjection,
+                                            this.internalProjection);
+            } else if (features &&
+                       type != "geometrycollection" &&
+                       typeof features == "object") {
+                for (var i=0, len=features.length; i<len; i++) {
+                    var component = features[i];
+                    component.geometry.transform(this.externalProjection,
+                                                 this.internalProjection);
+                }
+            }
+        }
+    }    
+    return features;
+},
+
+/**
+ * APIMethod: write
+ * Serialize a feature or array of features into a WKT string.
+ *
+ * Parameters:
+ * features - {<OpenLayers.Feature.Vector>|Array} A feature or array of
+ *            features
+ *
+ * Returns:
+ * {String} The WKT string representation of the input geometries
+ */
+write: function(features) {
+    var collection, geometry, isCollection;
+    if (features.constructor == Array) {
+        collection = features;
+        isCollection = true;
+    } else {
+        collection = [features];
+        isCollection = false;
+    }
+    var pieces = [];
+    if (isCollection) {
+        pieces.push('GEOMETRYCOLLECTION(');
+    }
+    for (var i=0, len=collection.length; i<len; ++i) {
+        if (isCollection && i>0) {
+            pieces.push(',');
+        }
+        geometry = collection[i].geometry;
+        pieces.push(this.extractGeometry(geometry));
+    }
+    if (isCollection) {
+        pieces.push(')');
+    }
+    return pieces.join('');
+},
+
+/**
+ * Method: extractGeometry
+ * Entry point to construct the WKT for a single Geometry object.
+ *
+ * Parameters:
+ * geometry - {<OpenLayers.Geometry.Geometry>}
+ *
+ * Returns:
+ * {String} A WKT string of representing the geometry
+ */
+extractGeometry: function(geometry) {
+    var type = geometry.CLASS_NAME.split('.')[2].toLowerCase();
+    if (!this.extract[type]) {
+        return null;
+    }
+    if (this.internalProjection && this.externalProjection) {
+        geometry = geometry.clone();
+        geometry.transform(this.internalProjection, this.externalProjection);
+    }                       
+    var wktType = type == 'collection' ? 'GEOMETRYCOLLECTION' : type.toUpperCase();
+    var data = wktType + '(' + this.extract[type].apply(this, [geometry]) + ')';
+    return data;
+},
+
+/**
+ * Object with properties corresponding to the geometry types.
+ * Property values are functions that do the actual data extraction.
+ */
+extract: {
+    /**
+     * Return a space delimited string of point coordinates.
+     * @param {OpenLayers.Geometry.Point} point
+     * @returns {String} A string of coordinates representing the point
+     */
+    'point': function(point) {
+        return point.x + ' ' + point.y;
+    },
+
+    /**
+     * Return a comma delimited string of point coordinates from a multipoint.
+     * @param {OpenLayers.Geometry.MultiPoint} multipoint
+     * @returns {String} A string of point coordinate strings representing
+     *                  the multipoint
+     */
+    'multipoint': function(multipoint) {
+        var array = [];
+        for(var i=0, len=multipoint.components.length; i<len; ++i) {
+            array.push('(' +
+                       this.extract.point.apply(this, [multipoint.components[i]]) +
+                       ')');
+        }
+        return array.join(',');
+    },
+    
+    /**
+     * Return a comma delimited string of point coordinates from a line.
+     * @param {OpenLayers.Geometry.LineString} linestring
+     * @returns {String} A string of point coordinate strings representing
+     *                  the linestring
+     */
+    'linestring': function(linestring) {
+        var array = [];
+        for(var i=0, len=linestring.components.length; i<len; ++i) {
+            array.push(this.extract.point.apply(this, [linestring.components[i]]));
+        }
+        return array.join(',');
+    },
+
+    /**
+     * Return a comma delimited string of linestring strings from a multilinestring.
+     * @param {OpenLayers.Geometry.MultiLineString} multilinestring
+     * @returns {String} A string of of linestring strings representing
+     *                  the multilinestring
+     */
+    'multilinestring': function(multilinestring) {
+        var array = [];
+        for(var i=0, len=multilinestring.components.length; i<len; ++i) {
+            array.push('(' +
+                       this.extract.linestring.apply(this, [multilinestring.components[i]]) +
+                       ')');
+        }
+        return array.join(',');
+    },
+    
+    /**
+     * Return a comma delimited string of linear ring arrays from a polygon.
+     * @param {OpenLayers.Geometry.Polygon} polygon
+     * @returns {String} An array of linear ring arrays representing the polygon
+     */
+    'polygon': function(polygon) {
+        var array = [];
+        for(var i=0, len=polygon.components.length; i<len; ++i) {
+            array.push('(' +
+                       this.extract.linestring.apply(this, [polygon.components[i]]) +
+                       ')');
+        }
+        return array.join(',');
+    },
+
+    /**
+     * Return an array of polygon arrays from a multipolygon.
+     * @param {OpenLayers.Geometry.MultiPolygon} multipolygon
+     * @returns {String} An array of polygon arrays representing
+     *                  the multipolygon
+     */
+    'multipolygon': function(multipolygon) {
+        var array = [];
+        for(var i=0, len=multipolygon.components.length; i<len; ++i) {
+            array.push('(' +
+                       this.extract.polygon.apply(this, [multipolygon.components[i]]) +
+                       ')');
+        }
+        return array.join(',');
+    },
+
+    /**
+     * Return the WKT portion between 'GEOMETRYCOLLECTION(' and ')' for an <OpenLayers.Geometry.Collection>
+     * @param {OpenLayers.Geometry.Collection} collection
+     * @returns {String} internal WKT representation of the collection
+     */
+    'collection': function(collection) {
+        var array = [];
+        for(var i=0, len=collection.components.length; i<len; ++i) {
+            array.push(this.extractGeometry.apply(this, [collection.components[i]]));
+        }
+        return array.join(',');
+    }
+
+},
+
+/**
+ * Object with properties corresponding to the geometry types.
+ * Property values are functions that do the actual parsing.
+ */
+parse: {
+    /**
+     * Return point feature given a point WKT fragment.
+     * @param {String} str A WKT fragment representing the point
+     * @returns {OpenLayers.Feature.Vector} A point feature
+     * @private
+     */
+    'point': function(str) {
+        var coords = OpenLayers.String.trim(str).split(this.regExes.spaces);
+        return new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(coords[0], coords[1])
+        );
+    },
+
+    /**
+     * Return a multipoint feature given a multipoint WKT fragment.
+     * @param {String} str A WKT fragment representing the multipoint
+     * @returns {OpenLayers.Feature.Vector} A multipoint feature
+     * @private
+     */
+    'multipoint': function(str) {
+        var point;
+        var points = OpenLayers.String.trim(str).split(',');
+        var components = [];
+        for(var i=0, len=points.length; i<len; ++i) {
+            point = points[i].replace(this.regExes.trimParens, '$1');
+            components.push(this.parse.point.apply(this, [point]).geometry);
+        }
+        return new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.MultiPoint(components)
+        );
+    },
+    
+    /**
+     * Return a linestring feature given a linestring WKT fragment.
+     * @param {String} str A WKT fragment representing the linestring
+     * @returns {OpenLayers.Feature.Vector} A linestring feature
+     * @private
+     */
+    'linestring': function(str) {
+        var points = OpenLayers.String.trim(str).split(',');
+        var components = [];
+        for(var i=0, len=points.length; i<len; ++i) {
+            components.push(this.parse.point.apply(this, [points[i]]).geometry);
+        }
+        return new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.LineString(components)
+        );
+    },
+
+    /**
+     * Return a multilinestring feature given a multilinestring WKT fragment.
+     * @param {String} str A WKT fragment representing the multilinestring
+     * @returns {OpenLayers.Feature.Vector} A multilinestring feature
+     * @private
+     */
+    'multilinestring': function(str) {
+        var line;
+        var lines = OpenLayers.String.trim(str).split(this.regExes.parenComma);
+        var components = [];
+        for(var i=0, len=lines.length; i<len; ++i) {
+            line = lines[i].replace(this.regExes.trimParens, '$1');
+            components.push(this.parse.linestring.apply(this, [line]).geometry);
+        }
+        return new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.MultiLineString(components)
+        );
+    },
+    
+    /**
+     * Return a polygon feature given a polygon WKT fragment.
+     * @param {String} str A WKT fragment representing the polygon
+     * @returns {OpenLayers.Feature.Vector} A polygon feature
+     * @private
+     */
+    'polygon': function(str) {
+        var ring, linestring, linearring;
+        var rings = OpenLayers.String.trim(str).split(this.regExes.parenComma);
+        var components = [];
+        for(var i=0, len=rings.length; i<len; ++i) {
+            ring = rings[i].replace(this.regExes.trimParens, '$1');
+            linestring = this.parse.linestring.apply(this, [ring]).geometry;
+            linearring = new OpenLayers.Geometry.LinearRing(linestring.components);
+            components.push(linearring);
+        }
+        return new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Polygon(components)
+        );
+    },
+
+    /**
+     * Return a multipolygon feature given a multipolygon WKT fragment.
+     * @param {String} str A WKT fragment representing the multipolygon
+     * @returns {OpenLayers.Feature.Vector} A multipolygon feature
+     * @private
+     */
+    'multipolygon': function(str) {
+        var polygon;
+        var polygons = OpenLayers.String.trim(str).split(this.regExes.doubleParenComma);
+        var components = [];
+        for(var i=0, len=polygons.length; i<len; ++i) {
+            polygon = polygons[i].replace(this.regExes.trimParens, '$1');
+            components.push(this.parse.polygon.apply(this, [polygon]).geometry);
+        }
+        return new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.MultiPolygon(components)
+        );
+    },
+
+    /**
+     * Return an array of features given a geometrycollection WKT fragment.
+     * @param {String} str A WKT fragment representing the geometrycollection
+     * @returns {Array} An array of OpenLayers.Feature.Vector
+     * @private
+     */
+    'geometrycollection': function(str) {
+        // separate components of the collection with |
+        str = str.replace(/,\s*([A-Za-z])/g, '|$1');
+        var wktArray = OpenLayers.String.trim(str).split('|');
+        var components = [];
+        for(var i=0, len=wktArray.length; i<len; ++i) {
+            components.push(OpenLayers.Format.WKT.prototype.read.apply(this,[wktArray[i]]));
+        }
+        return components;
+    }
+
+},
+
+CLASS_NAME: "OpenLayers.Format.WKT" 
+});   
+/* ======================================================================
     OpenLayers/Format/OGCExceptionReport.js
    ====================================================================== */
 
@@ -21776,6 +22172,244 @@ OpenLayers.Format.XML.VersionedOGC = OpenLayers.Class(OpenLayers.Format.XML, {
     },
 
     CLASS_NAME: "OpenLayers.Format.XML.VersionedOGC"
+});
+/* ======================================================================
+OpenLayers/Format/WFSDescribeFeatureType.js
+====================================================================== */
+
+/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for
+* full list of contributors). Published under the 2-clause BSD license.
+* See license.txt in the OpenLayers distribution or repository for the
+* full text of the license. */
+
+/**
+* @requires OpenLayers/Format/XML.js
+* @requires OpenLayers/Format/OGCExceptionReport.js
+*/
+
+/**
+* Class: OpenLayers.Format.WFSDescribeFeatureType
+* Read WFS DescribeFeatureType response
+* 
+* Inherits from:
+*  - <OpenLayers.Format.XML>
+*/
+OpenLayers.Format.WFSDescribeFeatureType = OpenLayers.Class(
+OpenLayers.Format.XML, {
+
+/**
+ * Property: regExes
+ * Compiled regular expressions for manipulating strings.
+ */
+regExes: {
+    trimSpace: (/^\s*|\s*$/g)
+},
+
+/**
+ * Property: namespaces
+ * {Object} Mapping of namespace aliases to namespace URIs.
+ */
+namespaces: {
+    xsd: "http://www.w3.org/2001/XMLSchema"
+},
+
+/**
+ * Constructor: OpenLayers.Format.WFSDescribeFeatureType
+ * Create a new parser for WFS DescribeFeatureType responses.
+ *
+ * Parameters:
+ * options - {Object} An optional object whose properties will be set on
+ *     this instance.
+ */
+
+/**
+ * Property: readers
+ * Contains public functions, grouped by namespace prefix, that will
+ *     be applied when a namespaced node is found matching the function
+ *     name.  The function will be applied in the scope of this parser
+ *     with two arguments: the node being read and a context object passed
+ *     from the parent.
+ */
+readers: {
+    "xsd": {
+        "schema": function(node, obj) {
+            var complexTypes = [];
+            var customTypes = {};
+            var schema = {
+                complexTypes: complexTypes,
+                customTypes: customTypes
+            };
+            var i, len;
+            
+            this.readChildNodes(node, schema);
+
+            var attributes = node.attributes;
+            var attr, name;
+            for(i=0, len=attributes.length; i<len; ++i) {
+                attr = attributes[i];
+                name = attr.name;
+                if(name.indexOf("xmlns") === 0) {
+                    this.setNamespace(name.split(":")[1] || "", attr.value);
+                } else {
+                    obj[name] = attr.value;
+                }
+            }
+            obj.featureTypes = complexTypes;                
+            obj.targetPrefix = this.namespaceAlias[obj.targetNamespace];
+            
+            // map complexTypes to names of customTypes
+            var complexType, customType;
+            for(i=0, len=complexTypes.length; i<len; ++i) {
+                complexType = complexTypes[i];
+                customType = customTypes[complexType.typeName];
+                if(customTypes[complexType.typeName]) {
+                    complexType.typeName = customType.name;
+                }
+            }
+        },
+        "complexType": function(node, obj) {
+            var complexType = {
+                // this is a temporary typeName, it will be overwritten by
+                // the schema reader with the metadata found in the
+                // customTypes hash
+                "typeName": node.getAttribute("name")
+            };
+            this.readChildNodes(node, complexType);
+            obj.complexTypes.push(complexType);
+        },
+        "complexContent": function(node, obj) {
+            this.readChildNodes(node, obj);
+        },
+        "extension": function(node, obj) {
+            this.readChildNodes(node, obj);
+        },
+        "sequence": function(node, obj) {
+            var sequence = {
+                elements: []
+            };
+            this.readChildNodes(node, sequence);
+            obj.properties = sequence.elements;
+        },
+        "element": function(node, obj) {
+            var type;
+            if(obj.elements) {
+                var element = {};
+                var attributes = node.attributes;
+                var attr;
+                for(var i=0, len=attributes.length; i<len; ++i) {
+                    attr = attributes[i];
+                    element[attr.name] = attr.value;
+                }
+                
+                type = element.type;
+                if(!type) {
+                    type = {};
+                    this.readChildNodes(node, type);
+                    element.restriction = type;
+                    element.type = type.base;
+                }
+                var fullType = type.base || type;
+                element.localType = fullType.split(":").pop();
+                obj.elements.push(element);
+                this.readChildNodes(node, element);
+            }
+            
+            if(obj.complexTypes) {
+                type = node.getAttribute("type");
+                var localType = type.split(":").pop();
+                obj.customTypes[localType] = {
+                    "name": node.getAttribute("name"),
+                    "type": type
+                };
+            }
+        },
+        "annotation": function(node, obj) {
+            obj.annotation = {};
+            this.readChildNodes(node, obj.annotation);
+        },
+        "appinfo": function(node, obj) {
+            if (!obj.appinfo) {
+                obj.appinfo = [];
+            }
+            obj.appinfo.push(this.getChildValue(node));
+        },
+        "documentation": function(node, obj) {
+            if (!obj.documentation) {
+                obj.documentation = [];
+            }
+            var value = this.getChildValue(node);
+            obj.documentation.push({
+                lang: node.getAttribute("xml:lang"),
+                textContent: value.replace(this.regExes.trimSpace, "")
+            });
+        },
+        "simpleType": function(node, obj) {
+            this.readChildNodes(node, obj);
+        },
+        "restriction": function(node, obj) {
+            obj.base = node.getAttribute("base");
+            this.readRestriction(node, obj);
+        }
+    }
+},
+
+/**
+ * Method: readRestriction
+ * Reads restriction defined in the child nodes of a restriction element
+ * 
+ * Parameters:
+ * node - {DOMElement} the node to parse
+ * obj - {Object} the object that receives the read result
+ */
+readRestriction: function(node, obj) {
+    var children = node.childNodes;
+    var child, nodeName, value;
+    for(var i=0, len=children.length; i<len; ++i) {
+        child = children[i];
+        if(child.nodeType == 1) {
+            nodeName = child.nodeName.split(":").pop();
+            value = child.getAttribute("value");
+            if(!obj[nodeName]) {
+                obj[nodeName] = value;
+            } else {
+                if(typeof obj[nodeName] == "string") {
+                    obj[nodeName] = [obj[nodeName]];
+                }
+                obj[nodeName].push(value);
+            }
+        }
+    }
+},
+
+/**
+ * Method: read
+ *
+ * Parameters:
+ * data - {DOMElement|String} A WFS DescribeFeatureType document.
+ *
+ * Returns:
+ * {Object} An object representing the WFS DescribeFeatureType response.
+ */
+read: function(data) {
+    if(typeof data == "string") { 
+        data = OpenLayers.Format.XML.prototype.read.apply(this, [data]);
+    }
+    if(data && data.nodeType == 9) {
+        data = data.documentElement;
+    }
+    var schema = {};
+    if (data.nodeName.split(":").pop() === 'ExceptionReport') {
+        // an exception must have occurred, so parse it
+        var parser = new OpenLayers.Format.OGCExceptionReport();
+        schema.error = parser.read(data);
+    } else {
+        this.readNode(data, schema);
+    }
+    return schema;
+},
+
+CLASS_NAME: "OpenLayers.Format.WFSDescribeFeatureType" 
+
 });
 /* ======================================================================
     OpenLayers/Feature.js
@@ -28969,6 +29603,232 @@ OpenLayers.Strategy = OpenLayers.Class({
     },
    
     CLASS_NAME: "OpenLayers.Strategy" 
+});
+/**
+ * @requires OpenLayers/Strategy.js
+ */
+
+/**
+ * Class: OpenLayers.Strategy.Save
+ * A strategy that commits newly created or modified features.  By default
+ *     the strategy waits for a call to <save> before persisting changes.  By
+ *     configuring the strategy with the <auto> option, changes can be saved
+ *     automatically.
+ *
+ * Inherits from:
+ *  - <OpenLayers.Strategy>
+ */
+OpenLayers.Strategy.Save = OpenLayers.Class(OpenLayers.Strategy, {
+    
+    /**
+     * APIProperty: events
+     * {<OpenLayers.Events>} An events object that handles all 
+     *     events on the strategy object.
+     *
+     * Register a listener for a particular event with the following syntax:
+     * (code)
+     * strategy.events.register(type, obj, listener);
+     * (end)
+     *
+     * Supported event types:
+     * start - Triggered before saving
+     * success - Triggered after a successful transaction
+     * fail - Triggered after a failed transaction
+     * 
+     */
+ 
+    /** 
+     * Property: events
+     * {<OpenLayers.Events>} Events instance for triggering this protocol
+     *    events.
+     */
+    events: null,
+    
+    /**
+     * APIProperty: auto
+     * {Boolean | Number} Auto-save.  Default is false.  If true, features will be
+     *     saved immediately after being added to the layer and with each
+     *     modification or deletion.  If auto is a number, features will be
+     *     saved on an interval provided by the value (in seconds).
+     */
+    auto: false,
+    
+    /**
+     * Property: timer
+     * {Number} The id of the timer.
+     */
+    timer: null,
+
+    /**
+     * Constructor: OpenLayers.Strategy.Save
+     * Create a new Save strategy.
+     *
+     * Parameters:
+     * options - {Object} Optional object whose properties will be set on the
+     *     instance.
+     */
+    initialize: function(options) {
+        OpenLayers.Strategy.prototype.initialize.apply(this, [options]);
+        this.events = new OpenLayers.Events(this);
+    },
+   
+    /**
+     * APIMethod: activate
+     * Activate the strategy.  Register any listeners, do appropriate setup.
+     * 
+     * Returns:
+     * {Boolean} The strategy was successfully activated.
+     */
+    activate: function() {
+        var activated = OpenLayers.Strategy.prototype.activate.call(this);
+        if(activated) {
+            if(this.auto) {
+                if(typeof this.auto === "number") {
+                    this.timer = window.setInterval(
+                        OpenLayers.Function.bind(this.save, this),
+                        this.auto * 1000
+                    );
+                } else {
+                    this.layer.events.on({
+                        "featureadded": this.triggerSave,
+                        "afterfeaturemodified": this.triggerSave,
+                        scope: this
+                    });
+                }
+            }
+        }
+        return activated;
+    },
+    
+    /**
+     * APIMethod: deactivate
+     * Deactivate the strategy.  Unregister any listeners, do appropriate
+     *     tear-down.
+     * 
+     * Returns:
+     * {Boolean} The strategy was successfully deactivated.
+     */
+    deactivate: function() {
+        var deactivated = OpenLayers.Strategy.prototype.deactivate.call(this);
+        if(deactivated) {
+            if(this.auto) {
+                if(typeof this.auto === "number") {
+                    window.clearInterval(this.timer);
+                } else {
+                    this.layer.events.un({
+                        "featureadded": this.triggerSave,
+                        "afterfeaturemodified": this.triggerSave,
+                        scope: this
+                    });
+                }
+            }
+        }
+        return deactivated;
+    },
+    
+    /**
+     * Method: triggerSave
+     * Registered as a listener.  Calls save if a feature has insert, update,
+     *     or delete state.
+     *
+     * Parameters:
+     * event - {Object} The event this function is listening for.
+     */
+    triggerSave: function(event) {
+        var feature = event.feature;
+        if(feature.state === OpenLayers.State.INSERT ||
+           feature.state === OpenLayers.State.UPDATE ||
+           feature.state === OpenLayers.State.DELETE) {
+            this.save([event.feature]);
+        }
+    },
+    
+    /**
+     * APIMethod: save
+     * Tell the layer protocol to commit unsaved features.  If the layer
+     *     projection differs from the map projection, features will be
+     *     transformed into the layer projection before being committed.
+     *
+     * Parameters:
+     * features - {Array} Features to be saved.  If null, then default is all
+     *     features in the layer.  Features are assumed to be in the map
+     *     projection.
+     */
+    save: function(features) {
+        if(!features) {
+            features = this.layer.features;
+        }
+        this.events.triggerEvent("start", {features:features});
+        var remote = this.layer.projection;
+        var local = this.layer.map.getProjectionObject();
+        if(!local.equals(remote)) {
+            var len = features.length;
+            var clones = new Array(len);
+            var orig, clone;
+            for(var i=0; i<len; ++i) {
+                orig = features[i];
+                clone = orig.clone();
+                clone.fid = orig.fid;
+                clone.state = orig.state;
+                if(orig.url) {
+                    clone.url = orig.url;
+                }
+                clone._original = orig;
+                clone.geometry.transform(local, remote);
+                clones[i] = clone;
+            }
+            features = clones;
+        }
+        this.layer.protocol.commit(features, {
+            callback: this.onCommit,
+            scope: this
+        });
+    },
+    
+    /**
+     * Method: onCommit
+     * Called after protocol commit.
+     *
+     * Parameters:
+     * response - {<OpenLayers.Protocol.Response>} A response object.
+     */
+    onCommit: function(response) {
+        var evt = {"response": response};
+        if(response.success()) {
+            var features = response.reqFeatures;
+            // deal with inserts, updates, and deletes
+            var state, feature;
+            var destroys = [];
+            var insertIds = response.insertIds || [];
+            var j = 0;
+            for(var i=0, len=features.length; i<len; ++i) {
+                feature = features[i];
+                // if projection was different, we may be dealing with clones
+                feature = feature._original || feature;
+                state = feature.state;
+                if(state) {
+                    if(state == OpenLayers.State.DELETE) {
+                        destroys.push(feature);
+                    } else if(state == OpenLayers.State.INSERT) {
+                        feature.fid = insertIds[j];
+                        ++j;
+                    }
+                    feature.state = null;
+                }
+            }
+
+            if(destroys.length > 0) {
+                this.layer.destroyFeatures(destroys);
+            }
+
+            this.events.triggerEvent("success", evt);
+
+        } else {
+            this.events.triggerEvent("fail", evt);
+        }
+    },
+   
+    CLASS_NAME: "OpenLayers.Strategy.Save" 
 });
 /* ======================================================================
     OpenLayers/Strategy/Fixed.js

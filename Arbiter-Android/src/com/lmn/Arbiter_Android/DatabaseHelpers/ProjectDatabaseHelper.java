@@ -7,9 +7,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 
 public class ProjectDatabaseHelper extends SQLiteOpenHelper {
-	private static final String DATABASE_NAME = "arbiter_global.db";
+	private static final String DATABASE_NAME = "arbiter_project.db";
 	private static int DATABASE_VERSION = 1;
 	
 	private String currentPath;
@@ -39,13 +40,17 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		LayersHelper.getLayersHelper().createTable(db);
+		PreferencesHelper.getHelper().createTable(db);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// TODO: Migrate the tables
 		db.execSQL("DROP TABLE IF EXISTS " + LayersHelper.LAYERS_TABLE_NAME);
+		db.execSQL("DROP TABLE IF EXISTS " + PreferencesHelper.TABLE_NAME);
+		
 		LayersHelper.getLayersHelper().createTable(db);
+		PreferencesHelper.getHelper().createTable(db);
 	}
 	
 	@Override

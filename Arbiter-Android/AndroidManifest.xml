@@ -15,6 +15,26 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        
+        <!--  jsHybugger content provider -->
+        <!--  <provider android:authorities="jsHybugger.org" android:exported="false" android:name="org.jshybugger.DebugContentProvider">-->
+
+                <!-- if a StackOverflowError occurs during file instrumentation increase this value - default 32000 bytes  -->
+        <!--    <meta-data android:name="instrumentStacksize" android:value="32000"/> -->
+
+                <!-- regular expression for filenames which are not instrumented -->
+                <!-- meta-data android:name="excludePattern" android:value="(\\.min\\.js)"/ -->
+
+        <!--  </provider> -->
+
+        <!--  jsHybugger debug service -->
+        <!--  <service android:enabled="true" android:exported="false" android:name="org.jshybugger.DebugService"> -->
+
+                <!-- debug listen port - default 8888 -->
+        <!--    <meta-data android:name="debugPort" android:value="8888"/>-->
+        <!--    <meta-data android:name="domainSocketName" android:value="jsHybugger"/>-->
+        <!--  </service> -->
+                        
         <activity
             android:name="com.lmn.Arbiter_Android.Activities.MapActivity"
             android:configChanges="orientation|screenSize"

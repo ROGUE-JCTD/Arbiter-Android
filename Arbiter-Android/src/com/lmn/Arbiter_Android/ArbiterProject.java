@@ -1,43 +1,40 @@
 package com.lmn.Arbiter_Android;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v4.app.FragmentActivity;
 
 import com.lmn.Arbiter_Android.BaseClasses.Project;
-import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ArbiterProject {
 	private static final String ARBITER_PREFERENCES = "ArbiterPreferences";
-	
-	private static final String OPEN_PROJECT_ID = "openProjectId";
 	private static final String OPEN_PROJECT_NAME = "openProjectName";
 	
-	// The id of the project that was open.
+	// Keys for preferences table in project db
+	public static final String INCLUDE_DEFAULT_LAYER = "include_default_layer";
+	public static final String DEFAULT_LAYER_VISIBILITY = "default_layer_visibility";
+	public static final String AOI = "aoi";
+	
+	// The name of the project that was open.
 	// This is used in MapActivity to decide whether or not
 	// to load the map
-	private long oldProjectId = -1;
-	private long openProjectId = -1;
-	
+	private String oldProjectName = null;
 	private String openProjectName = null;
 	
+	private String includeDefaultLayer = "true";
+	private String defaultLayerVisibility = "true";
 	
-	private boolean includeDefaultLayer = true;
-	private boolean defaultLayerVisibility = true;
-	
-	private boolean isSettingAOI = false;
-	
+	private String savedBounds = null;
+    private String savedZoomLevel = null;
+    
 	private ArbiterProject(){}
 	
 	private static ArbiterProject project = null;
 	private Project newProject;
-	
-	private String savedBounds = null;
-	private String savedZoomLevel = null;
 	
 	public static ArbiterProject getArbiterProject(){
 		if(project == null){
@@ -55,19 +52,17 @@ public class ArbiterProject {
 	 * @param projectId
 	 * @param includeDefaultLayer
 	 */
-	public void setOpenProject(Context context, long projectId, 
-			String projectName, boolean includeDefaultLayer){
+	public void setOpenProject(Context context, 
+			String projectName, String includeDefaultLayer){
 		
 		// Save the open project id to shared preferences for persistent storage
 		SharedPreferences settings = context.getSharedPreferences(ARBITER_PREFERENCES, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
-		editor.putLong(OPEN_PROJECT_ID, projectId);
 		editor.putString(OPEN_PROJECT_NAME, projectName);
 		
 		editor.commit();
 		
-		// Set the new project Id
-		this.openProjectId = projectId;
+		// Set the open project
 		this.openProjectName = projectName;
 		
 		// Set includeDefaultLayer
@@ -82,7 +77,7 @@ public class ArbiterProject {
 	 * @param context
 	 * @return
 	 */
-	public long getOpenProject(Activity activity){
+	public String getOpenProject(Activity activity){
 		if(!openProjectHasBeenInitialized()){
 			Context context = activity.getApplicationContext();
 			
@@ -91,131 +86,107 @@ public class ArbiterProject {
     		SharedPreferences settings = context.
     				getSharedPreferences(ARBITER_PREFERENCES, FragmentActivity.MODE_PRIVATE);
     		
-    		openProjectId = settings.getLong(OPEN_PROJECT_ID, -1);
     		openProjectName = settings.getString(OPEN_PROJECT_NAME, null);
-    		
-    		ApplicationDatabaseHelper helper = ApplicationDatabaseHelper
-	    			.getHelper(context);
     		
     		// If openProject is STILL -1, then there wasn't a previously opened project  
     		if(!openProjectHasBeenInitialized()){
-    			openProjectId = ProjectStructure.
-    					getProjectStructure().ensureProjectExists(activity);
+    			ProjectStructure.getProjectStructure().ensureProjectExists(activity);
     			openProjectName = context.getResources().getString(R.string.default_project_name);
     		}
     		
     		// Get whether or not this project includes the default layer
     		// and if so, is it visible
-    		boolean[] defaultLayerInfo = ProjectsHelper.getProjectsHelper().
-					getIncludeDefaultLayer(helper.getWritableDatabase(), context, openProjectId);
+    		String includeDefaultLayer = includeDefaultLayer(context, openProjectName);
+    		String defaultLayerVisibility = defaultLayerVisibility(context, openProjectName);
     		
-    		if(defaultLayerInfo != null){
-        		setIncludeDefaultLayer(defaultLayerInfo[0]);
-        		setDefaultLayerVisibility(defaultLayerInfo[1]);
+    		if(includeDefaultLayer != null && defaultLayerVisibility != null){
+        		setIncludeDefaultLayer(includeDefaultLayer);
+        		setDefaultLayerVisibility(defaultLayerVisibility);
     		}
+    		
+    		oldProjectName = openProjectName;
     	}
 		
-		return openProjectId;
-	}
-	
-	public String getOpenProjectName(Activity activity){
-		getOpenProject(activity);
-		
-		return this.openProjectName;
+		return openProjectName;
 	}
 	
 	private boolean openProjectHasBeenInitialized(){
-		return openProjectId != -1;
+		return openProjectName != null;
 	}
 	
 	public boolean isSameProject(){
-		return oldProjectId == openProjectId;
+		return oldProjectName == openProjectName;
 	}
 	
 	public void makeSameProject(){	
-		oldProjectId = openProjectId;
+		oldProjectName = openProjectName;
 	}
 	
 	public void createNewProject(String name){
-		newProject = new Project(-1, name, "", true, true);
+		newProject = new Project(name, "", "true", "true");
 	}
 	
 	public Project getNewProject(){
 		return newProject;
 	}
 	
-	public boolean includeDefaultLayer(){
+	public String includeDefaultLayer(){
 		return this.includeDefaultLayer;
 	}
 	
-	public boolean isSettingAOI(){
-		return this.isSettingAOI;
-	}
-	
-	public void isSettingAOI(boolean settingAOI){
-		this.isSettingAOI = settingAOI;
-	}
-	
-	public String getSavedBounds(){
-		return this.savedBounds;
-	}
-	
-	public void setSavedBounds(String savedBounds){
-		this.savedBounds = savedBounds;
-	}
-	
-	public String getSavedZoomLevel(){
-		return this.savedZoomLevel;
-	}
-	
-	public void setSavedZoomLevel(String zoomLevel){
-		this.savedZoomLevel = zoomLevel;
-	}
-	
-	public boolean getDefaultLayerVisibility(){
+	public String getDefaultLayerVisibility(){
 		return this.defaultLayerVisibility;
 	}
 	
-	public void setProjectsAOI(final Context context, final long projectId, final String aoi){
-		ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
-		ProjectsHelper.getProjectsHelper().setProjectsAOI(helper.getWritableDatabase(), 
-				context, projectId, aoi, new Runnable(){
-			
-			@Override
-			public void run(){
-				isSettingAOI(false);
-			}
-		});
-	}
-	
-	public void setDefaultLayerVisibility(boolean defaultLayerVisibility){
+	public void setDefaultLayerVisibility(String defaultLayerVisibility){
 		this.defaultLayerVisibility = defaultLayerVisibility;
 	}
 	
-	public void setIncludeDefaultLayer(boolean includeDefaultLayer){
+	public void setIncludeDefaultLayer(String includeDefaultLayer){
 		this.includeDefaultLayer = includeDefaultLayer;
 	}
 	
-	public void setIncludeDefaultLayer(final Context context, final long projectId, 
-			final boolean includeDefaultLayer, final Runnable callback){
+	public void setIncludeDefaultLayer(final Context context, final String projectName, 
+			final String includeDefaultLayer){
+		ProjectDatabaseHelper helper = ProjectDatabaseHelper.
+				getHelper(context, ProjectStructure.getProjectPath(context, projectName));
 		
-		ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
-		ProjectsHelper.getProjectsHelper().setIncludeDefaultLayer(helper.getWritableDatabase(), 
-				context, projectId, includeDefaultLayer, new Runnable(){
-			@Override
-			public void run(){
-				setIncludeDefaultLayer(includeDefaultLayer);
-				
-				callback.run();
-			}
-		});
+		PreferencesHelper.getHelper().update(
+				helper.getWritableDatabase(), context,
+				INCLUDE_DEFAULT_LAYER, includeDefaultLayer);
+		
+		setIncludeDefaultLayer(includeDefaultLayer);
 	}
 	
-	public void updateAttributeValues(final Context context, final long projectId, 
-            final ContentValues values, final Runnable callback){
-    
-		ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
-		ProjectsHelper.getProjectsHelper().updateProjectAttributes(helper.
-                    getWritableDatabase(), context, projectId, values, callback);
+	private String includeDefaultLayer(Context context, String projectName){
+		ProjectDatabaseHelper helper = ProjectDatabaseHelper.getHelper(context,
+				ProjectStructure.getProjectPath(context, projectName));
+		
+		return PreferencesHelper.getHelper().get(
+				helper.getWritableDatabase(), context, INCLUDE_DEFAULT_LAYER);
+	}
+	
+	private String defaultLayerVisibility(Context context, String projectName){
+		ProjectDatabaseHelper helper = ProjectDatabaseHelper.getHelper(context,
+				ProjectStructure.getProjectPath(context, projectName));
+		
+		return PreferencesHelper.getHelper().get(
+				helper.getWritableDatabase(), context, DEFAULT_LAYER_VISIBILITY);
+	}
+	
+	public String getSavedBounds(){
+        return this.savedBounds;
+	}
+	
+	public void setSavedBounds(String savedBounds){
+	        this.savedBounds = savedBounds;
+	}
+	
+	public String getSavedZoomLevel(){
+	        return this.savedZoomLevel;
+	}
+	
+	public void setSavedZoomLevel(String zoomLevel){
+	        this.savedZoomLevel = zoomLevel;
 	}
 }

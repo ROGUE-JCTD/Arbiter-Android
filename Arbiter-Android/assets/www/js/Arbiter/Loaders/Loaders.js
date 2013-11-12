@@ -1,0 +1,6 @@
+Arbiter.Loaders = (function(){
+	
+	return {
+		
+	};
+})();

@@ -4,15 +4,16 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Activities.ProjectsActivity;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
-import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.SwitchProjectDialog;
+import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -54,8 +55,8 @@ public class ProjectListAdapter extends BaseAdapter{
 		view.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v){
-				if(project.getId() != ArbiterProject.
-						getArbiterProject().getOpenProject(activity)){
+				if(!project.getProjectName().equals(ArbiterProject.
+						getArbiterProject().getOpenProject(activity))){
 					Resources resources = activity.getResources();
 					String title = resources.getString(R.string.switch_project_title);
 					String ok = resources.getString(android.R.string.ok);
@@ -63,8 +64,10 @@ public class ProjectListAdapter extends BaseAdapter{
 					int layout = R.layout.switch_project;
 					
 					DialogFragment dialog = SwitchProjectDialog.newInstance(
-							title, ok, cancel, layout, project.getId(), 
-							project.getProjectName(), project.includeDefaultLayer());
+							title, ok, cancel, layout, 
+							project.getProjectName(), 
+							project.includeDefaultLayer());
+					
 					dialog.show(activity.getSupportFragmentManager(), "switchProjectDialog");
 				}
 			}
@@ -75,8 +78,8 @@ public class ProjectListAdapter extends BaseAdapter{
 			
 			if(projectNameTextView != null){
 				String name = project.getProjectName();
-				if(project.getId() == ArbiterProject.getArbiterProject().
-						getOpenProject(activity)){
+				if(project.getProjectName().equals(ArbiterProject.getArbiterProject().
+						getOpenProject(activity))){
 					name += " [current]";
 				}
 				
@@ -93,15 +96,15 @@ public class ProjectListAdapter extends BaseAdapter{
 						CommandExecutor.runProcess(new Runnable(){
 							@Override
 							public void run() {
-								
-								ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
+								// Delete the corresponding project directory
 								ProjectStructure.getProjectStructure().deleteProject(activity, project.getProjectName());
-								ProjectsHelper.getProjectsHelper().delete(helper.getWritableDatabase(), activity, project, new Runnable(){
-									@Override
-									public void run(){
-										ProjectStructure.getProjectStructure().ensureProjectExists(activity);
-									}
-								});
+								
+								// Make sure that a project exists.
+								ProjectStructure.getProjectStructure().ensureProjectExists(activity);
+								
+								// Make sure the Project list updates.
+								LocalBroadcastManager.getInstance(activity.getApplicationContext())
+									.sendBroadcast(new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));
 							}
 							
 						});
@@ -130,7 +133,7 @@ public class ProjectListAdapter extends BaseAdapter{
 
 	@Override
 	public long getItemId(int position) {
-		return getItem(position).getId();
+		return position;
 	}
 
 }

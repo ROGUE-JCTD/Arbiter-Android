@@ -2,42 +2,26 @@ package com.lmn.Arbiter_Android.BaseClasses;
 
 import java.util.ArrayList;
 
-import com.lmn.Arbiter_Android.Util;
-
 public class Project {
-	private long id;
 	private String projectName;
 	private ArrayList<Layer> layers;
 	private String aoi;
-	private boolean includeDefaultLayer;
-	private boolean defaultLayerVisibility;
+	private String includeDefaultLayer;
+	private String defaultLayerVisibility;
 	private boolean inCreation;
 	
-	public Project(long projectId, String projectName, String aoi, 
-			boolean includeDefaultLayer, boolean defaultLayerVisibility){
+	public Project(String projectName, String aoi, 
+			String includeDefaultLayer, String defaultLayerVisibility){
 		this.projectName = projectName;
 		this.layers = new ArrayList<Layer>();
-		this.id = projectId;
 		this.aoi = aoi;
 		this.includeDefaultLayer = includeDefaultLayer;
 		this.defaultLayerVisibility = defaultLayerVisibility;
 		this.inCreation = false;
 	}
 	
-	public Project(long projectId, String projectName, String aoi, 
-			int includeDefaultLayer, int defaultLayerVisibility){
-		this.projectName = projectName;
-		this.layers = new ArrayList<Layer>();
-		this.id = projectId;
-		this.aoi = aoi;
-		this.includeDefaultLayer = Util.convertIntToBoolean(includeDefaultLayer);
-		this.defaultLayerVisibility = Util.convertIntToBoolean(defaultLayerVisibility);
-		this.inCreation = false;
-	}
-	
 	public Project(Project project){
 		this.projectName = project.getProjectName();
-		this.id = project.getId();
 		this.aoi = project.getAOI();
 		this.includeDefaultLayer = project.includeDefaultLayer();
 		this.defaultLayerVisibility = project.getDefaultLayerVisibility();
@@ -58,11 +42,11 @@ public class Project {
 		this.inCreation = inCreation;
 	}
 	
-	public void setDefaultLayerVisibility(boolean visibility){
+	public void setDefaultLayerVisibility(String visibility){
 		this.defaultLayerVisibility = visibility;
 	}
 	
-	public boolean getDefaultLayerVisibility(){
+	public String getDefaultLayerVisibility(){
 		return this.defaultLayerVisibility;
 	}
 	
@@ -82,15 +66,11 @@ public class Project {
 		layers.add(layer);
 	}
 	
-	public long getId(){
-		return id;
-	}
-	
-	public boolean includeDefaultLayer(){
+	public String includeDefaultLayer(){
 		return includeDefaultLayer;
 	}
 	
-	public void includeDefaultLayer(boolean includeDefaultLayer){
+	public void includeDefaultLayer(String includeDefaultLayer){
 		this.includeDefaultLayer = includeDefaultLayer;
 	}
 	

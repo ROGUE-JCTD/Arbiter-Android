@@ -45,6 +45,7 @@ public class GetCapabilities {
 			
 			request.addHeader("Authorization", "Basic " + credentials);
 			
+			Log.w("GetCapabilities", "GetCapabilities: " + url);
 			HttpResponse response = client.execute(request);
 			
 			Log.w("ADD_LAYERS_LIST_LOADER", "ADD_LAYERS_LIST_LOADER - Sending GET request to URL: " + url);
@@ -98,7 +99,7 @@ public class GetCapabilities {
 			}
 			
 			// If the layer is already in the project, remove it
-			for(i = 0; i < pulledLayers.size(); i++){
+			for(i = pulledLayers.size() - 1; i >= 0; i--){
 				currentLayer = pulledLayers.get(i);
 				
 				key = Layer.buildLayerKey(currentLayer);

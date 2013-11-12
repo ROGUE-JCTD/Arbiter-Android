@@ -9,12 +9,11 @@ import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 
 public class SwitchProjectDialog extends ArbiterDialogFragment{
-	private long newProjectId;
-	private boolean includeDefaultLayer;
+	private String includeDefaultLayer;
 	private String newProjectName;
 	
 	public static SwitchProjectDialog newInstance(String title, String ok, 
-			String cancel, int layout, long newProjectId, String newProjectName, boolean includeDefaultLayer){
+			String cancel, int layout, String newProjectName, String includeDefaultLayer){
 		SwitchProjectDialog frag = new SwitchProjectDialog();
 		
 		frag.setTitle(title);
@@ -22,7 +21,6 @@ public class SwitchProjectDialog extends ArbiterDialogFragment{
 		frag.setCancel(cancel);
 		frag.setLayout(layout);
 		
-		frag.newProjectId = newProjectId;
 		frag.includeDefaultLayer = includeDefaultLayer;
 		frag.newProjectName = newProjectName;
 		
@@ -32,8 +30,8 @@ public class SwitchProjectDialog extends ArbiterDialogFragment{
 	@Override
 	public void onPositiveClick() {
 		ArbiterProject.getArbiterProject().setOpenProject(
-				getActivity().getApplicationContext(), 
-				newProjectId, newProjectName, includeDefaultLayer);
+				getActivity().getApplicationContext(),
+				newProjectName, includeDefaultLayer);
 		
 		LocalBroadcastManager.getInstance(getActivity().getApplicationContext())
 			.sendBroadcast(new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));

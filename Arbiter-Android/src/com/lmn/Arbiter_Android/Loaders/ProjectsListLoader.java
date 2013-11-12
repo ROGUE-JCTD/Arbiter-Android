@@ -7,26 +7,28 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.BroadcastReceivers.ProjectBroadcastReceiver;
-import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ProjectsListLoader extends AsyncTaskLoader<Project[]> {
 	public static final String PROJECT_LIST_UPDATED = "PROJECT_LIST_UPDATED";
 	
 	private ProjectBroadcastReceiver<Project[]> loaderBroadcastReceiver = null;
 	private Project[] projects;
-	private ApplicationDatabaseHelper appDbHelper = null;
+	private Context context;
 	
 	public ProjectsListLoader(Context context) {
 		super(context);
 		
-		appDbHelper = ApplicationDatabaseHelper.getHelper(context);
+		this.context = context;
 	}
 
 	@Override
 	public Project[] loadInBackground() {
-		Project[] projects = ProjectsHelper.getProjectsHelper().
-				getAll(appDbHelper.getWritableDatabase());
+		/*Project[] projects = ProjectsHelper.getProjectsHelper().
+				getAll(appDbHelper.getWritableDatabase());*/
+		
+		Project[] projects = ProjectStructure.
+				getProjectStructure().getProjects(context);
 		
 		return projects;
 	}

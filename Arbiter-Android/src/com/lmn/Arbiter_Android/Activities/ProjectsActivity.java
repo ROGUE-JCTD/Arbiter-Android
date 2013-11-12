@@ -6,7 +6,6 @@ import com.lmn.Arbiter_Android.ListAdapters.ProjectListAdapter;
 import com.lmn.Arbiter_Android.LoaderCallbacks.ProjectsLoaderCallbacks;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;

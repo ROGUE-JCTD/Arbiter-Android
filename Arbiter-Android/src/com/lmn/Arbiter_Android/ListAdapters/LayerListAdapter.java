@@ -6,13 +6,13 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
-import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.GeometryColumnsHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ProjectsHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
-import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
@@ -27,7 +27,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -62,10 +61,13 @@ public class LayerListAdapter extends BaseAdapter{
 	
 	private void addDefaultLayer(ArrayList<Layer> layers){
 		if(layers != null){
-			if(ArbiterProject.getArbiterProject().includeDefaultLayer()){
+			if(ArbiterProject.getArbiterProject().includeDefaultLayer().equals("true")){
+				String visibility = ArbiterProject.getArbiterProject().getDefaultLayerVisibility();
+				
 				layers.add(new Layer(Layer.DEFAULT_FLAG, null, Server.DEFAULT_FLAG, null, null,
-						Layer.DEFAULT_LAYER_NAME, null, null, 
-						ArbiterProject.getArbiterProject().getDefaultLayerVisibility()));
+						Layer.DEFAULT_LAYER_NAME, null, 
+						(visibility.equals("true") ? true : false)));
+				
 				layers.get(layers.size() - 1).setIsDefaultLayer(true);
 			}
 		}
@@ -144,28 +146,27 @@ public class LayerListAdapter extends BaseAdapter{
 	}
 	
 	private void updateDefaultLayerVisibility(final long layerId, final boolean visibility){
-		final long projectId = ArbiterProject.getArbiterProject().getOpenProject(activity);
+		final String projectName = arbiterProject.getOpenProject(activity);
 		
 		CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run(){
-				ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.getHelper(context);
-				ProjectsHelper.getProjectsHelper().setDefaultLayerVisibility(
-						helper.getWritableDatabase(), context, projectId, visibility, new Runnable(){
-							@Override
-							public void run(){
-								ArbiterProject.getArbiterProject().setDefaultLayerVisibility(visibility);
-								
-								mapChangeListener.onLayerVisibilityChanged(layerId);
-							}
-						});
+				ProjectDatabaseHelper helper = 
+						ProjectDatabaseHelper.getHelper(context, 
+								ProjectStructure.getProjectPath(context, projectName));
+				
+				PreferencesHelper.getHelper().update(
+						helper.getWritableDatabase(), context,
+						ArbiterProject.DEFAULT_LAYER_VISIBILITY, Boolean.toString(visibility));
+				
+				mapChangeListener.onLayerVisibilityChanged(layerId);
 			}
 		});
 	}
 	
 	private void updateLayerVisibility(final long layerId, final boolean visibility){
 		final ContentValues values = new ContentValues();
-		final String projectName = arbiterProject.getOpenProjectName(activity);
+		final String projectName = arbiterProject.getOpenProject(activity);
 		
 		values.put(LayersHelper.LAYER_VISIBILITY, visibility);
 		
@@ -174,6 +175,7 @@ public class LayerListAdapter extends BaseAdapter{
 			public void run(){
 				ProjectDatabaseHelper helper = ProjectDatabaseHelper.
 						getHelper(context, ProjectStructure.getProjectPath(context, projectName));
+				
 				LayersHelper.getLayersHelper().updateAttributeValues(helper.getWritableDatabase(), context, layerId, values, new Runnable(){
 					@Override
 					public void run(){
@@ -185,37 +187,57 @@ public class LayerListAdapter extends BaseAdapter{
 	}
 	
 	private void deleteDefaultLayer(){
-		final long projectId = arbiterProject.getOpenProject(activity);
+		final String projectName = arbiterProject.getOpenProject(activity);
 		
-		arbiterProject.setIncludeDefaultLayer(context, projectId, false, new Runnable(){
+		CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run(){
-				mapChangeListener.onLayerDeleted(Layer.DEFAULT_FLAG);
+				arbiterProject.setIncludeDefaultLayer(context, projectName, "false");
 				
-				LocalBroadcastManager.getInstance(context).
-					sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
+				activity.runOnUiThread(new Runnable(){
+					@Override
+					public void run(){
+						mapChangeListener.onLayerDeleted(Layer.DEFAULT_FLAG);
+						
+						LocalBroadcastManager.getInstance(context).
+							sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
+					}
+				});
 			}
 		});
 	}
 	
 	private void deleteLayer(final Layer layer){
-		final String projectName = arbiterProject.getOpenProjectName(activity);
+		final String projectName = arbiterProject.getOpenProject(activity);
 		
 		CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run() {
 				final long layerId = layer.getLayerId();
+				String path = ProjectStructure.getProjectPath(context, projectName);
+				
 				ProjectDatabaseHelper helper = ProjectDatabaseHelper.
-						getHelper(context, ProjectStructure.getProjectPath(context, projectName));
-				LayersHelper.getLayersHelper().delete(
-						helper.getWritableDatabase(), context, layer, new Runnable(){
-
-							@Override
-							public void run() {
-								mapChangeListener.onLayerDeleted(layerId);
-							}
-							
-						});
+						getHelper(context, path);
+				
+				FeatureDatabaseHelper featureHelper = FeatureDatabaseHelper.getHelper(context, path);
+				
+				
+				String featureType = layer.getFeatureTypeNoPrefix();
+				
+				// Remove the featureType from the geometryColumns table
+				// and drop the schema table for the feature type
+				int affected = GeometryColumnsHelper.getHelper().remove(
+						featureHelper.getWritableDatabase(), featureType);
+				
+				// If the geometryColumn row was successfully removed,
+				// then remove the layer from the layers table and call
+				// the onLayerDeleted method of the mapChangeListener
+				if(affected != 0){
+					LayersHelper.getLayersHelper().delete(
+							helper.getWritableDatabase(), context, layer);
+					
+					mapChangeListener.onLayerDeleted(layerId);
+				}
 			}
 		});
 	}

@@ -16,13 +16,14 @@ public class Layer {
 	
 	private int layerId;
 	private String featureType;
+	private String srs;
+	private String workspace;
 	
 	// Only for the adapter, for displaying
     private String serverName;
     private String serverUrl;
 	
 	private String title;
-	private String srs;
 	private String boundingBox;
 	private int serverId;
 	
@@ -33,18 +34,27 @@ public class Layer {
 	private boolean isDefaultLayer;
 	
 	public Layer(int layerId, String featureType, int serverId, String serverName, String serverUrl,
-			String title, String srs, String boundingBox, boolean checked){
+			String title, String boundingBox, boolean checked){
 		this.layerId = layerId;
 		this.featureType = featureType;
 		this.serverName = serverName;
 		this.title = title;
-		this.srs = srs;
 		this.boundingBox = boundingBox;
+		this.srs = null;
 		this.serverId = serverId;
 		this.serverUrl = serverUrl;
 		this.isDefaultLayer = false;
+		this.workspace = null;
 		
 		setChecked(checked);
+	}
+	
+	public Layer(int layerId, String featureType, int serverId, String serverName, String serverUrl,
+			String title, String srs, String boundingBox, boolean checked){
+		this(layerId, featureType, serverId, serverName, serverUrl,
+				title, boundingBox, checked);
+		
+		this.srs = srs;
 	}
 	
 	// For cloning
@@ -53,12 +63,13 @@ public class Layer {
 		this.featureType = item.getFeatureType();
 		this.serverName = item.getServerName();
 		this.title = item.getLayerTitle();
-		this.srs = item.getLayerSRS();
 		this.boundingBox = item.getLayerBBOX();
 		this.checked = item.isChecked();
+		this.srs = item.getSRS();
 		this.serverId = item.getServerId();
 		this.serverUrl = item.getServerUrl();
 		this.isDefaultLayer = item.isDefaultLayer();
+		this.workspace = item.getWorkspace();
 	}
 	
 	public boolean isDefaultLayer(){
@@ -77,6 +88,14 @@ public class Layer {
 		return featureType;
 	}
 	
+	public String getFeatureTypeNoPrefix(){
+		if(featureType.contains(":")){
+			return featureType.split(":")[1];
+		}
+		
+		return featureType; 
+	}
+	
 	public String getServerName(){
         return serverName;
 	}
@@ -88,11 +107,11 @@ public class Layer {
 	public String getLayerTitle(){
 		return title;
 	}
-	
-	public String getLayerSRS(){
+
+	public String getSRS(){
 		return srs;
 	}
-
+	
 	public String getLayerBBOX(){
 		return boundingBox;
 	}
@@ -117,6 +136,10 @@ public class Layer {
 		this.checked = check;
 	}
 	
+	public String getWorkspace(){
+		return this.workspace;
+	}
+	
 	@Override
 	public String toString(){
 		return  "\t layerId: " + layerId +
@@ -124,7 +147,6 @@ public class Layer {
 				"\n\t serverName: " + serverName +
 				"\n\t serverId: " + serverId +
 				"\n\t title: " + title + 
-				"\n\t srs: " + srs +
 				"\n\t boundingBox: " + boundingBox;
 	}
 	

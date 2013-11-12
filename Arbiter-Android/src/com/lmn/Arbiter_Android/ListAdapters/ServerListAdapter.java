@@ -8,6 +8,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
+import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 
 import android.support.v4.app.FragmentActivity;
 import android.util.SparseArray;
@@ -20,7 +21,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 public class ServerListAdapter extends BaseAdapter{
-
+	private MapChangeListener mapChangeListener;
+	
 	private SparseArray<Server> items;
 	private final LayoutInflater inflater;
 	private int itemLayout;
@@ -37,6 +39,13 @@ public class ServerListAdapter extends BaseAdapter{
 			this.textId = textId;
 			this.dropDownLayout = R.layout.drop_down_item;
 			this.activity = activity;
+			
+			try {
+				mapChangeListener = (MapChangeListener) activity;
+			} catch (ClassCastException e){
+				throw new ClassCastException(activity.toString() 
+						+ " must implement MapChangeListener");
+			}
 	}
 	
 	public ServerListAdapter(FragmentActivity activity, int itemLayout, 
@@ -48,7 +57,6 @@ public class ServerListAdapter extends BaseAdapter{
 			this.textId = textId;
 			this.dropDownLayout = dropDownLayout;
 			this.activity = activity;
-			
 	}
 	
 	private void addDefaultServer(SparseArray<Server> servers){
@@ -56,7 +64,7 @@ public class ServerListAdapter extends BaseAdapter{
 			ArbiterProject arbiterProject = ArbiterProject.getArbiterProject();
 			Project newProject = arbiterProject.getNewProject();
 			
-			if(!arbiterProject.includeDefaultLayer() || (newProject != null && newProject.isBeingCreated())){
+			if(!arbiterProject.includeDefaultLayer().equals("true") || (newProject != null && newProject.isBeingCreated())){
 				servers.put(Server.DEFAULT_FLAG, new Server(Server.DEFAULT_SERVER_NAME, null, 
 						null, null, Server.DEFAULT_FLAG));
 			}
@@ -135,6 +143,10 @@ public class ServerListAdapter extends BaseAdapter{
 								getHelper(activity.getApplicationContext());
 						ServersHelper.getServersHelper().delete(helper.getWritableDatabase(),
 								activity.getApplicationContext(), server);
+						
+						if(mapChangeListener != null){
+							mapChangeListener.onServerDeleted(server.getId());
+						}
 					}
 					
 				});

@@ -19,7 +19,7 @@ import android.widget.TextView;
 public class AddLayersListAdapter extends BaseAdapter {
 	private ArrayList<Layer> items;
 	private ArrayList<Layer> checkedLayers;
-	private boolean includeDefaultLayer;
+	private String includeDefaultLayer;
 	
 	private LayoutInflater inflater;
 	private int itemLayout;
@@ -31,7 +31,7 @@ public class AddLayersListAdapter extends BaseAdapter {
 		this.items = new ArrayList<Layer>();
 		this.checkedLayers = new ArrayList<Layer>();
 		this.itemLayout = itemLayout;
-		this.includeDefaultLayer = false;
+		this.includeDefaultLayer = "false";
 	}
 	
 	public void setData(ArrayList<Layer> items){
@@ -44,7 +44,7 @@ public class AddLayersListAdapter extends BaseAdapter {
 	
 	private void setCheckedLayers(){
 		if(items != null && !items.isEmpty()
-				&& (!checkedLayers.isEmpty() || includeDefaultLayer)){
+				&& (!checkedLayers.isEmpty() || includeDefaultLayer.equals("true"))){
 			
 			// key: server_id:featuretype
 			// value: Boolean
@@ -74,7 +74,7 @@ public class AddLayersListAdapter extends BaseAdapter {
 				// includeDefaultLayer, which should be
 				// true if the layer was checked
 				if(currentLayer.isDefaultLayer()){
-					currentLayer.setChecked(includeDefaultLayer);
+					currentLayer.setChecked(includeDefaultLayer.equals("true") ? true : false);
 				}else{
 					key = Layer.buildLayerKey(currentLayer);
 					
@@ -154,13 +154,13 @@ public class AddLayersListAdapter extends BaseAdapter {
 						
 						if(checked){
 							if(listItem.isDefaultLayer()){
-								includeDefaultLayer = true;
+								includeDefaultLayer = "true";
 							}else{
 								checkedLayers.add(listItem);
 							}
 						}else{
 							if(listItem.isDefaultLayer()){
-								includeDefaultLayer = false;
+								includeDefaultLayer = "false";
 							}else{
 								checkedLayers.remove(listItem);
 							}
@@ -192,7 +192,7 @@ public class AddLayersListAdapter extends BaseAdapter {
 		return this.checkedLayers;
 	}
 	
-	public boolean includeDefaultLayer(){
+	public String includeDefaultLayer(){
 		return this.includeDefaultLayer;
 	}
 }

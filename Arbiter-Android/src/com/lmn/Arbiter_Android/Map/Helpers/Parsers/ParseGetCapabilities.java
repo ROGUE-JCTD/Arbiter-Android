@@ -83,12 +83,12 @@ public class ParseGetCapabilities {
 								title = pullParser.getText();
 							}
 						}
-					} else if(eventName.equalsIgnoreCase(LAYER_SRS)){
-						if(pullParser.next() == XmlPullParser.TEXT){
-							if(srs == null){
-								srs = pullParser.getText();
-							}
-						}
+					}  else if(eventName.equalsIgnoreCase(LAYER_SRS)){
+                        if(pullParser.next() == XmlPullParser.TEXT){
+                            if(srs == null){
+                                    srs = pullParser.getText();
+                            }
+                        }
 					} else if(eventName.equalsIgnoreCase(LAYER_BOUNDING_BOX)){
 						minx = pullParser.getAttributeValue(null, "minx");
 						miny = pullParser.getAttributeValue(null, "miny");

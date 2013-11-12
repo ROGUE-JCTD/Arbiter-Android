@@ -10,6 +10,8 @@ import org.json.JSONObject;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.GeometryColumnsHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 
 public class Map{
 	private Map(){}
@@ -22,7 +24,9 @@ public class Map{
 		public void onLayerVisibilityChanged(long layerId);
 		
 		public void onLayersAdded(ArrayList<Layer> layers, long[] layerIds, 
-				boolean includeDefaultLayer, boolean defaultLayerVisibility);
+				String includeDefaultLayer, String defaultLayerVisibility);
+		
+		public void onServerDeleted(long serverId);
 	}
 	
 	public interface CordovaMap {
@@ -37,34 +41,50 @@ public class Map{
 		return map;
 	}
 	
-	public void addLayers(CordovaWebView webview, final ArrayList<Layer> layers, long[] layerIds, 
-			boolean includeDefaultLayer, boolean defaultLayerVisibility){
-		try {
-			//webview.loadUrl("javascript:app.addLayers(" 
-			//		+ getLayersJSON(layers, layerIds) + ", " + Boolean.toString(includeDefaultLayer)  + ")");
-			
-			webview.loadUrl("javascript:app.waitForArbiterInit(new Function('app.addLayers(" + getLayersJSON(layers, layerIds)
-					+ ", " + Boolean.toString(includeDefaultLayer) + ", " + Boolean.toString(defaultLayerVisibility) + ")'))");
-			
-		} catch (JSONException e) {
+	public void createProject(CordovaWebView webview, final ArrayList<Layer> layers){
+		try{
+			String url = "javascript:app.waitForArbiterInit(new Function('"
+					+ "Arbiter.Cordova.Project.createProjectWithAOI("
+					+ getLayersJSON(layers, null) + ")'))";
+				
+			webview.loadUrl(url);
+		} catch (JSONException e){
 			e.printStackTrace();
 		}
 	}
 	
-	public void loadMap(CordovaWebView webview, final ArrayList<Layer> layers,
-			boolean includeDefaultLayer, boolean defaultLayerVisibility){
-		try {
-			Log.w("Map", "Map.loadMap defaultLayerVisibility = " + defaultLayerVisibility);
+	public void addLayers(CordovaWebView webview, final ArrayList<Layer> layers, final long[] layerIds){
+		try{
+			String url = "javascript:app.waitForArbiterInit(new Function('"
+					+ "Arbiter.Cordova.Project.addLayers(" 
+					+ getLayersJSON(layers, layerIds) + ")'))";
 			
-			webview.loadUrl("javascript:app.waitForArbiterInit(new Function('app.loadMap(" + getLayersJSON(layers, null)
-					+ ", " + Boolean.toString(includeDefaultLayer) + ", " + Boolean.toString(defaultLayerVisibility) + ")'))");
-		} catch (JSONException e) {
+			webview.loadUrl(url);
+		} catch (JSONException e){
 			e.printStackTrace();
 		}
+	}
+	
+	public void setAOI(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.Project.setProjectsAOI()'))";
+		
+		webview.loadUrl(url);
+	}
+	
+	public void zoomToAOI(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.Project.zoomToAOI()'))";
+		
+		webview.loadUrl(url);
+	}
+	
+	public void zoomToDefault(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.Project.zoomToDefault()'))";
+		
+		webview.loadUrl(url);
 	}
 	
 	public void zoomToExtent(CordovaWebView webview, String extent, String zoomLevel){
-		String url = "javascript:app.waitForArbiterInit(new Function('app.zoomToExtent(" 
+		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Map.zoomToExtent(" 
 				+ extent;
 		
 		if(zoomLevel != null){
@@ -92,15 +112,15 @@ public class Map{
 			jsonLayer = new JSONObject();
 			
 			if(layerIds == null){
-				jsonLayer.put("layerId", layer.getLayerId());
+				jsonLayer.put(LayersHelper._ID, layer.getLayerId());
 			}else{
-				jsonLayer.put("layerId", layerIds[i]);
+				jsonLayer.put(LayersHelper._ID, layerIds[i]);
 			}
 			
-			jsonLayer.put("featureType", layer.getFeatureType());
-			jsonLayer.put("srs", layer.getLayerSRS());
-			jsonLayer.put("serverUrl", layer.getServerUrl());
-			jsonLayer.put("visibility", layer.isChecked());
+			jsonLayer.put(GeometryColumnsHelper.FEATURE_GEOMETRY_SRID, layer.getSRS());
+			jsonLayer.put(LayersHelper.FEATURE_TYPE, layer.getFeatureType());
+			jsonLayer.put(LayersHelper.SERVER_ID, layer.getServerId());
+			jsonLayer.put(LayersHelper.LAYER_VISIBILITY, layer.isChecked());
 			
 			jsonArray.put(jsonLayer);
 		}
@@ -108,21 +128,26 @@ public class Map{
 		return jsonArray;
 	}
 	
-	public void deleteLayer(CordovaWebView webview, long layerId){
+	public void toggleLayerVisibility(CordovaWebView webview, long layerId){
+		String url = "javascript:app.waitForArbiterInit(new Function('";
 		if(layerId == Layer.DEFAULT_FLAG){
-			webview.loadUrl("javascript:app.removeDefaultLayer()");
+			//webview.loadUrl("javascript:Arbiter.Layers.toggleDefaultLayerVisibility()");
+			url += "Arbiter.Layers.toggleDefaultLayerVisibility()";
 		}else{
-			webview.loadUrl("javascript:app.removeLayer(" 
-					+ Long.toString(layerId) + ")");
+		//	webview.loadUrl("javascript:Arbiter.Layers.toggleLayerVisibilityById(" 
+			//		+ Long.toString(layerId) + ")");
+			url += "Arbiter.Layers.toggleLayerVisibilityById(" + Long.toString(layerId) + ")";
 		}	
+		
+		url += "'))";
+		
+		webview.loadUrl(url);
 	}
 	
-	public void toggleLayerVisibility(CordovaWebView webview, long layerId){
-		if(layerId == Layer.DEFAULT_FLAG){
-			webview.loadUrl("javascript:app.toggleDefaultLayerVisibility()");
-		}else{
-			webview.loadUrl("javascript:app.toggleLayerVisibility(" 
-					+ Long.toString(layerId) + ")");
-		}	
+	public void resetWebApp(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Cordova.resetWebApp()'))";
+		
+		webview.loadUrl(url);
 	}
 }

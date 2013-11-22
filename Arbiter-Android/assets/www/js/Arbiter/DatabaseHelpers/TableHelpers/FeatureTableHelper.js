@@ -24,15 +24,18 @@ Arbiter.FeatureTableHelper = (function(){
 		return layersCount === loadedCount;
 	};
 	
-	var getFeatures = function(tx, schema, context, processFeature){
+	var getFeatures = function(tx, schema, context, onSuccess, onFailure){
 		var sql = "select * from " + schema.getFeatureType() + ";";
 		
 		tx.executeSql(sql, [], function(tx, res){
 			for(var i = 0; i < res.rows.length; i++){
-				processFeature.call(context, res.rows.item(i));
+				onSuccess.call(context, res.rows.item(i));
 			}
 		}, function(tx, e){
 			console.log("ERROR: Arbiter.FeatureTableHelper.getFeatures", e);
+			if(Arbiter.Util.funcExists(onFailure)){
+				onFailure.call(context, e);
+			}
 		});
 	};
 	
@@ -41,19 +44,23 @@ Arbiter.FeatureTableHelper = (function(){
 		/**
     	 * Create the table
     	 */
-    	createFeatureTable: function(schema, successCallback){
+    	createFeatureTable: function(schema, onSuccess, onFailure){
     		var db = Arbiter.FeatureDbHelper.getFeatureDatabase();
     		var context = this;
     		
     		db.transaction(function(tx){
-    			context.createTable(tx, schema, successCallback);
+    			context.createTable(tx, schema, onSuccess, onFailure);
     		}, function(e){
     			console.log("ERROR: Arbiter.FeatureTableHelper"
     					+ ".createFeatureTable", e);
+    			
+    			if(Arbiter.Util.funcExists(onFailure)){
+    				onFailure(e);
+    			}
     		});
     	},
     	
-    	createTable: function(tx, schema, successCallback){
+    	createTable: function(tx, schema, onSuccess, onFailure){
     		var sql = "CREATE TABLE IF NOT EXISTS "
     			+ schema.getFeatureType() + " ("
     			+ "arbiter_id integer primary key, "
@@ -73,9 +80,14 @@ Arbiter.FeatureTableHelper = (function(){
     		
     		tx.executeSql(sql, [], function(tx, res){
     			console.log("SUCCESS: create table - " + sql);
-    			successCallback.call();
+    			if(Arbiter.Util.funcExists(onSuccess)){
+    				onSuccess();
+    			}
     		}, function(e){
     			console.log("ERROR: create table - " + sql);
+    			if(Arbiter.Util.funcExists(onFailure)){
+    				onFailure(e);
+    			}
     		});
     	},
     	
@@ -83,7 +95,7 @@ Arbiter.FeatureTableHelper = (function(){
     	 * srid is the srid the geometries 
     	 * are in when they are being inserted.
     	 */
-    	insertFeatures: function(schema, srid, features, callback){
+    	insertFeatures: function(schema, srid, features, onSuccess, onFailure){
     		var insertCount = 0;
     		var featureCount = features.length;
     		
@@ -98,16 +110,20 @@ Arbiter.FeatureTableHelper = (function(){
     					insertCount++;
     					
     					if(insertCount === featureCount && 
-    							callback !== undefined && callback !== null){
+    							Arbiter.Util.funcExists(onSuccess)){
     						
     						console.log("calling insertFeatures callback!");
-    						callback.call();
+    						onSuccess();
     					}
-    				});
+    				}, onFailure);
     			}
     		}, function(e){
     			console.log("ERROR: Arbiter.FeatureTableHelper"
     					+ ".insertFeatures", e);
+    			
+    			if(Arbiter.Util.funcExists(onFailure)){
+    				onFailure(e);
+    			}
     		});
     	},
     	
@@ -115,7 +131,7 @@ Arbiter.FeatureTableHelper = (function(){
     	 * Insert feature into the feature table
     	 * srid is the srid the geometry
     	 */
-    	insertFeature: function(tx, schema, srid, feature, callback){
+    	insertFeature: function(tx, schema, srid, feature, onSuccess, onFailure){
     		var sql = "INSERT INTO " + schema.getFeatureType()
     			+ " (" + schema.getGeometryName();
     		
@@ -143,16 +159,22 @@ Arbiter.FeatureTableHelper = (function(){
     		
     		tx.executeSql(sql, values, function(tx, res){
     			console.log("SUCCESS: feature successfully inserted", feature);
-    			callback.call();
+    			if(Arbiter.Util.funcExists(onSuccess)){
+    				onSuccess.call();
+    			}
     		}, function(tx, e){
     			console.log("ERROR: Arbiter.FeatureTableHelper" 
     					+ ".insertFeature " + sql, e);
+    			
+    			if(Arbiter.Util.funcExists(onFailure)){
+    				onFailure(e);
+    			}
     		});
     	},
     	
     	// layers is an array of objects with key value pairs
     	// corresponding to the Arbiter.LayersHelper constants
-    	loadLayerSchemas: function(layers, callback){
+    	loadLayerSchemas: function(layers, onSuccess, onFailure){
     		var db = Arbiter.FeatureDbHelper.getFeatureDatabase();
     		var context = this;
     		
@@ -166,8 +188,8 @@ Arbiter.FeatureTableHelper = (function(){
     		
     		// If there are no layers, call the callback
     		if(doneLoadingSchemas() && 
-					callback !== null && callback !== undefined){
-				callback.call();
+					Arbiter.Util.funcExists(onSuccess)){
+				onSuccess.call();
 			}
     		
     		for(var i = 0; i < layers.length; i++){
@@ -182,13 +204,17 @@ Arbiter.FeatureTableHelper = (function(){
 		    				incrementLoadedCount();
 		    				
 		    				if(doneLoadingSchemas() && 
-		    						callback !== null && callback !== undefined){
-		    					callback.call();
+		    						Arbiter.Util.funcExists(onSuccess)){
+		    					onSuccess.call();
 		    				}
-		    			});
+		    			}, onFailure);
 		    		}, function(e){
 		    			console.log("ERROR: Arbiter.FeatureTableHelper" +
 		    					".loadLayerSchemas", e);
+		    			
+		    			if(Arbiter.Util.funcExists(onFailure)){
+		    				onFailure(e);
+		    			}
 		    		});
     			}, function(layer){ // If there is no geometry column, then the schema is not editable
     				var helper = Arbiter.LayersHelper;
@@ -202,15 +228,15 @@ Arbiter.FeatureTableHelper = (function(){
     				incrementLoadedCount();
     				
     				if(doneLoadingSchemas() && 
-    						callback !== null && callback !== undefined){
-    					callback.call();
+    						Arbiter.Util.funcExists(onSuccess)){
+    					onSuccess.call();
     				}
-    			});
+    			}, onFailure);
     		}
 		},
 		
 		// layer is from the results of a query with the sqlite plugin
-		getLayerSchema: function(tx, row, layer, callback){
+		getLayerSchema: function(tx, row, layer, onSuccess, onFailure){
 			console.log("getLayerSchema", row, layer);
 			var helper = Arbiter.GeometryColumnsHelper;
 			var layersHelper = Arbiter.LayersHelper;
@@ -251,23 +277,30 @@ Arbiter.FeatureTableHelper = (function(){
 				
 				Arbiter.putLayerSchema(layer[layersHelper.layerId()], schema);
 				
-				if(callback !== null && callback !== undefined){
-					callback.call();
+				if(Arbiter.Util.funcExists(onSuccess)){
+					onSuccess.call();
 				}
 			}, function(tx, e){
 				console.log("ERROR: FeatureTableHelper.getLayerSchema", e)
+				if(Arbiter.Util.funcExists(onFailure)){
+					onFailure(e);
+				}
 			});
 			
 		},
 		
-		loadFeatures: function(schema, context, _processFeature){
+		loadFeatures: function(schema, context, onSuccess, onFailure){
 			var db = Arbiter.FeatureDbHelper.getFeatureDatabase();
 			
 			db.transaction(function(tx){
-				getFeatures(tx, schema, context, _processFeature);
+				getFeatures(tx, schema, context, onSuccess, onFailure);
 			}, function(e){
 				console.log("ERROR: Arbiter.FeatureTableHelper"
 						+ ".loadFeatures", e);
+				
+				if(Arbiter.Util.funcExists(onFailure)){
+					onFailure.call(context, e);
+				}
 			});
 		}
 	};

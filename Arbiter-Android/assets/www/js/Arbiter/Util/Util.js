@@ -25,5 +25,13 @@ Arbiter.Util = (function(){
 				"featureType": featureType
 			};
 		},
+		
+		funcExists: function(func){
+			if(func !== undefined && func !== null){
+				return true;
+			}
+			
+			return false;
+		}
 	};
 })();

@@ -14,10 +14,10 @@ import android.view.View;
  * This class creates a dialog for the project wizard
  */
 public abstract class ArbiterDialogFragment extends DialogFragment {
-	private String title;
-	private String ok;
-	private String cancel;
-	private int layout;
+	protected String title;
+	protected String ok;
+	protected String cancel;
+	protected int layout;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

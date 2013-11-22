@@ -1,9 +1,28 @@
 Arbiter.Loaders.LayersLoader = (function(){
+	var layersToLoad; // Number of layers
+	var featuresLoadedFor; // Features loaded for how many layers
+	var errorLoadingFeatures; // An array of feature types that couldn't be loaded
+	
+	var reset = function(){
+		layersToLoad = 0;
+		featuresLoadedFor = 0;
+		errorLoadingFeatures = [];
+	};
+	
+	var isDone = function(onSuccess){
+		if(featuresLoadedFor === layersToLoad){
+			console.log("DONE LOADING LAYERS");
+			onSuccess();
+		}
+		
+		if(errorLoadingFeatures.length > 0){
+			console.log("DISPLAY ERROR LOADING FEATURES", errorLoadingFeatures);
+			Arbiter.Cordova.errorLoadingFeatures(errorLoadingFeatures);
+		}
+	};
 	
 	var clearMap = function() {
-		console.log("clearMap");
 		Arbiter.Layers.removeAllLayers();
-		console.log("clearMap after");
 	};
 	
 	var setBaseLayer = function(){
@@ -13,24 +32,40 @@ Arbiter.Loaders.LayersLoader = (function(){
 		}
 	};
 	
-	var loadWFSLayer = function(key, schema){
+	var loadWFSLayer = function(key, schema, _onSuccess){
 		var olLayer = Arbiter.Layers.WFSLayer.create(key, schema);
 		
 		Arbiter.Layers.addLayer(olLayer);
 		
-		Arbiter.Loaders.FeaturesLoader.loadFeatures(schema, olLayer);
+		olLayer.setVisibility(schema.isVisible());
+		
+		var onSuccess = function(){
+			featuresLoadedFor++;
+			isDone(_onSuccess);
+		};
+		
+		var onFailure = function(){
+			errorLoadingFeatures.push(schema.getFeatureType());
+			onSuccess(_onSuccess);
+		};
+		
+		Arbiter.Loaders.FeaturesLoader.loadFeatures(schema, 
+				olLayer, onSuccess, onFailure);
 	};
 	
 	var loadWMSLayer = function(key, schema){
 		var olLayer = Arbiter.Layers.WMSLayer.create(key, schema);
 		
 		Arbiter.Layers.addLayer(olLayer);
+		
+		olLayer.setVisibility(schema.isVisible());
 	};
 	
-	var loadLayers = function(includeDefaultLayer, defaultLayerVisibility){
-		console.log("loadLayers clearMap begin");
+	var loadLayers = function(includeDefaultLayer, defaultLayerVisibility, onSuccess){
+		reset();
+		
 		clearMap();
-		console.log("loadLayers clearMap executed");
+		
 		var layerSchemas = Arbiter.getLayerSchemas();
 		
 		var layer;
@@ -46,52 +81,70 @@ Arbiter.Loaders.LayersLoader = (function(){
 		}
 		
 		var schema;
+		var key;
 		
-		for(var key in layerSchemas){
+		for(key in layerSchemas){
+			schema = layerSchemas[key];
+			
+			// Load the wms layer
+			loadWMSLayer(key, schema);
+			
+			layersToLoad++;
+		}
+		
+		for(key in layerSchemas){
 			schema = layerSchemas[key];
 			
 			if(schema.isEditable()){
 				// Load the vector layer
-				loadWFSLayer(key, schema);
-				console.log("loadLayers wfsLayer loaded");
+				loadWFSLayer(key, schema, onSuccess);
 			}
-			
-			// Load the wms layer
-			loadWMSLayer(key, schema);
 		}
 		
 		setBaseLayer();
 	};
 	
-	var loadDefaultLayerInfo = function(context, callback){
+	var loadDefaultLayerInfo = function(context, onSuccess, onFailure){
 		Arbiter.PreferencesHelper.get(Arbiter.INCLUDE_DEFAULT_LAYER, Arbiter.Loaders.LayersLoader, function(includeDefaultLayer){
 			console.log("includeDefaultLayer = " + includeDefaultLayer);
 			
 			Arbiter.PreferencesHelper.get(Arbiter.DEFAULT_LAYER_VISIBILITY, Arbiter.Loaders.LayersLoader, function(defaultLayerVisibility){
 				console.log("defaultLayerVisibility = " + defaultLayerVisibility);
 				
-				callback.call(context, includeDefaultLayer, defaultLayerVisibility);
-			});
-		});
+				if(Arbiter.Util.funcExists(onSuccess)){
+					onSuccess.call(context, includeDefaultLayer, defaultLayerVisibility);
+				}
+			}, onFailure);
+		}, onFailure);
 	};
 	
 	return {
-		load: function(){
+		load: function(onSuccess, onFailure){
 			var context = this;
+			
 			// Load the servers
 			Arbiter.ServersHelper.loadServers(this, function(){
+				console.log("loadServers done.");
 				// Load the layers from the database
 				Arbiter.LayersHelper.loadLayers(this, function(layers){
+					console.log("loadLayers done.");
 					// Load the layer schemas with layer data loaded from the db
 					Arbiter.FeatureTableHelper.loadLayerSchemas(layers, function(){
+						console.log("loadLayerSchemas done.");
 						// Load the default layer info
 						loadDefaultLayerInfo(this, function(includeDefaultLayer, defaultLayerVisibility){
+							console.log("loadDefaultLayerInfo done.");
 							// Load the layers onto the map
-							loadLayers(includeDefaultLayer, defaultLayerVisibility);
-						});
-					});
-				});
-			});
+							loadLayers(includeDefaultLayer, defaultLayerVisibility, function(){
+								if(Arbiter.Util.funcExists(onSuccess)){
+									console.log("calling load success callback");
+									onSuccess();
+								}
+							});
+						}, onFailure);
+					}, onFailure);
+				}, onFailure);
+			}, onFailure);
 		}
 	};
 })();

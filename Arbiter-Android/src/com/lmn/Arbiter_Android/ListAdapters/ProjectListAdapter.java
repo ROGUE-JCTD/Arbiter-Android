@@ -65,8 +65,7 @@ public class ProjectListAdapter extends BaseAdapter{
 					
 					DialogFragment dialog = SwitchProjectDialog.newInstance(
 							title, ok, cancel, layout, 
-							project.getProjectName(), 
-							project.includeDefaultLayer());
+							project.getProjectName());
 					
 					dialog.show(activity.getSupportFragmentManager(), "switchProjectDialog");
 				}
@@ -98,9 +97,6 @@ public class ProjectListAdapter extends BaseAdapter{
 							public void run() {
 								// Delete the corresponding project directory
 								ProjectStructure.getProjectStructure().deleteProject(activity, project.getProjectName());
-								
-								// Make sure that a project exists.
-								ProjectStructure.getProjectStructure().ensureProjectExists(activity);
 								
 								// Make sure the Project list updates.
 								LocalBroadcastManager.getInstance(activity.getApplicationContext())

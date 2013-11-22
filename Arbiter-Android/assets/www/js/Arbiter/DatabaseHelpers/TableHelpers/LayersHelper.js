@@ -36,41 +36,51 @@ Arbiter.LayersHelper = (function(){
 	
 	return {
 		
-		loadLayers: function(_context, callback){
+		loadLayers: function(_context, onSuccess, onFailure){
 			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
 			var context = this;
 			
 			db.transaction(function(tx){
-				context.getLayers(tx, _context, callback);
+				context.getLayers(tx, _context, onSuccess, onFailure);
 			}, function(e){
 				console.log("ERROR: Arbiter.LayersHelper", e);
+				if(Arbiter.Util.funcExists(onFailure)){
+					onFailure.call(_context, e);
+				}
 			});
 		},
 		
-		getLayers: function(tx, context, callback){
+		getLayers: function(tx, context, onSuccess, onFailure){
 			var sql = "select * from " + LAYERS_TABLE_NAME + ";";
 			
 			tx.executeSql(sql, [], function(tx, res){
-				callback.call(context, getLayersArray(res));
+				if(Arbiter.Util.funcExists(onSuccess)){
+					onSuccess.call(context, getLayersArray(res));
+				}
 			}, function(tx, e){
 				console.log("Arbiter.LayersHelper.getLayers", e);
+				
+				if(Arbiter.Util.funcExists(onFailure)){
+					onFailure.call(context, e);
+				}
 			});
 		},
 		
-		updateLayer: function(featureType, content, _context, _callback){
+		updateLayer: function(featureType, content, _context, _onSuccess, _onFailure){
 			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
 			var context = this;
 			
 			db.transaction(function(tx){
 				context.update(tx, featureType, 
-						content, _context, _callback);
+						content, _context, _onSuccess, _onFailure);
 			}, function(e){
-				
+				if(Arbiter.Util.funcExists(_onFailure)){
+					_onFailure.call(_context, e);
+				}
 			});
 		},
 		
-		update: function(tx, featureType, content, context, callback){
-			console.log("LayersHelper.update: content", content);
+		update: function(tx, featureType, content, context, onSuccess, onFailure){
 			var sql = "UPDATE " + LAYERS_TABLE_NAME + " SET ";
 			
 			var first = true;
@@ -94,9 +104,16 @@ Arbiter.LayersHelper = (function(){
 			
 			tx.executeSql(sql, values, function(tx, res){
 				console.log("SUCCESS: LayersHelpler.update" + sql);
-				callback.call(context);
+				
+				if(Arbiter.Util.funcExists(onSuccess)){
+					onSuccess.call(context);
+				}
 			}, function(tx,e){
 				console.log("ERROR: LayersHelpler.update" + sql, e);
+				
+				if(Arbiter.Util.funcExists(onFailure)){
+					onFailure.call(context, e);
+				}
 			});
 		},
 		

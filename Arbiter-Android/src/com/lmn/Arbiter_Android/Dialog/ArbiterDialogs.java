@@ -4,10 +4,15 @@ import java.util.ArrayList;
 
 import org.apache.cordova.CordovaWebView;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.res.Resources;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 
+import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
@@ -25,10 +30,12 @@ import com.lmn.Arbiter_Android.Dialog.Dialogs.WelcomeDialog;
 public class ArbiterDialogs {
 	private Resources resources;
 	private FragmentManager fragManager;
+	private Context context;
 	
-	public ArbiterDialogs(Resources resources, FragmentManager fragManager){
+	public ArbiterDialogs(Context context, Resources resources, FragmentManager fragManager){
 		this.setResources(resources);
 		this.setFragManager(fragManager);
+		this.context = context;
 	}
 	
 	public void setFragManager(FragmentManager fragManager){

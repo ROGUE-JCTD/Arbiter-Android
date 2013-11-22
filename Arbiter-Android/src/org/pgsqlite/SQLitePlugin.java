@@ -266,13 +266,13 @@ public class SQLitePlugin extends CordovaPlugin
 	 */
 	private void closeDatabase(String dbName)
 	{
-		SQLiteDatabase mydb = this.getDatabase(dbName);
+		/*SQLiteDatabase mydb = this.getDatabase(dbName);
 
 		if (mydb != null)
 		{
 			mydb.close();
 			dbmap.remove(dbName);
-		}
+		}*/
 	}
 
 	/**

@@ -9,6 +9,7 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
+import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
@@ -59,14 +60,15 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface, M
 	private void registerListeners(){
 		View cancel = (View) findViewById(R.id.cancelButton);
 		final ArbiterProject arbiterProject = ArbiterProject.getArbiterProject();
-		final Project newProject = arbiterProject.getNewProject();
         final AOIActivity activity = this;
+        final boolean isCreatingProject = ArbiterState.getState().isCreatingProject();
         
         cancel.setOnClickListener(new OnClickListener(){
         	@Override
         	public void onClick(View v){
-        		if(newProject != null && newProject.isBeingCreated()){
-        			newProject.isBeingCreated(false);
+        		if(isCreatingProject){
+        			arbiterProject.doneCreatingProject(
+        					activity.getApplicationContext());
         		}
         		
         		activity.finish();
@@ -78,8 +80,9 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface, M
         ok.setOnClickListener(new OnClickListener(){
         	@Override
         	public void onClick(View v){
-        		if(newProject != null && newProject.isBeingCreated()){
-        			Map.getMap().createProject(cordovaWebView, newProject.getLayers());
+        		if(isCreatingProject){
+        			Log.w("AOIActivity", "AOIActivity: set new projects aoi");
+        			Map.getMap().setNewProjectsAOI(cordovaWebView);
         		}else{
         			Map.getMap().setAOI(cordovaWebView);
         		}

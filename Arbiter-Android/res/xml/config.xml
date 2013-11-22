@@ -7,7 +7,6 @@
     <author email="kevin.zusy@lmnsolutions.com" href="http://lmnsolutions.com">
         LMN Solutions, LLC.
     </author>
-    <!--  <content src="content://jsHybugger.org/file://android_asset/www/index.html" />-->
     <content src="index.html" />
     <feature name="App">
         <param name="android-package" value="org.apache.cordova.App" />
@@ -18,14 +17,9 @@
     <feature name="SQLitePlugin">
         <param name="android-package" value="org.pgsqlite.SQLitePlugin" />
     </feature>
-    <!--  <feature name="jsHybugger">
-		<param name="android-package" value="org.jshybugger.cordova.JsHybuggerPlugin"/>
-		<param name="onload" value="true"/>
-	</feature>-->
     <access origin="*" />
     <preference name="useBrowserHistory" value="true" />
     <preference name="exit-on-suspend" value="false" />
     <preference name="fullscreen" value="true" />
     <preference name="webviewbounce" value="true" />
-    <preference name="loadUrlTimeoutValue" value="180000" />
 </widget>

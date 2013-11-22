@@ -26,7 +26,7 @@ public class ProjectNameDialog extends ArbiterDialogFragment{
 
 	private ArbiterDialogs getArbiterDialogs(){
 		if(arbiterDialogs == null){
-			arbiterDialogs = new ArbiterDialogs(getActivity().getApplicationContext().getResources(),
+			arbiterDialogs = new ArbiterDialogs(getActivity().getApplicationContext(), getActivity().getApplicationContext().getResources(),
 								getActivity().getSupportFragmentManager());
 		}
 		
@@ -39,8 +39,6 @@ public class ProjectNameDialog extends ArbiterDialogFragment{
 		ArbiterProject arbiterProject = ArbiterProject.getArbiterProject();
 		
 		arbiterProject.createNewProject(projectNameField.getText().toString());
-		
-		arbiterProject.getNewProject().isBeingCreated(true);
 		
 		getArbiterDialogs().showAddLayersDialog(true);
 	}

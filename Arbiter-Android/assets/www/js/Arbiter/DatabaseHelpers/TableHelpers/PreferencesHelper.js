@@ -4,7 +4,7 @@ Arbiter.PreferencesHelper = (function(){
 	var VALUE = "value";
 	
 	return {
-		get: function(key, context, callback){
+		get: function(key, context, onSuccess, onFailure){
 			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
 			db.transaction(function(tx){
 				var sql = "select " + VALUE + " from " 
@@ -12,23 +12,31 @@ Arbiter.PreferencesHelper = (function(){
 				
 				tx.executeSql(sql, [key], function(tx, res){
 					
-					if(res.rows.length > 0 && callback !== null
-							&& callback !== undefined){
-						
-						callback.call(context, res.rows.item(0)[VALUE]);
-					}else{
-						console.log("There is no preference with key = " + key);
-						callback.call(context, null);
+					if(Arbiter.Util.funcExists(onSuccess)){
+						if(res.rows.length > 0){
+							onSuccess.call(context, res.rows.item(0)[VALUE]);
+						}else{
+							console.log("There is no preference with key = " + key);
+							onSuccess.call(context, null);
+						}
 					}
 				}, function(tx, e){
 					console.log("ERROR: Arbiter.PreferencesHelper.get inner", e);
+					
+					if(Arbiter.Util.funcExists(onFailure)){
+						onFailure.call(context, e);
+					}
 				});
 			}, function(e){
 				console.log("ERROR: Arbiter.PreferencesHelper.get outer", e);
+				
+				if(Arbiter.Util.funcExists(onFailure)){
+					onFailure.call(context, e);
+				}
 			});
 		},
 		
-		put: function(key, value, context, callback){
+		put: function(key, value, context, onSuccess, onFailure){
 			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
 			
 			db.transaction(function(tx){
@@ -36,14 +44,22 @@ Arbiter.PreferencesHelper = (function(){
 					" (" + KEY + "," + VALUE + ") VALUES (?,?);";
 				
 				tx.executeSql(sql, [key, value], function(tx, res){
-					if(callback !== null && callback !== undefined){
-						callback.call(context);
+					if(Arbiter.Util.funcExists(onSuccess)){
+						onSuccess.call(context);
 					}
 				}, function(tx, e){
 					console.log("ERROR: Arbiter.PreferencesHelper.put inner", e);
+					
+					if(Arbiter.Util.funcExists(onFailure)){
+						onFailure.call(context, e);
+					}
 				});
 			}, function(e){
 				console.log("ERROR: Arbiter.PreferencesHelper.put outer", e);
+				
+				if(Arbiter.Util.funcExists(onFailure)){
+					onFailure.call(context, e);
+				}
 			});
 		}
 	};

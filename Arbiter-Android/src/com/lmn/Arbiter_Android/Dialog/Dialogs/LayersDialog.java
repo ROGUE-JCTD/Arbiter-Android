@@ -92,7 +92,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 				@Override
 				public void onClick(View v) {
 					// Open the add layers dialog
-					(new ArbiterDialogs(getActivity().getResources(), 
+					(new ArbiterDialogs(getActivity().getApplicationContext(), getActivity().getResources(), 
 							getActivity().getSupportFragmentManager())).showAddLayersDialog(frag.getCopyOfLayers());
 				}
 			});

@@ -1,15 +1,19 @@
 package com.lmn.Arbiter_Android.ListAdapters;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
+import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -62,9 +66,10 @@ public class ServerListAdapter extends BaseAdapter{
 	private void addDefaultServer(SparseArray<Server> servers){
 		if(servers != null){
 			ArbiterProject arbiterProject = ArbiterProject.getArbiterProject();
-			Project newProject = arbiterProject.getNewProject();
 			
-			if(!arbiterProject.includeDefaultLayer().equals("true") || (newProject != null && newProject.isBeingCreated())){
+			if(((arbiterProject.includeDefaultLayer() != null) && 
+					!arbiterProject.includeDefaultLayer().equals("true")) 
+					|| (ArbiterState.getState().isCreatingProject())){
 				servers.put(Server.DEFAULT_FLAG, new Server(Server.DEFAULT_SERVER_NAME, null, 
 						null, null, Server.DEFAULT_FLAG));
 			}
@@ -103,7 +108,7 @@ public class ServerListAdapter extends BaseAdapter{
 				public void onClick(View v) {
 					
 					// Open the add server dialog
-					(new ArbiterDialogs(activity.getResources(),
+					(new ArbiterDialogs(activity.getApplicationContext(), activity.getResources(),
 							activity.getSupportFragmentManager())).showAddServerDialog(server);
 				}
 			});
@@ -131,22 +136,30 @@ public class ServerListAdapter extends BaseAdapter{
 	}
 	
 	private void displayDeletionAlert(final Server server){
+		final Context context = activity.getApplicationContext();
+		
 		ServersHelper.getServersHelper().deletionAlert(activity, new Runnable(){
 
 			@Override
 			public void run() {
+				final String deletingServerTitle = context.getResources().getString(R.string.deleting_server);
+				final String deletingServerMsg = context.getResources().getString(R.string.deleting_server_msg);
+				
+				final ProgressDialog dialog = ProgressDialog.show(activity, 
+						deletingServerTitle, deletingServerMsg, true);
+				
 				CommandExecutor.runProcess(new Runnable(){
 					@Override
 					public void run() {
 						
-						ApplicationDatabaseHelper helper = ApplicationDatabaseHelper.
-								getHelper(activity.getApplicationContext());
-						ServersHelper.getServersHelper().delete(helper.getWritableDatabase(),
-								activity.getApplicationContext(), server);
+						ServersHelper.getServersHelper().delete(
+								activity, server);
 						
 						if(mapChangeListener != null){
 							mapChangeListener.onServerDeleted(server.getId());
 						}
+						
+						dialog.dismiss();
 					}
 					
 				});

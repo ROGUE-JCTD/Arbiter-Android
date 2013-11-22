@@ -7,20 +7,24 @@ Arbiter.ServersHelper = (function(){
 	var SERVERS_TABLE_NAME = "servers";
 	
 	return {
-		loadServers: function(context, callback){
+		loadServers: function(context, onSuccess, onFailure){
 			var db = Arbiter.ApplicationDbHelper.getDatabase();
 			var context = this;
 			
 			Arbiter.Util.Servers.resetServers();
 			
 			db.transaction(function(tx){
-				context.getServers(tx, context, callback);
+				context.getServers(tx, context, onSuccess, onFailure);
 			}, function(e){
 				console.log("ERROR: Arbiter.ServersHelper.loadServers", e);
+				
+				if(Arbiter.Util.funcExists(onFailure)){
+					onFailure.call(context, e);
+				}
 			});
 		},
 		
-		getServers: function(tx, context, callback){
+		getServers: function(tx, context, onSuccess, onFailure){
 			var sql = "select * from " + SERVERS_TABLE_NAME + ";";
 			
 			tx.executeSql(sql, [], function(tx, res){
@@ -37,14 +41,17 @@ Arbiter.ServersHelper = (function(){
 									row[SERVER_PASSWORD]));
 				}
 				
-				if(callback !== null 
-						&& callback !== undefined){
+				if(Arbiter.Util.funcExists(onSuccess)){
 					
-					callback.call(context);
+					onSuccess.call(context);
 				}
 				
 			}, function(tx, e){
 				console.log("ERROR: Arbiter.ServersHelper.getServers", e);
+				
+				if(Arbiter.Util.funcExists(onFailure)){
+					onFailure.call(context, e);
+				}
 			});
 		}
 	};

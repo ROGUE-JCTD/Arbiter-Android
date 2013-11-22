@@ -1,13 +1,20 @@
 package com.lmn.Arbiter_Android;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
+import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ArbiterProject {
@@ -35,6 +42,7 @@ public class ArbiterProject {
 	
 	private static ArbiterProject project = null;
 	private Project newProject;
+	private ProgressDialog createProjectProgress;
 	
 	public static ArbiterProject getArbiterProject(){
 		if(project == null){
@@ -52,8 +60,7 @@ public class ArbiterProject {
 	 * @param projectId
 	 * @param includeDefaultLayer
 	 */
-	public void setOpenProject(Context context, 
-			String projectName, String includeDefaultLayer){
+	public void setOpenProject(Context context, String projectName){
 		
 		// Save the open project id to shared preferences for persistent storage
 		SharedPreferences settings = context.getSharedPreferences(ARBITER_PREFERENCES, Context.MODE_PRIVATE);
@@ -65,8 +72,17 @@ public class ArbiterProject {
 		// Set the open project
 		this.openProjectName = projectName;
 		
+		ProjectDatabaseHelper helper = ProjectDatabaseHelper.getHelper(context, 
+				ProjectStructure.getProjectPath(context, projectName));
+		
+		String includeDefaultLayer = PreferencesHelper.getHelper().get(
+				helper.getWritableDatabase(), context, INCLUDE_DEFAULT_LAYER);
+		String defaultLayerVisibility = PreferencesHelper.getHelper().get(
+				helper.getWritableDatabase(), context, DEFAULT_LAYER_VISIBILITY);
+		
 		// Set includeDefaultLayer
 		setIncludeDefaultLayer(includeDefaultLayer);
+		setDefaultLayerVisibility(defaultLayerVisibility);
 	}
 	
 	/**
@@ -123,7 +139,55 @@ public class ArbiterProject {
 	}
 	
 	public void createNewProject(String name){
-		newProject = new Project(name, "", "true", "true");
+		newProject = new Project(name, null, "true", "true");
+	}
+	
+	public void errorCreatingProject(Activity activity){
+		doneCreatingProject(activity.getApplicationContext());
+		
+		displayErrorCreatingProject(activity);
+	}
+	
+	private void displayErrorCreatingProject(final Activity activity){		
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		
+		builder.setTitle(R.string.error_creating_project);
+		builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
+		builder.setMessage(R.string.error_creating_project_msg);
+		builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener(){
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// Delete the corresponding project directory
+				ProjectStructure.getProjectStructure().deleteProject(activity, openProjectName);
+				
+				// Make sure the Project list updates.
+				LocalBroadcastManager.getInstance(activity.getApplicationContext())
+					.sendBroadcast(new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));
+			}
+		});
+		
+		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener(){
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				
+			}
+		});
+		
+		builder.create().show();
+	}
+	
+	public void doneCreatingProject(Context context){
+		newProject = null;
+		Log.w("ArbiterProject", "ArbiterProject.doneCreatingProject");
+		if(createProjectProgress != null){
+			Log.w("ArbiterProject", "ArbiterProject.doneCreatingProject createProjectProgress isn't null");
+			createProjectProgress.dismiss();
+			createProjectProgress = null;
+		}
+		
+		LocalBroadcastManager.getInstance(context).sendBroadcast(
+				new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));
 	}
 	
 	public Project getNewProject(){
@@ -188,5 +252,10 @@ public class ArbiterProject {
 	
 	public void setSavedZoomLevel(String zoomLevel){
 	        this.savedZoomLevel = zoomLevel;
+	}
+	
+	public void showCreateProjectProgress(Activity activity, String title, String message){
+		createProjectProgress = ProgressDialog.show(activity, 
+				title, message, true);
 	}
 }

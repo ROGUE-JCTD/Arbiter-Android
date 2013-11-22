@@ -160,7 +160,7 @@ Arbiter.Util.LayerSchema = function(){
 		},
 		
 		isVisible: function(){
-			return visibility;
+			return (visibility === "1") ? true : false;
 		},
 		
 		getServerId: function(){

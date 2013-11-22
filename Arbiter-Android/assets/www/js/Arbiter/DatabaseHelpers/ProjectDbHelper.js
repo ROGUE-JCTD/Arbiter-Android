@@ -5,11 +5,11 @@ Arbiter.ProjectDbHelper = (function(){
 	
 	return {
 		getProjectDatabase: function(){
-			if(projectDb === null){
+			/*if(projectDb === null){
 				projectDb = sqlitePlugin.openDatabase(PROJECT_DATABASE_NAME);
-			}
+			}*/
 			
-			return projectDb;
+			return sqlitePlugin.openDatabase(PROJECT_DATABASE_NAME);
 		}
 	};
 })();

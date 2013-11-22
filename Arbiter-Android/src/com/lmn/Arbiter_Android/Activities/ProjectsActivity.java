@@ -1,9 +1,11 @@
 package com.lmn.Arbiter_Android.Activities;
 
+import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.ListAdapters.ProjectListAdapter;
 import com.lmn.Arbiter_Android.LoaderCallbacks.ProjectsLoaderCallbacks;
+
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
@@ -23,7 +25,7 @@ public class ProjectsActivity extends FragmentActivity{
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.activity_projects);
-	    dialogs = new ArbiterDialogs(getResources(), getSupportFragmentManager());
+	    dialogs = new ArbiterDialogs(getApplicationContext(), getResources(), getSupportFragmentManager());
 	    
 	    listView = (ListView) findViewById(R.id.projectListView);
 	   // ProjectListAdapter adapter = new ProjectListAdapter(this, R.layout.project_list_item, projectList.getList());
@@ -56,5 +58,14 @@ public class ProjectsActivity extends FragmentActivity{
 		super.onDestroy();
 		
 		getSupportLoaderManager().destroyLoader(R.id.loader_projects);
+	}
+	
+	@Override
+	public void onResume(){
+		super.onResume();
+		
+		if(ArbiterState.getState().isCreatingProject()){
+			finish();
+		}
 	}
 }

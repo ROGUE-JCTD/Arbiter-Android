@@ -213,31 +213,23 @@ public class LayerListAdapter extends BaseAdapter{
 		CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run() {
-				final long layerId = layer.getLayerId();
+				
 				String path = ProjectStructure.getProjectPath(context, projectName);
 				
-				ProjectDatabaseHelper helper = ProjectDatabaseHelper.
+				ProjectDatabaseHelper projectHelper = ProjectDatabaseHelper.
 						getHelper(context, path);
 				
-				FeatureDatabaseHelper featureHelper = FeatureDatabaseHelper.getHelper(context, path);
+				FeatureDatabaseHelper featureHelper = 
+						FeatureDatabaseHelper.getHelper(context, path);
 				
-				
-				String featureType = layer.getFeatureTypeNoPrefix();
-				
-				// Remove the featureType from the geometryColumns table
-				// and drop the schema table for the feature type
-				int affected = GeometryColumnsHelper.getHelper().remove(
-						featureHelper.getWritableDatabase(), featureType);
-				
-				// If the geometryColumn row was successfully removed,
-				// then remove the layer from the layers table and call
-				// the onLayerDeleted method of the mapChangeListener
-				if(affected != 0){
-					LayersHelper.getLayersHelper().delete(
-							helper.getWritableDatabase(), context, layer);
+				LayersHelper.getLayersHelper().delete(
+					projectHelper.getWritableDatabase(), 
+					featureHelper.getWritableDatabase(), 
+					context, 
+					layer
+				);
 					
-					mapChangeListener.onLayerDeleted(layerId);
-				}
+				mapChangeListener.onLayerDeleted(layer.getLayerId());
 			}
 		});
 	}

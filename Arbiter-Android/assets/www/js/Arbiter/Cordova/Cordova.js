@@ -14,38 +14,44 @@ Arbiter.Cordova = (function() {
 						"resetWebApp", [bbox, zoom]);
 			};
 			
-			/*if(tx !== null && tx !== undefined){
-				tx.commitCallback(Arbiter.Cordova, function(){
-					console.log("SQLitePlugin COMMIT SUCCESS!");
-					try{
-						reset();
-					} catch (_error){
-						throw "Arbitet.Cordova.resetWebApp(): There's an error in reset()!!!" + _error;
-					}
-					
-				}, function(){
-					console.log("SQLitePlugin COMMIT FAILURE!!");
-				});
-			}else{*/
-				reset();
-			//}
+			reset();
+		},
+		
+		setNewProjectsAOI: function(){
+			var bbox = Arbiter.Map.getCurrentExtent().toBBOX(); 
+			console.log("setNewProjectsAOI: bbox = " + bbox);
+			cordova.exec(null, null, "ArbiterCordova",
+					"setNewProjectsAOI", [bbox]);
+		},
+		
+		doneCreatingProject: function(){
+			cordova.exec(null, null, "ArbiterCordova",
+					"doneCreatingProject", []);
+		},
+		
+		errorCreatingProject: function(e){
+			console.log("errorCreatingProject", e);
+			cordova.exec(null, null, "ArbiterCordova",
+					"errorCreatingProject", [e]);
+		},
+		
+		errorLoadingFeatures: function(troublesomeFeatureTypes){
+			var str = "";
+			
+			for(var i = 0; i < troublesomeFeatureTypes.length; i++){
+				if(i > 0){
+					str += troublesomeFeatureTypes[i];
+				}else{
+					str += ", " + troublesomeFeatureTypes[i];
+				}
+			}
+			
+			cordova.exec(null, null, "ArbiterCordova", "errorLoadingFeatures", [str]);
 		},
 		
 		// TODO: Right the native method and then call here
 		updateFeatureData : function(featureType, features) {
 			// make call to plugin passing the featureType and features
-		},
-
-		/**
-		 * Need the AOI of the project for updating feature data after a
-		 * successful push to the server.
-		 */
-		getProjectAOI : function(context, successCallback) {
-			cordova.exec(function(left, bottom, right, top) {
-				successCallback.call(context, left, bottom, right, top);
-			}, function(error) {
-
-			}, "ArbiterCordova", "getProjectsAOI", []);
 		}
 	};
 })();

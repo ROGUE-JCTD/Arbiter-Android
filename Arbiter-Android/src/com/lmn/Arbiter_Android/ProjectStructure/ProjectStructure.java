@@ -102,10 +102,49 @@ public class ProjectStructure {
 	}
 	
 	public void deleteProject(Activity activity, String projectName){
+		String openProjectName = ArbiterProject.getArbiterProject()
+				.getOpenProject(activity);
+		
 		Context context = activity.getApplicationContext();
 		String path = getProjectPath(context, projectName);
 		
 		deleteProjectFolder(activity, path);
+		
+		// Make sure that a project exists.
+		boolean defaultProjectCreated = ensureProjectExists(activity);
+		
+		if(!defaultProjectCreated && projectName.equals(openProjectName)){
+			switchProject(activity);
+		}
+	}
+	
+	private void switchProject(Activity activity){
+		String projectName = "";
+		
+		try {
+			projectName = getNextOpenProject(activity.getApplicationContext());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		ArbiterProject.getArbiterProject().setOpenProject(
+				activity.getApplicationContext(), projectName);
+	}
+	
+	/**
+	 * Get the next project to open
+	 * @param context
+	 * @return 
+	 * @throws Exception
+	 */
+	private String getNextOpenProject(Context context) throws Exception{
+		Project[] projects = getProjects(context);
+		
+		if(projects.length > 0){
+			return projects[0].getProjectName();
+		}
+		
+		throw new Exception("Could not open another project.");
 	}
 	
 	private void deleteProjectFolder(Activity activity, String path){

@@ -13,9 +13,15 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.Loaders.ServersListLoader;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ServersHelper implements BaseColumns{
 	public static final String SERVER_NAME = "server_name";
@@ -132,9 +138,7 @@ public class ServersHelper implements BaseColumns{
 			values.put(SERVER_PASSWORD, server.getPassword());
 			values.put(SERVER_URL, server.getUrl());
 			
-			int affectedRow = db.update(SERVERS_TABLE_NAME, values, whereClause, whereArgs);
-			
-			Log.w("SERVERSHELPER", "SERVERSHELPER update" + Integer.toString(affectedRow));
+			db.update(SERVERS_TABLE_NAME, values, whereClause, whereArgs);
 			
 			db.setTransactionSuccessful();
 			
@@ -146,9 +150,13 @@ public class ServersHelper implements BaseColumns{
 		}
 	}
 	
-	public void delete(SQLiteDatabase db, Context context, Server server) {
-		Log.w("SERVERSHELPER", "SERVERSHELPER delete");
-		db.beginTransaction();
+	public void delete(Activity activity, Server server) {
+		Context context = activity.getApplicationContext();
+		
+		SQLiteDatabase appDb = ApplicationDatabaseHelper.
+				getHelper(context).getWritableDatabase();
+		
+		appDb.beginTransaction();
 		
 		try {
 			
@@ -157,18 +165,58 @@ public class ServersHelper implements BaseColumns{
 					Long.toString(server.getId())	
 			};
 			
-			int affectedRow = db.delete(SERVERS_TABLE_NAME, whereClause, whereArgs);
+			deleteLayersFromProjects(context, server);
 			
-			Log.w("SERVERSHELPER", "SERVERSHELPER delete" + Integer.toString(affectedRow));
+			// Delete the server, now that all layers have been deleted
+			appDb.delete(SERVERS_TABLE_NAME, whereClause, whereArgs);
 			
-			db.setTransactionSuccessful();
+			appDb.setTransactionSuccessful();
 			
 			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ServersListLoader.SERVER_LIST_UPDATED));
 		} catch (Exception e){
 			e.printStackTrace();
 		} finally {
-			db.endTransaction();
+			appDb.endTransaction();
+			
+			openOriginalDatabases(activity);
 		}
+	}
+	
+	// Delete any layers, in any project, that depend on the server.
+	private void deleteLayersFromProjects(Context context, Server server){
+		String path = null;
+		SQLiteDatabase featureDb = null;
+		SQLiteDatabase projectDb = null;
+		
+		// Get a list of the projects
+		Project[] projects = ProjectStructure.
+				getProjectStructure().getProjects(context);
+
+		// Loop through list of projects,
+		// cleaning up the servers dependents
+		for(int i = 0; i < projects.length;i++){
+
+			// Get the projectDatabase and featureDatabase
+			path = ProjectStructure.getProjectPath(context, projects[i].getProjectName());
+			projectDb = ProjectDatabaseHelper.getHelper(context, path).getWritableDatabase();
+			featureDb = FeatureDatabaseHelper.getHelper(context, path).getWritableDatabase();
+
+			// Delete the layers with the serverId
+			LayersHelper.getLayersHelper().deleteByServerId(projectDb,
+					featureDb, context, server.getId());
+		}
+	}
+	
+	private void openOriginalDatabases(Activity activity){
+		Context context = activity.getApplicationContext();
+		
+		String openProjectName = ArbiterProject.
+				getArbiterProject().getOpenProject(activity);
+		
+		String path = ProjectStructure.getProjectPath(context, openProjectName);
+		
+		ProjectDatabaseHelper.getHelper(context, path);
+		FeatureDatabaseHelper.getHelper(context, path);
 	}
 	
 	public void deletionAlert(Activity activity, final Runnable deleteIt){

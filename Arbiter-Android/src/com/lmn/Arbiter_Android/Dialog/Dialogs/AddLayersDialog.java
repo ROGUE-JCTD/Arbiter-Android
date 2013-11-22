@@ -23,11 +23,16 @@ import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -97,6 +102,14 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		}
 	}
 
+	@Override
+	public void onCancel(DialogInterface dialog){
+		if(creatingProject){
+			Log.w("AddLayersDialog", "AddLayersDialog dismissed!");
+			ArbiterProject.getArbiterProject().doneCreatingProject(getActivity().getApplicationContext());
+		}
+	}
+	
 	@Override
 	public void onDestroy(){
 		super.onDestroy();
@@ -174,12 +187,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	}
 	
 	@Override
-	public void onNegativeClick() {
-		
-		if(creatingProject){
-			ArbiterProject.getArbiterProject().getNewProject().isBeingCreated(false);
-		}
-	}
+	public void onNegativeClick() {}
 
 	@Override
 	public void beforeCreateDialog(View view) {
@@ -190,6 +198,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	}
 	
 	private void registerListeners(View view){
+		
 		ImageButton button = (ImageButton) view.findViewById(R.id.add_server_button);
 		
 		if(button != null){
@@ -197,7 +206,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 
 				@Override
 				public void onClick(View v) {
-					(new ArbiterDialogs(getActivity().getResources(), 
+					(new ArbiterDialogs(getActivity().getApplicationContext(), getActivity().getResources(), 
 							getActivity().getSupportFragmentManager())).showAddServerDialog(null);
 				}
 			});

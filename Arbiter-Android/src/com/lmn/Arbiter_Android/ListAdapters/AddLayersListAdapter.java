@@ -175,7 +175,11 @@ public class AddLayersListAdapter extends BaseAdapter {
 
 	@Override
 	public int getCount() {
-		return this.items.size();
+		if(this.items != null){
+			return this.items.size();
+		}
+		
+		return 0;
 	}
 
 	@Override

@@ -44,7 +44,7 @@ public class Map{
 	public void createProject(CordovaWebView webview, final ArrayList<Layer> layers){
 		try{
 			String url = "javascript:app.waitForArbiterInit(new Function('"
-					+ "Arbiter.Cordova.Project.createProjectWithAOI("
+					+ "Arbiter.Cordova.Project.createProject("
 					+ getLayersJSON(layers, null) + ")'))";
 				
 			webview.loadUrl(url);
@@ -63,6 +63,12 @@ public class Map{
 		} catch (JSONException e){
 			e.printStackTrace();
 		}
+	}
+	
+	public void setNewProjectsAOI(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.setNewProjectsAOI()'));";
+		
+		webview.loadUrl(url);
 	}
 	
 	public void setAOI(CordovaWebView webview){

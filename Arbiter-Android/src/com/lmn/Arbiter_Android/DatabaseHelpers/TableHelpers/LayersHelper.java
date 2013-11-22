@@ -13,7 +13,10 @@ import android.util.Log;
 
 import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class LayersHelper implements BaseColumns{
 	public static final String LAYERS_TABLE_NAME = "layers";
@@ -133,26 +136,75 @@ public class LayersHelper implements BaseColumns{
 	 * @param context The context to send a broadcast notifying the layers have been updated
 	 * @param list The list of layers to be deleted
 	 */
-	public void delete(SQLiteDatabase db, Context context, Layer layer) {
-		db.beginTransaction();
+	public void delete(SQLiteDatabase projectDb, SQLiteDatabase featureDb, Context context, Layer layer) {
+		projectDb.beginTransaction();
 		
 		try {
-			String whereClause = _ID + "=?";
-			String[] whereArgs = {
-				Long.toString(layer.getLayerId())
-			};
 			
-			db.delete(LAYERS_TABLE_NAME, whereClause, whereArgs);
+			String featureType = layer.getFeatureTypeNoPrefix();
 			
-			db.setTransactionSuccessful();
+			// Remove the featureType from the geometryColumns table
+			// and drop the schema table for the feature type
+			int affected = GeometryColumnsHelper.getHelper().remove(
+					featureDb, featureType);
 			
-			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
+			// If the geometryColumn row was successfully removed,
+			// then remove the layer from the layers table and call
+			// the onLayerDeleted method of the mapChangeListener
+			if(affected != 0){
+				String whereClause = _ID + "=?";
+				String[] whereArgs = {
+					Long.toString(layer.getLayerId())
+				};
+				
+				projectDb.delete(LAYERS_TABLE_NAME, whereClause, whereArgs);
+				
+				projectDb.setTransactionSuccessful();
+				
+				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
+			}
 		} catch (Exception e){
 			e.printStackTrace();
 		} finally {
-			db.endTransaction();
+			projectDb.endTransaction();
 		}
 		
+	}
+	
+	public void deleteByServerId(SQLiteDatabase projectDb, SQLiteDatabase featureDb, Context context, long serverId){
+		projectDb.beginTransaction();
+		
+		try {
+			// Projection - columns to get back
+			String[] columns = {
+				LAYERS_TABLE_NAME + "." + _ID, // 0
+				FEATURE_TYPE, // 1
+				SERVER_ID // 2
+			};
+			
+			String where = SERVER_ID + "=?";
+			String[] whereArgs = {
+				Long.toString(serverId)	
+			};
+			
+			Cursor cursor = projectDb.query(LAYERS_TABLE_NAME, 
+					columns, where, whereArgs, null, null, null);
+			
+			//Traverse the cursors to populate the projects array
+			for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+				delete(projectDb, featureDb, context, new Layer(cursor.getInt(0),
+						cursor.getString(1), cursor.getInt(2), null, null, null, 
+						null, false));
+			}
+			
+			cursor.close();
+			
+			projectDb.setTransactionSuccessful();
+		} catch (Exception e){
+			e.printStackTrace();
+		} finally {
+			projectDb.endTransaction();
+		}
 	}
 	
 	public void updateAttributeValues(SQLiteDatabase db, Context context, 

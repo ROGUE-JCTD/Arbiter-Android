@@ -10,18 +10,21 @@ Arbiter.GeometryColumnsHelper = (function(){
 		/**
     	 * Add the feature type to the GeometryColumns table
     	 */
-    	addToGeometryColumns: function(layerSchema, successCallback){
+    	addToGeometryColumns: function(layerSchema, onSuccess, onFailure){
     		var db = Arbiter.FeatureDbHelper.getFeatureDatabase();
     		var context = this;
     		db.transaction(function(tx){
-    			context.insertIntoGeometryColumns(tx, layerSchema, successCallback);
+    			context.insertIntoGeometryColumns(tx, layerSchema, onSuccess, onFailure);
     		}, function(e){
     			console.log("ERROR: GeometryColumnsHelper" 
     					+ ".addToGeometryColumns", e);
+    			if(Arbiter.Util.funcExists(onFailure)){
+    				onFailure(e);
+    			}
     		});
     	},
     	
-    	insertIntoGeometryColumns: function(tx, schema, successCallback){
+    	insertIntoGeometryColumns: function(tx, schema, onSuccess, onFailure){
 			var sql = "INSERT INTO " + GEOMETRY_COLUMNS_TABLE_NAME + "("
 				+ FEATURE_TABLE_NAME + ", "
 				+ FEATURE_GEOMETRY_COLUMN + ", "
@@ -37,14 +40,20 @@ Arbiter.GeometryColumnsHelper = (function(){
 		
 			tx.executeSql(sql, values, function(tx, res){
 				console.log("SUCCESS: insert into geometry columns");
-				successCallback.call();
+				if(Arbiter.Util.funcExists(onSuccess)){
+					onSuccess();
+				}
 			}, function(e){
-				console.log("ERROR: insert into geometry columns")
+				console.log("ERROR: insert into geometry columns");
+				
+				if(Arbiter.Util.funcExists(onFailure)){
+					onFailure(e);
+				}
 			});
     	},
     	
     	// layer is a layer returned by the result of the sqlite plugin
-    	getGeometryColumn: function(layer, context, isThereCallback, isNotThereCallback){
+    	getGeometryColumn: function(layer, context, isThereCallback, isNotThereCallback, onFailure){
     		console.log("getGeometryColumn: ", layer);
     		var db = Arbiter.FeatureDbHelper.getFeatureDatabase();
     		var context = this;
@@ -74,10 +83,18 @@ Arbiter.GeometryColumnsHelper = (function(){
     			}, function(tx, e){
     				console.log("ERROR: Arbiter.GeometryColumnsHelper"
     						+ ".getGeometryColumn inner", e);
+    				
+    				if(Arbiter.Util.funcExists(onFailure)){
+    					onFailure.call(context, e);
+    				}
     			});
     		}, function(e){
     			console.log("ERROR: Arbiter.GeometryColumnsHelper"
 						+ ".getGeometryColumn outer", e);
+    			
+    			if(Arbiter.Util.funcExists(onFailure)){
+					onFailure.call(context, e);
+				}
     		});
     	},
     	

@@ -15,7 +15,8 @@ Arbiter.Cordova.Project = (function(){
 		return (layerFinishedCount == layerCount);
 	};
 	
-	var getLayerSchema = function(layer, bounds, _callback){
+	var getLayerSchema = function(layer, bounds, onSuccess, onFailure){
+		console.log("getLayerSchema");
 		var serverId = layer[Arbiter.LayersHelper.serverId()];
 		
 		var server = Arbiter.Util.Servers.getServer(serverId);
@@ -29,12 +30,15 @@ Arbiter.Cordova.Project = (function(){
 		var featureType = layer[Arbiter.LayersHelper.featureType()];
 		var srid = layer[Arbiter.GeometryColumnsHelper.featureGeometrySRID()];
 		
-		(new OpenLayers.Request.GET({
+		var gotRequestBack = false;
+		
+		var request = new OpenLayers.Request.GET({
 			url: url + "/wfs?service=wfs&version=1.0.0&request=DescribeFeatureType&typeName=" + featureType,
 			headers: {
 				Authorization: 'Basic ' + encodedCredentials
 			},
-			callback: function(response){
+			success: function(response){
+				gotRequestBack = true;
 				var context = Arbiter.Cordova.Project;
 				console.log("dft response: ", response);
 				var results = describeFeatureTypeReader.read(response.responseText);
@@ -45,8 +49,8 @@ Arbiter.Cordova.Project = (function(){
 					
 					incrementLayerFinishedCount();
 					
-					if(doneGettingLayers()){
-						_callback.call(context);
+					if(doneGettingLayers() && Arbiter.Util.funcExists(onSuccess)){
+						onSuccess.call(context);
 					}
 					
 					return;
@@ -62,17 +66,18 @@ Arbiter.Cordova.Project = (function(){
 				
 				content[Arbiter.LayersHelper.workspace()] = results.targetNamespace;
 				
+				console.log("ready to update layer!");
 				// Update the layers workspace in the Layers table.
 				Arbiter.LayersHelper.updateLayer(featureType, content, this, function(){
-					
+					console.log("updateLayer done.")
 					// After updating the layer workspace, 
 					// add the layer to the GeometryColumns table
 					Arbiter.GeometryColumnsHelper.addToGeometryColumns(schema, function(){
-						
+						console.log("addToGeometryColumns done.")
 						// After adding the layer to the GeometryColumns table
 						// create the feature table for the layer
 						Arbiter.FeatureTableHelper.createFeatureTable(schema, function(){
-							
+							console.log("createFeatureTable done.")
 							// After creating the feature table for the layer,
 							// download the features from the layer
 							context.downloadFeatures(schema, bounds, encodedCredentials, function(){
@@ -83,21 +88,46 @@ Arbiter.Cordova.Project = (function(){
 								
 								// If all the layers have finished downloading,
 								// call the callback.
-								if(doneGettingLayers()){
-									_callback.call(context);
+								if(doneGettingLayers() && Arbiter.Util.funcExists(onSuccess)){
+									console.log("calling getLayerSchema callback");
+									onSuccess.call(context);
 								}
-							});
-						});
-					});
-				});
+							}, onFailure);
+						}, onFailure);
+					}, onFailure);
+				}, onFailure);
+			},
+			failure: function(response){
+				gotRequestBack = true;
+				console.log("describeFeatureType request failure");
+				if(Arbiter.Util.funcExists(OnFailure)){
+					onFailure();
+				}
 			}
-		}));
+		});
+		
+		// Couldn't find a way to set timeout for an openlayers
+		// request, so I did this to abort the request after
+		// 15 seconds of not getting a response
+		window.setTimeout(function(){
+			if(!gotRequestBack){
+				console.log("describeFeatureType request failure");
+				
+				request.abort();
+				
+				if(Arbiter.Util.funcExists(onFailure)){
+					onFailure();
+				}
+			}
+		}, 15000);
 	};
 	
-	var storeData = function(context, layers, bounds, callback){
+	var storeData = function(context, layers, bounds, onSuccess, onFailure){
+		console.log("storeData", layers, bounds);
 		Arbiter.ServersHelper.loadServers(context, function(){
-			context.storeFeatureData(layers, bounds, callback);
-		});
+			console.log("serversLoaded");
+			context.storeFeatureData(layers, bounds, onSuccess, onFailure);
+		}, onFailure);
 	};
 	
 	var zoomToExtent = function(savedBounds, savedZoom){
@@ -108,21 +138,35 @@ Arbiter.Cordova.Project = (function(){
 	};
 	
 	return {
-		createProjectWithAOI: function(layers){
+		createProject: function(layers){
 			var context = this;
-			var bbox = Arbiter.Map.getCurrentExtent();
-			var bboxString = bbox.toBBOX();
-			var bounds = new Arbiter.Util.Bounds(bbox.left, 
-					bbox.bottom, bbox.right, bbox.top);
 			
-			cordova.exec(function(){
-				storeData(context, layers, bounds, function(){
-					cordova.exec(null, null, "ArbiterCordova", 
-							"finishActivity", []);
-				});
-			}, function(){
-				console.log("ERROR: Arbiter.Cordova.Project.createProjectWithAOI");
-			}, "ArbiterCordova", "createProject", [ bboxString ]);
+			var onFailure = function(e){
+				Arbiter.Cordova.errorCreatingProject(e);
+			};
+			
+			Arbiter.ProjectDbHelper.getProjectDatabase().close();
+			Arbiter.FeatureDbHelper.getFeatureDatabase().close();
+			
+			Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
+				if(_aoi !== null && _aoi !== undefined 
+						&& _aoi !== ""){
+					
+					var aoi = _aoi.split(',');
+					
+					var bounds = new Arbiter.Util.Bounds(aoi[0], 
+							aoi[1], aoi[2], aoi[3]);
+					
+					storeData(context, layers, bounds, function(){
+						console.log("Ready to load layers!");
+						Arbiter.Loaders.LayersLoader.load(function(){
+							context.zoomToAOI(context, function(){
+								Arbiter.Cordova.doneCreatingProject();
+							}, onFailure);
+						}, onFailure);
+					}, onFailure);
+				}
+			});
 		},
 		
 		addLayers: function(layers){
@@ -133,22 +177,22 @@ Arbiter.Cordova.Project = (function(){
 				
 				var bounds = new Arbiter.Util.Bounds(aoi[0], aoi[1], aoi[2], aoi[3]);
 				storeData(context, layers, bounds, function(){
-					Arbiter.Layers.LayersLoader.load();
+					Arbiter.Loaders.LayersLoader.load();
 				});
 			});
 		},
 		
-		storeFeatureData: function(layers, bounds, callback){
+		storeFeatureData: function(layers, bounds, onSuccess, onFailure){
 			layerCount = layers.length;
 			
 			for(var i = 0; i < layers.length; i++){
 				getLayerSchema(layers[i], bounds, function(){
 					if(doneGettingLayers()){
-						if(callback !== null && callback !== undefined){
-							callback.call();
+						if(Arbiter.Util.funcExists(onSuccess)){
+							onSuccess();
 						}
 					}
-				});
+				}, onFailure);
 			}
 		},
 		
@@ -177,10 +221,8 @@ Arbiter.Cordova.Project = (function(){
 		setProjectsAOI : function(layers) {
 			var bbox = Arbiter.Map.getCurrentExtent().toBBOX();
 			console.log("setProjectAOI bbox = " + bbox);
-			Arbiter.PreferencesHelper.put(Arbiter.AOI, bbox, this, function(){
-				cordova.exec(null, null, "ArbiterCordova", 
-						"finishActivity", []);
-			});
+			
+			cordova.exec(null, null, "ArbiterCordova", "setProjectsAOI", [bbox]);
 		},
 		
 		zoomToSavedBounds: function(context, onSuccess, onFailure){
@@ -201,7 +243,7 @@ Arbiter.Cordova.Project = (function(){
 			});
 		},
 		
-		zoomToAOI: function(context, callback){
+		zoomToAOI: function(context, onSuccess, onFailure){
 			console.log("zoomToAOI");
 			Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
 				console.log("Arbiter.Preferences.get callback");
@@ -217,10 +259,10 @@ Arbiter.Cordova.Project = (function(){
 				}
 				
 				
-				if(callback !== null && callback !== undefined){
-					callback.call(context);
+				if(Arbiter.Util.funcExists(onSuccess)){
+					onSuccess.call(context);
 				}
-			});
+			}, onFailure);
 		},
 		
 		zoomToDefault: function(){

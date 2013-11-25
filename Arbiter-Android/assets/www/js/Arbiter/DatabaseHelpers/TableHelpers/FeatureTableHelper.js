@@ -29,7 +29,7 @@ Arbiter.FeatureTableHelper = (function(){
 		
 		tx.executeSql(sql, [], function(tx, res){
 			for(var i = 0; i < res.rows.length; i++){
-				onSuccess.call(context, res.rows.item(i));
+				onSuccess.call(context, res.rows.item(i), i, res.rows.length);
 			}
 		}, function(tx, e){
 			console.log("ERROR: Arbiter.FeatureTableHelper.getFeatures", e);
@@ -237,7 +237,6 @@ Arbiter.FeatureTableHelper = (function(){
 		
 		// layer is from the results of a query with the sqlite plugin
 		getLayerSchema: function(tx, row, layer, onSuccess, onFailure){
-			console.log("getLayerSchema", row, layer);
 			var helper = Arbiter.GeometryColumnsHelper;
 			var layersHelper = Arbiter.LayersHelper;
 			
@@ -261,7 +260,6 @@ Arbiter.FeatureTableHelper = (function(){
 			var sql = "PRAGMA table_info(" + featureType + ");";
 			
 			tx.executeSql(sql, [], function(tx, res){
-				console.log("SUCCESS: FeatureTableHelper.getLayerSchema");
 				var attributes = [];
 				var row = null;
 				
@@ -289,6 +287,10 @@ Arbiter.FeatureTableHelper = (function(){
 			
 		},
 		
+		/**
+		 * onSuccess should expect a feature, the current index on the feature,
+		 * and number of features being iterated over.
+		 */
 		loadFeatures: function(schema, context, onSuccess, onFailure){
 			var db = Arbiter.FeatureDbHelper.getFeatureDatabase();
 			

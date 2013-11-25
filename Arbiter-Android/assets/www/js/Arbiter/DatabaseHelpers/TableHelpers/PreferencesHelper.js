@@ -61,6 +61,33 @@ Arbiter.PreferencesHelper = (function(){
 					onFailure.call(context, e);
 				}
 			});
+		},
+		
+		remove: function(key, context, onSuccess, onFailure){
+			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
+			
+			db.transaction(function(tx){
+				var sql = "DELETE FROM " + TABLE_NAME 
+					+ " WHERE " + KEY + "=?";
+				
+				tx.executeSql(sql, [key], function(tx, res){
+					if(Arbiter.Util.funcExists(onSuccess)){
+						onSuccess.call(context);
+					}
+				}, function(tx, e){
+					console.log("ERROR: Arbiter.PreferencesHelper.remove inner", e);
+					
+					if(Arbiter.Util.funcExists(onFailure)){
+						onFailure.call(context, e);
+					}
+				});
+			}, function(e){
+				console.log("ERROR: Arbiter.PreferencesHelper.remove outer", e);
+				
+				if(Arbiter.Util.funcExists(onFailure)){
+					onFailure.call(context, e);
+				}
+			});
 		}
 	};
 })();

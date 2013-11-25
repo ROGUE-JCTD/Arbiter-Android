@@ -42,10 +42,9 @@ Arbiter.Cordova.Project = (function(){
 			},
 			success: function(response){
 				gotRequestBack = true;
+				
 				var context = Arbiter.Cordova.Project;
-				console.log("dft response: ", response);
 				var results = describeFeatureTypeReader.read(response.responseText);
-				console.log("describeFeatureType: " + featureType, JSON.stringify(results));
 				
 				// If there are no feature types, return.
 				if(!results.featureTypes || !results.featureTypes.length){
@@ -69,23 +68,21 @@ Arbiter.Cordova.Project = (function(){
 				
 				content[Arbiter.LayersHelper.workspace()] = results.targetNamespace;
 				
-				console.log("ready to update layer!");
 				// Update the layers workspace in the Layers table.
 				Arbiter.LayersHelper.updateLayer(featureType, content, this, function(){
-					console.log("updateLayer done.")
+					
 					// After updating the layer workspace, 
 					// add the layer to the GeometryColumns table
 					Arbiter.GeometryColumnsHelper.addToGeometryColumns(schema, function(){
-						console.log("addToGeometryColumns done.")
+						
 						// After adding the layer to the GeometryColumns table
 						// create the feature table for the layer
 						Arbiter.FeatureTableHelper.createFeatureTable(schema, function(){
-							console.log("createFeatureTable done.")
+							
 							// After creating the feature table for the layer,
 							// download the features from the layer
 							context.downloadFeatures(schema, bounds, encodedCredentials, function(){
-								console.log("downloaded features: layerFinishedCount = " + 
-										layerFinishedCount + ", layerCount = " + layerCount);
+								
 								// All the features have been downloaded and inserted
 								// for this layer.  Increment the layerFinishedCount 
 								incrementLayerFinishedCount();
@@ -93,7 +90,7 @@ Arbiter.Cordova.Project = (function(){
 								// If all the layers have finished downloading,
 								// call the callback.
 								if(doneGettingLayers() && Arbiter.Util.funcExists(onSuccess)){
-									console.log("calling getLayerSchema callback");
+									
 									onSuccess.call(context);
 								}
 							}, onFailure);
@@ -171,7 +168,7 @@ Arbiter.Cordova.Project = (function(){
 		
 		addLayers: function(layers){
 			var context = this;
-			
+			console.log("Arbiter.Cordova.Project.addLayers", layers);
 			var onSuccess = function(){
 				Arbiter.Cordova.doneAddingLayers();
 			};
@@ -230,7 +227,6 @@ Arbiter.Cordova.Project = (function(){
 		 */
 		setProjectsAOI : function(layers) {
 			var bbox = Arbiter.Map.getCurrentExtent().toBBOX();
-			console.log("setProjectAOI bbox = " + bbox);
 			
 			cordova.exec(null, null, "ArbiterCordova", "setProjectsAOI", [bbox]);
 		},
@@ -254,7 +250,6 @@ Arbiter.Cordova.Project = (function(){
 		},
 		
 		zoomToAOI: function(context, onSuccess, onFailure){
-			console.log("zoomToAOI");
 			Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
 				
 				if(_aoi !== null && _aoi !== undefined 

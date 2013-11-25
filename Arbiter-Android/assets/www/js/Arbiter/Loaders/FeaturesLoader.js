@@ -34,7 +34,9 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 	
 	return {
 		loadFeatures: function(schema, olLayer, onSuccess, onFailure){
-			Arbiter.FeatureTableHelper.loadFeatures(schema, this, function(feature){
+			
+			Arbiter.FeatureTableHelper.loadFeatures(schema, this, 
+					function(feature, currentFeatureIndex, featureCount){
 				try{
 					processFeature(schema, feature, olLayer);
 				} catch (e) {
@@ -43,7 +45,8 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 					}
 				}
 				
-				if(Arbiter.Util.funcExists(onSuccess)){
+				if(Arbiter.Util.funcExists(onSuccess) 
+						&& (currentFeatureIndex === (featureCount - 1))){
 					onSuccess();
 				}
 			}, onFailure);

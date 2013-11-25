@@ -1,0 +1,6 @@
+Arbiter.Controls = (function(){
+	
+	return {
+		
+	};
+})();

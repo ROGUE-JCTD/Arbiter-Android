@@ -5,9 +5,7 @@ Arbiter.Cordova.OOM_Workaround = (function(){
 		var context = Arbiter.Cordova.OOM_Workaround;
 		
 		map.events.register("moveend", Arbiter.Cordova.OOM_Workaround, function(event) {
-			console.log("onMoveEnd: " + context.tileCounter);
 			if (context.tileCounter > context.RESET_ARBITER_ON) {
-				console.log("resetting webapp");
 				Arbiter.Cordova.resetWebApp();
 			}
 		});

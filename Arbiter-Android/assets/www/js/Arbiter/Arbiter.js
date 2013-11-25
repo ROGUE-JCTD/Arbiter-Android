@@ -7,7 +7,8 @@ Arbiter = (function(){
 		INCLUDE_DEFAULT_LAYER: "include_default_layer",
 		DEFAULT_LAYER_VISIBILITY: "default_layer_visibility",
 		AOI: "aoi",
-		
+		SELECTED_FID: "selected_fid",
+		SELECTED_LAYER: "selected_layer",
 		
 		SAVED_ZOOM_LEVEL: "saved_zoom_level",
 		SAVED_BOUNDS: "saved_bounds",

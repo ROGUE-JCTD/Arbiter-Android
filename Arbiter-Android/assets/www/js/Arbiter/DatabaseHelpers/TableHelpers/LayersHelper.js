@@ -30,7 +30,6 @@ Arbiter.LayersHelper = (function(){
 			layers.push(layer);
 		}
 		
-		console.log("getLayersArray: ", layers);
 		return layers;
 	};
 	

@@ -9,13 +9,17 @@ Arbiter.Loaders.LayersLoader = (function(){
 		errorLoadingFeatures = [];
 	};
 	
-	var isDone = function(onSuccess){
-		console.log("LayersLoader.isDone featuresLoadedFor = " + 
-				featuresLoadedFor + ", layersToLoad = " + layersToLoad);
+	var triggerDoneLoadingEvent = function(){
+		var map = Arbiter.Map.getMap();
 		
+		map.events.triggerEvent(Arbiter.Loaders.
+				LayersLoader.DONE_LOADING_LAYERS);
+	};
+	
+	var isDone = function(onSuccess){
 		if(featuresLoadedFor === layersToLoad){
-			console.log("DONE LOADING LAYERS");
 			onSuccess();
+			triggerDoneLoadingEvent();
 		}
 		
 		if(errorLoadingFeatures.length > 0){
@@ -42,15 +46,17 @@ Arbiter.Loaders.LayersLoader = (function(){
 		
 		olLayer.setVisibility(schema.isVisible());
 		
+		// TODO: BUG - The success callback isn't getting called
+		// for every feature. It should only be called after all
+		// of the features are loaded for the layer.
 		var onSuccess = function(){
-			console.log("loadWFSlayer success");
 			featuresLoadedFor++;
 			isDone(_onSuccess);
 		};
 		
 		var onFailure = function(){
 			errorLoadingFeatures.push(schema.getFeatureType());
-			onSuccess(_onSuccess);
+			onSuccess();
 		};
 		
 		Arbiter.Loaders.FeaturesLoader.loadFeatures(schema, 
@@ -121,25 +127,26 @@ Arbiter.Loaders.LayersLoader = (function(){
 	};
 	
 	return {
+		DONE_LOADING_LAYERS: "arbiter_done_loading_layers",
+		
 		load: function(onSuccess, onFailure){
 			var context = this;
 			
 			// Load the servers
 			Arbiter.ServersHelper.loadServers(this, function(){
-				console.log("loadServers done.");
+				
 				// Load the layers from the database
 				Arbiter.LayersHelper.loadLayers(this, function(layers){
-					console.log("loadLayers done.");
+					
 					// Load the layer schemas with layer data loaded from the db
 					Arbiter.FeatureTableHelper.loadLayerSchemas(layers, function(){
-						console.log("loadLayerSchemas done.");
+						
 						// Load the default layer info
 						loadDefaultLayerInfo(this, function(includeDefaultLayer, defaultLayerVisibility){
-							console.log("loadDefaultLayerInfo done.");
+							
 							// Load the layers onto the map
 							loadLayers(includeDefaultLayer, defaultLayerVisibility, function(){
 								if(Arbiter.Util.funcExists(onSuccess)){
-									console.log("calling load success callback");
 									onSuccess();
 								}
 							});
@@ -147,6 +154,12 @@ Arbiter.Loaders.LayersLoader = (function(){
 					}, onFailure);
 				}, onFailure);
 			}, onFailure);
+		},
+		
+		addEventTypes: function(){
+			var map = Arbiter.Map.getMap();
+			
+			map.events.addEventType(this.DONE_LOADING_LAYERS);
 		}
 	};
 })();

@@ -54,7 +54,6 @@ Arbiter.GeometryColumnsHelper = (function(){
     	
     	// layer is a layer returned by the result of the sqlite plugin
     	getGeometryColumn: function(layer, context, isThereCallback, isNotThereCallback, onFailure){
-    		console.log("getGeometryColumn: ", layer);
     		var db = Arbiter.FeatureDbHelper.getFeatureDatabase();
     		var context = this;
     		
@@ -62,22 +61,16 @@ Arbiter.GeometryColumnsHelper = (function(){
     		var parsedFeatureType = Arbiter.Util.parseFeatureType(featureType);
     		featureType = parsedFeatureType.featureType;
     		
-    		console.log("getGeometryColumn featureType: " + featureType);
-    		
     		db.transaction(function(tx){
     			
     			var sql = "select * from " + GEOMETRY_COLUMNS_TABLE_NAME
 				+ " where " + FEATURE_TABLE_NAME + "=?;";
     			
-    			console.log("getGeometryColumns sql: " + sql + ", featureType: " + featureType);
     			tx.executeSql(sql, [featureType], function(tx, res){
-    				console.log("getGeometryColumn select succeeded: " + res.rows.length);
     				
     				if(res.rows.length === 1){
-    					console.log("is there callback");
     					isThereCallback.call(context, res.rows.item(0), layer);
     				}else{
-    					console.log("isnt there callback");
     					isNotThereCallback.call(context, layer);
     				}
     			}, function(tx, e){

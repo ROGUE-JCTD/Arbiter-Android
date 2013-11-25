@@ -54,9 +54,9 @@ Arbiter.Cordova = (function() {
 					"doneAddingLayers", []);
 		},
 		
-		errorAddingLayers: function(e){
+		errorAddingLayers: function(troublesomeFeatureTypes){
 			cordova.exec(null, null, "ArbiterCordova", 
-					"errorAddingLayers", [e]);
+					"errorAddingLayers", [troublesomeFeatureTypes]);
 		},
 		
 		// TODO: Right the native method and then call here

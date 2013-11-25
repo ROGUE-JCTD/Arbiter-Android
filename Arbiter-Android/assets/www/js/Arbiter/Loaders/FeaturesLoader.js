@@ -35,7 +35,13 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 	return {
 		loadFeatures: function(schema, olLayer, onSuccess, onFailure){
 			Arbiter.FeatureTableHelper.loadFeatures(schema, this, function(feature){
-				processFeature(schema, feature, olLayer);
+				try{
+					processFeature(schema, feature, olLayer);
+				} catch (e) {
+					if(Arbiter.Util.funcExists(onFailure)){
+						onFailure(e);
+					}
+				}
 				
 				if(Arbiter.Util.funcExists(onSuccess)){
 					onSuccess();

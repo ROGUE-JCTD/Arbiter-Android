@@ -19,6 +19,8 @@
 	<string name="error_loading_features_msg">Could not create project!</string>
 	<string name="error_adding_layers">Error</string>
 	<string name="error_adding_layers_msg">Couldn\'t add selected layers!</string>
+	<string name="adding_layers">Adding layers</string>
+	<string name="adding_layers_msg">Adding layers to the map&#8230;</string>
 	
     <!-- MAP ACTIVITY STRINGS -->
     <string name="map_activity_name">Arbiter</string>

@@ -75,6 +75,10 @@ public class ArbiterCordova extends CordovaPlugin{
 			errorLoadingFeatures();
 			
 			return true;
+		}else if("doneAddingLayers".equals(action)){
+			doneAddingLayers();
+			
+			return true;
 		}else if("errorAddingLayers".equals(action)){
 			errorAddingLayers();
 			
@@ -85,7 +89,13 @@ public class ArbiterCordova extends CordovaPlugin{
 		return false;
 	}
 	
+	private void doneAddingLayers(){
+		arbiterProject.doneAddingLayers(cordova.getActivity().getApplicationContext());
+	}
+	
 	private void errorAddingLayers(){
+		doneAddingLayers();
+		
 		showDialog(R.string.error_adding_layers, 
 				R.string.error_adding_layers_msg);
 	}

@@ -10,6 +10,9 @@ Arbiter.Loaders.LayersLoader = (function(){
 	};
 	
 	var isDone = function(onSuccess){
+		console.log("LayersLoader.isDone featuresLoadedFor = " + 
+				featuresLoadedFor + ", layersToLoad = " + layersToLoad);
+		
 		if(featuresLoadedFor === layersToLoad){
 			console.log("DONE LOADING LAYERS");
 			onSuccess();
@@ -40,6 +43,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 		olLayer.setVisibility(schema.isVisible());
 		
 		var onSuccess = function(){
+			console.log("loadWFSlayer success");
 			featuresLoadedFor++;
 			isDone(_onSuccess);
 		};
@@ -106,10 +110,8 @@ Arbiter.Loaders.LayersLoader = (function(){
 	
 	var loadDefaultLayerInfo = function(context, onSuccess, onFailure){
 		Arbiter.PreferencesHelper.get(Arbiter.INCLUDE_DEFAULT_LAYER, Arbiter.Loaders.LayersLoader, function(includeDefaultLayer){
-			console.log("includeDefaultLayer = " + includeDefaultLayer);
 			
 			Arbiter.PreferencesHelper.get(Arbiter.DEFAULT_LAYER_VISIBILITY, Arbiter.Loaders.LayersLoader, function(defaultLayerVisibility){
-				console.log("defaultLayerVisibility = " + defaultLayerVisibility);
 				
 				if(Arbiter.Util.funcExists(onSuccess)){
 					onSuccess.call(context, includeDefaultLayer, defaultLayerVisibility);

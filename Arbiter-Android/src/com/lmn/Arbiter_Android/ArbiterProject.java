@@ -180,15 +180,28 @@ public class ArbiterProject {
 	
 	public void doneCreatingProject(Context context){
 		newProject = null;
-		Log.w("ArbiterProject", "ArbiterProject.doneCreatingProject");
+		
 		if(createProjectProgress != null){
-			Log.w("ArbiterProject", "ArbiterProject.doneCreatingProject createProjectProgress isn't null");
 			createProjectProgress.dismiss();
 			createProjectProgress = null;
 		}
 		
 		LocalBroadcastManager.getInstance(context).sendBroadcast(
 				new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));
+	}
+	
+	public void startAddingLayers(Activity activity){
+		String addingLayersTitle = activity.getResources().getString(R.string.adding_layers);
+		String addingLayersMsg = activity.getResources().getString(R.string.adding_layers_msg);
+		
+		addingLayersDialog = ProgressDialog.show(activity, 
+				addingLayersTitle, addingLayersMsg, true);
+	}
+	
+	public void doneAddingLayers(Context context){
+		if(addingLayersDialog != null){
+			addingLayersDialog.dismiss();
+		}
 	}
 	
 	public Project getNewProject(){

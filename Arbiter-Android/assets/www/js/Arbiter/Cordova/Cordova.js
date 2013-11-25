@@ -49,6 +49,11 @@ Arbiter.Cordova = (function() {
 			cordova.exec(null, null, "ArbiterCordova", "errorLoadingFeatures", [str]);
 		},
 		
+		doneAddingLayers: function(){
+			cordova.exec(null, null, "ArbiterCordova",
+					"doneAddingLayers", []);
+		},
+		
 		errorAddingLayers: function(e){
 			cordova.exec(null, null, "ArbiterCordova", 
 					"errorAddingLayers", [e]);

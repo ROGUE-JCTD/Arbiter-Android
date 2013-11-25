@@ -3,9 +3,13 @@ Arbiter.Cordova.Project = (function(){
 	
 	// When the layerFinishedCount reaches
 	// the layerCount, execute the callback.
-	var layerCount = null;
+	var layerCount = 0;
 	var layerFinishedCount = 0;
-	var layerSchemas = {};
+	
+	var reset = function(){
+		layerCount = 0;
+		layerFinishedCount = 0;
+	};
 	
 	var incrementLayerFinishedCount = function(){
 		layerFinishedCount++;
@@ -16,7 +20,6 @@ Arbiter.Cordova.Project = (function(){
 	};
 	
 	var getLayerSchema = function(layer, bounds, onSuccess, onFailure){
-		console.log("getLayerSchema");
 		var serverId = layer[Arbiter.LayersHelper.serverId()];
 		
 		var server = Arbiter.Util.Servers.getServer(serverId);
@@ -81,7 +84,8 @@ Arbiter.Cordova.Project = (function(){
 							// After creating the feature table for the layer,
 							// download the features from the layer
 							context.downloadFeatures(schema, bounds, encodedCredentials, function(){
-								
+								console.log("downloaded features: layerFinishedCount = " + 
+										layerFinishedCount + ", layerCount = " + layerCount);
 								// All the features have been downloaded and inserted
 								// for this layer.  Increment the layerFinishedCount 
 								incrementLayerFinishedCount();
@@ -121,9 +125,7 @@ Arbiter.Cordova.Project = (function(){
 	};
 	
 	var storeData = function(context, layers, bounds, onSuccess, onFailure){
-		console.log("storeData", layers, bounds);
 		Arbiter.ServersHelper.loadServers(context, function(){
-			console.log("serversLoaded");
 			context.storeFeatureData(layers, bounds, onSuccess, onFailure);
 		}, onFailure);
 	};
@@ -157,7 +159,6 @@ Arbiter.Cordova.Project = (function(){
 							aoi[1], aoi[2], aoi[3]);
 					
 					storeData(context, layers, bounds, function(){
-						console.log("Ready to load layers!");
 						Arbiter.Loaders.LayersLoader.load(function(){
 							context.zoomToAOI(context, function(){
 								Arbiter.Cordova.doneCreatingProject();
@@ -171,6 +172,10 @@ Arbiter.Cordova.Project = (function(){
 		addLayers: function(layers){
 			var context = this;
 			
+			var onSuccess = function(){
+				Arbiter.Cordova.doneAddingLayers();
+			};
+			
 			var onFailure = function(e){
 				Arbiter.Cordova.errorAddingLayers(e);
 			};
@@ -180,12 +185,14 @@ Arbiter.Cordova.Project = (function(){
 				
 				var bounds = new Arbiter.Util.Bounds(aoi[0], aoi[1], aoi[2], aoi[3]);
 				storeData(context, layers, bounds, function(){
-					Arbiter.Loaders.LayersLoader.load(null, onFailure);
+					Arbiter.Loaders.LayersLoader.load(onSuccess, onFailure);
 				}, onFailure);
 			}, onFailure);
 		},
 		
 		storeFeatureData: function(layers, bounds, onSuccess, onFailure){
+			reset();
+			
 			layerCount = layers.length;
 			
 			for(var i = 0; i < layers.length; i++){
@@ -249,7 +256,7 @@ Arbiter.Cordova.Project = (function(){
 		zoomToAOI: function(context, onSuccess, onFailure){
 			console.log("zoomToAOI");
 			Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
-				console.log("Arbiter.Preferences.get callback");
+				
 				if(_aoi !== null && _aoi !== undefined 
 						&& _aoi !== ""){
 					

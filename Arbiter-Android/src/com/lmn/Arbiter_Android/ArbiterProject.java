@@ -15,6 +15,8 @@ import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
+import com.lmn.Arbiter_Android.Map.Map;
+import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ArbiterProject {
@@ -43,6 +45,7 @@ public class ArbiterProject {
 	private static ArbiterProject project = null;
 	private Project newProject;
 	private ProgressDialog createProjectProgress;
+	private ProgressDialog addingLayersDialog;
 	
 	public static ArbiterProject getArbiterProject(){
 		if(project == null){
@@ -154,27 +157,25 @@ public class ArbiterProject {
 		builder.setTitle(R.string.error_creating_project);
 		builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
 		builder.setMessage(R.string.error_creating_project_msg);
-		builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener(){
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// Delete the corresponding project directory
-				ProjectStructure.getProjectStructure().deleteProject(activity, openProjectName);
-				
-				// Make sure the Project list updates.
-				LocalBroadcastManager.getInstance(activity.getApplicationContext())
-					.sendBroadcast(new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));
-			}
-		});
-		
-		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener(){
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				
-			}
-		});
 		
 		builder.create().show();
+		
+		// Delete the corresponding project directory
+		ProjectStructure.getProjectStructure().deleteProject(activity, openProjectName);
+		
+		Map.CordovaMap cordovaMap;
+		
+		try {
+			cordovaMap = (Map.CordovaMap) activity;
+		} catch (ClassCastException e){
+			e.printStackTrace();
+			throw new ClassCastException(activity.toString() 
+					+ " must implement Map.CordovaMap");
+		}
+		
+		Map.getMap().resetWebApp(cordovaMap.getWebView());
+		
+		makeSameProject();
 	}
 	
 	public void doneCreatingProject(Context context){

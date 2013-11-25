@@ -99,8 +99,8 @@ Arbiter.Cordova.Project = (function(){
 			},
 			failure: function(response){
 				gotRequestBack = true;
-				console.log("describeFeatureType request failure");
-				if(Arbiter.Util.funcExists(OnFailure)){
+				
+				if(Arbiter.Util.funcExists(onFailure)){
 					onFailure();
 				}
 			}
@@ -111,8 +111,6 @@ Arbiter.Cordova.Project = (function(){
 		// 15 seconds of not getting a response
 		window.setTimeout(function(){
 			if(!gotRequestBack){
-				console.log("describeFeatureType request failure");
-				
 				request.abort();
 				
 				if(Arbiter.Util.funcExists(onFailure)){
@@ -142,6 +140,7 @@ Arbiter.Cordova.Project = (function(){
 			var context = this;
 			
 			var onFailure = function(e){
+				console.log("Arbiter.Cordova.Project", e);
 				Arbiter.Cordova.errorCreatingProject(e);
 			};
 			
@@ -172,14 +171,18 @@ Arbiter.Cordova.Project = (function(){
 		addLayers: function(layers){
 			var context = this;
 			
+			var onFailure = function(e){
+				Arbiter.Cordova.errorAddingLayers(e);
+			};
+			
 			Arbiter.PreferencesHelper.get(Arbiter.AOI, context, function(_aoi){
 				var aoi = _aoi.split(','); 
 				
 				var bounds = new Arbiter.Util.Bounds(aoi[0], aoi[1], aoi[2], aoi[3]);
 				storeData(context, layers, bounds, function(){
-					Arbiter.Loaders.LayersLoader.load();
-				});
-			});
+					Arbiter.Loaders.LayersLoader.load(null, onFailure);
+				}, onFailure);
+			}, onFailure);
 		},
 		
 		storeFeatureData: function(layers, bounds, onSuccess, onFailure){

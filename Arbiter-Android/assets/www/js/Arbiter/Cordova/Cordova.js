@@ -49,6 +49,11 @@ Arbiter.Cordova = (function() {
 			cordova.exec(null, null, "ArbiterCordova", "errorLoadingFeatures", [str]);
 		},
 		
+		errorAddingLayers: function(e){
+			cordova.exec(null, null, "ArbiterCordova", 
+					"errorAddingLayers", [e]);
+		},
+		
 		// TODO: Right the native method and then call here
 		updateFeatureData : function(featureType, features) {
 			// make call to plugin passing the featureType and features

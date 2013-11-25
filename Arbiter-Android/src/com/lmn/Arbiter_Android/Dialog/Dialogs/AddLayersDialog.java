@@ -104,10 +104,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 
 	@Override
 	public void onCancel(DialogInterface dialog){
-		if(creatingProject){
-			Log.w("AddLayersDialog", "AddLayersDialog dismissed!");
-			ArbiterProject.getArbiterProject().doneCreatingProject(getActivity().getApplicationContext());
-		}
+		onNegativeClick();
 	}
 	
 	@Override
@@ -187,7 +184,12 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	}
 	
 	@Override
-	public void onNegativeClick() {}
+	public void onNegativeClick() {
+		if(creatingProject){
+			Log.w("AddLayersDialog", "AddLayersDialog dismissed!");
+			ArbiterProject.getArbiterProject().doneCreatingProject(getActivity().getApplicationContext());
+		}
+	}
 
 	@Override
 	public void beforeCreateDialog(View view) {

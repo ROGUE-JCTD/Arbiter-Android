@@ -75,25 +75,40 @@ public class ArbiterCordova extends CordovaPlugin{
 			errorLoadingFeatures();
 			
 			return true;
+		}else if("errorAddingLayers".equals(action)){
+			errorAddingLayers();
+			
+			return true;
 		}
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
 	}
 	
+	private void errorAddingLayers(){
+		showDialog(R.string.error_adding_layers, 
+				R.string.error_adding_layers_msg);
+	}
+	
 	private void errorLoadingFeatures(){
+		showDialog(R.string.error_loading_features, 
+				R.string.error_loading_features_msg);
+	}
+	
+	private void showDialog(int title, int message){
 		final Activity activity = cordova.getActivity();
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 		
-		builder.setTitle(R.string.error_loading_features);
+		builder.setTitle(title);
 		builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
-		builder.setMessage(R.string.error_loading_features_msg);
+		builder.setMessage(message);
 		
 		builder.create().show();
 	}
 	
 	private void errorCreatingProject(){
+		Log.w("ArbiterCordova", "ArbiterCordova.errorCreatingProject");
 		ArbiterProject.getArbiterProject().errorCreatingProject(
 				cordova.getActivity());
 	}

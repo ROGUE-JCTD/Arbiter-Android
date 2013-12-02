@@ -182,7 +182,7 @@ Arbiter.Controls.Select = (function(){
 		registerMapListeners: function(){
 			onAddLayer();
 			onRemoveLayer();
-			onDoneLoadingLayers();
+			//onDoneLoadingLayers();
 		}
 	};
 })();

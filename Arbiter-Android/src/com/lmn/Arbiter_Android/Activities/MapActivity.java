@@ -181,7 +181,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     		}else if(ArbiterState.getState().isSettingAOI()){
     			updateProjectAOI();
     		}else{
-    			if(!arbiterProject.isSameProject()){
+    			if(!arbiterProject.isSameProject(getApplicationContext())){
         			Map.getMap().resetWebApp(cordovaWebView);
         			arbiterProject.makeSameProject();
         		}

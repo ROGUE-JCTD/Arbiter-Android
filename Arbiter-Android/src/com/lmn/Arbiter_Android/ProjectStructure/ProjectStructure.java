@@ -53,6 +53,8 @@ public class ProjectStructure {
 		
 		if(projectCreated){
 			insertDefaultProjectInfo(context, defaultName);
+			
+			ArbiterProject.getArbiterProject().resetDefaultProject(true);
 		}
 		
 		return projectCreated;
@@ -93,10 +95,10 @@ public class ProjectStructure {
 		}
 		
 		// Create the application database inside the folder
-		createProjectDatabase(context, projectName);
+		createProjectDatabase(context, projectName, ensureProjectExists);
 		
 		// Create the feature database inside the folder
-		createFeatureDatabase(context, projectName);
+		createFeatureDatabase(context, projectName, ensureProjectExists);
 		
 		return createdNewProject;
 	}
@@ -183,12 +185,14 @@ public class ProjectStructure {
 		return getProjectsRoot(context) + File.separator + projectName;
 	}
 	
-	private void createProjectDatabase(Context context, String projectName){
-		ProjectDatabaseHelper.getHelper(context, getProjectPath(context, projectName));
+	private void createProjectDatabase(Context context, String projectName, boolean ensureProjectExists){
+		ProjectDatabaseHelper.getHelper(context, 
+				getProjectPath(context, projectName), ensureProjectExists);
 	}
 	
-	private void createFeatureDatabase(Context context, String projectName){
-		FeatureDatabaseHelper.getHelper(context, getProjectPath(context, projectName));
+	private void createFeatureDatabase(Context context, String projectName, boolean ensureProjectExists){
+		FeatureDatabaseHelper.getHelper(context, 
+				getProjectPath(context, projectName), ensureProjectExists);
 	}
 	
 	private boolean createProjectDirectory(Activity activity, String path){

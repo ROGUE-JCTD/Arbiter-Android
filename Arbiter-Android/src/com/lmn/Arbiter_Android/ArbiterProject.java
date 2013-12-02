@@ -47,6 +47,8 @@ public class ArbiterProject {
 	private ProgressDialog createProjectProgress;
 	private ProgressDialog addingLayersDialog;
 	
+	private boolean resetDefaultProject;
+	
 	public static ArbiterProject getArbiterProject(){
 		if(project == null){
 			project = new ArbiterProject();
@@ -133,12 +135,31 @@ public class ArbiterProject {
 		return openProjectName != null;
 	}
 	
-	public boolean isSameProject(){
-		return oldProjectName == openProjectName;
+	public boolean isDefaultProject(Context context){
+		String defaultName = context.getResources().
+				getString(R.string.default_project_name);
+		
+		return openProjectName.equals(defaultName);
+	}
+	
+	public boolean isSameProject(Context context){
+		boolean isSameProject = oldProjectName == openProjectName;
+		
+		if(isSameProject && 
+				// it is the default project and the default
+				// project has been reset, so it's not the 
+				// same project.
+				isDefaultProject(context) && resetDefaultProject){
+			
+			return false;
+		}
+		
+		return isSameProject;
 	}
 	
 	public void makeSameProject(){	
 		oldProjectName = openProjectName;
+		resetDefaultProject = false;
 	}
 	
 	public void createNewProject(String name){
@@ -271,5 +292,9 @@ public class ArbiterProject {
 	public void showCreateProjectProgress(Activity activity, String title, String message){
 		createProjectProgress = ProgressDialog.show(activity, 
 				title, message, true);
+	}
+	
+	public void resetDefaultProject(boolean reset){
+		this.resetDefaultProject = reset;
 	}
 }

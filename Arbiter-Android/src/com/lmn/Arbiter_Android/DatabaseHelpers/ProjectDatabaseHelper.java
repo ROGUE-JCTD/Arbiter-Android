@@ -25,16 +25,20 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 	public static ProjectDatabaseHelper getHelper(Context context, String path){
 		if(helper == null){
 			helper = new ProjectDatabaseHelper(context, path);
-		}else{
-			// If the path is different, the project got switched
-			// so close the db connection, and get a new connection
-			if(!path.equals(helper.getCurrentPath())){
-				helper.close();
-				helper = new ProjectDatabaseHelper(context, path);
-			}
 		}
 		
 		return helper;
+	}
+	
+	public static ProjectDatabaseHelper getHelper(Context context, String path, boolean reset){
+		if(helper != null && 
+				// path to the db isn't the same or resetting 
+				(!path.equals(helper.getCurrentPath()) || reset)){
+			
+			resetConnection(context, path);
+		}
+		
+		return getHelper(context, path);
 	}
 	
 	@Override
@@ -59,6 +63,13 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 		if(!db.isReadOnly()){
 			// Enable foreign key constraints
 			db.execSQL("PRAGMA foreign_keys=ON;");
+		}
+	}
+	
+	private static void resetConnection(Context context, String path){
+		if(helper != null){
+			helper.close();
+			helper = new ProjectDatabaseHelper(context, path);
 		}
 	}
 	

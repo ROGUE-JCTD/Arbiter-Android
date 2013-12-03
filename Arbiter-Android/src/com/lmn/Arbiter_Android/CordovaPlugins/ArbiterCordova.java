@@ -8,22 +8,13 @@ import org.json.JSONException;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.BaseClasses.Project;
-import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
-import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
-import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
+import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 
 public class ArbiterCordova extends CordovaPlugin{
 	private static final String TAG = "ArbiterCordova";
@@ -83,10 +74,34 @@ public class ArbiterCordova extends CordovaPlugin{
 			errorAddingLayers();
 			
 			return true;
+		}else if("featureSelected".equals(action)){
+			String featureType = args.getString(0);
+			String id = args.getString(1);
+			
+			featureSelected(featureType, id);
+			
+			return true;
 		}
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
+	}
+	
+	private void featureSelected(String featureType, String id){
+		Log.w(TAG, TAG + ".featureSelected: featureType = " 
+				+ featureType + ", id = " + id);
+		FragmentActivity activity;
+		
+		try {
+			activity = (FragmentActivity) cordova.getActivity();
+		} catch (ClassCastException e){
+			e.printStackTrace();
+			throw new ClassCastException(cordova.getActivity().toString() 
+					+ " must be an instance of FragmentActivity");
+		}
+		
+		FeatureHelper helper = new FeatureHelper(activity, featureType, id);
+		helper.displayFeatureDialog();
 	}
 	
 	private void doneAddingLayers(){

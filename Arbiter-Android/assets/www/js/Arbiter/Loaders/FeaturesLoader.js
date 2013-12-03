@@ -3,6 +3,13 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 	
 	var wktFormatter = new OpenLayers.Format.WKT();
 	
+	var addMetadata = function(dbFeature, olFeature){
+		olFeature.metadata = {};
+		
+		olFeature.metadata[Arbiter.FeatureTableHelper.ID] = 
+			dbFeature[Arbiter.FeatureTableHelper.ID]; 
+	};
+	
 	var addAttributes = function(schema, dbFeature, olFeature){
 		olFeature.attributes = {};
 		
@@ -28,6 +35,8 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 		}
 		
 		addAttributes(schema, dbFeature, olFeature);
+		
+		addMetadata(dbFeature, olFeature);
 		
 		olLayer.addFeatures([olFeature]);
 	};

@@ -1,4 +1,5 @@
 Arbiter.FeatureTableHelper = (function(){
+	
 	var wktFormatter = new OpenLayers.Format.WKT();
 	var loadedCount = 0;
 	var layersCount = 0;
@@ -40,6 +41,7 @@ Arbiter.FeatureTableHelper = (function(){
 	};
 	
 	return {
+		ID : "arbiter_id",
 		
 		/**
     	 * Create the table
@@ -63,7 +65,7 @@ Arbiter.FeatureTableHelper = (function(){
     	createTable: function(tx, schema, onSuccess, onFailure){
     		var sql = "CREATE TABLE IF NOT EXISTS "
     			+ schema.getFeatureType() + " ("
-    			+ "arbiter_id integer primary key, "
+    			+ this.ID + " integer primary key, "
     			+ schema.getGeometryName() + " text not null";
     		
     		var attributes = schema.getAttributes();
@@ -237,6 +239,8 @@ Arbiter.FeatureTableHelper = (function(){
 		
 		// layer is from the results of a query with the sqlite plugin
 		getLayerSchema: function(tx, row, layer, onSuccess, onFailure){
+			var context = this;
+			
 			var helper = Arbiter.GeometryColumnsHelper;
 			var layersHelper = Arbiter.LayersHelper;
 			
@@ -265,8 +269,11 @@ Arbiter.FeatureTableHelper = (function(){
 				
 				for(var i = 0; i < res.rows.length; i++){
 					row = res.rows.item(i);
-					attributes.push(new Arbiter.Util.Attribute(row.name, 
-							row.type, row.notnull));
+					
+					if(row.name !== context.ID && row.name !== geometryName){
+						attributes.push(new Arbiter.Util.Attribute(row.name, 
+								row.type, row.notnull));
+					}
 				}
 				
 				var schema = new Arbiter.Util.LayerSchema(url,

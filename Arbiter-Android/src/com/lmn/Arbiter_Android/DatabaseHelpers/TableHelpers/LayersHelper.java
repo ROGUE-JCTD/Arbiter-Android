@@ -54,6 +54,8 @@ public class LayersHelper implements BaseColumns{
 	}
 	
 	public ArrayList<Layer> getAll(SQLiteDatabase db){
+		Util util = new Util();
+		
 		// Projection - columns to get back
 		String[] columns = {
 			LAYERS_TABLE_NAME + "." + _ID, // 0
@@ -77,7 +79,7 @@ public class LayersHelper implements BaseColumns{
 		for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 			layers.add(new Layer(cursor.getInt(0),
 					cursor.getString(1), cursor.getInt(2), null, null, cursor.getString(3), 
-					cursor.getString(4), Util.convertIntToBoolean(cursor.getInt(5))));
+					cursor.getString(4), util.convertIntToBoolean(cursor.getInt(5))));
 		}
 		
 		cursor.close();

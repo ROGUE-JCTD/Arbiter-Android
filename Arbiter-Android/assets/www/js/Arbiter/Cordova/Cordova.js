@@ -62,6 +62,19 @@ Arbiter.Cordova = (function() {
 		// TODO: Right the native method and then call here
 		updateFeatureData : function(featureType, features) {
 			// make call to plugin passing the featureType and features
+		},
+		
+		displayFeatureDialog : function(featureType, id){
+			console.log("displayFeatureDialog: featureType = " + 
+					featureType + ", id = " + id);
+			
+			if(featureType === null || featureType === undefined
+					|| id === undefined || id === null){
+				return;
+			}
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"featureSelected", [featureType, id])
 		}
 	};
 })();

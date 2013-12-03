@@ -4,6 +4,21 @@ Arbiter.Controls.Select = (function(){
 	
 	var selectController = null;
 	
+	var initSelectController = function(){
+		selectController = new OpenLayers.Control.SelectFeature(vectorLayers, {
+			clickout: false,
+			toggle: true,
+			onSelect: function(feature){
+				console.log("feature selected!: ", feature);
+				
+				Arbiter.Cordova.displayFeatureDialog(
+						feature.layer.protocol.featureType,
+						feature.metadata[Arbiter.FeatureTableHelper.ID]
+				);
+			}
+		});
+	};
+	
 	var _attachToMap = function(){
 		if(selectController !== null){
 			var map = Arbiter.Map.getMap();
@@ -29,10 +44,7 @@ Arbiter.Controls.Select = (function(){
 			
 			// If the selectController is null, initialize it, attach it to the map and activate it
 			if(selectController === null){
-				selectController = new OpenLayers.Control.SelectFeature(vectorLayers, {
-					clickout: false,
-					toggle: true
-				});
+				initSelectController();
 				
 				_attachToMap();
 			}else{

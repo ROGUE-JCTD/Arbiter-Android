@@ -1,5 +1,7 @@
 package com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers;
 
+import java.util.HashMap;
+
 import com.lmn.Arbiter_Android.BaseClasses.GeometryColumn;
 
 import android.content.ContentValues;
@@ -40,7 +42,7 @@ public class GeometryColumnsHelper implements BaseColumns {
 		db.execSQL(sql);
 	}
 
-	public GeometryColumn[] getAll(SQLiteDatabase db) {
+	public HashMap<String, GeometryColumn> getAll(SQLiteDatabase db) {
 		// Projection - columns to get back
 		String[] columns = { _ID, // 0
 				FEATURE_TABLE_NAME, // 1
@@ -56,16 +58,15 @@ public class GeometryColumnsHelper implements BaseColumns {
 		Cursor cursor = db.query(GEOMETRY_COLUMNS_TABLE_NAME, columns, null,
 				null, null, null, orderBy);
 
-		GeometryColumn[] geometryColumns = new GeometryColumn[cursor.getCount()];
-
-		int i = 0;
+		HashMap<String, GeometryColumn> geometryColumns = 
+				new HashMap<String, GeometryColumn>(cursor.getCount());
+		
 		// Traverse the cursors to populate the projects array
 		for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-			geometryColumns[i] = new GeometryColumn(cursor.getLong(0),
+			geometryColumns.put(cursor.getString(1), new GeometryColumn(cursor.getLong(0),
 					cursor.getString(1), cursor.getString(2),
 					cursor.getString(3), cursor.getString(4),
-					cursor.getString(5));
-			i++;
+					cursor.getString(5)));
 		}
 
 		cursor.close();

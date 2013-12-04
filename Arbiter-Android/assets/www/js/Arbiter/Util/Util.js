@@ -54,6 +54,15 @@ Arbiter.Util = (function(){
 			}
 			
 			return false;
+		},
+		
+		layerIsEditable: function(olLayer){
+			if((olLayer instanceof OpenLayers.Layer.Vector)
+					&& !(olLayer instanceof OpenLayers.Layer.Vector.RootContainer)){
+				return true;
+			}
+			
+			return false;
 		}
 	};
 })();

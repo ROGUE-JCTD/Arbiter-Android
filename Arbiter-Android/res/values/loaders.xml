@@ -7,4 +7,5 @@
 	<item type="id" name="loader_layers" />
 	<item type="id" name="loader_map" />
 	<item type="id" name="loader_aoi_map" />
+	<item type="id" name="loader_insert_feature_dialog" />
 </resources>

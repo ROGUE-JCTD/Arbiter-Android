@@ -8,16 +8,16 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
-import com.lmn.Arbiter_Android.ListAdapters.LayerListAdapter;
+import com.lmn.Arbiter_Android.ListAdapters.ArbiterAdapter;
 import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
 
 public class LayerLoaderCallbacks implements LoaderManager.LoaderCallbacks<ArrayList<Layer>>{
 
-	private LayerListAdapter layerAdapter;
+	private ArbiterAdapter<ArrayList<Layer>> layerAdapter;
 	private FragmentActivity activity;
 	
 	public LayerLoaderCallbacks(FragmentActivity activity, 
-			LayerListAdapter adapter, int loaderId){
+			ArbiterAdapter<ArrayList<Layer>> adapter, int loaderId){
 		this.layerAdapter = adapter;
 		this.activity = activity;
 		

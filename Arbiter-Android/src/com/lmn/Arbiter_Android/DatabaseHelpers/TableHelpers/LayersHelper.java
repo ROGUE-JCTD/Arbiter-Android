@@ -1,6 +1,7 @@
 package com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,13 +11,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.lmn.Arbiter_Android.Util;
+import com.lmn.Arbiter_Android.BaseClasses.GeometryColumn;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
-import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
+import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
-import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class LayersHelper implements BaseColumns{
 	public static final String LAYERS_TABLE_NAME = "layers";
@@ -233,5 +234,48 @@ public class LayersHelper implements BaseColumns{
 		} finally {
 			db.endTransaction();
 		}
+	}
+	
+	private ArrayList<Layer> addServerInfo(ArrayList<Layer> layers, SparseArray<Server> servers){
+		Layer layer;
+		
+		for(int i = 0, count = layers.size(); i < count; i++){
+			layer = layers.get(i);
+			layer.setServerName(servers.get(layer.getServerId()).getName());
+		}
+		
+		return layers;
+	}
+	
+	private ArrayList<Layer> removeReadOnlyLayers(SQLiteDatabase featureDb, ArrayList<Layer> layers){
+		
+		// Layers entered into the geometry columns table are editable, so 
+		// get the table entries and remove a layer from the list of layers
+		// if they're not in the geometry columns table.
+		HashMap<String, GeometryColumn> geometryColumns = GeometryColumnsHelper.getHelper().getAll(featureDb);
+		
+		Layer layer;
+		
+		for(int count = layers.size(), i = count - 1, j = 0; i > j; i--){
+			layer = layers.get(i);
+			if(!geometryColumns.containsKey(layer.getFeatureType())){
+				layers.remove(i);
+			}
+		}
+		
+		return layers;
+	}
+	
+	public ArrayList<Layer> getEditableLayers(SQLiteDatabase appDb, 
+			SQLiteDatabase projectDb, SQLiteDatabase featureDb){
+		
+		SparseArray<Server> servers = 
+				ServersHelper.getServersHelper().getAll(appDb);
+		
+		ArrayList<Layer> layers = getAll(projectDb);
+		
+		layers = addServerInfo(layers, servers);
+		
+		return removeReadOnlyLayers(featureDb, layers);
 	}
 }

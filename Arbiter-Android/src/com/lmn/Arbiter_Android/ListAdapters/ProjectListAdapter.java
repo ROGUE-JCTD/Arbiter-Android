@@ -9,7 +9,6 @@ import com.lmn.Arbiter_Android.Dialog.Dialogs.SwitchProjectDialog;
 import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.support.v4.app.DialogFragment;
@@ -22,16 +21,14 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-public class ProjectListAdapter extends BaseAdapter{
+public class ProjectListAdapter extends BaseAdapter implements ArbiterAdapter<Project[]>{
 	private Project[] items;
 	private final LayoutInflater inflater;
-	private final Context context;
 	private final ProjectsActivity activity;
 	
 	public ProjectListAdapter(ProjectsActivity activity){
 			this.inflater = LayoutInflater.from(activity.getApplicationContext());
 			this.items = new Project[0];
-			this.context = activity.getApplicationContext();
 			this.activity = activity;
 	}
 	

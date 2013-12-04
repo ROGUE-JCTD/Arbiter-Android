@@ -4,9 +4,6 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
-import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
@@ -24,7 +21,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-public class ServerListAdapter extends BaseAdapter{
+public class ServerListAdapter extends BaseAdapter implements ArbiterAdapter<SparseArray<Server>>{
 	private MapChangeListener mapChangeListener;
 	
 	private SparseArray<Server> items;

@@ -36,6 +36,8 @@ public class Map{
 		public void unselect();
 		
 		public void cancelEditing();
+		
+		public void startInsertMode(String featureType, long serverId);
 	}
 	
 	public interface CordovaMap {
@@ -206,5 +208,16 @@ public class Map{
 				+ "Arbiter.Controls.Select.cancelSelection()'))";
 		
 		webview.loadUrl(url);
+	}
+	
+	public void startInsertMode(CordovaWebView webview,
+			String featureType, long serverId){
+		Log.w("Map", "Map.startInsertMode featureType = " 
+			+ featureType + ", serverId = " + Long.toString(serverId));
+		
+		/*String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Controls.Select.startInsertMode()'))";
+		
+		webview.loadUrl(url);*/
 	}
 }

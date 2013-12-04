@@ -16,7 +16,7 @@ import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-public class AddLayersListAdapter extends BaseAdapter {
+public class AddLayersListAdapter extends BaseAdapter implements ArbiterAdapter<ArrayList<Layer>>{
 	private ArrayList<Layer> items;
 	private ArrayList<Layer> checkedLayers;
 	private String includeDefaultLayer;

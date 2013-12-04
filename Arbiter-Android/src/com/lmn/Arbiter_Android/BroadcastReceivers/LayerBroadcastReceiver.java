@@ -1,15 +1,18 @@
 package com.lmn.Arbiter_Android.BroadcastReceivers;
 
-import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
+import java.util.ArrayList;
+
+import com.lmn.Arbiter_Android.BaseClasses.Layer;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.AsyncTaskLoader;
 
 public class LayerBroadcastReceiver extends BroadcastReceiver {
-	private LayersListLoader loader;
+	private AsyncTaskLoader<ArrayList<Layer>> loader;
 	
-	public LayerBroadcastReceiver(LayersListLoader layersListLoader){
+	public LayerBroadcastReceiver(AsyncTaskLoader<ArrayList<Layer>> layersListLoader){
 		this.loader = layersListLoader;
 	}
 	

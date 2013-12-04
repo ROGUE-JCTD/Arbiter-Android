@@ -22,6 +22,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.InsertFeatureDialog;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
@@ -30,6 +31,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -159,11 +161,21 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
         return true;
     }
     
+    private void openInsertFeatureDialog(){
+    	String title = getResources().getString(R.string.insert_feature_title);
+    	String cancel = getResources().getString(android.R.string.cancel);
+    	
+    	DialogFragment frag = InsertFeatureDialog.newInstance(title, cancel);
+    	
+    	frag.show(getSupportFragmentManager(), InsertFeatureDialog.TAG);
+    }
+    
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
     	switch (item.getItemId()) {
     		case R.id.action_new_feature:
-    			//menuEvents.activateAddFeatures();;
+    			openInsertFeatureDialog();
+    			
     			return true;
         	
     		case R.id.action_servers:
@@ -364,6 +376,11 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
 				Map.getMap().cancelSelection(cordovaWebView);
 			}
 		});
+	}
+	
+	@Override
+	public void startInsertMode(String featureType, long serverId){
+		Map.getMap().startInsertMode(cordovaWebView, featureType, serverId);
 	}
 	
 	/**

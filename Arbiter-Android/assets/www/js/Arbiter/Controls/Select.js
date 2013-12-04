@@ -107,8 +107,7 @@ Arbiter.Controls.Select = (function(){
 		
 		map.events.register("addlayer", Arbiter.Controls.Select, function(event){
 			if(event && event.layer 
-					&& (event.layer instanceof OpenLayers.Layer.Vector)
-					&& !(event.layer instanceof OpenLayers.Layer.Vector.RootContainer)){
+					&& Arbiter.Util.layerIsEditable(event.layer)){
 				
 				vectorLayers.push(event.layer);
 				
@@ -123,8 +122,7 @@ Arbiter.Controls.Select = (function(){
 		map.events.register("removelayer", Arbiter.Controls.Select, function(event){
 			
 			if(event && event.layer 
-					&& (event.layer instanceof OpenLayers.Layer.Vector)
-					&& !(event.layer instanceof OpenLayers.Layer.Vector.RootContainer)){
+					&& Arbiter.Util.layerIsEditable(event.layer)){
 				
 				removeFromVectorLayers(event.layer);
 				

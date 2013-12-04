@@ -26,6 +26,28 @@ Arbiter.Util = (function(){
 			};
 		},
 		
+		/**
+		 * layer names are in the following format:
+		 * 		<id>-<wfs or wms>
+		 * so split on "-" and return the first part.
+		 */
+		getLayerId: function(olLayer){
+			return olLayer.name.split("-")[0];
+		},
+		
+		getFeatureInNativeProjection: function(geometrySRID, nativeSRID, feature){
+			if(geometrySRID === nativeSRID){
+				return feature;
+			}
+			
+			var clonedFeature = feature.clone();
+			clonedFeature.geometry.transform(
+					new OpenLayers.Projection(geometrySRID),
+					new OpenLayers.Projection(nativeSRID));
+			
+			return clonedFeature;
+		},
+		
 		funcExists: function(func){
 			if(func !== undefined && func !== null){
 				return true;

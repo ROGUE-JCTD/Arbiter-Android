@@ -64,7 +64,7 @@ public class ProjectsActivity extends FragmentActivity{
 	public void onResume(){
 		super.onResume();
 		
-		if(ArbiterState.getState().isCreatingProject()){
+		if(ArbiterState.getArbiterState().isCreatingProject()){
 			finish();
 		}
 	}

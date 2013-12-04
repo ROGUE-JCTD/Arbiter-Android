@@ -4,17 +4,41 @@ import android.content.ContentValues;
 
 public class Feature {
 	private String id;
+	private String featureType;
 	private String geometryName;
 	private ContentValues attributes;
 	
-	public Feature(String id, String geometryName, ContentValues attributes){
+	public Feature(String id, String featureType, 
+			String geometryName, ContentValues attributes){
+		
 		this.id = id;
+		this.featureType = featureType;
 		this.geometryName = geometryName;
 		this.attributes = attributes;
 	}
 	
+	/*public Feature(Feature feature){
+		this.id = feature.getId();
+		this.geometryName = feature.getGeometryName();
+		this.attributes = copyAttributes(feature.getAttributes());
+	}
+	
+	private ContentValues copyAttributes(ContentValues _attributes){
+		ContentValues attributes = new ContentValues();
+		
+		for(String key : _attributes.keySet()){
+			attributes.put(key, _attributes.getAsString(key));
+		}
+		
+		return attributes;
+	}*/
+	
 	public String getId(){
 		return this.id;
+	}
+	
+	public String getFeatureType(){
+		return this.featureType;
 	}
 	
 	public String getGeometryName(){

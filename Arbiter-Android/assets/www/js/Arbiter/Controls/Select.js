@@ -4,6 +4,21 @@ Arbiter.Controls.Select = (function(){
 	
 	var selectController = null;
 	
+	var selectedFeature = null;
+	
+	var modifyControl = null;
+	
+	var originalGeometry = null;
+	
+	var saveOriginalGeometry = function(){
+		if(selectedFeature === null 
+				|| selectedFeature === undefined){
+			return;
+		}
+		
+		originalGeometry = selectedFeature.geometry.clone();
+	};
+	
 	var initSelectController = function(){
 		selectController = new OpenLayers.Control.SelectFeature(vectorLayers, {
 			clickout: false,
@@ -11,10 +26,33 @@ Arbiter.Controls.Select = (function(){
 			onSelect: function(feature){
 				console.log("feature selected!: ", feature);
 				
-				Arbiter.Cordova.displayFeatureDialog(
-						feature.layer.protocol.featureType,
-						feature.metadata[Arbiter.FeatureTableHelper.ID]
-				);
+				// If the selectedFeature hasn't been
+				// cleared out yet, then it means this was
+				// the reselect of the feature in
+				// endModifyMode()
+				if(selectedFeature === null 
+						|| selectedFeature === undefined){
+					
+					selectedFeature = feature;
+					
+					saveOriginalGeometry();
+					
+					Arbiter.Cordova.displayFeatureDialog(
+							feature.layer.protocol.featureType,
+							feature.metadata[Arbiter.FeatureTableHelper.ID]
+					);
+				}
+			},
+			onUnselect: function(){
+				console.log("feature unselected");
+				
+				// If the modifyController is null,
+				// make sure selectedFeature is
+				// cleared out.
+				if(modifyControl === null){
+					selectedFeature = null;
+					originalGeometry = null;
+				}
 			}
 		});
 	};
@@ -186,6 +224,58 @@ Arbiter.Controls.Select = (function(){
 		});
 	};
 	
+	var startModifyMode = function(){
+		if(selectedFeature === null 
+				|| selectedFeature === undefined){
+			return;
+		}
+		
+		modifyControl = new Arbiter.Controls.Modify(
+				selectedFeature.layer, selectedFeature);
+		
+		selectController.unselectAll();
+		
+		selectController.deactivate();
+		
+		modifyControl.activate();
+	};
+	
+	var endModifyMode = function(){
+		if(selectedFeature === null 
+				|| selectedFeature === undefined){
+			return;
+		}
+		
+		// Deactivate the modifyControl
+		modifyControl.deactivate();
+		
+		modifyControl = null;
+		
+		// Reactivate the selectController
+		selectController.activate();
+		
+		// Reselect the selectedFeature
+		selectController.select(selectedFeature);
+	};
+	
+	var restoreOriginalGeometry = function(){
+		if(originalGeometry === null || originalGeometry === undefined){
+			throw "Arbiter.Controls.Select - couldn't restore original"
+			+ " geometry because originalGeometry is " + originalGeometry;
+		} 
+		
+		if(selectedFeature === null || selectedFeature === undefined){
+			
+			throw "Arbiter.Controls.Select - couldn't restore original"
+				+ " geometry because selectedFeature is " + selectedFeature;
+		}
+		
+		// Get the center of the geometry
+		var centroid = originalGeometry.getCentroid();
+		
+		selectedFeature.move(new OpenLayers.LonLat(centroid.x, centroid.y));
+	};
+	
 	return {
 		getSelectController: function(){
 			return selectController;
@@ -195,6 +285,37 @@ Arbiter.Controls.Select = (function(){
 			onAddLayer();
 			onRemoveLayer();
 			//onDoneLoadingLayers();
+		},
+		
+		enterModifyMode: function(){
+			startModifyMode();
+		},
+		
+		exitModifyMode: function(){
+			endModifyMode();
+		},
+		
+		unselect: function(){
+			selectController.unselectAll();
+		},
+		
+		cancelEdit: function(){
+			restoreOriginalGeometry();
+			
+			this.exitModifyMode();
+		},
+		
+		/**
+		 * Unselect the feature
+		 */
+		cancelSelection: function(){
+			restoreOriginalGeometry();
+			
+			this.unselect();
+		},
+		
+		getSelectedFeature: function(){
+			return selectedFeature;
 		}
 	};
 })();

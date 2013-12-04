@@ -26,6 +26,15 @@
 	<string name="longitude">Longitude</string>
 	<string name="example_longitude">ex. </string>
 	<string name="example_latitude">ex. </string>
+	<string name="edit_attributes">Edit</string>
+	<string name="done_editing">Done</string>
+	<string name="delete_feature">Delete</string>
+	<string name="edit_feature">Map</string>
+	<string name="cancel_editing">Cancel</string>
+	<string name="update_feature_title">Update</string>
+	<string name="update_feature_msg">Update the feature?</string>
+	<string name="updating">Updating</string>
+	<string name="updating_msg">Update in progress&#8230;</string>
 	
     <!-- MAP ACTIVITY STRINGS -->
     <string name="map_activity_name">Arbiter</string>

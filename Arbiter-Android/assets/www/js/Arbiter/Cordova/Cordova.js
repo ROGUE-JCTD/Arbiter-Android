@@ -1,4 +1,5 @@
 Arbiter.Cordova = (function() {
+	var wktFormatter = new OpenLayers.Format.WKT();
 	
 	return {
 
@@ -75,6 +76,28 @@ Arbiter.Cordova = (function() {
 			
 			cordova.exec(null, null, "ArbiterCordova",
 					"featureSelected", [featureType, id])
+		},
+		
+		getUpdatedGeometry: function(){
+			var selectedFeature = Arbiter.Controls.Select.getSelectedFeature();
+			
+			if(selectedFeature !== null && selectedFeature !== undefined){
+				
+				var schemas = Arbiter.getLayerSchemas();
+				
+				var schema = schemas[Arbiter.Util.getLayerId(selectedFeature.layer)];
+				
+				var srid = Arbiter.Map.getMap().projection.projCode;
+				
+				var updatedGeometry = wktFormatter.write(
+						Arbiter.Util.getFeatureInNativeProjection(srid,
+								schema.getSRID(), selectedFeature));
+				
+				Arbiter.Controls.Select.exitModifyMode();
+				
+				cordova.exec(null, null, "ArbiterCordova",
+						"updatedGeometry", [updatedGeometry]);
+			}
 		}
 	};
 })();

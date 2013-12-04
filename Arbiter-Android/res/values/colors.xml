@@ -6,4 +6,6 @@
     <color name="aoi_background">#B8000000</color>
     <color name="aoi_title_bar">#FFFF0000</color>
     <color name="holo_blue_light">#ff33b5e5</color>
+    <color name="red">#FF0000</color>
+    <color name="green">#00FF00</color>
 </resources>

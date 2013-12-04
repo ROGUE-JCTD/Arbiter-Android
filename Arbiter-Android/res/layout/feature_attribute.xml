@@ -27,6 +27,8 @@
 	        android:maxLength="2000"
 	        android:scrollHorizontally="false"
 	        android:scrollbars="vertical"
-	        android:gravity="top|left" />
+	        android:gravity="top|left"
+	        android:focusable="false"
+	        android:focusableInTouchMode="false" />
 
 </LinearLayout>

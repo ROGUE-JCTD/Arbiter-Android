@@ -8,13 +8,16 @@ import org.json.JSONException;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
+import com.lmn.Arbiter_Android.Map.Map;
 
 public class ArbiterCordova extends CordovaPlugin{
 	private static final String TAG = "ArbiterCordova";
@@ -81,15 +84,21 @@ public class ArbiterCordova extends CordovaPlugin{
 			featureSelected(featureType, id);
 			
 			return true;
+		}else if("updatedGeometry".equals(action)){
+			String updatedGeometry = args.getString(0);
+			
+			updateGeometry(updatedGeometry);
 		}
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
 	}
 	
-	private void featureSelected(String featureType, String id){
-		Log.w(TAG, TAG + ".featureSelected: featureType = " 
-				+ featureType + ", id = " + id);
+	/**
+	 * Cast the activity to a FragmentActivity
+	 * @return
+	 */
+	private FragmentActivity getFragmentActivity(){
 		FragmentActivity activity;
 		
 		try {
@@ -100,8 +109,48 @@ public class ArbiterCordova extends CordovaPlugin{
 					+ " must be an instance of FragmentActivity");
 		}
 		
-		FeatureHelper helper = new FeatureHelper(activity, featureType, id);
-		helper.displayFeatureDialog();
+		return activity;
+	}
+	
+	private void featureSelected(String featureType, String id){
+		FeatureHelper helper = new FeatureHelper(getFragmentActivity());
+		helper.displayFeatureDialog(featureType, id);
+	}
+	
+	/**
+	 * Update the geometry of the feature being edited.
+	 * @param updatedGeometry
+	 */
+	private void updateFeaturesGeometry(String updatedGeometry){
+		Feature feature = ArbiterState
+				.getArbiterState().isEditingFeature();
+		
+		ContentValues attributes = feature.getAttributes();
+		
+		attributes.put(feature.getGeometryName(), updatedGeometry);
+	}
+	
+	/**
+	 * Notify the MapListener that that the feature is done,
+	 * being edited.
+	 */
+	private void notifyDoneEditingFeature(){
+		try{
+			((Map.MapChangeListener) cordova.getActivity()).doneEditingFeature();
+		} catch(ClassCastException e){
+			e.printStackTrace();
+			throw new ClassCastException(cordova.getActivity().toString() 
+					+ " must be an instance of Map.MapChangeListener");
+		}
+	}
+	
+	private void updateGeometry(String updatedGeometry){
+		updateFeaturesGeometry(updatedGeometry);
+		
+		FeatureHelper helper = new FeatureHelper(getFragmentActivity());
+		helper.displayWithUpdatedGeometry();
+		
+		notifyDoneEditingFeature();
 	}
 	
 	private void doneAddingLayers(){
@@ -157,7 +206,7 @@ public class ArbiterCordova extends CordovaPlugin{
 	 */
 	private void setProjectsAOI(final String aoi, final CallbackContext callbackContext){
 		
-		ArbiterState.getState().setNewAOI(aoi);
+		ArbiterState.getArbiterState().setNewAOI(aoi);
 		
 		callbackContext.success();
 		

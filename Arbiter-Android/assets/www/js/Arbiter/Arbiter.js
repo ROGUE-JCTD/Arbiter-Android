@@ -23,6 +23,10 @@ Arbiter = (function(){
 			return layerSchemas;
 		},
 		
+		/**
+		 * key is the id of the layer in the 
+		 * projects database
+		 */
 		putLayerSchema: function(key, schema){
 			layerSchemas[key] = schema;
 		},

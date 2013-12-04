@@ -1,8 +1,11 @@
 package com.lmn.Arbiter_Android;
 
+import com.lmn.Arbiter_Android.BaseClasses.Feature;
+
 public class ArbiterState {
 	private ArbiterProject arbiterProject;
 	private String newAOI;
+	private Feature feature;
 	
 	private ArbiterState(){
 		this.arbiterProject = ArbiterProject.getArbiterProject();
@@ -11,7 +14,7 @@ public class ArbiterState {
 	
 	private static ArbiterState arbiterState = null;
 	
-	public static ArbiterState getState(){
+	public static ArbiterState getArbiterState(){
 		if(arbiterState == null){
 			arbiterState = new ArbiterState();
 		}
@@ -33,5 +36,17 @@ public class ArbiterState {
 	
 	public boolean isSettingAOI(){
 		return newAOI != null;
+	}
+	
+	public void editingFeature(Feature feature){
+		this.feature = feature;
+	}
+	
+	public void doneEditingFeature(){
+		this.feature = null;
+	}
+	
+	public Feature isEditingFeature(){
+		return this.feature;
 	}
 }

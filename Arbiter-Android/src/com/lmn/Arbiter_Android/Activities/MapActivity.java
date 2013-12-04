@@ -13,8 +13,10 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.InsertProjectHelper;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
+import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
@@ -35,6 +37,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 
 public class MapActivity extends FragmentActivity implements CordovaInterface, Map.MapChangeListener, Map.CordovaMap{
     private ArbiterDialogs dialogs;
@@ -93,6 +96,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
      * Set listeners
      */
     private void setListeners(){
+    	final MapActivity activity = this;
+    	
     	ImageButton layersButton = (ImageButton) findViewById(R.id.layersButton);
     	
     	layersButton.setOnClickListener(new OnClickListener(){
@@ -108,6 +113,36 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     		@Override
     		public void onClick(View v){
     			Map.getMap().zoomToAOI(cordovaWebView);
+    		}
+    	});
+    	
+    	ImageButton cancelEditing = (ImageButton) findViewById(R.id.cancelButton);
+    	
+    	cancelEditing.setOnClickListener(new OnClickListener(){
+    		@Override
+    		public void onClick(View v){
+    			// Toggle the cancel and done buttons
+    			doneEditingFeature();
+    			
+    			// Exit modify mode
+    			Map.getMap().cancelEdit(cordovaWebView);
+    			
+    			// Open up the feature dialog for the selectedFeature
+    			Feature selectedFeature = ArbiterState.getArbiterState().isEditingFeature();
+    			
+    			FeatureHelper helper = new FeatureHelper(activity);
+    			
+    			helper.displayFeatureDialog(selectedFeature
+    					.getFeatureType(), selectedFeature.getId());
+    		}
+    	});
+    	
+    	ImageButton doneEditing = (ImageButton) findViewById(R.id.doneButton);
+    	
+    	doneEditing.setOnClickListener(new OnClickListener(){
+    		@Override
+    		public void onClick(View v){
+    			Map.getMap().getUpdatedGeometry(cordovaWebView);
     		}
     	});
     }
@@ -165,11 +200,12 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     @Override 
     protected void onResume(){
     	super.onResume();
+    	Log.w(TAG, TAG + " onResume");
     	
     	if(arbiterProject != null){
     		resetSavedExtent();
     		
-    		if(ArbiterState.getState().isCreatingProject()){
+    		if(ArbiterState.getArbiterState().isCreatingProject()){
     			arbiterProject.showCreateProjectProgress(
     					this, 
     					getResources().getString(R.string.create_project_progress),
@@ -178,7 +214,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     			
     			insertHelper = new InsertProjectHelper(this);
     			insertHelper.insert();
-    		}else if(ArbiterState.getState().isSettingAOI()){
+    		}else if(ArbiterState.getArbiterState().isSettingAOI()){
     			updateProjectAOI();
     		}else{
     			if(!arbiterProject.isSameProject(getApplicationContext())){
@@ -190,7 +226,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     }
     
     private void updateProjectAOI(){
-    	final String aoi = ArbiterState.getState().getNewAOI();
+    	final String aoi = ArbiterState.getArbiterState().getNewAOI();
 		
 		CommandExecutor.runProcess(new Runnable(){
 			@Override
@@ -211,7 +247,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
         PreferencesHelper.getHelper().update(helper.getWritableDatabase(),
         		context, ArbiterProject.AOI, aoi);
         
-        ArbiterState.getState().setNewAOI(null);
+        ArbiterState.getArbiterState().setNewAOI(null);
     }
     
     @Override
@@ -269,6 +305,63 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
 			@Override
 			public void run(){
 				Map.getMap().resetWebApp(cordovaWebView);
+			}
+		});
+	}
+	
+	private void toggleEditButtons(final boolean visible){
+		runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				RelativeLayout layout = (RelativeLayout) findViewById(R.id.editFeatureButtons);
+				
+				if(visible){
+					layout.setVisibility(View.VISIBLE);
+				}else{
+					layout.setVisibility(View.GONE);
+				}
+			}
+		});
+	}
+	
+	@Override
+	public void onEditFeature(final Feature feature){
+		runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				toggleEditButtons(true);
+				
+				Map.getMap().enterModifyMode(cordovaWebView);
+			}
+		});
+	}
+	
+	@Override
+	public void doneEditingFeature(){
+		runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				toggleEditButtons(false);
+			}
+		});
+	}
+	
+	@Override
+	public void unselect(){
+		runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				Map.getMap().unselect(cordovaWebView);
+			}
+		});
+	}
+	
+	@Override
+	public void cancelEditing(){
+		runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				Map.getMap().cancelSelection(cordovaWebView);
 			}
 		});
 	}

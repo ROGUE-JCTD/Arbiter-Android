@@ -5,33 +5,34 @@ import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
+import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
-import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class FeatureHelper {
 	private FragmentActivity activity;
-	private String featureType;
-	private String id;
 	
-	public FeatureHelper(FragmentActivity activity, String featureType, String id){
+	public FeatureHelper(FragmentActivity activity){
 		this.activity = activity;
-		this.featureType = featureType;
-		this.id = id;
 	}
 	
-	public void displayFeatureDialog(){
+	public void displayWithUpdatedGeometry(){
+		displayDialog(ArbiterState.getArbiterState()
+				.isEditingFeature(), true);
+	}
+	
+	public void displayFeatureDialog(String featureType, String id){
 		SQLiteDatabase db = getFeatureDatabase();
 		
 		Feature feature = getFeature(db, featureType, id);
 		
-		displayDialog(feature);
+		displayDialog(feature, false);
 	}
 	
 	private SQLiteDatabase getFeatureDatabase(){
@@ -50,18 +51,16 @@ public class FeatureHelper {
 				getFeature(db, id, featureType);
 	}
 	
-	private void displayDialog(Feature feature){
+	private void displayDialog(Feature feature, boolean startInEditMode){
 		Resources resources = activity.getResources();
 		
 		String title = resources.getString(R.string.feature_dialog_title);
-		String ok = resources.getString(android.R.string.ok);
-		String cancel = resources.getString(android.R.string.cancel);
 		
 		FeatureDialog dialog = FeatureDialog.newInstance(title, 
-				ok, cancel, R.layout.feature_dialog, feature);
+				R.layout.feature_dialog, feature, startInEditMode);
 		
 		FragmentManager manager = activity.getSupportFragmentManager();
 		
-		dialog.show(manager, "featureDialog");
+		dialog.show(manager, FeatureDialog.TAG);
 	}
 }

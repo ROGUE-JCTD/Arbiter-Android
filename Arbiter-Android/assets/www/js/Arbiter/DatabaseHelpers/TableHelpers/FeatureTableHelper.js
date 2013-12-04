@@ -3,20 +3,7 @@ Arbiter.FeatureTableHelper = (function(){
 	var wktFormatter = new OpenLayers.Format.WKT();
 	var loadedCount = 0;
 	var layersCount = 0;
-	
-	var getFeatureInNativeProjection = function(geometrySRID, nativeSRID, feature){
-		if(geometrySRID === nativeSRID){
-			return feature;
-		}
 		
-		var clonedFeature = feature.clone();
-		clonedFeature.geometry.transform(
-				new OpenLayers.Projection(geometrySRID),
-				new OpenLayers.Projection(nativeSRID));
-		
-		return clonedFeature;
-	};
-	
 	var incrementLoadedCount = function(){
 		loadedCount++;
 	};
@@ -144,7 +131,7 @@ Arbiter.FeatureTableHelper = (function(){
     		var values = [];
     		var attributeName = null;
     		
-    		values.push(wktFormatter.write(getFeatureInNativeProjection(srid, 
+    		values.push(wktFormatter.write(Arbiter.Util.getFeatureInNativeProjection(srid, 
     				schema.getSRID(), feature)));
     		
     		for(var i = 0; i < attributes.length; i++){

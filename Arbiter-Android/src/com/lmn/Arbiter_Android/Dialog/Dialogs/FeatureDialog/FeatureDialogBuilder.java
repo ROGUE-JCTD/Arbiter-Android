@@ -1,4 +1,6 @@
-package com.lmn.Arbiter_Android.Dialog.Dialogs;
+package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
+
+import java.util.ArrayList;
 
 import android.app.Activity;
 import android.content.ContentValues;
@@ -17,11 +19,14 @@ public class FeatureDialogBuilder {
 	private View view;
 	private Feature feature;
 	private LayoutInflater inflater;
+	private ArrayList<EditText> editTexts;
 	
 	public FeatureDialogBuilder(Activity activity, View view, Feature feature){
 		this.activity = activity;
 		this.view = view;
 		this.feature = feature;
+		this.editTexts = new ArrayList<EditText>();
+		
 		inflater = activity.getLayoutInflater();
 	}
 	
@@ -35,7 +40,6 @@ public class FeatureDialogBuilder {
 		for(String key : attributes.keySet()){
 			value = attributes.getAsString(key);
 			
-			Log.w("FeatureDialogBuilder", "FeatureDialogBuilder: key = " + key + ", value = " + value);
 			//if(key.equals(geometryName)){
 		//		appendGeometry(value);
 		//	}else{
@@ -69,5 +73,22 @@ public class FeatureDialogBuilder {
 		}
 		
 		outer.addView(attributeView);
+		
+		editTexts.add(attributeValue);
+	}
+	
+	public boolean toggleEditTexts(){
+		EditText editText = null;
+		boolean focusable = false;
+		
+		for(int i = 0, count = editTexts.size(); i < count; i++){
+			editText = editTexts.get(i);
+			focusable = editText.isFocusable();
+			
+			editText.setFocusable(!focusable);
+			editText.setFocusableInTouchMode(!focusable);
+		}
+		
+		return !focusable;
 	}
 }

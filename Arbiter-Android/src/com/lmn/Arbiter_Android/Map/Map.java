@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
+import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.GeometryColumnsHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
@@ -27,6 +28,14 @@ public class Map{
 				String includeDefaultLayer, String defaultLayerVisibility);
 		
 		public void onServerDeleted(long serverId);
+
+		public void onEditFeature(Feature feature);
+		
+		public void doneEditingFeature();
+
+		public void unselect();
+		
+		public void cancelEditing();
 	}
 	
 	public interface CordovaMap {
@@ -153,6 +162,48 @@ public class Map{
 	public void resetWebApp(CordovaWebView webview){
 		String url = "javascript:app.waitForArbiterInit(new Function('"
 				+ "Arbiter.Cordova.resetWebApp()'))";
+		
+		webview.loadUrl(url);
+	}
+	
+	public void enterModifyMode(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Controls.Select.enterModifyMode()'))";
+		
+		webview.loadUrl(url);
+	}
+	
+	public void exitModifyMode(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Controls.Select.exitModifyMode()'))";
+		
+		webview.loadUrl(url);
+	}
+	
+	public void cancelEdit(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Controls.Select.cancelEdit()'))";
+		
+		webview.loadUrl(url);
+	}
+	
+	public void getUpdatedGeometry(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Cordova.getUpdatedGeometry()'))";
+		
+		webview.loadUrl(url);
+	}
+	
+	public void unselect(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Controls.Select.unselect()'))";
+		
+		webview.loadUrl(url);
+	}
+	
+	public void cancelSelection(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Controls.Select.cancelSelection()'))";
 		
 		webview.loadUrl(url);
 	}

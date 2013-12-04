@@ -61,7 +61,7 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface, M
 		View cancel = (View) findViewById(R.id.cancelButton);
 		final ArbiterProject arbiterProject = ArbiterProject.getArbiterProject();
         final AOIActivity activity = this;
-        final boolean isCreatingProject = ArbiterState.getState().isCreatingProject();
+        final boolean isCreatingProject = ArbiterState.getArbiterState().isCreatingProject();
         
         cancel.setOnClickListener(new OnClickListener(){
         	@Override

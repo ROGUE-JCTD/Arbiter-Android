@@ -69,7 +69,7 @@ public class ServerListAdapter extends BaseAdapter{
 			
 			if(((arbiterProject.includeDefaultLayer() != null) && 
 					!arbiterProject.includeDefaultLayer().equals("true")) 
-					|| (ArbiterState.getState().isCreatingProject())){
+					|| (ArbiterState.getArbiterState().isCreatingProject())){
 				servers.put(Server.DEFAULT_FLAG, new Server(Server.DEFAULT_SERVER_NAME, null, 
 						null, null, Server.DEFAULT_FLAG));
 			}

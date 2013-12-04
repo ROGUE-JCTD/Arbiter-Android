@@ -5,7 +5,6 @@ import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 public class FeaturesHelper{
 	private String ID = "arbiter_id";
@@ -58,7 +57,7 @@ public class FeaturesHelper{
 
 		cursor.close();
 
-		return new Feature(id, geometryColumn, attributes);
+		return new Feature(id, featureType, geometryColumn, attributes);
 	}
 	
 	private String getGeometryColumn(SQLiteDatabase db, String featureType) throws FeatureHelperException{

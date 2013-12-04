@@ -61,4 +61,35 @@
         android:layout_marginBottom="24dp" 
         android:padding="2dp"/>
     
+    <RelativeLayout
+        android:id="@+id/editFeatureButtons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone">
+        
+		<ImageButton
+	        android:id="@+id/cancelButton"
+	        android:src="@drawable/cancel"
+	        android:contentDescription="@string/cancel_editing"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentLeft="true"
+	        android:layout_alignParentTop="true"
+	        android:layout_marginTop="24dp"
+	        android:padding="0dp"/>
+	    
+	    <ImageButton
+	        android:id="@+id/doneButton"
+	        android:src="@drawable/checkmark"
+	        android:contentDescription="@string/done_editing"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_toRightOf="@id/cancelButton"
+	        android:layout_marginLeft="20dp"
+	        android:layout_marginTop="24dp"
+	        android:layout_alignParentTop="true"
+	        android:padding="8dp"/>
+    </RelativeLayout>
+    
 </RelativeLayout>

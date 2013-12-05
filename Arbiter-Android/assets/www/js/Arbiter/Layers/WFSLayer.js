@@ -1,5 +1,11 @@
 Arbiter.Layers.WFSLayer = (function(){
 	
+	var layerColors = ['aqua', 'yellow', 'teal',
+	                   'purple', 'fuchsia', 'lime',
+	                   'maroon', 'black', 'navy',
+	                   'olive', 'grey', 'red',
+	                   'green', 'silver', 'white' ];
+	
 	var createWFSProtocol = function(url, featureNamespace, geometryName,
 			featureType, srid, encodedCredentials) {
 
@@ -43,6 +49,36 @@ Arbiter.Layers.WFSLayer = (function(){
 		return saveStrategy;
 	};
 	
+	var getLayerColor = function(){
+		return layerColors[Arbiter.Map.getMap()
+		    .getNumLayers() % layerColors.length];
+	};
+	
+	var getStyleMap = function(geometryType){
+		var color = getLayerColor();
+		
+        var defaultStyleTable = OpenLayers.Util.applyDefaults({
+            fillColor: color,
+            strokeColor: color
+        }, OpenLayers.Feature.Vector.style["default"]);
+        
+        var selectStyleTable = OpenLayers.Util.applyDefaults({},
+        		OpenLayers.Feature.Vector.style["select"]);
+		
+		if(geometryType === "Point"){
+			defaultStyleTable.pointRadius = 18;
+            selectStyleTable.pointRadius = 18;
+		}else{
+			defaultStyleTable.pointRadius = 1;
+            selectStyleTable.pointRadius = 1;
+		}
+		
+		return new OpenLayers.StyleMap({
+            'default': new OpenLayers.Style(defaultStyleTable),
+            'select': new OpenLayers.Style(selectStyleTable)
+		});
+	};
+	
 	return {
 		create: function(key, schema) {
 			var context = this;
@@ -68,11 +104,19 @@ Arbiter.Layers.WFSLayer = (function(){
 
 			var name = Arbiter.Layers.getLayerName(key, "wfs");
 			
-			return new OpenLayers.Layer.Vector(name, {
+			var options = {
 				strategies : [ getSaveStrategy(key, encodedCredentials) ],
 				projection : new OpenLayers.Projection(srid),
 				protocol : wfsProtocol
-			});
+			};
+			
+			var styleMap = getStyleMap(schema.getGeometryType());
+			
+			if(styleMap !== null && styleMap !== undefined){
+				options.styleMap = styleMap;
+			}
+			
+			return new OpenLayers.Layer.Vector(name, options);
 		}
 	};
 })();

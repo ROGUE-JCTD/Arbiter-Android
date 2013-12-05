@@ -9,7 +9,7 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
-import com.lmn.Arbiter_Android.BaseClasses.Feature;
+import com.lmn.Arbiter_Android.Activities.MapChangeHelper;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.GeometryColumnsHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
@@ -20,24 +20,7 @@ public class Map{
 	private static Map map = null;
 	
 	public interface MapChangeListener {
-		public void onLayerDeleted(long layerId);
-		
-		public void onLayerVisibilityChanged(long layerId);
-		
-		public void onLayersAdded(ArrayList<Layer> layers, long[] layerIds, 
-				String includeDefaultLayer, String defaultLayerVisibility);
-		
-		public void onServerDeleted(long serverId);
-
-		public void onEditFeature(Feature feature);
-		
-		public void doneEditingFeature();
-
-		public void unselect();
-		
-		public void cancelEditing();
-		
-		public void startInsertMode(String featureType, long serverId);
+		public MapChangeHelper getMapChangeHelper();
 	}
 	
 	public interface CordovaMap {
@@ -212,12 +195,17 @@ public class Map{
 	
 	public void startInsertMode(CordovaWebView webview,
 			String featureType, long serverId){
-		Log.w("Map", "Map.startInsertMode featureType = " 
-			+ featureType + ", serverId = " + Long.toString(serverId));
 		
-		/*String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.Select.startInsertMode()'))";
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Controls.Select.startInsertMode("
+				+ featureType + ", " + Long.toString(serverId) + ")'))";
 		
-		webview.loadUrl(url);*/
+		Log.w("Map", "Map.startInsertMode url = " + url);
+		
+		//webview.loadUrl(url);
+	}
+	
+	public void endInsertMode(CordovaWebView webview){
+		
 	}
 }

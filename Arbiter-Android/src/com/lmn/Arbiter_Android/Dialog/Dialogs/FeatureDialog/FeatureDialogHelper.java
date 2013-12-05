@@ -114,7 +114,7 @@ public class FeatureDialogHelper {
 	public void editOnMap(){
 		ArbiterState.getArbiterState().editingFeature(feature);
 		
-		mapListener.onEditFeature(feature);
+		mapListener.getMapChangeHelper().onEditFeature(feature);
 		
 		dismiss();
 	}
@@ -203,11 +203,11 @@ public class FeatureDialogHelper {
 	}
 	
 	public void unselect(){
-		mapListener.unselect();
+		mapListener.getMapChangeHelper().unselect();
 	}
 	
 	public void cancel(){
-		mapListener.cancelEditing();
+		mapListener.getMapChangeHelper().cancelEditing();
 		
 		dismiss();
 	}

@@ -62,6 +62,59 @@
         android:padding="2dp"/>
     
     <RelativeLayout
+        android:id="@+id/insertFeatureBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone">
+        
+        <View 
+            android:id="@+id/marginView"
+            android:layout_height="0dp"
+            android:layout_width="0dp"
+            android:layout_marginTop="24dp"/>
+        
+	    <RelativeLayout
+	        android:layout_below="@id/marginView"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:background="@color/transparent_blue">
+	        
+			<ImageButton
+		        android:id="@+id/cancelInsertButton"
+		        android:src="@drawable/cancel"
+		        android:contentDescription="@string/cancel_editing"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_alignParentLeft="true"
+		        android:layout_alignParentTop="true"
+		        android:padding="0dp"/>
+		    
+			<RelativeLayout
+			    android:layout_toRightOf="@id/cancelInsertButton"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:paddingLeft="5dp"
+			    android:paddingRight="20dp"
+			    android:layout_centerInParent="true">
+			    
+			    <TextView
+			        android:id="@+id/insertLayerTitle"
+			        android:text="@string/insert_layer_title"
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"/>
+			    
+			    <TextView
+			        android:id="@+id/insertLayerText"
+			        android:text="@string/insert_layer_text"
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:layout_below="@id/insertLayerTitle"/>
+			</RelativeLayout>
+	    </RelativeLayout>
+    </RelativeLayout>
+    
+    <RelativeLayout
         android:id="@+id/editFeatureButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

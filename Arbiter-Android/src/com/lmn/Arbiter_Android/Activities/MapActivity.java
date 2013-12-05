@@ -1,6 +1,5 @@
 package com.lmn.Arbiter_Android.Activities;
 
-import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -14,7 +13,6 @@ import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.InsertProjectHelper;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
-import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
@@ -39,13 +37,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 
 public class MapActivity extends FragmentActivity implements CordovaInterface, Map.MapChangeListener, Map.CordovaMap{
     private ArbiterDialogs dialogs;
     private String TAG = "MAP_ACTIVITY";
     private ArbiterProject arbiterProject;
     private InsertProjectHelper insertHelper;
+    private MapChangeHelper mapChangeHelper;
     
     // For CORDOVA
     private CordovaWebView cordovaWebView;
@@ -64,6 +62,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
         cordovaWebView = (CordovaWebView) findViewById(R.id.webView1);
         
         cordovaWebView.loadUrl(ArbiterCordova.mainUrl, 5000);
+        
+        mapChangeHelper = new MapChangeHelper(this, cordovaWebView);
     }
 
     private void Init(Bundle savedInstanceState){
@@ -124,7 +124,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     		@Override
     		public void onClick(View v){
     			// Toggle the cancel and done buttons
-    			doneEditingFeature();
+    			mapChangeHelper.doneEditingFeature();
     			
     			// Exit modify mode
     			Map.getMap().cancelEdit(cordovaWebView);
@@ -145,6 +145,15 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     		@Override
     		public void onClick(View v){
     			Map.getMap().getUpdatedGeometry(cordovaWebView);
+    		}
+    	});
+    	
+    	ImageButton cancelInsert = (ImageButton) findViewById(R.id.cancelInsertButton);
+    	
+    	cancelInsert.setOnClickListener(new OnClickListener(){
+    		@Override
+    		public void onClick(View v){
+    			mapChangeHelper.endInsertMode();
     		}
     	});
     }
@@ -277,111 +286,11 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     }
     
     /**
-	 * LayerChangeListener events
-	 */
-	@Override
-	public void onLayerDeleted(final long layerId) {
-		runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				Map.getMap().resetWebApp(cordovaWebView);
-			}
-		});
-	}
-
-	@Override
-	public void onLayerVisibilityChanged(final long layerId) {
-		runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				Map.getMap().resetWebApp(cordovaWebView);
-			}
-		});
-	}
-	
-	@Override
-	public void onLayersAdded(final ArrayList<Layer> layers, final long[] layerIds,
-			final String includeDefaultLayer, final String defaultLayerVisibility) {
-		
-		runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				Map.getMap().addLayers(cordovaWebView, layers, layerIds);
-			}
-		});
-	}
-	
-	@Override
-	public void onServerDeleted(long serverId){
-		runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				Map.getMap().resetWebApp(cordovaWebView);
-			}
-		});
-	}
-	
-	private void toggleEditButtons(final boolean visible){
-		runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				RelativeLayout layout = (RelativeLayout) findViewById(R.id.editFeatureButtons);
-				
-				if(visible){
-					layout.setVisibility(View.VISIBLE);
-				}else{
-					layout.setVisibility(View.GONE);
-				}
-			}
-		});
-	}
-	
-	@Override
-	public void onEditFeature(final Feature feature){
-		runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				toggleEditButtons(true);
-				
-				Map.getMap().enterModifyMode(cordovaWebView);
-			}
-		});
-	}
-	
-	@Override
-	public void doneEditingFeature(){
-		runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				toggleEditButtons(false);
-			}
-		});
-	}
-	
-	@Override
-	public void unselect(){
-		runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				Map.getMap().unselect(cordovaWebView);
-			}
-		});
-	}
-	
-	@Override
-	public void cancelEditing(){
-		runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				Map.getMap().cancelSelection(cordovaWebView);
-			}
-		});
-	}
-	
-	@Override
-	public void startInsertMode(String featureType, long serverId){
-		Map.getMap().startInsertMode(cordovaWebView, featureType, serverId);
-	}
+     * Map.MapChangeListener methods
+     */
+    public MapChangeHelper getMapChangeHelper(){
+    	return this.mapChangeHelper;
+    }
 	
 	/**
 	 * Map.CordovaMap methods

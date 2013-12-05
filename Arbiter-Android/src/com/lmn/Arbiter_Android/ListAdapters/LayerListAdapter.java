@@ -158,7 +158,7 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 						helper.getWritableDatabase(), context,
 						ArbiterProject.DEFAULT_LAYER_VISIBILITY, Boolean.toString(visibility));
 				
-				mapChangeListener.onLayerVisibilityChanged(layerId);
+				mapChangeListener.getMapChangeHelper().onLayerVisibilityChanged(layerId);
 			}
 		});
 	}
@@ -178,7 +178,8 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 				LayersHelper.getLayersHelper().updateAttributeValues(helper.getWritableDatabase(), context, layerId, values, new Runnable(){
 					@Override
 					public void run(){
-						mapChangeListener.onLayerVisibilityChanged(layerId);
+						mapChangeListener.getMapChangeHelper()
+							.onLayerVisibilityChanged(layerId);
 					}
 				});
 			}
@@ -196,7 +197,8 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 				activity.runOnUiThread(new Runnable(){
 					@Override
 					public void run(){
-						mapChangeListener.onLayerDeleted(Layer.DEFAULT_FLAG);
+						mapChangeListener.getMapChangeHelper()
+							.onLayerDeleted(Layer.DEFAULT_FLAG);
 						
 						LocalBroadcastManager.getInstance(context).
 							sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
@@ -228,7 +230,8 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 					layer
 				);
 					
-				mapChangeListener.onLayerDeleted(layer.getLayerId());
+				mapChangeListener.getMapChangeHelper()
+					.onLayerDeleted(layer.getLayerId());
 			}
 		});
 	}

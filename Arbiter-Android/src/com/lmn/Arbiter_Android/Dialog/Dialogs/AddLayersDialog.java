@@ -150,7 +150,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 						setDefaultLayerInfo(projectName, includeDefaultLayer);
 					}
 					
-					mapChangeListener.onLayersAdded(layers, 
+					mapChangeListener.getMapChangeHelper().onLayersAdded(layers, 
 							layerIds, includeDefaultLayer, includeDefaultLayer);
 				}
 				

@@ -8,4 +8,5 @@
     <color name="holo_blue_light">#ff33b5e5</color>
     <color name="red">#FF0000</color>
     <color name="green">#00FF00</color>
+    <color name="transparent_blue">#B333b5e5</color>
 </resources>

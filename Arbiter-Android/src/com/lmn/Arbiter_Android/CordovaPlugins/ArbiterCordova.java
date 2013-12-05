@@ -15,6 +15,7 @@ import android.util.Log;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Activities.MapChangeHelper;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.Map.Map;
@@ -136,7 +137,8 @@ public class ArbiterCordova extends CordovaPlugin{
 	 */
 	private void notifyDoneEditingFeature(){
 		try{
-			((Map.MapChangeListener) cordova.getActivity()).doneEditingFeature();
+			MapChangeHelper helper = ((Map.MapChangeListener) cordova.getActivity()).getMapChangeHelper();
+			helper.doneEditingFeature();
 		} catch(ClassCastException e){
 			e.printStackTrace();
 			throw new ClassCastException(cordova.getActivity().toString() 

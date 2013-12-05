@@ -153,7 +153,8 @@ public class ServerListAdapter extends BaseAdapter implements ArbiterAdapter<Spa
 								activity, server);
 						
 						if(mapChangeListener != null){
-							mapChangeListener.onServerDeleted(server.getId());
+							mapChangeListener.getMapChangeHelper()
+								.onServerDeleted(server.getId());
 						}
 						
 						dialog.dismiss();

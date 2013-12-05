@@ -75,7 +75,7 @@ public class InsertFeaturesListAdapter extends BaseAdapter implements ArbiterAda
 		view.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v){
-				mapChangeListener.startInsertMode(layer
+				mapChangeListener.getMapChangeHelper().startInsertMode(layer
 						.getFeatureTypeNoPrefix(), layer.getServerId());
 				
 				dialog.dismiss();

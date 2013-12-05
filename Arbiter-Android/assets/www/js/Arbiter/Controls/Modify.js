@@ -5,16 +5,6 @@ Arbiter.Controls.Modify = function(_olLayer, _selectedFeature){
 	
 	var olLayer = _olLayer;
 	
-	var initModifyController = function(){
-		modifyController = new OpenLayers.Control.ModifyFeature(olLayer, {
-			standalone: true,
-			toggle: false,
-			clickout: false
-		});
-		
-		_attachToMap();
-	};
-	
 	var _attachToMap = function(){
 		if(modifyController !== null){
 			var map = Arbiter.Map.getMap();
@@ -37,6 +27,16 @@ Arbiter.Controls.Modify = function(_olLayer, _selectedFeature){
 			
 			modifyController = null;
 		}
+	};
+	
+	var initModifyController = function(){
+		modifyController = new OpenLayers.Control.ModifyFeature(olLayer, {
+			standalone: true,
+			toggle: false,
+			clickout: false
+		});
+		
+		_attachToMap();
 	};
 	
 	return {

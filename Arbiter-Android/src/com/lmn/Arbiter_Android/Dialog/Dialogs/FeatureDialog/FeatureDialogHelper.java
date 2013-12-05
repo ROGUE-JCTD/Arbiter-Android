@@ -132,6 +132,8 @@ public class FeatureDialogHelper {
 	private void save(){
 		SQLiteDatabase db = getDb();
 		
+		builder.updateFeature();
+		
 		FeaturesHelper.getHelper().update(db, 
 				feature.getFeatureType(), 
 				feature.getId(), feature);

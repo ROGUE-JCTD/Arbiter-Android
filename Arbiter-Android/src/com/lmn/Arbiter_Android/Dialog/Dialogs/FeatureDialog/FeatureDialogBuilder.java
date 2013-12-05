@@ -91,4 +91,14 @@ public class FeatureDialogBuilder {
 		
 		return !focusable;
 	}
+	
+	public void updateFeature(){
+		ContentValues attributes = feature.getAttributes();
+		int i = 0;
+		
+		for(String key : attributes.keySet()){
+			attributes.put(key, editTexts.get(i++)
+					.getText().toString());
+		}
+	}
 }

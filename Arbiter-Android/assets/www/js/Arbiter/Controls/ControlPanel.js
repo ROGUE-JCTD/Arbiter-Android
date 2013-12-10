@@ -7,6 +7,8 @@ Arbiter.Controls.ControlPanel = (function(){
 	
 	var insertControl = null;
 	
+	var deleteControl = new Arbiter.Controls.Delete();
+	
 	var insertedFeature = null;
 	
 	var originalGeometry = null;
@@ -208,7 +210,6 @@ Arbiter.Controls.ControlPanel = (function(){
 		
 		endInsertMode: function(featureId){
 			if(featureId !== null && featureId !== undefined){
-				console.log("featureId = " + featureId);
 				setFeatureId(insertedFeature, featureId);
 			}
 			
@@ -221,6 +222,22 @@ Arbiter.Controls.ControlPanel = (function(){
 		
 		getInsertControl: function(){
 			return insertControl;
+		},
+		
+		removeSelectedFeature: function(){
+			var feature = selectedFeature;
+			
+			if(selectedFeature === null || selectedFeature === undefined){
+				return;
+			}
+			
+			this.unselect();
+			
+			try{
+				deleteControl.deleteFeature(feature);
+			} catch(e){
+				console.log(e);
+			}
 		}
 	};
 })();

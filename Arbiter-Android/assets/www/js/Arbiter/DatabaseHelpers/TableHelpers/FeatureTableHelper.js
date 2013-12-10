@@ -161,6 +161,50 @@ Arbiter.FeatureTableHelper = (function(){
     		});
     	},
     	
+    	removeFeatures: function(features, schema, onSuccess, onFailure){
+    		var deleteCount = 0;
+    		var featureCount = features.length;
+    		
+    		var db = Arbiter.FeatureDbHelper.getFeatureDatabase();
+    		var context = this;
+    		
+    		db.transaction(function(tx){
+    			
+    			for(var i = 0; i < featureCount; i++){
+    				context.removeFeature(tx, schema, features[i], function(){
+    					
+    					if(++deleteCount === featureCount && 
+    							Arbiter.Util.funcExists(onSuccess)){
+    						
+    						onSuccess();
+    					}
+    				}, onFailure);
+    			}
+    		}, function(e){
+    			console.log("ERROR: Arbiter.FeatureTableHelper"
+    					+ ".deleteFeatures", e);
+    			
+    			if(Arbiter.Util.funcExists(onFailure)){
+    				onFailure(e);
+    			}
+    		});
+    	},
+    	
+    	removeFeature: function(tx, schema, feature, onSuccess, onFailure){
+    		var sql = "DELETE FROM " + schema.getFeatureType()
+    			+ " WHERE " + this.ID + "=?";
+    		
+    		tx.executeSql(sql, [feature.metadata[this.ID]], function(tx, res){
+    			if(Arbiter.Util.funcExists(onSuccess)){
+    				onSuccess();
+    			}
+    		}, function(tx, e){
+    			if(Arbiter.Util.funcExists(onFailure)){
+    				onFailure(e);
+    			}
+    		});
+    	},
+    	
     	// layers is an array of objects with key value pairs
     	// corresponding to the Arbiter.LayersHelper constants
     	loadLayerSchemas: function(layers, onSuccess, onFailure){

@@ -199,8 +199,6 @@ public class Map{
 				+ "Arbiter.Controls.ControlPanel.startInsertMode("
 				+ Long.toString(layerId) + ")'))";
 		
-		Log.w("Map", "Map.startInsertMode url = " + url);
-		
 		webview.loadUrl(url);
 	}
 	
@@ -213,6 +211,13 @@ public class Map{
 		}else{
 			url += ")'))";
 		}
+		
+		webview.loadUrl(url);
+	}
+	
+	public void removeSelectedFeature(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Controls.ControlPanel.removeSelectedFeature()'))";
 		
 		webview.loadUrl(url);
 	}

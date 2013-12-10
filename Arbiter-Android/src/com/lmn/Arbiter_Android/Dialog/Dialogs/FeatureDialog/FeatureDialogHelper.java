@@ -34,7 +34,7 @@ public class FeatureDialogHelper {
 	public FeatureDialogHelper(FragmentActivity activity, View view, 
 			Feature feature, boolean startInEditMode,
 			Button editButton, Button editOnMapButton,
-			Button cancelButton){
+			Button cancelButton, Button deleteButton){
 		
 		this.activity = activity;
 		this.feature = feature;
@@ -54,7 +54,8 @@ public class FeatureDialogHelper {
 		if(startInEditMode && editButton != null
 				&& editOnMapButton != null){
 			
-			startEditMode(editButton, editOnMapButton, cancelButton);
+			startEditMode(editButton, editOnMapButton,
+					cancelButton, deleteButton);
 		}
 	}
 	
@@ -69,6 +70,14 @@ public class FeatureDialogHelper {
 		}
 		
 		cancelButton.setText(text);
+	}
+	
+	private void toggleDeleteButton(Button deleteButton){
+		if(editing){
+			deleteButton.setVisibility(View.GONE);
+		}else{
+			deleteButton.setVisibility(View.VISIBLE);
+		}
 	}
 	
 	private void toggleEditOnMapButton(Button editButton){
@@ -98,7 +107,9 @@ public class FeatureDialogHelper {
 	 * @param editOnMapButton
 	 * @return
 	 */
-	private boolean toggleEditMode(Button editButton, Button editOnMapButton, Button cancelButton){
+	private boolean toggleEditMode(Button editButton, Button editOnMapButton,
+			Button cancelButton, Button deleteButton){
+		
 		this.editing = builder.toggleEditTexts();
 		
 		toggleEditButtonText(editButton);
@@ -107,11 +118,15 @@ public class FeatureDialogHelper {
 		
 		toggleCancelButton(cancelButton);
 		
+		toggleDeleteButton(deleteButton);
+		
 		return editing;
 	}
 	
-	public void startEditMode(Button editButton, Button editOnMapButton, Button cancelButton){
-		toggleEditMode(editButton, editOnMapButton, cancelButton);
+	public void startEditMode(Button editButton, Button editOnMapButton,
+			Button cancelButton, Button deleteButton){
+		
+		toggleEditMode(editButton, editOnMapButton, cancelButton, deleteButton);
 	}
 	
 	private void dismiss(){
@@ -183,7 +198,8 @@ public class FeatureDialogHelper {
 	}
 	
 	private void areYouSure(final Button editButton, 
-			final Button editOnMapButton, final Button cancelButton){
+			final Button editOnMapButton, final Button cancelButton,
+			final Button deleteButton){
 		
 		Resources resources = activity.getResources();
 		
@@ -219,7 +235,8 @@ public class FeatureDialogHelper {
 							activity.runOnUiThread(new Runnable(){
 								@Override
 								public void run(){
-									toggleEditMode(editButton, editOnMapButton, cancelButton);
+									toggleEditMode(editButton, editOnMapButton,
+											cancelButton, deleteButton);
 									
 									if(insertedNewFeature){
 										mapListener.getMapChangeHelper()
@@ -251,8 +268,10 @@ public class FeatureDialogHelper {
 	 * Done in edit mode.
 	 * @param save
 	 */
-	public void endEditMode(Button editButton, Button editOnMapButton, Button cancelButton){
-		areYouSure(editButton, editOnMapButton, cancelButton);
+	public void endEditMode(Button editButton, Button editOnMapButton,
+			Button cancelButton, Button deleteButton){
+		
+		areYouSure(editButton, editOnMapButton, cancelButton, deleteButton);
 	}
 	
 	public void unselect(){
@@ -263,9 +282,39 @@ public class FeatureDialogHelper {
 		dismiss();
 	}
 	
+	public void removeFeature(){
+		displayDeleteAlert();
+	}
+	
 	public void cancel(){
 		mapListener.getMapChangeHelper().cancelEditing();
 		
 		dismiss();
+	}
+	
+	private void displayDeleteAlert(){
+		Resources resources = activity.getResources();
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		
+		String title = resources.getString(R.string.delete_feature_warning);
+		String msg = resources.getString(R.string.delete_feature_warning_msg);
+		
+		builder.setTitle(title);
+		builder.setIcon(resources.getDrawable(R.drawable.icon));
+		builder.setMessage(msg);
+		builder.setPositiveButton(R.string.delete_feature, new OnClickListener(){
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {				
+				mapListener.getMapChangeHelper().removeSelectedFeature();
+				
+				dismiss();
+			}
+		});
+		
+		builder.setNegativeButton(android.R.string.no, null);
+		
+		builder.create().show();
 	}
 }

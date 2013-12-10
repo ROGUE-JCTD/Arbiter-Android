@@ -41,6 +41,8 @@
 	<string name="insert_layer_text">Layer</string>
 	<string name="insert_feature_warning">Insert feature</string>
 	<string name="insert_feature_warning_msg">Insert the feature?</string>
+	<string name="delete_feature_warning">Delete feature</string>
+	<string name="delete_feature_warning_msg">Are you sure you want to delete this feature?</string>
 	
     <!-- MAP ACTIVITY STRINGS -->
     <string name="map_activity_name">Arbiter</string>

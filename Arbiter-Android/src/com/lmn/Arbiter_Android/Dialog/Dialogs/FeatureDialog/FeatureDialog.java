@@ -69,7 +69,8 @@ public class FeatureDialog extends ArbiterDialogFragment{
 	private void populateView(View view){
 		this.helper = new FeatureDialogHelper(getActivity(), 
 				view, feature, startInEditMode,
-				editButton, editOnMapButton, cancelButton);
+				editButton, editOnMapButton,
+				cancelButton, deleteButton);
 	}
 	
 	private void registerListeners(View view){
@@ -111,10 +112,12 @@ public class FeatureDialog extends ArbiterDialogFragment{
 					boolean editing = helper.isEditing();
 					if(!editing){
 						helper.startEditMode(editButton, 
-								editOnMapButton, cancelButton);
+								editOnMapButton, cancelButton,
+								deleteButton);
 					}else{
 						helper.endEditMode(editButton,
-								editOnMapButton, cancelButton);
+								editOnMapButton, cancelButton,
+								deleteButton);
 					}
 				}
 			});
@@ -127,7 +130,7 @@ public class FeatureDialog extends ArbiterDialogFragment{
 
 				@Override
 				public void onClick(View v) {
-					// TODO: delete feature
+					helper.removeFeature();
 				}
 			});
 		}

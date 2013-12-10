@@ -181,4 +181,13 @@ public class MapChangeHelper {
 			}
 		});
 	}
+	
+	public void removeSelectedFeature(){
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				Map.getMap().removeSelectedFeature(cordovaWebView);
+			}
+		});
+	}
 }

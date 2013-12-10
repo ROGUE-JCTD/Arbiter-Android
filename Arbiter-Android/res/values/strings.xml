@@ -26,6 +26,7 @@
 	<string name="longitude">Longitude</string>
 	<string name="example_longitude">ex. </string>
 	<string name="example_latitude">ex. </string>
+	<string name="back">Back</string>
 	<string name="edit_attributes">Edit</string>
 	<string name="done_editing">Done</string>
 	<string name="delete_feature">Delete</string>
@@ -38,6 +39,8 @@
 	<string name="insert_feature_title">Select layer to insert into.</string>
 	<string name="insert_layer_title">Inserting into:</string>
 	<string name="insert_layer_text">Layer</string>
+	<string name="insert_feature_warning">Insert feature</string>
+	<string name="insert_feature_warning_msg">Insert the feature?</string>
 	
     <!-- MAP ACTIVITY STRINGS -->
     <string name="map_activity_name">Arbiter</string>

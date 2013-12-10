@@ -21,23 +21,17 @@ public class FeatureDatabaseHelper extends SQLiteOpenHelper {
 	
 	private static FeatureDatabaseHelper helper = null;
 	
-	public static FeatureDatabaseHelper getHelper(Context context, String path){
-		if(helper == null){
-			helper = new FeatureDatabaseHelper(context, path);
-		}
-		
-		return helper;
-	}
-	
 	public static FeatureDatabaseHelper getHelper(Context context, String path, boolean reset){
 		if(helper != null && 
 				// path to the db isn't the same or resetting 
 				(!path.equals(helper.getCurrentPath()) || reset)){
 			
 			resetConnection(context, path);
+		}else if(helper == null){
+			helper = new FeatureDatabaseHelper(context, path);
 		}
 		
-		return getHelper(context, path);
+		return helper;
 	}
 	
 	@Override

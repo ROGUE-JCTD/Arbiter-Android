@@ -40,10 +40,6 @@ Arbiter.Controls.Modify = function(_olLayer, _selectedFeature){
 	};
 	
 	return {
-		getController: function(){
-			return modifyController;
-		},
-		
 		activate: function(){
 			initModifyController();
 			

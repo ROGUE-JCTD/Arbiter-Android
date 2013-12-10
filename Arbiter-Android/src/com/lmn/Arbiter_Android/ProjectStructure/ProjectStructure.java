@@ -63,7 +63,7 @@ public class ProjectStructure {
 	private void insertDefaultProjectInfo(Context context, String defaultProjectName){
 		ProjectDatabaseHelper helper = 
 				ProjectDatabaseHelper.getHelper(context,
-						getProjectPath(context, defaultProjectName));
+						getProjectPath(context, defaultProjectName), false);
 		
 		PreferencesHelper.getHelper().insert(helper.getWritableDatabase(), 
 				context, ArbiterProject.AOI, DEFAULT_PROJECT_AOI);

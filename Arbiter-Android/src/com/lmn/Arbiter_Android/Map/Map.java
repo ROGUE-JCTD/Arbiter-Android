@@ -153,21 +153,21 @@ public class Map{
 	
 	public void enterModifyMode(CordovaWebView webview){
 		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.Select.enterModifyMode()'))";
+				+ "Arbiter.Controls.ControlPanel.enterModifyMode()'))";
 		
 		webview.loadUrl(url);
 	}
 	
 	public void exitModifyMode(CordovaWebView webview){
 		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.Select.exitModifyMode()'))";
+				+ "Arbiter.Controls.ControlPanel.exitModifyMode()'))";
 		
 		webview.loadUrl(url);
 	}
 	
 	public void cancelEdit(CordovaWebView webview){
 		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.Select.cancelEdit()'))";
+				+ "Arbiter.Controls.ControlPanel.cancelEdit()'))";
 		
 		webview.loadUrl(url);
 	}
@@ -181,31 +181,39 @@ public class Map{
 	
 	public void unselect(CordovaWebView webview){
 		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.Select.unselect()'))";
+				+ "Arbiter.Controls.ControlPanel.unselect()'))";
 		
 		webview.loadUrl(url);
 	}
 	
 	public void cancelSelection(CordovaWebView webview){
 		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.Select.cancelSelection()'))";
+				+ "Arbiter.Controls.ControlPanel.cancelSelection()'))";
 		
 		webview.loadUrl(url);
 	}
 	
-	public void startInsertMode(CordovaWebView webview,
-			String featureType, long serverId){
+	public void startInsertMode(CordovaWebView webview, long layerId){
 		
 		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.Select.startInsertMode("
-				+ featureType + ", " + Long.toString(serverId) + ")'))";
+				+ "Arbiter.Controls.ControlPanel.startInsertMode("
+				+ Long.toString(layerId) + ")'))";
 		
 		Log.w("Map", "Map.startInsertMode url = " + url);
 		
-		//webview.loadUrl(url);
+		webview.loadUrl(url);
 	}
 	
-	public void endInsertMode(CordovaWebView webview){
+	public void endInsertMode(CordovaWebView webview, String featureId){
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Controls.ControlPanel.endInsertMode("; 
+				
+		if(featureId != null){
+			url += featureId + ")'))";
+		}else{
+			url += ")'))";
+		}
 		
+		webview.loadUrl(url);
 	}
 }

@@ -22,23 +22,17 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 	
 	private static ProjectDatabaseHelper helper = null;
 	
-	public static ProjectDatabaseHelper getHelper(Context context, String path){
-		if(helper == null){
-			helper = new ProjectDatabaseHelper(context, path);
-		}
-		
-		return helper;
-	}
-	
 	public static ProjectDatabaseHelper getHelper(Context context, String path, boolean reset){
 		if(helper != null && 
 				// path to the db isn't the same or resetting 
 				(!path.equals(helper.getCurrentPath()) || reset)){
 			
 			resetConnection(context, path);
+		}else if(helper == null){
+			helper = new ProjectDatabaseHelper(context, path);
 		}
 		
-		return getHelper(context, path);
+		return helper;
 	}
 	
 	@Override

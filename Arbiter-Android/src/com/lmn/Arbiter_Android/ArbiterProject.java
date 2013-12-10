@@ -78,7 +78,7 @@ public class ArbiterProject {
 		this.openProjectName = projectName;
 		
 		ProjectDatabaseHelper helper = ProjectDatabaseHelper.getHelper(context, 
-				ProjectStructure.getProjectPath(context, projectName));
+				ProjectStructure.getProjectPath(context, projectName), false);
 		
 		String includeDefaultLayer = PreferencesHelper.getHelper().get(
 				helper.getWritableDatabase(), context, INCLUDE_DEFAULT_LAYER);
@@ -248,7 +248,8 @@ public class ArbiterProject {
 	public void setIncludeDefaultLayer(final Context context, final String projectName, 
 			final String includeDefaultLayer){
 		ProjectDatabaseHelper helper = ProjectDatabaseHelper.
-				getHelper(context, ProjectStructure.getProjectPath(context, projectName));
+				getHelper(context, ProjectStructure
+						.getProjectPath(context, projectName), false);
 		
 		PreferencesHelper.getHelper().update(
 				helper.getWritableDatabase(), context,
@@ -259,7 +260,7 @@ public class ArbiterProject {
 	
 	private String includeDefaultLayer(Context context, String projectName){
 		ProjectDatabaseHelper helper = ProjectDatabaseHelper.getHelper(context,
-				ProjectStructure.getProjectPath(context, projectName));
+				ProjectStructure.getProjectPath(context, projectName), false);
 		
 		return PreferencesHelper.getHelper().get(
 				helper.getWritableDatabase(), context, INCLUDE_DEFAULT_LAYER);
@@ -267,7 +268,7 @@ public class ArbiterProject {
 	
 	private String defaultLayerVisibility(Context context, String projectName){
 		ProjectDatabaseHelper helper = ProjectDatabaseHelper.getHelper(context,
-				ProjectStructure.getProjectPath(context, projectName));
+				ProjectStructure.getProjectPath(context, projectName), false);
 		
 		return PreferencesHelper.getHelper().get(
 				helper.getWritableDatabase(), context, DEFAULT_LAYER_VISIBILITY);

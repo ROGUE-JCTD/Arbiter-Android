@@ -87,7 +87,7 @@ public class InsertProjectHelper {
 	private ProjectDatabaseHelper getProjectDatabaseHelper(Context context, String projectName){
 		return ProjectDatabaseHelper.getHelper(context, 
 				ProjectStructure.getProjectPath(context, 
-						projectName));
+						projectName), false);
 	}
 	
 	private void setOpenProject(Context context, Project newProject){

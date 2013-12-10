@@ -18,7 +18,7 @@
         <param name="android-package" value="org.pgsqlite.SQLitePlugin" />
     </feature>
     <access origin="*" />
-    <preference name="useBrowserHistory" value="true" />
+    <preference name="useBrowserHistory" value="false" />
     <preference name="exit-on-suspend" value="false" />
     <preference name="fullscreen" value="true" />
     <preference name="webviewbounce" value="true" />

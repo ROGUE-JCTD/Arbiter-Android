@@ -240,10 +240,10 @@ public class SQLitePlugin extends CordovaPlugin
 		// get it for plugin use.
 		if(FEATURE_DATABASE_NAME.equals(dbname)){
 			dbmap.put(dbname, FeatureDatabaseHelper.
-					getHelper(context, path).getWritableDatabase());
+					getHelper(context, path, false).getWritableDatabase());
 		}else if(PROJECT_DATABASE_NAME.equals(dbname)){
 			dbmap.put(dbname, ProjectDatabaseHelper.
-					getHelper(context, path).getWritableDatabase());
+					getHelper(context, path, false).getWritableDatabase());
 		}else if(APPLICATION_DATABASE_NAME.equals(dbname)){
 			dbmap.put(dbname, ApplicationDatabaseHelper
 					.getHelper(context).getWritableDatabase());

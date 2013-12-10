@@ -22,7 +22,7 @@ public class FeatureHelper {
 		this.activity = activity;
 	}
 	
-	public void displayWithUpdatedGeometry(){
+	public void displayUpdatedFeature(){
 		displayDialog(ArbiterState.getArbiterState()
 				.isEditingFeature(), true);
 	}
@@ -43,7 +43,7 @@ public class FeatureHelper {
 		
 		return FeatureDatabaseHelper.getHelper(context,
 				ProjectStructure.getProjectPath(context, 
-						openProjectName)).getWritableDatabase();
+						openProjectName), false).getWritableDatabase();
 	}
 	
 	private Feature getFeature(SQLiteDatabase db, String featureType, String id){

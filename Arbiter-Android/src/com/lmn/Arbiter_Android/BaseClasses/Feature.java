@@ -17,6 +17,18 @@ public class Feature {
 		this.attributes = attributes;
 	}
 	
+	public Feature(String featureType, String geometryName, ContentValues attributes){
+		this.featureType = featureType;
+		this.geometryName = geometryName;
+		this.attributes = attributes;
+		
+		this.id = null;
+	}
+	
+	public boolean isNew(){
+		return this.id == null;
+	}
+	
 	/*public Feature(Feature feature){
 		this.id = feature.getId();
 		this.geometryName = feature.getGeometryName();
@@ -35,6 +47,10 @@ public class Feature {
 	
 	public String getId(){
 		return this.id;
+	}
+	
+	public void setId(String id){
+		this.id = id;
 	}
 	
 	public String getFeatureType(){

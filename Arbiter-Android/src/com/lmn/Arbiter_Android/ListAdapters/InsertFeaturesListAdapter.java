@@ -8,7 +8,6 @@ import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 
 import android.content.Context;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -76,7 +75,7 @@ public class InsertFeaturesListAdapter extends BaseAdapter implements ArbiterAda
 			@Override
 			public void onClick(View v){
 				mapChangeListener.getMapChangeHelper().startInsertMode(layer
-						.getFeatureTypeNoPrefix(), layer.getServerId());
+						.getFeatureTypeNoPrefix(), layer.getLayerId());
 				
 				dialog.dismiss();
 			}

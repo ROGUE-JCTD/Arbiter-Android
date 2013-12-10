@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.apache.cordova.CordovaWebView;
 
-import android.app.Activity;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -12,13 +12,14 @@ import android.widget.TextView;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.Map.Map;
 
 public class MapChangeHelper {
-	private Activity activity;
+	private FragmentActivity activity;
 	private CordovaWebView cordovaWebView;
 	
-	public MapChangeHelper(Activity activity, CordovaWebView cordovaWebView){
+	public MapChangeHelper(FragmentActivity activity, CordovaWebView cordovaWebView){
 		this.activity = activity;
 		this.cordovaWebView = cordovaWebView;
 	}
@@ -109,6 +110,15 @@ public class MapChangeHelper {
 		});
 	}
 	
+	public void exitModifyMode(){
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				Map.getMap().exitModifyMode(cordovaWebView);
+			}
+		});
+	}
+	
 	public void cancelEditing(){
 		activity.runOnUiThread(new Runnable(){
 			@Override
@@ -135,11 +145,11 @@ public class MapChangeHelper {
 		}
 	}
 	
-	public void startInsertMode(final String featureType, final long serverId){
+	public void startInsertMode(final String featureType, final long layerId){
 		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
-				Map.getMap().startInsertMode(cordovaWebView, featureType, serverId);
+				Map.getMap().startInsertMode(cordovaWebView, layerId);
 				
 				setInsertFeatureText(featureType);
 				
@@ -148,13 +158,26 @@ public class MapChangeHelper {
 		});
 	}
 	
-	public void endInsertMode(){
+	public void endInsertMode(final String featureId){
 		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
-				Map.getMap().endInsertMode(cordovaWebView);
+				Map.getMap().endInsertMode(cordovaWebView, featureId);
 				
 				toggleInsertFeatureBar(false);	
+			}
+		});
+	}
+	
+	public void doneInsertingFeature(){
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				FeatureHelper helper = new FeatureHelper(activity);
+    			
+    			helper.displayUpdatedFeature();
+				
+				toggleInsertFeatureBar(false);
 			}
 		});
 	}

@@ -69,10 +69,27 @@ public class FeatureDialog extends ArbiterDialogFragment{
 	private void populateView(View view){
 		this.helper = new FeatureDialogHelper(getActivity(), 
 				view, feature, startInEditMode,
-				editButton, editOnMapButton);
+				editButton, editOnMapButton, cancelButton);
 	}
 	
 	private void registerListeners(View view){
+		cancelButton = (Button) view.findViewById(R.id.cancelButton);
+		
+		if(cancelButton != null){
+			cancelButton.setOnClickListener(new OnClickListener(){
+				@Override
+				public void onClick(View v){
+					onNegativeClick();
+					
+					if(feature.isNew()){
+						
+					}
+					
+					helper.back();
+				}
+			});
+		}
+		
 		editOnMapButton = (Button) view.findViewById(R.id.editFeature);
 		
 		if(editOnMapButton != null){
@@ -93,9 +110,11 @@ public class FeatureDialog extends ArbiterDialogFragment{
 				public void onClick(View v) {
 					boolean editing = helper.isEditing();
 					if(!editing){
-						helper.startEditMode(editButton, editOnMapButton);
+						helper.startEditMode(editButton, 
+								editOnMapButton, cancelButton);
 					}else{
-						helper.endEditMode(editButton, editOnMapButton);
+						helper.endEditMode(editButton,
+								editOnMapButton, cancelButton);
 					}
 				}
 			});
@@ -109,17 +128,6 @@ public class FeatureDialog extends ArbiterDialogFragment{
 				@Override
 				public void onClick(View v) {
 					// TODO: delete feature
-				}
-			});
-		}
-		
-		cancelButton = (Button) view.findViewById(R.id.cancelButton);
-		
-		if(cancelButton != null){
-			cancelButton.setOnClickListener(new OnClickListener(){
-				@Override
-				public void onClick(View v){
-					helper.cancel();
 				}
 			});
 		}

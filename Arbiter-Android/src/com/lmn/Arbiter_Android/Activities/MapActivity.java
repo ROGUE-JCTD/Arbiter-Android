@@ -153,7 +153,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     	cancelInsert.setOnClickListener(new OnClickListener(){
     		@Override
     		public void onClick(View v){
-    			mapChangeHelper.endInsertMode();
+    			mapChangeHelper.endInsertMode(null);
     		}
     	});
     }
@@ -263,7 +263,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
 		
 		ProjectDatabaseHelper helper = 
 				ProjectDatabaseHelper.getHelper(context, 
-						ProjectStructure.getProjectPath(context, projectName));
+						ProjectStructure.getProjectPath(
+								context, projectName), false);
 		
         PreferencesHelper.getHelper().update(helper.getWritableDatabase(),
         		context, ArbiterProject.AOI, aoi);
@@ -338,6 +339,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
         		}else if(((String) obj).equals("about:blank")){
         			this.cordovaWebView.loadUrl(ArbiterCordova.mainUrl);
         		}
+        		
+        		this.cordovaWebView.clearHistory();
         	}
         }
         return null;

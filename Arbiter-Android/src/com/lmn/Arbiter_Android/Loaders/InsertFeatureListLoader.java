@@ -42,13 +42,13 @@ public class InsertFeatureListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 	private SQLiteDatabase getProjectDb(){
 		return ProjectDatabaseHelper.getHelper(context,
 				ProjectStructure.getProjectPath(context,
-						projectName)).getWritableDatabase();
+						projectName), false).getWritableDatabase();
 	}
 	
 	private SQLiteDatabase getFeatureDb(){
 		return FeatureDatabaseHelper.getHelper(context,
 				ProjectStructure.getProjectPath(context,
-						projectName)).getWritableDatabase();
+						projectName), false).getWritableDatabase();
 	}
 	
 	@Override

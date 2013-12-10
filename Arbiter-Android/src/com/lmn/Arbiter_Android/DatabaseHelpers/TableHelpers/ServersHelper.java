@@ -198,8 +198,11 @@ public class ServersHelper implements BaseColumns{
 
 			// Get the projectDatabase and featureDatabase
 			path = ProjectStructure.getProjectPath(context, projects[i].getProjectName());
-			projectDb = ProjectDatabaseHelper.getHelper(context, path).getWritableDatabase();
-			featureDb = FeatureDatabaseHelper.getHelper(context, path).getWritableDatabase();
+			projectDb = ProjectDatabaseHelper.getHelper(context,
+					path, false).getWritableDatabase();
+			
+			featureDb = FeatureDatabaseHelper.getHelper(context,
+					path, false).getWritableDatabase();
 
 			// Delete the layers with the serverId
 			LayersHelper.getLayersHelper().deleteByServerId(projectDb,
@@ -215,8 +218,8 @@ public class ServersHelper implements BaseColumns{
 		
 		String path = ProjectStructure.getProjectPath(context, openProjectName);
 		
-		ProjectDatabaseHelper.getHelper(context, path);
-		FeatureDatabaseHelper.getHelper(context, path);
+		ProjectDatabaseHelper.getHelper(context, path, false);
+		FeatureDatabaseHelper.getHelper(context, path, false);
 	}
 	
 	public void deletionAlert(Activity activity, final Runnable deleteIt){

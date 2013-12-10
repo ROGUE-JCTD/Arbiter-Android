@@ -33,7 +33,8 @@ public class FeatureDialogHelper {
 	
 	public FeatureDialogHelper(FragmentActivity activity, View view, 
 			Feature feature, boolean startInEditMode,
-			Button editButton, Button editOnMapButton){
+			Button editButton, Button editOnMapButton,
+			Button cancelButton){
 		
 		this.activity = activity;
 		this.feature = feature;
@@ -53,8 +54,21 @@ public class FeatureDialogHelper {
 		if(startInEditMode && editButton != null
 				&& editOnMapButton != null){
 			
-			startEditMode(editButton, editOnMapButton);
+			startEditMode(editButton, editOnMapButton, cancelButton);
 		}
+	}
+	
+	private void toggleCancelButton(Button cancelButton){
+		String text;
+		Resources resources = activity.getResources();
+		
+		if(editing){
+			text = resources.getString(R.string.cancel_editing);
+		}else{
+			text = resources.getString(R.string.back);
+		}
+		
+		cancelButton.setText(text);
 	}
 	
 	private void toggleEditOnMapButton(Button editButton){
@@ -84,18 +98,20 @@ public class FeatureDialogHelper {
 	 * @param editOnMapButton
 	 * @return
 	 */
-	private boolean toggleEditMode(Button editButton, Button editOnMapButton){
+	private boolean toggleEditMode(Button editButton, Button editOnMapButton, Button cancelButton){
 		this.editing = builder.toggleEditTexts();
 		
 		toggleEditButtonText(editButton);
 		
 		toggleEditOnMapButton(editOnMapButton);
 		
+		toggleCancelButton(cancelButton);
+		
 		return editing;
 	}
 	
-	public void startEditMode(Button editButton, Button editOnMapButton){
-		toggleEditMode(editButton, editOnMapButton);
+	public void startEditMode(Button editButton, Button editOnMapButton, Button cancelButton){
+		toggleEditMode(editButton, editOnMapButton, cancelButton);
 	}
 	
 	private void dismiss(){
@@ -126,17 +142,36 @@ public class FeatureDialogHelper {
 		
 		return FeatureDatabaseHelper.getHelper(context, 
 				ProjectStructure.getProjectPath(context, 
-						projectName)).getWritableDatabase();
+						projectName), false).getWritableDatabase();
 	}
 	
-	private void save(){
+	private boolean save() throws Exception{
 		SQLiteDatabase db = getDb();
 		
+		boolean insertedNewFeature = false;
+		
+		// Update the feature from the EditText fields
 		builder.updateFeature();
 		
-		FeaturesHelper.getHelper().update(db, 
-				feature.getFeatureType(), 
-				feature.getId(), feature);
+		if(feature.isNew()){
+			String id = FeaturesHelper.getHelper().insert(db,
+					feature.getFeatureType(), feature);
+			
+			if(id.equals("-1")){
+				throw new Exception("An error occurred"
+						+ " while inserting the feature.");
+			}
+			
+			feature.setId(id);
+				
+			insertedNewFeature = true;
+		}else{
+			FeaturesHelper.getHelper().update(db, 
+					feature.getFeatureType(), 
+					feature.getId(), feature);
+		}
+		
+		return insertedNewFeature;
 	}
 	
 	private ProgressDialog startUpdateProgress(){
@@ -147,14 +182,27 @@ public class FeatureDialogHelper {
 				resources.getString(R.string.updating_msg), true);
 	}
 	
-	private void areYouSure(final Button editButton, final Button editOnMapButton){
+	private void areYouSure(final Button editButton, 
+			final Button editOnMapButton, final Button cancelButton){
+		
 		Resources resources = activity.getResources();
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 		
-		builder.setTitle(resources.getString(R.string.update_feature_title));
+		String title = null;
+		String msg = null;
+		
+		if(feature.isNew()){
+			title = resources.getString(R.string.insert_feature_warning);
+			msg = resources.getString(R.string.insert_feature_warning_msg);
+		}else{
+			title = resources.getString(R.string.update_feature_title);
+			msg = resources.getString(R.string.update_feature_msg);
+		}
+		
+		builder.setTitle(title);
 		builder.setIcon(resources.getDrawable(R.drawable.icon));
-		builder.setMessage(resources.getString(R.string.update_feature_msg));
+		builder.setMessage(msg);
 		builder.setPositiveButton(android.R.string.yes, new OnClickListener(){
 			
 			@Override
@@ -166,12 +214,17 @@ public class FeatureDialogHelper {
 					@Override
 					public void run(){
 						try{
-							save();
+							final boolean insertedNewFeature = save();
 							
 							activity.runOnUiThread(new Runnable(){
 								@Override
 								public void run(){
-									toggleEditMode(editButton, editOnMapButton);
+									toggleEditMode(editButton, editOnMapButton, cancelButton);
+									
+									if(insertedNewFeature){
+										mapListener.getMapChangeHelper()
+											.endInsertMode(feature.getId());
+									}
 								}
 							});
 						} catch (Exception e){
@@ -198,12 +251,16 @@ public class FeatureDialogHelper {
 	 * Done in edit mode.
 	 * @param save
 	 */
-	public void endEditMode(Button editButton, Button editOnMapButton){
-		areYouSure(editButton, editOnMapButton);
+	public void endEditMode(Button editButton, Button editOnMapButton, Button cancelButton){
+		areYouSure(editButton, editOnMapButton, cancelButton);
 	}
 	
 	public void unselect(){
 		mapListener.getMapChangeHelper().unselect();
+	}
+	
+	public void back(){
+		dismiss();
 	}
 	
 	public void cancel(){

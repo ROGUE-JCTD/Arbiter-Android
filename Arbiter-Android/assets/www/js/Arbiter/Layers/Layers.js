@@ -1,6 +1,11 @@
 Arbiter.Layers = (function() {
 
 	return {
+		type: {
+			WFS: "wfs",
+			WMS: "wms"
+		},
+		
 		/**
 		 * Get a name for the layer, supplying a
 		 * com.lmn.Arbiter_Android.BaseClasses.Layer and a type (wms or wfs)
@@ -15,7 +20,7 @@ Arbiter.Layers = (function() {
 				throw "Arbiter.Layers.getLayerName: id must not be " + layerId;
 			}
 
-			if (type === "wms" || type === "wfs") {
+			if (type === this.type.WMS || type === this.type.WFS) {
 				return layerId + "-" + type;
 			}
 
@@ -53,8 +58,10 @@ Arbiter.Layers = (function() {
 		 *            Layer to remove from the map
 		 */
 		removeLayerById : function(layerId) {
-			var wmsName = this.getLayerName(layerId, "wms");
-			var wfsName = this.getLayerName(layerId, "wfs");
+			var context = this;
+			
+			var wmsName = this.getLayerName(layerId, context.type.WMS);
+			var wfsName = this.getLayerName(layerId, context.type.WFS);
 
 			this.removeLayerByName(wmsName);
 			this.removeLayerByName(wfsName);
@@ -97,8 +104,10 @@ Arbiter.Layers = (function() {
 		 * Set the layers visibility
 		 */
 		toggleLayerVisibilityById : function(layerId) {
-			var wmsName = this.getLayerName(layerId, "wms");
-			var wfsName = this.getLayerName(layerId, "wfs");
+			var context = this;
+			
+			var wmsName = this.getLayerName(layerId, context.type.WMS);
+			var wfsName = this.getLayerName(layerId, context.type.WFS);
 
 			this.toggleLayerVisibilityByName(wmsName);
 			this.toggleLayerVisibilityByName(wfsName);
@@ -117,6 +126,32 @@ Arbiter.Layers = (function() {
 		
 		toggleDefaultLayerVisibility : function() {
 			this.toggleLayerVisibilityByName("OpenStreetMap");
+		},
+		
+		/**
+		 * @param {String} layerId The id of the layer in the db.
+		 * @param {String} type The type of the layer, wms or wfs.
+		 */
+		getLayerById: function(layerId, type){
+			var layerName = this.getLayerName(layerId, type);
+			
+			var map = Arbiter.Map.getMap();
+			
+			var layers = map.getLayersByName(layerName);
+			
+			if(layers !== undefined && layers !== null){
+				if(layers.length === 1){
+					return layers[0];
+				}else{
+					throw "ERROR: Arbiter.Layers.getLayerById - "
+						+ "There shouldn't be more than one layer"
+						+ " with id '" + layerId + "'";
+				}
+			}
+			
+			throw "ERROR: Arbiter.Layers.getLayerById - "
+				+ "Could not find layer with id '"
+				+ layerId + "'";
 		}
 	};
 })();

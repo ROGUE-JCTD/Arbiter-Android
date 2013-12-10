@@ -79,7 +79,7 @@ Arbiter.Cordova = (function() {
 		},
 		
 		getUpdatedGeometry: function(){
-			var selectedFeature = Arbiter.Controls.Select.getSelectedFeature();
+			var selectedFeature = Arbiter.Controls.ControlPanel.getSelectedFeature();
 			
 			if(selectedFeature !== null && selectedFeature !== undefined){
 				
@@ -93,11 +93,35 @@ Arbiter.Cordova = (function() {
 						Arbiter.Util.getFeatureInNativeProjection(srid,
 								schema.getSRID(), selectedFeature));
 				
-				Arbiter.Controls.Select.exitModifyMode();
+				Arbiter.Controls.ControlPanel.exitModifyMode();
 				
 				cordova.exec(null, null, "ArbiterCordova",
 						"updatedGeometry", [updatedGeometry]);
 			}
+		},
+		
+		doneInsertingFeature: function(layerId, feature){
+			if(feature === null || feature === undefined){
+				throw "Arbiter.Cordova.doneInsertingFeature - "
+					+ "feature should not be '" + feature + "'";
+			}
+			
+			var schema = Arbiter.getLayerSchemas()[layerId];
+			
+			if(schema === null || schema === undefined){
+				throw "Arbiter.Cordova.doneInsertingFeature - "
+					+ "Could not get schema for layerId '"
+					+ layerId + "'";
+			}
+			
+			var srid = Arbiter.Map.getMap().projection.projCode;
+			
+			var wktGeometry = wktFormatter.write(Arbiter
+					.Util.getFeatureInNativeProjection(
+							srid, schema.getSRID(), feature));
+			
+			cordova.exec(null, null, "ArbiterCordova", "doneInsertingFeature", 
+				[feature.layer.protocol.featureType, wktGeometry]);
 		}
 	};
 })();

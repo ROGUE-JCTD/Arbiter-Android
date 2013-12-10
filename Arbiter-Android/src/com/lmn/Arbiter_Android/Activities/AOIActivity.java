@@ -167,6 +167,8 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface, M
         			this.cordovaWebView.loadUrl(ArbiterCordova.aoiUrl);
         		}
         	}
+        	
+        	this.cordovaWebView.clearHistory();
         }
 		
         return null;

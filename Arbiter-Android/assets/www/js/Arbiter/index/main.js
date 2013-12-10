@@ -11,7 +11,7 @@ var app = (function() {
 			Arbiter.Cordova.OOM_Workaround
 				.registerMapListeners();
 			
-			Arbiter.Controls.Select
+			Arbiter.Controls.ControlPanel
 				.registerMapListeners();
 			
 			Arbiter.Loaders.LayersLoader.addEventTypes();

@@ -5,6 +5,7 @@ import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class FeaturesHelper{
 	private String ID = "arbiter_id";
@@ -60,6 +61,46 @@ public class FeaturesHelper{
 		return new Feature(id, featureType, geometryColumn, attributes);
 	}
 	
+	private ContentValues getEmptyAttributesWithGeometry(SQLiteDatabase db, 
+			String featureType, String geometryColumn, String wktGeometry){
+		
+		ContentValues attributes = new ContentValues();
+		
+		Cursor cursor = db.rawQuery("PRAGMA table_info(" + featureType + ")", null);
+		
+		String attrName = null;
+		
+		for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
+			attrName = cursor.getString(1);
+			
+			if(attrName.equals(geometryColumn)){
+				attributes.put(attrName, wktGeometry);
+			}else if(!attrName.equals(ID)){
+				attributes.put(attrName, "");
+			}
+		}
+		
+		return attributes;
+	}
+	
+	public Feature getNewFeature(SQLiteDatabase db, String featureType, String wktGeometry){
+		String geometryColumn = null;
+		
+		try {
+			geometryColumn = getGeometryColumn(db, featureType);
+			Log.w("FeaturesHelper", "FeaturesHelper - featureType = "
+					+ featureType + ", geometryColum = " + geometryColumn);
+		} catch (FeatureHelperException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		ContentValues attributes = getEmptyAttributesWithGeometry(db, 
+				featureType, geometryColumn, wktGeometry);
+		
+		return new Feature(featureType, geometryColumn, attributes);
+	}
+	
 	private String getGeometryColumn(SQLiteDatabase db, String featureType) throws FeatureHelperException{
 		String[] columns = {
 			GeometryColumnsHelper.FEATURE_GEOMETRY_COLUMN // 0	
@@ -86,6 +127,25 @@ public class FeaturesHelper{
 		}
 		
 		throw new FeatureHelperException(Errors.NO_GEOMETRY_COLUMN);
+	}
+	
+	public String insert(SQLiteDatabase db, String featureType, Feature feature){
+		
+		String id = null;
+		
+		db.beginTransaction();
+		
+		try{
+			id = Long.toString(db.insert(featureType, null, feature.getAttributes()));
+			
+			db.setTransactionSuccessful();
+		} catch (Exception e){
+			e.printStackTrace();
+		} finally {
+			db.endTransaction();
+		}
+		
+		return id;
 	}
 	
 	public void update(SQLiteDatabase db, String featureType, String id, Feature feature){

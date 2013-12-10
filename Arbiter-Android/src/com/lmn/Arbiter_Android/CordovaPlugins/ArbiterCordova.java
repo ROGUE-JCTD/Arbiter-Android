@@ -9,6 +9,8 @@ import org.json.JSONException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
@@ -18,7 +20,10 @@ import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Activities.MapChangeHelper;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 import com.lmn.Arbiter_Android.Map.Map;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ArbiterCordova extends CordovaPlugin{
 	private static final String TAG = "ArbiterCordova";
@@ -89,10 +94,46 @@ public class ArbiterCordova extends CordovaPlugin{
 			String updatedGeometry = args.getString(0);
 			
 			updateGeometry(updatedGeometry);
+		}else if("doneInsertingFeature".equals(action)){
+			String featureType = args.getString(0);
+			String wktGeometry = args.getString(1);
+			
+			doneInsertingFeature(featureType, wktGeometry);
 		}
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
+	}
+	
+	private SQLiteDatabase getFeatureDatabase(){
+		Context context = cordova.getActivity().getApplicationContext();
+		
+		String openProjectName = ArbiterProject.
+				getArbiterProject().getOpenProject(cordova.getActivity());
+		
+		return FeatureDatabaseHelper.getHelper(context,
+				ProjectStructure.getProjectPath(context, 
+						openProjectName), false).getWritableDatabase();
+	}
+	
+	private Feature getNewFeature(String featureType, String wktGeometry){
+		return FeaturesHelper.getHelper().getNewFeature(
+				getFeatureDatabase(), featureType, wktGeometry);
+	}
+	
+	private void doneInsertingFeature(String featureType, String wktGeometry){
+		Feature feature = getNewFeature(featureType, wktGeometry);
+		
+		ArbiterState.getArbiterState().editingFeature(feature);
+		
+		try{
+			((Map.MapChangeListener) cordova.getActivity())
+				.getMapChangeHelper().doneInsertingFeature();
+		} catch(ClassCastException e){
+			e.printStackTrace();
+			throw new ClassCastException(cordova.getActivity().toString() 
+					+ " must be an instance of Map.MapChangeListener");
+		}
 	}
 	
 	/**
@@ -137,8 +178,8 @@ public class ArbiterCordova extends CordovaPlugin{
 	 */
 	private void notifyDoneEditingFeature(){
 		try{
-			MapChangeHelper helper = ((Map.MapChangeListener) cordova.getActivity()).getMapChangeHelper();
-			helper.doneEditingFeature();
+			((Map.MapChangeListener) cordova.getActivity())
+				.getMapChangeHelper().doneEditingFeature();
 		} catch(ClassCastException e){
 			e.printStackTrace();
 			throw new ClassCastException(cordova.getActivity().toString() 
@@ -150,7 +191,7 @@ public class ArbiterCordova extends CordovaPlugin{
 		updateFeaturesGeometry(updatedGeometry);
 		
 		FeatureHelper helper = new FeatureHelper(getFragmentActivity());
-		helper.displayWithUpdatedGeometry();
+		helper.displayUpdatedFeature();
 		
 		notifyDoneEditingFeature();
 	}

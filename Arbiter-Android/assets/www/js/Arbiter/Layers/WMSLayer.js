@@ -3,7 +3,7 @@ Arbiter.Layers.WMSLayer = (function(){
 	return {
 		create: function(key, schema){
 			var layer = new OpenLayers.Layer.WMS(Arbiter.Layers.getLayerName(
-					key, "wms"),
+					key, Arbiter.Layers.type.WMS),
 					schema.getUrl() + "/wms", {
 						layers : schema.getPrefix() + ":" + schema.getFeatureType(),
 						transparent : true,
@@ -21,7 +21,7 @@ Arbiter.Layers.WMSLayer = (function(){
 		},
 		
 		refreshWMSLayer : function(key) {
-			var layerName = Arbiter.Layers.getLayerName(key, "wms");
+			var layerName = Arbiter.Layers.getLayerName(key, Arbiter.Layers.type.WMS);
 			
 			var map = Arbiter.Map.getMap();
 			var layers = map.getLayersByName(layerName);

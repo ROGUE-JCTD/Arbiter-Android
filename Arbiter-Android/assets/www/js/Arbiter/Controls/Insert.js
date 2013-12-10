@@ -5,14 +5,33 @@
  * @param {Arbiter.Util.Geometry.type} _geometryType The type.
  * @param {Function} insertCallback To be executed after insert.
  */
-Arbiter.Controls.Insert = function(_olLayer, _geometryType,
-		callbackContext, insertCallback){
+Arbiter.Controls.Insert = function(_olLayer, _geometryType, insertCallback){
+	var context = this;
 	
 	var controller = null
+	
+	console.log("_olLayer", _olLayer);
 	
 	var olLayer = _olLayer;
 	
 	var geometryType = _geometryType;
+	
+	var registerListeners = function(){
+		
+		if(olLayer !== null && olLayer !== undefined){
+			
+			olLayer.events.register("featureadded", 
+					context, onFeatureAdded);
+		}
+	};
+	
+	var unregisterListeners = function(){
+		if(olLayer !== null && olLayer !== undefined){
+			
+			olLayer.events.unregister("featureadded", 
+					context, onFeatureAdded);
+		}
+	};
 	
 	var _attachToMap = function(){
 		if(controller !== null){
@@ -21,27 +40,31 @@ Arbiter.Controls.Insert = function(_olLayer, _geometryType,
 			map.addControl(controller);
 			
 			controller.activate();
+			
+			registerListeners();
 		}
 	};
 	
 	var _detachFromMap = function(){
 		if(controller !== null){
+			unregisterListeners();
+			
 			var map = Arbiter.Map.getMap();
 			
 			controller.deactivate();
 			
 			map.removeControl(controller);
 			
-			controller.destroy();
+			// TODO: this causes an exception 
+			//controller.destroy();
 			
 			controller = null;
 		}
 	};
 	
-	var registerListeners = function(){
-		if(olLayer !== null && olLayer !== undefined){
-			olLayer.events.register("featureadded", 
-					callbackContext, insertCallback);
+	var onFeatureAdded = function(event){
+		if(Arbiter.Util.funcExists(insertCallback)){
+			insertCallback(event.feature);
 		}
 	};
 	
@@ -53,12 +76,12 @@ Arbiter.Controls.Insert = function(_olLayer, _geometryType,
 		
 		switch(geometryType){
 			case type.POINT:
-				handler = OpenLayers.Handler.Point();
+				handler = OpenLayers.Handler.Point;
 				
 				break;
 				
 			case type.LINE:
-				handler = OpenLayers.Handler.Path();
+				handler = OpenLayers.Handler.Path;
 				
 				break;
 				
@@ -76,15 +99,9 @@ Arbiter.Controls.Insert = function(_olLayer, _geometryType,
 		_attachToMap();
 	};
 	
+	initController();
+	
 	return {
-		getController: function(){
-			return controller;
-		},
-		
-		activate: function(){
-			initController();
-		},
-		
 		deactivate: function(){
 			_detachFromMap();
 		}

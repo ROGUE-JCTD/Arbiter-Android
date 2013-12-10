@@ -102,7 +102,7 @@ Arbiter.Layers.WFSLayer = (function(){
 					srid, 
 					encodedCredentials);
 
-			var name = Arbiter.Layers.getLayerName(key, "wfs");
+			var name = Arbiter.Layers.getLayerName(key, Arbiter.Layers.type.WFS);
 			
 			var options = {
 				strategies : [ getSaveStrategy(key, encodedCredentials) ],

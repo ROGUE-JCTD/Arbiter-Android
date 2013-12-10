@@ -44,7 +44,8 @@ public class LayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 				getArbiterProject().getOpenProject(activity);
 		
 		this.projectDbHelper = ProjectDatabaseHelper.getHelper(context,
-				ProjectStructure.getProjectPath(activity.getApplicationContext(), projectName));
+				ProjectStructure.getProjectPath(activity
+						.getApplicationContext(), projectName), false);
 	}
 	
 	@Override

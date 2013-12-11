@@ -14,12 +14,7 @@ Arbiter.Controls.Delete = function(){
 				throw "Could not get schema for id = " + id;
 			}
 			
-			Arbiter.FeatureTableHelper.removeFeatures([olFeature], schema, function(){
-				console.log("removing features");
-				olFeature.layer.removeFeatures([olFeature]);
-			}, function(e){
-				console.log("Error removing feature: ", e);
-			});
+			olFeature.layer.removeFeatures([olFeature]);
 		}
 	};
 };

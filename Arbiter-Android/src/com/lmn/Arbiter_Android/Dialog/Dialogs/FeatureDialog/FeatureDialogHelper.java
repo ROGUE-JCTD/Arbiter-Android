@@ -5,6 +5,7 @@ import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 import com.lmn.Arbiter_Android.Map.Map;
@@ -150,7 +151,7 @@ public class FeatureDialogHelper {
 		dismiss();
 	}
 	
-	private SQLiteDatabase getDb(){
+	private SQLiteDatabase getFeatureDb(){
 		Context context = activity.getApplicationContext();
 		String projectName = ArbiterProject.getArbiterProject()
 				.getOpenProject(activity);
@@ -160,8 +161,18 @@ public class FeatureDialogHelper {
 						projectName), false).getWritableDatabase();
 	}
 	
+	private SQLiteDatabase getProjectDb(){
+		Context context = activity.getApplicationContext();
+		String projectName = ArbiterProject.getArbiterProject()
+				.getOpenProject(activity);
+		
+		return ProjectDatabaseHelper.getHelper(context, 
+				ProjectStructure.getProjectPath(context, 
+						projectName), false).getWritableDatabase();
+	}
+	
 	private boolean save() throws Exception{
-		SQLiteDatabase db = getDb();
+		SQLiteDatabase db = getFeatureDb();
 		
 		boolean insertedNewFeature = false;
 		
@@ -197,6 +208,14 @@ public class FeatureDialogHelper {
 				resources.getString(R.string.updating_msg), true);
 	}
 	
+	private ProgressDialog startDeleteProgress(){
+		Resources resources = activity.getResources();
+		
+		return ProgressDialog.show(activity, 
+				resources.getString(R.string.delete_feature_warning), 
+				resources.getString(R.string.deleting_msg), true);
+	}
+	
 	private void areYouSure(final Button editButton, 
 			final Button editOnMapButton, final Button cancelButton,
 			final Button deleteButton){
@@ -225,6 +244,7 @@ public class FeatureDialogHelper {
 			public void onClick(DialogInterface dialog, int which) {
 				
 				final ProgressDialog progressDialog = startUpdateProgress();
+				
 				
 				CommandExecutor.runProcess(new Runnable(){
 					@Override
@@ -292,6 +312,13 @@ public class FeatureDialogHelper {
 		dismiss();
 	}
 	
+	private void deleteFeature(){
+		SQLiteDatabase db = getFeatureDb();
+		
+		FeaturesHelper.getHelper().delete(db, 
+				feature.getFeatureType(), feature.getId());
+	}
+	
 	private void displayDeleteAlert(){
 		Resources resources = activity.getResources();
 		
@@ -306,10 +333,29 @@ public class FeatureDialogHelper {
 		builder.setPositiveButton(R.string.delete_feature, new OnClickListener(){
 			
 			@Override
-			public void onClick(DialogInterface dialog, int which) {				
-				mapListener.getMapChangeHelper().removeSelectedFeature();
+			public void onClick(DialogInterface dialog, int which) {
 				
-				dismiss();
+				final ProgressDialog deleteProgress = startDeleteProgress();
+				
+				CommandExecutor.runProcess(new Runnable(){
+					@Override
+					public void run(){
+						
+						deleteFeature();
+						
+						activity.runOnUiThread(new Runnable(){
+							@Override
+							public void run(){
+								
+								mapListener.getMapChangeHelper().removeSelectedFeature();
+								
+								dismiss();
+								
+								deleteProgress.dismiss();
+							}
+						});
+					}
+				});
 			}
 		});
 		

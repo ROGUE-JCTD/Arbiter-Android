@@ -215,7 +215,11 @@ Arbiter.Cordova.Project = (function(){
 			Arbiter.Util.Feature.downloadFeatures(schema, bounds, 
 					encodedCredentials, function(schema, features){
 				// Features will be in their native srid at this point so pass the srid of the schema
-				Arbiter.FeatureTableHelper.insertFeatures(schema, schema.getSRID(), features, function(){
+				var isDownload = true;
+				
+				Arbiter.FeatureTableHelper.insertFeatures(schema, schema.getSRID(),
+						features, isDownload, function(){
+					
 					callback.call();
 				});
 			});

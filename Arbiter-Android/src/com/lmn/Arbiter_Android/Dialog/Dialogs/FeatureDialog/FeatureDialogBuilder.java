@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 
 public class FeatureDialogBuilder {
 	private Activity activity;
@@ -40,11 +41,11 @@ public class FeatureDialogBuilder {
 		for(String key : attributes.keySet()){
 			value = attributes.getAsString(key);
 			
-			//if(key.equals(geometryName)){
-		//		appendGeometry(value);
-		//	}else{
+			if(!key.equals(FeaturesHelper.SYNC_STATE) 
+					&& !key.equals(FeaturesHelper.MODIFIED_STATE)){
+				
 				appendAttribute(key, value);
-	//		}
+			}
 		}
 	}
 	
@@ -97,8 +98,12 @@ public class FeatureDialogBuilder {
 		int i = 0;
 		
 		for(String key : attributes.keySet()){
-			attributes.put(key, editTexts.get(i++)
+			if(!key.equals(FeaturesHelper.SYNC_STATE) 
+					&& !key.equals(FeaturesHelper.MODIFIED_STATE)){
+				
+				attributes.put(key, editTexts.get(i++)
 					.getText().toString());
+			}
 		}
 	}
 }

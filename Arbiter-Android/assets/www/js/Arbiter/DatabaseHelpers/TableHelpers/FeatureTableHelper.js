@@ -29,6 +29,20 @@ Arbiter.FeatureTableHelper = (function(){
 	
 	return {
 		ID : "arbiter_id",
+		SYNC_STATE: "sync_state",
+		MODIFIED_STATE: "modified_state",
+		
+		MODIFIED_STATES: {
+			NONE: 0,
+			INSERTED: 1,
+			MODIFIED: 2,
+			DELETED: 3
+		},
+		
+		SYNC_STATES: {
+			NOT_SYNCED: 0,
+			SYNCED: 1
+		},
 		
 		/**
     	 * Create the table
@@ -53,6 +67,8 @@ Arbiter.FeatureTableHelper = (function(){
     		var sql = "CREATE TABLE IF NOT EXISTS "
     			+ schema.getFeatureType() + " ("
     			+ this.ID + " integer primary key, "
+    			+ this.SYNC_STATE + " integer not null, "
+    			+ this.MODIFIED_STATE + " integer not null, "
     			+ schema.getGeometryName() + " text not null";
     		
     		var attributes = schema.getAttributes();
@@ -84,7 +100,9 @@ Arbiter.FeatureTableHelper = (function(){
     	 * srid is the srid the geometries 
     	 * are in when they are being inserted.
     	 */
-    	insertFeatures: function(schema, srid, features, onSuccess, onFailure){
+    	insertFeatures: function(schema, srid, features,
+    			isDownload, onSuccess, onFailure){
+    		
     		var insertCount = 0;
     		var featureCount = features.length;
     		
@@ -94,7 +112,7 @@ Arbiter.FeatureTableHelper = (function(){
     		db.transaction(function(tx){
     			for(var i = 0; i < featureCount; i++){
     				context.insertFeature(tx, schema, srid, 
-    						features[i], function(){
+    						features[i], isDownload, function(){
     					
     					insertCount++;
     					
@@ -120,20 +138,37 @@ Arbiter.FeatureTableHelper = (function(){
     	 * Insert feature into the feature table
     	 * srid is the srid the geometry
     	 */
-    	insertFeature: function(tx, schema, srid, feature, onSuccess, onFailure){
+    	insertFeature: function(tx, schema, srid, feature,
+    			isDownload, onSuccess, onFailure){
+    		
     		var sql = "INSERT INTO " + schema.getFeatureType()
-    			+ " (" + schema.getGeometryName();
+    			+ " (" + schema.getGeometryName() + ", "
+    			+ this.MODIFIED_STATE + ", "
+    			+ this.SYNC_STATE;
     		
     		var attributes = schema.getAttributes();
     		
     		// Adding as many question marks as there are attributes
-    		var questionMarks = "?";
+    		var questionMarks = "?,?,?";
     		var values = [];
     		var attributeName = null;
     		
+    		// Push the geometry
     		values.push(wktFormatter.write(Arbiter.Util.getFeatureInNativeProjection(srid, 
     				schema.getSRID(), feature)));
     		
+    		// Push the modified state
+    		if(isDownload){
+    			values.push(this.MODIFIED_STATES.NONE);
+        		
+        		values.push(this.SYNC_STATES.SYNCED);
+    		}else{
+    			values.push(this.MODIFIED_STATES.INSERTED);
+        		
+        		values.push(this.SYNC_STATES.NOT_SYNCED);
+    		}
+    		
+    		// Push the attributes
     		for(var i = 0; i < attributes.length; i++){
     			attributeName = attributes[i].getName();
     			sql += ", " + attributeName;

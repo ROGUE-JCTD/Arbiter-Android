@@ -1,11 +1,14 @@
 package com.lmn.Arbiter_Android.BaseClasses;
 
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
+
 import android.content.ContentValues;
 
 public class Feature {
 	private String id;
 	private String featureType;
 	private String geometryName;
+	
 	private ContentValues attributes;
 	
 	public Feature(String id, String featureType, 
@@ -15,13 +18,31 @@ public class Feature {
 		this.featureType = featureType;
 		this.geometryName = geometryName;
 		this.attributes = attributes;
+		
+		if(getSyncState() == null){
+			try {
+				throw new Exception("Feature(): syncState should not be null");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		if(getModifiedState() == null){
+			try {
+				throw new Exception("Feature(): modifiedState should not be null");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public Feature(String featureType, String geometryName, ContentValues attributes){
 		this.featureType = featureType;
 		this.geometryName = geometryName;
 		this.attributes = attributes;
-		
+				
 		this.id = null;
 	}
 	
@@ -71,5 +92,21 @@ public class Feature {
 	
 	public void updateAttribute(String key, String value){
 		attributes.put(key, value);
+	}
+	
+	public String getSyncState(){
+		return attributes.getAsString(FeaturesHelper.SYNC_STATE);
+	}
+	
+	public void setSyncState(String state){
+		attributes.put(FeaturesHelper.SYNC_STATE, state);;
+	}
+	
+	public String getModifiedState(){
+		return attributes.getAsString(FeaturesHelper.MODIFIED_STATE);
+	}
+	
+	public void setModifiedState(String state){
+		attributes.put(FeaturesHelper.MODIFIED_STATE, state);
 	}
 }

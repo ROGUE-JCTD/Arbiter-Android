@@ -8,7 +8,21 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 public class FeaturesHelper{
-	private String ID = "arbiter_id";
+	public static final String ID = "arbiter_id";
+	public static final String SYNC_STATE = "sync_state";
+	public static final String MODIFIED_STATE = "modified_state";
+	
+	public class SYNC_STATES{
+		public static final String NOT_SYNCED = "0";
+		public static final String SYNCED = "1";
+	}
+	
+	public class MODIFIED_STATES{
+		public static final String NONE = "0";
+		public static final String INSERTED = "1";
+		public static final String MODIFIED = "2";
+		public static final String DELETED = "3";
+	}
 	
 	private FeaturesHelper() {}
 
@@ -157,6 +171,14 @@ public class FeaturesHelper{
 			String[] whereArgs = {
 				id
 			};
+			
+			if(feature.getModifiedState() == null){
+				throw new Exception("Feature Update: modified state should not be null");
+			}
+			
+			if(feature.getSyncState() == null){
+				throw new Exception("Feature Update: sync state should not be null");
+			}
 			
 			db.update(featureType, feature.getAttributes(), whereClause, whereArgs);
 			

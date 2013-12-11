@@ -28,21 +28,11 @@ public class MapChangeHelper {
 	 * LayerChangeListener events
 	 */
 	public void onLayerDeleted(final long layerId) {
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				Map.getMap().resetWebApp(cordovaWebView);
-			}
-		});
+		reloadMap();
 	}
 
 	public void onLayerVisibilityChanged(final long layerId) {
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				Map.getMap().resetWebApp(cordovaWebView);
-			}
-		});
+		reloadMap();
 	}
 	
 	public void onLayersAdded(final ArrayList<Layer> layers, final long[] layerIds,
@@ -57,12 +47,7 @@ public class MapChangeHelper {
 	}
 	
 	public void onServerDeleted(long serverId){
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				Map.getMap().resetWebApp(cordovaWebView);
-			}
-		});
+		reloadMap();
 	}
 	
 	private void toggleEditButtons(final boolean visible){
@@ -162,7 +147,8 @@ public class MapChangeHelper {
 		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
-				Map.getMap().endInsertMode(cordovaWebView, featureId);
+				//Map.getMap().endInsertMode(cordovaWebView, featureId);
+				Map.getMap().resetWebApp(cordovaWebView);
 				
 				toggleInsertFeatureBar(false);	
 			}
@@ -187,6 +173,15 @@ public class MapChangeHelper {
 			@Override
 			public void run(){
 				Map.getMap().removeSelectedFeature(cordovaWebView);
+			}
+		});
+	}
+	
+	public void reloadMap(){
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				Map.getMap().resetWebApp(cordovaWebView);
 			}
 		});
 	}

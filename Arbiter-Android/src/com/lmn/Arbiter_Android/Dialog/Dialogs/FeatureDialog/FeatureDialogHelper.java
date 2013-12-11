@@ -5,7 +5,6 @@ import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 import com.lmn.Arbiter_Android.Map.Map;
@@ -20,7 +19,6 @@ import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -161,16 +159,6 @@ public class FeatureDialogHelper {
 						projectName), false).getWritableDatabase();
 	}
 	
-	private SQLiteDatabase getProjectDb(){
-		Context context = activity.getApplicationContext();
-		String projectName = ArbiterProject.getArbiterProject()
-				.getOpenProject(activity);
-		
-		return ProjectDatabaseHelper.getHelper(context, 
-				ProjectStructure.getProjectPath(context, 
-						projectName), false).getWritableDatabase();
-	}
-	
 	private boolean save() throws Exception{
 		SQLiteDatabase db = getFeatureDb();
 		
@@ -189,9 +177,16 @@ public class FeatureDialogHelper {
 			}
 			
 			feature.setId(id);
-				
+			
+			feature.setSyncState(FeaturesHelper.SYNC_STATES.NOT_SYNCED);
+			feature.setModifiedState(FeaturesHelper.MODIFIED_STATES.INSERTED);
+			
 			insertedNewFeature = true;
 		}else{
+			if(feature.getSyncState().equals(FeaturesHelper.SYNC_STATES.SYNCED)){
+				feature.setModifiedState(FeaturesHelper.MODIFIED_STATES.MODIFIED);
+			}
+			
 			FeaturesHelper.getHelper().update(db, 
 					feature.getFeatureType(), 
 					feature.getId(), feature);
@@ -261,6 +256,8 @@ public class FeatureDialogHelper {
 									if(insertedNewFeature){
 										mapListener.getMapChangeHelper()
 											.endInsertMode(feature.getId());
+									}else{
+										mapListener.getMapChangeHelper().reloadMap();
 									}
 								}
 							});
@@ -307,7 +304,8 @@ public class FeatureDialogHelper {
 	}
 	
 	public void cancel(){
-		mapListener.getMapChangeHelper().cancelEditing();
+		//mapListener.getMapChangeHelper().cancelEditing();
+		mapListener.getMapChangeHelper().reloadMap();
 		
 		dismiss();
 	}
@@ -315,8 +313,18 @@ public class FeatureDialogHelper {
 	private void deleteFeature(){
 		SQLiteDatabase db = getFeatureDb();
 		
-		FeaturesHelper.getHelper().delete(db, 
-				feature.getFeatureType(), feature.getId());
+		if(feature.getSyncState().equals(FeaturesHelper.SYNC_STATES.SYNCED)){
+			feature.setModifiedState(FeaturesHelper.MODIFIED_STATES.DELETED);
+			
+			FeaturesHelper.getHelper().update(db, 
+					feature.getFeatureType(), feature.getId(),
+					feature);
+		}else{ 
+			// If the feature isn't synced, then we don't
+			// need to keep track of it anymore.
+			FeaturesHelper.getHelper().delete(db,
+					feature.getFeatureType(), feature.getId());
+		}
 	}
 	
 	private void displayDeleteAlert(){
@@ -347,7 +355,9 @@ public class FeatureDialogHelper {
 							@Override
 							public void run(){
 								
-								mapListener.getMapChangeHelper().removeSelectedFeature();
+								//mapListener.getMapChangeHelper().removeSelectedFeature();
+								
+								mapListener.getMapChangeHelper().reloadMap();
 								
 								dismiss();
 								

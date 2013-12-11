@@ -12,12 +12,12 @@ Arbiter.Controls.Select = function(onSelect, onUnselect, includeOOMWorkaround){
 	
 	var selectController = null;
 	
-	var oomWorkaround = null;
+	/*var oomWorkaround = null;
 	
 	if(includeOOMWorkaround){
 		oomWorkaround = new Arbiter.Controls
 			.Select.OOM_Workaround(this);
-	}
+	}*/
 	
 	var initSelectController = function(){
 		selectController = new OpenLayers.Control.SelectFeature(vectorLayers, {
@@ -115,11 +115,11 @@ Arbiter.Controls.Select = function(onSelect, onUnselect, includeOOMWorkaround){
 			onAddLayer();
 			onRemoveLayer();
 			
-			if(oomWorkaround !== null &&
+			/*if(oomWorkaround !== null &&
 					oomWorkaround !== undefined){
 				
 				oomWorkaround.registerMapListeners();
-			}
+			}*/
 		},
 		
 		unselect: function(){

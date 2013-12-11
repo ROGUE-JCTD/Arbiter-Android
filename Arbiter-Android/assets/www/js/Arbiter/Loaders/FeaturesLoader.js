@@ -4,10 +4,20 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 	var wktFormatter = new OpenLayers.Format.WKT();
 	
 	var addMetadata = function(dbFeature, olFeature){
-		olFeature.metadata = {};
+		if(olFeature.metadata === null 
+				|| olFeature.metadata === undefined){
+			
+			olFeature.metadata = {};
+		}
 		
 		olFeature.metadata[Arbiter.FeatureTableHelper.ID] = 
 			dbFeature[Arbiter.FeatureTableHelper.ID]; 
+		
+		olFeature.metadata[Arbiter.FeatureTableHelper.MODIFIED_STATE] =
+			dbFeature[Arbiter.FeatureTableHelper.MODIFIED_STATE];
+		
+		olFeature.metadata[Arbiter.FeatureTableHelper.SYNC_STATE] =
+			dbFeature[Arbiter.FeatureTableHelper.SYNC_STATE];
 	};
 	
 	var addAttributes = function(schema, dbFeature, olFeature){
@@ -18,6 +28,18 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 		for(var i = 0; i < attributes.length; i++){
 			olFeature.attributes[attributes[i].getName()] = 
 				dbFeature[attributes[i].getName()];
+		}
+	};
+	
+	var setState = function(olFeature){
+		var state = olFeature.metadata[Arbiter.FeatureTableHelper.MODIFIED_STATE];
+		
+		if(state === Arbiter.FeatureTableHelper.MODIFIED_STATES.DELETED){
+			olFeature.state = OpenLayers.State.DELETE;
+		}else if(state === Arbiter.FeatureTableHelper.MODIFIED_STATES.INSERTED){
+			olFeature.state = OpenLayers.State.INSERT;
+		}else if(state === Arbiter.FeatureTableHelper.MODIFIED_STATES.MODIFIED){
+			olFeature.state = OpenLayers.State.UPDATE;
 		}
 	};
 	
@@ -37,6 +59,8 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 		addAttributes(schema, dbFeature, olFeature);
 		
 		addMetadata(dbFeature, olFeature);
+		
+		setState(olFeature);
 		
 		olLayer.addFeatures([olFeature]);
 	};

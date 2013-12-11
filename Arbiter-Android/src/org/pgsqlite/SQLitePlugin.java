@@ -41,6 +41,8 @@ public class SQLitePlugin extends CordovaPlugin
 	private static final String PROJECT_DATABASE_NAME = "projectdb";
 	private static final String APPLICATION_DATABASE_NAME = "appdb";
 	
+	private String oldProjectName;
+	
 	/**
 	 * Multiple database map (static).
 	 */
@@ -231,10 +233,11 @@ public class SQLitePlugin extends CordovaPlugin
 		
 		// Get the path to the databases from the current project
 		Context context = cordova.getActivity().getApplicationContext();
-		String projectName = ArbiterProject.getArbiterProject().
+		
+		this.oldProjectName = ArbiterProject.getArbiterProject().
 				getOpenProject(cordova.getActivity());
 		
-		String path = ProjectStructure.getProjectPath(context, projectName);
+		String path = ProjectStructure.getProjectPath(context, this.oldProjectName);
 		
 		// If the plugin doesn't know about the db,
 		// get it for plugin use.
@@ -353,6 +356,21 @@ public class SQLitePlugin extends CordovaPlugin
 	}
 
 	/**
+	 * Check to see if the the project got switched.
+	 * If so, the databases must be updated.
+	 */
+	private void updateDatabases(){
+		String projectName = ArbiterProject.getArbiterProject()
+				.getOpenProject(this.cordova.getActivity());
+		
+		if(!projectName.equals(oldProjectName)){
+			for(String name : dbmap.keySet()){
+				openDatabase(name, null);
+			}
+		}
+	}
+	
+	/**
 	 * Executes a batch request and sends the results via sendJavascriptCB().
 	 *
 	 * @param dbname
@@ -381,6 +399,8 @@ public class SQLitePlugin extends CordovaPlugin
 		CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run(){
+				
+				updateDatabases();
 				
 				SQLiteDatabase mydb = sqlitePlugin.getDatabase(dbname);
 

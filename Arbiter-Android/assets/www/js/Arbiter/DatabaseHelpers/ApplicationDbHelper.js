@@ -7,6 +7,8 @@ Arbiter.ApplicationDbHelper = (function(){
 		getDatabase: function(){
 			if(appDb === null){
 				appDb = sqlitePlugin.openDatabase(APPLICATION_DATABASE_NAME);
+				
+				Arbiter.SQLiteTransactionManager.push(appDb);
 			}
 			
 			return appDb;

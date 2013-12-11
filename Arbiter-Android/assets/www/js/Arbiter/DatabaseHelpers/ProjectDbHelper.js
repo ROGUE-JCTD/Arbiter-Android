@@ -3,13 +3,17 @@ Arbiter.ProjectDbHelper = (function(){
 	
 	var projectDb = null;
 	
+	var manager = null;
+	
 	return {
 		getProjectDatabase: function(){
-			/*if(projectDb === null){
+			if(projectDb === null){
 				projectDb = sqlitePlugin.openDatabase(PROJECT_DATABASE_NAME);
-			}*/
+				
+				Arbiter.SQLiteTransactionManager.push(projectDb);
+			}
 			
-			return sqlitePlugin.openDatabase(PROJECT_DATABASE_NAME);
+			return projectDb;
 		}
 	};
 })();

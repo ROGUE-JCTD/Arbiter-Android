@@ -80,7 +80,9 @@ public class ArbiterCordova extends CordovaPlugin{
 			
 			return true;
 		}else if("errorAddingLayers".equals(action)){
-			errorAddingLayers();
+			String error = args.getString(0);
+			
+			errorAddingLayers(error);
 			
 			return true;
 		}else if("featureSelected".equals(action)){
@@ -200,26 +202,26 @@ public class ArbiterCordova extends CordovaPlugin{
 		arbiterProject.doneAddingLayers(cordova.getActivity().getApplicationContext());
 	}
 	
-	private void errorAddingLayers(){
+	private void errorAddingLayers(String error){
 		doneAddingLayers();
 		
 		showDialog(R.string.error_adding_layers, 
-				R.string.error_adding_layers_msg);
+				R.string.error_adding_layers_msg, error);
 	}
 	
 	private void errorLoadingFeatures(){
 		showDialog(R.string.error_loading_features, 
-				R.string.error_loading_features_msg);
+				R.string.error_loading_features_msg, null);
 	}
 	
-	private void showDialog(int title, int message){
+	private void showDialog(int title, int message, String optionalMessage){
 		final Activity activity = cordova.getActivity();
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 		
 		builder.setTitle(title);
 		builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
-		builder.setMessage(message);
+		builder.setMessage(message + ": \n\t" + optionalMessage);
 		
 		builder.create().show();
 	}

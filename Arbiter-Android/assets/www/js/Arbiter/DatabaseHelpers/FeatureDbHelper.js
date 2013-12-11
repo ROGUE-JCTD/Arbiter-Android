@@ -5,11 +5,13 @@ Arbiter.FeatureDbHelper = (function(){
 	
 	return {
 		getFeatureDatabase: function(){
-			/*if(featureDb === null){
+			if(featureDb === null){
 				featureDb = sqlitePlugin.openDatabase(FEATURE_DATABASE_NAME);
-			}*/
+				
+				Arbiter.SQLiteTransactionManager.push(featureDb);
+			}
 			
-			return sqlitePlugin.openDatabase(FEATURE_DATABASE_NAME);
+			return featureDb;
 		}
 	};
 })();

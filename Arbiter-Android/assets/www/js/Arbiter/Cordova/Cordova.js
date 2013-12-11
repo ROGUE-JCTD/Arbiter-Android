@@ -15,7 +15,7 @@ Arbiter.Cordova = (function() {
 						"resetWebApp", [bbox, zoom]);
 			};
 			
-			reset();
+			Arbiter.SQLiteTransactionManager.executeAfterDone(reset);
 		},
 		
 		setNewProjectsAOI: function(){
@@ -55,9 +55,9 @@ Arbiter.Cordova = (function() {
 					"doneAddingLayers", []);
 		},
 		
-		errorAddingLayers: function(troublesomeFeatureTypes){
+		errorAddingLayers: function(e){
 			cordova.exec(null, null, "ArbiterCordova", 
-					"errorAddingLayers", [troublesomeFeatureTypes]);
+					"errorAddingLayers", [e]);
 		},
 		
 		// TODO: Right the native method and then call here

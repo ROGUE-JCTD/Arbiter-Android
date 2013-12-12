@@ -19,12 +19,22 @@ Arbiter.Cordova.OOM_Workaround = (function(){
 	};
 	
 	return {
+		registered: false,
+		
+		OOM_Workaround: "oomWorkaround",
+		
 		tileCounter : 0,
 
 		RESET_ARBITER_ON : 150,
 		
 		overrideGetURL : function(layer) {
 			var context = this;
+			
+			if(!layer.metadata){
+				layer.metadata = {};
+			}
+			
+			layer.metadata[context.OOM_Workaround] = true;
 			
 			layer.getURL = function(bounds) {
 				var url = Object.getPrototypeOf(this).getURL.call(this, bounds);
@@ -36,6 +46,8 @@ Arbiter.Cordova.OOM_Workaround = (function(){
 		
 		registerMapListeners : function() {
 			onMoveEnd();
+			
+			this.registered = true;
 		}
 	};
 })();

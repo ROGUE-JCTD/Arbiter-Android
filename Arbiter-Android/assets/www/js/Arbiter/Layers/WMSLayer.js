@@ -15,8 +15,6 @@ Arbiter.Layers.WMSLayer = (function(){
 						visibility : schema.isVisible()
 					});
 
-			Arbiter.Cordova.OOM_Workaround.overrideGetURL(layer);
-
 			return layer;
 		},
 		

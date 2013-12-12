@@ -126,6 +126,19 @@ Arbiter.Loaders.LayersLoader = (function(){
 		}, onFailure);
 	};
 	
+	/**
+	 * redraw the wfsLayers
+	 */
+	var redrawWFSLayers = function(){
+		var map = Arbiter.Map.getMap();
+		
+		var wfsLayers = map.getLayersByClass("OpenLayers.Layer.Vector");
+		
+		for(var i = 0; i < wfsLayers.length; i++){
+			wfsLayers[i].redraw();
+		}
+	};
+	
 	return {
 		DONE_LOADING_LAYERS: "arbiter_done_loading_layers",
 		
@@ -149,6 +162,12 @@ Arbiter.Loaders.LayersLoader = (function(){
 								if(Arbiter.Util.funcExists(onSuccess)){
 									onSuccess();
 								}
+								
+								// Sometimes after loading,
+								// the wfs layers do not get drawn
+								// properly.  This ensures they
+								// get drawn correctly.
+								redrawWFSLayers();
 							});
 						}, onFailure);
 					}, onFailure);

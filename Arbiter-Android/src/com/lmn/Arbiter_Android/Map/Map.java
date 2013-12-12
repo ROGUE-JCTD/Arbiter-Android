@@ -201,24 +201,4 @@ public class Map{
 		
 		webview.loadUrl(url);
 	}
-	
-	public void endInsertMode(CordovaWebView webview, String featureId){
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.ControlPanel.endInsertMode("; 
-				
-		if(featureId != null){
-			url += featureId + ")'))";
-		}else{
-			url += ")'))";
-		}
-		
-		webview.loadUrl(url);
-	}
-	
-	public void removeSelectedFeature(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.ControlPanel.removeSelectedFeature()'))";
-		
-		webview.loadUrl(url);
-	}
 }

@@ -255,7 +255,7 @@ public class FeatureDialogHelper {
 									
 									if(insertedNewFeature){
 										mapListener.getMapChangeHelper()
-											.endInsertMode(feature.getId());
+											.endInsertMode();
 									}else{
 										mapListener.getMapChangeHelper().reloadMap();
 									}
@@ -354,8 +354,6 @@ public class FeatureDialogHelper {
 						activity.runOnUiThread(new Runnable(){
 							@Override
 							public void run(){
-								
-								//mapListener.getMapChangeHelper().removeSelectedFeature();
 								
 								mapListener.getMapChangeHelper().reloadMap();
 								

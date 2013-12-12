@@ -37,6 +37,5 @@ Arbiter.Cordova.OOM_Workaround = (function(){
 		registerMapListeners : function() {
 			onMoveEnd();
 		}
-
 	};
 })();

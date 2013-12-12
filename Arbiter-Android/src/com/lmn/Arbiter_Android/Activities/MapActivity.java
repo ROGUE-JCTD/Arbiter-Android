@@ -153,7 +153,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     	cancelInsert.setOnClickListener(new OnClickListener(){
     		@Override
     		public void onClick(View v){
-    			mapChangeHelper.endInsertMode(null);
+    			mapChangeHelper.endInsertMode();
     		}
     	});
     }

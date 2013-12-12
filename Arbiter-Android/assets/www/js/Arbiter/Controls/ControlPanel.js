@@ -208,36 +208,8 @@ Arbiter.Controls.ControlPanel = (function(){
 			_startInsertMode(layerId);
 		},
 		
-		endInsertMode: function(featureId){
-			if(featureId !== null && featureId !== undefined){
-				setFeatureId(insertedFeature, featureId);
-			}
-			
-			insertedFeature = null;
-			
-			if(insertControl !== null){
-				_endInsertMode();
-			}
-		},
-		
 		getInsertControl: function(){
 			return insertControl;
-		},
-		
-		removeSelectedFeature: function(){
-			var feature = selectedFeature;
-			
-			if(selectedFeature === null || selectedFeature === undefined){
-				return;
-			}
-			
-			this.unselect();
-			
-			try{
-				deleteControl.deleteFeature(feature);
-			} catch(e){
-				console.log(e);
-			}
 		}
 	};
 })();

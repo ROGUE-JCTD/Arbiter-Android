@@ -143,11 +143,10 @@ public class MapChangeHelper {
 		});
 	}
 	
-	public void endInsertMode(final String featureId){
+	public void endInsertMode(){
 		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
-				//Map.getMap().endInsertMode(cordovaWebView, featureId);
 				Map.getMap().resetWebApp(cordovaWebView);
 				
 				toggleInsertFeatureBar(false);	
@@ -164,15 +163,6 @@ public class MapChangeHelper {
     			helper.displayUpdatedFeature();
 				
 				toggleInsertFeatureBar(false);
-			}
-		});
-	}
-	
-	public void removeSelectedFeature(){
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				Map.getMap().removeSelectedFeature(cordovaWebView);
 			}
 		});
 	}

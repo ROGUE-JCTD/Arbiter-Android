@@ -3,10 +3,12 @@ Arbiter.SQLiteTransaction = function(_db, _transactionCompleted){
 	
 	var db = _db;
 	
-	startNextTransaction = db.startNextTransaction;
+	var startNextTransaction = db.startNextTransaction;
+	this.isDone = function(){
+		return !db.txQ[0];
+	};
 	
 	db.startNextTransaction = function(){
-		
 		startNextTransaction.call(db);
 		
 		// The transaction queue is empty so
@@ -17,12 +19,6 @@ Arbiter.SQLiteTransaction = function(_db, _transactionCompleted){
 			if(Arbiter.Util.funcExists(_transactionCompleted)){
 				_transactionCompleted();
 			}
-		}
-	};
-	
-	return {
-		isDone: function(){
-			return db.txQ.length === 0;
 		}
 	};
 };

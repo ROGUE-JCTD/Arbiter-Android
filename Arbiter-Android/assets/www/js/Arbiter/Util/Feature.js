@@ -23,7 +23,9 @@ Arbiter.Util.Feature = (function(){
     	 * schema is type Arbiter.Util.LayerSchema
     	 * bounds is type Arbiter.Util.Bounds
     	 */
-        downloadFeatures: function(schema, bounds, encodedCredentials, callback){
+        downloadFeatures: function(schema, bounds, 
+        		encodedCredentials, onSuccess, onFailure){
+        	
             var srsNumberStr = schema.getSRID().substring(
             		schema.getSRID().indexOf(":") + 1);
             
@@ -60,24 +62,49 @@ Arbiter.Util.Feature = (function(){
             '</wfs:GetFeature>';
                 
             console.log("getFeatureRequest: " + getFeatureRequest);
-            (new OpenLayers.Request.POST({
-                    url: schema.getUrl() + "/wfs",
-                    data: getFeatureRequest,
-                    headers: {
-                            'Content-Type': 'text/xml;charset=utf-8',
-                            'Authorization': 'Basic ' + encodedCredentials
-                    },
-                    callback: function(response){
-                            var features = gmlReader.read(response.responseText);
-                            
-                            console.log("GetFeature: ", features);
-                            
-                            if(callback !== null && callback !== undefined){
-                            	callback.call(Arbiter.Util.Feature, 
-                            		schema, features);
-                            }
+            
+            var gotRequestBack = false;
+            
+            var request = new OpenLayers.Request.POST({
+                url: schema.getUrl() + "/wfs",
+                data: getFeatureRequest,
+                headers: {
+                        'Content-Type': 'text/xml;charset=utf-8',
+                        'Authorization': 'Basic ' + encodedCredentials
+                },
+                success: function(response){
+                	gotRequestBack = true;
+                	
+                    var features = gmlReader.read(response.responseText);
+                    
+                    console.log("GetFeature: ", features);
+                    
+                    if(Arbiter.Util.funcExists(onSuccess)){
+                    	onSuccess.call(Arbiter.Util.Feature, 
+                    		schema, features);
                     }
-            }));
+                },
+                failure: function(response){
+                	gotRequestBack = true;
+                	
+                	if(Arbiter.Util.funcExists(onFailure)){
+    					onFailure();
+    				}
+                }
+            });
+            
+            // Couldn't find a way to set timeout for an openlayers
+    		// request, so I did this to abort the request after
+    		// 15 seconds of not getting a response
+    		window.setTimeout(function(){
+    			if(!gotRequestBack){
+    				request.abort();
+    				
+    				if(Arbiter.Util.funcExists(onFailure)){
+    					onFailure();
+    				}
+    			}
+    		}, 15000);
         }
     };
 })();

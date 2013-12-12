@@ -11,7 +11,7 @@ Arbiter.Layers.WFSLayer = (function(){
 
 		return new OpenLayers.Protocol.WFS({
 			version : "1.0.0",
-			url : url,
+			url : url + "/wfs",
 			featureNS : featureNamespace,
 			geometryName : geometryName,
 			featureType : featureType,
@@ -22,28 +22,19 @@ Arbiter.Layers.WFSLayer = (function(){
 		});
 	};
 	
-	// layer is an openlayers layer
-	var onSaveSuccess = function(key, layer, encodedCredentials) {
-
-		// update the wms layer
-		Arbiter.Layers.WMSLayer.refreshWMSLayer(key);
-
-		// update the feature data
-		
-		// Download the latest given the project aoi
-		
-			// On successful download, delete the layers feature table
-		
-				// On successful delete, insert the downloaded features
-		
-	};
-	
 	var getSaveStrategy = function(key, encodedCredentials) {
 		var saveStrategy = new OpenLayers.Strategy.Save();
 
 		saveStrategy.events.register("success", this, function(event) {
-			onSaveSuccess(key, event.object.layer,
+			console.log("Arbiter.Layers.WFSLayer.onSaveSuccess()");
+			Arbiter.Layers.SyncHelper.onSaveSuccess(key, event.object.layer,
 					encodedCredentials);
+		});
+		
+		saveStrategy.events.register("fail", this, function(event){
+			console.log("Arbiter.Layers.WFSLayer.onSaveFailure()");
+			Arbiter.Layers.SyncHelper.onSaveFailure(key, 
+					event.object.layer, encodedCredentials);
 		});
 		
 		return saveStrategy;

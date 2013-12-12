@@ -25,9 +25,21 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 		
 		var attributes = schema.getAttributes();
 		
+		var attributeName = null;
+		
 		for(var i = 0; i < attributes.length; i++){
-			olFeature.attributes[attributes[i].getName()] = 
-				dbFeature[attributes[i].getName()];
+			attributeName = attributes[i].getName();
+			
+			if(attributeName === Arbiter.FeatureTableHelper.FID){
+				
+				olFeature[Arbiter.FeatureTableHelper.FID] 
+					= dbFeature[Arbiter.FeatureTableHelper.FID];
+			}else if(attributeName !== Arbiter.FeatureTableHelper.SYNC_STATE
+					&& attributeName !== Arbiter.FeatureTableHelper.MODIFIED_STATE){
+				
+				olFeature.attributes[attributeName] = 
+					dbFeature[attributeName];
+			}
 		}
 	};
 	

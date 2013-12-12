@@ -207,7 +207,7 @@ Arbiter.Cordova.Project = (function(){
 		 * callback is the callback to be executed
 		 * after all of the features finish downloading
 		 */
-		downloadFeatures: function(schema, bounds, encodedCredentials, callback){
+		downloadFeatures: function(schema, bounds, encodedCredentials, onSuccess, onFailure){
 			var context = this;
 			
 			// Insert the downloaded features
@@ -220,9 +220,11 @@ Arbiter.Cordova.Project = (function(){
 				Arbiter.FeatureTableHelper.insertFeatures(schema, schema.getSRID(),
 						features, isDownload, function(){
 					
-					callback.call();
+					if(Arbiter.Util.funcExists(onSuccess)){
+						onSuccess();
+					}
 				});
-			});
+			}, onFailure);
 		},
 		
 		/**

@@ -29,6 +29,7 @@ Arbiter.FeatureTableHelper = (function(){
 	
 	return {
 		ID : "arbiter_id",
+		FID : "fid",
 		SYNC_STATE: "sync_state",
 		MODIFIED_STATE: "modified_state",
 		
@@ -67,6 +68,7 @@ Arbiter.FeatureTableHelper = (function(){
     		var sql = "CREATE TABLE IF NOT EXISTS "
     			+ schema.getFeatureType() + " ("
     			+ this.ID + " integer primary key, "
+    			+ this.FID + " text, "
     			+ this.SYNC_STATE + " integer not null, "
     			+ this.MODIFIED_STATE + " integer not null, "
     			+ schema.getGeometryName() + " text not null";
@@ -159,9 +161,18 @@ Arbiter.FeatureTableHelper = (function(){
     		
     		// Push the modified state
     		if(isDownload){
+    			
     			values.push(this.MODIFIED_STATES.NONE);
         		
         		values.push(this.SYNC_STATES.SYNCED);
+        		
+        		// TODO: Assuming that the primary key of the table is fid,
+        		// Add insert the FID into the db
+    			sql += ", " + this.FID;
+    			
+    			questionMarks += ",?";
+    			
+    			values.push(feature.fid);
     		}else{
     			values.push(this.MODIFIED_STATES.INSERTED);
         		
@@ -189,6 +200,33 @@ Arbiter.FeatureTableHelper = (function(){
     		}, function(tx, e){
     			console.log("ERROR: Arbiter.FeatureTableHelper" 
     					+ ".insertFeature " + sql, e);
+    			
+    			if(Arbiter.Util.funcExists(onFailure)){
+    				onFailure(e);
+    			}
+    		});
+    	},
+    	
+    	clearFeatureTable: function(schema, onSuccess, onFailure){
+    		var db = Arbiter.FeatureDbHelper.getFeatureDatabase();
+    		
+    		db.transaction(function(tx){
+    			
+    			var sql = "DELETE FROM " + schema.getFeatureType() + ";";
+    			
+    			tx.executeSql(sql, [], function(tx, res){
+    				console.log("Successfully cleared the feature table");
+    				
+    				if(Arbiter.Util.funcExists(onSuccess)){
+    					onSuccess();
+    				}
+    			}, function(tx, e){
+    				if(Arbiter.Util.funcExists(onFailure)){
+    					onFailure(e);
+    				}
+    			});
+    			
+    		}, function(e){
     			
     			if(Arbiter.Util.funcExists(onFailure)){
     				onFailure(e);

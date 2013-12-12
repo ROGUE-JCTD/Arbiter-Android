@@ -168,6 +168,9 @@ public class FeatureDialogHelper {
 		builder.updateFeature();
 		
 		if(feature.isNew()){
+			feature.setSyncState(FeaturesHelper.SYNC_STATES.NOT_SYNCED);
+			feature.setModifiedState(FeaturesHelper.MODIFIED_STATES.INSERTED);
+			
 			String id = FeaturesHelper.getHelper().insert(db,
 					feature.getFeatureType(), feature);
 			
@@ -177,9 +180,6 @@ public class FeatureDialogHelper {
 			}
 			
 			feature.setId(id);
-			
-			feature.setSyncState(FeaturesHelper.SYNC_STATES.NOT_SYNCED);
-			feature.setModifiedState(FeaturesHelper.MODIFIED_STATES.INSERTED);
 			
 			insertedNewFeature = true;
 		}else{

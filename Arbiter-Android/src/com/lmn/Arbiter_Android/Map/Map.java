@@ -201,4 +201,11 @@ public class Map{
 		
 		webview.loadUrl(url);
 	}
+	
+	public void sync(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Layers.SyncHelper.sync()'))";
+		
+		webview.loadUrl(url);
+	}
 }

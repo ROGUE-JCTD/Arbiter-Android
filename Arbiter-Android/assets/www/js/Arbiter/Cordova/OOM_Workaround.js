@@ -1,5 +1,13 @@
 Arbiter.Cordova.OOM_Workaround = (function(){
 	
+	var addMetadata = function(layer){
+		if(!layer.metadata){
+			layer.metadata = {};
+		}
+		
+		layer.metadata[Arbiter.Cordova.OOM_Workaround.OOM_Workaround] = true;
+	};
+	
 	var onMoveEnd = function(){
 		var map = Arbiter.Map.getMap();
 		var context = Arbiter.Cordova.OOM_Workaround;
@@ -13,7 +21,10 @@ Arbiter.Cordova.OOM_Workaround = (function(){
 		map.events.register("addlayer", Arbiter.Cordova.OOM_Workaround, function(event){
 			if(event && event.layer 
 					&& event.layer.getURL){
+				
 				context.overrideGetURL(event.layer);
+				
+				addMetadata(event.layer);
 			}
 		});
 	};
@@ -30,14 +41,11 @@ Arbiter.Cordova.OOM_Workaround = (function(){
 		overrideGetURL : function(layer) {
 			var context = this;
 			
-			if(!layer.metadata){
-				layer.metadata = {};
-			}
-			
-			layer.metadata[context.OOM_Workaround] = true;
+			var getURL = layer.getURL;
 			
 			layer.getURL = function(bounds) {
-				var url = Object.getPrototypeOf(this).getURL.call(this, bounds);
+				var url = getURL.call(this, bounds);
+				
 				context.tileCounter++;
 
 				return url;

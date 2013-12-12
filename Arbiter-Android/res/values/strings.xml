@@ -44,6 +44,10 @@
 	<string name="delete_feature_warning">Delete feature</string>
 	<string name="delete_feature_warning_msg">Are you sure you want to delete this feature?</string>
 	<string name="deleting_msg">Deletion in progress&#8230;</string>
+	<string name="sync_in_progress">Syncing</string>
+	<string name="sync_in_progress_msg">Sync in progress&#8230;</string>
+	<string name="error_syncing">Error</string>
+	<string name="error_syncing_msg">Unable to sync</string>
 	
     <!-- MAP ACTIVITY STRINGS -->
     <string name="map_activity_name">Arbiter</string>

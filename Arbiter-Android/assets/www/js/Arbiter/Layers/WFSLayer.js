@@ -26,15 +26,12 @@ Arbiter.Layers.WFSLayer = (function(){
 		var saveStrategy = new OpenLayers.Strategy.Save();
 
 		saveStrategy.events.register("success", this, function(event) {
-			console.log("Arbiter.Layers.WFSLayer.onSaveSuccess()");
 			Arbiter.Layers.SyncHelper.onSaveSuccess(key, event.object.layer,
 					encodedCredentials);
 		});
 		
 		saveStrategy.events.register("fail", this, function(event){
-			console.log("Arbiter.Layers.WFSLayer.onSaveFailure()");
-			Arbiter.Layers.SyncHelper.onSaveFailure(key, 
-					event.object.layer, encodedCredentials);
+			Arbiter.Layers.SyncHelper.onSaveFailure();
 		});
 		
 		return saveStrategy;

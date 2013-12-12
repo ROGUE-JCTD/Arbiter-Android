@@ -122,6 +122,19 @@ Arbiter.Cordova = (function() {
 			
 			cordova.exec(null, null, "ArbiterCordova", "doneInsertingFeature", 
 				[feature.layer.protocol.featureType, wktGeometry]);
+		},
+		
+		syncCompleted: function(){
+			
+			cordova.exec(function(){
+				Arbiter.Cordova.resetWebApp();
+			}, null, "ArbiterCordova", "syncCompleted", []);
+		},
+		
+		syncFailed: function(e){
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"syncFailed", [e]);
 		}
 	};
 })();

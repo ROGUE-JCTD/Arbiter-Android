@@ -111,9 +111,14 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     	
     	ImageButton syncButton = (ImageButton) findViewById(R.id.syncButton);
     	
+    	final String title = activity.getResources().getString(R.string.sync_in_progress);
+		final String message = activity.getResources().getString(R.string.sync_in_progress_msg);
+		
     	syncButton.setOnClickListener(new OnClickListener(){
     		@Override
     		public void onClick(View v){
+    			arbiterProject.showSyncProgressDialog(activity, title, message);
+    			
     			Map.getMap().sync(cordovaWebView);
     		}
     	});

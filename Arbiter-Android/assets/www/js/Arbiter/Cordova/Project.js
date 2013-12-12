@@ -118,7 +118,7 @@ Arbiter.Cordova.Project = (function(){
 					onFailure();
 				}
 			}
-		}, 15000);
+		}, 30000);
 	};
 	
 	var storeData = function(context, layers, bounds, onSuccess, onFailure){

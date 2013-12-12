@@ -104,7 +104,7 @@ Arbiter.Util.Feature = (function(){
     					onFailure();
     				}
     			}
-    		}, 15000);
+    		}, 30000);
         }
     };
 })();

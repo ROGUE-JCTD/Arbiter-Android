@@ -1,11 +1,10 @@
 Arbiter.Layers.SyncHelper = (function(){
 	var onSyncSuccess = function(){
-		// Arbiter.Cordova.syncCompleted();
-		Arbiter.Cordova.resetWebApp();
+		Arbiter.Cordova.syncCompleted();
 	};
 	
-	var onSyncFailure = function(){
-		// Arbiter.Cordova.syncFailed();
+	var onSyncFailure = function(e){
+		Arbiter.Cordova.syncFailed(e);
 	};
 	
 	var onClearSuccess = function(schema, features){
@@ -18,7 +17,7 @@ Arbiter.Layers.SyncHelper = (function(){
 	};
 	
 	var onClearFailure = function(e){
-		
+		onSyncFailure("Sync failed to clear featuretable - " + e);
 	};
 	
 	var onDownloadSuccess = function(schema, features){
@@ -29,7 +28,7 @@ Arbiter.Layers.SyncHelper = (function(){
 	};
 	
 	var onDownloadFailure = function(){
-		
+		onSyncFailure("Sync failed - Could not download features");
 	};
 	
 	return {
@@ -75,16 +74,16 @@ Arbiter.Layers.SyncHelper = (function(){
 					Arbiter.Util.Feature.downloadFeatures(schema, bounds,
 							encodedCredentials, onDownloadSuccess, onDownloadFailure);
 				}else{
-					console.log("Arbiter.Layers.SyncHelper ERROR NO AOI");
+					onSyncFailure(e);
 				}
 			}, function(e){
-				console.log("Arbiter.Layers.SyncHelper getAOI error", e);
+				onSyncFailure("Sync failed to get AOI - " + e);
 			});
 		},
 		
-		onSaveFailure: function(key, olLayer, encodedCredentials){
+		onSaveFailure: function(){
 			// TODO: Handle save failed.
-			console.log("Arbiter.Layers.SyncHelper.onSaveFailure()");
+			onSyncFailure("Sync failed - onSaveFailure");
 		}
 	};
 })();

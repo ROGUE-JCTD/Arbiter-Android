@@ -46,6 +46,7 @@ public class ArbiterProject {
 	private Project newProject;
 	private ProgressDialog createProjectProgress;
 	private ProgressDialog addingLayersDialog;
+	private ProgressDialog syncProgressDialog;
 	
 	private boolean resetDefaultProject;
 	
@@ -297,5 +298,17 @@ public class ArbiterProject {
 	
 	public void resetDefaultProject(boolean reset){
 		this.resetDefaultProject = reset;
+	}
+	
+	public void showSyncProgressDialog(Activity activity, String title, String message){
+		syncProgressDialog = ProgressDialog.show(activity,
+				title, message, true);
+	}
+	
+	public void dismissSyncProgressDialog(){
+		if(syncProgressDialog != null){
+			syncProgressDialog.dismiss();
+			syncProgressDialog = null;
+		}
 	}
 }

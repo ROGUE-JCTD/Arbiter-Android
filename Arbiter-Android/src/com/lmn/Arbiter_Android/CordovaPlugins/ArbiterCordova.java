@@ -101,10 +101,30 @@ public class ArbiterCordova extends CordovaPlugin{
 			String wktGeometry = args.getString(1);
 			
 			doneInsertingFeature(featureType, wktGeometry);
+		}else if("syncCompleted".equals(action)){
+			syncCompleted();
+			
+			return true;
+		}else if("syncFailed".equals(action)){
+			syncFailed((args.length() > 0) 
+					? args.getString(0) : null);
+			
+			return true;
 		}
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
+	}
+	
+	private void syncCompleted(){
+		arbiterProject.dismissSyncProgressDialog();
+	}
+	
+	private void syncFailed(String error){
+		arbiterProject.dismissSyncProgressDialog();
+		
+		showDialog(R.string.error_syncing, 
+				R.string.error_syncing_msg, error);
 	}
 	
 	private SQLiteDatabase getFeatureDatabase(){
@@ -219,9 +239,15 @@ public class ArbiterCordova extends CordovaPlugin{
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 		
+		String msg = activity.getResources().getString(message);
+		
+		if(optionalMessage != null){
+			msg += ": \n\t" + optionalMessage;
+		}
+		
 		builder.setTitle(title);
 		builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
-		builder.setMessage(message + ": \n\t" + optionalMessage);
+		builder.setMessage(msg);
 		
 		builder.create().show();
 	}

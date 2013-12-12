@@ -14,6 +14,8 @@ var app = (function() {
 			Arbiter.Controls.ControlPanel
 				.registerMapListeners();
 			
+			Arbiter.Util.TileUtil.registerMapListeners();
+			
 			Arbiter.Loaders.LayersLoader.addEventTypes();
 			
 			Arbiter.Loaders.LayersLoader.load();
@@ -26,11 +28,25 @@ var app = (function() {
 		ArbiterInitialized = true;
 	};
 	
+	var onOnline = function(){
+		app.waitForArbiterInit(function(){
+			Arbiter.Layers.toggleWMSLayers(true);
+		});
+	};
+	
+	var onOffline = function(){
+		app.waitForArbiterInit(function(){
+			Arbiter.Layers.toggleWMSLayers(false);
+		});
+	};
+	
 	/**
 	 * Bind event listeners
 	 */
 	var bindEvents = function() {
 		document.addEventListener('deviceready', onDeviceReady, false);
+		document.addEventListener('online', onOnline, false);
+		document.addEventListener('offline', onOffline, false);
 	};
 	
 	/**

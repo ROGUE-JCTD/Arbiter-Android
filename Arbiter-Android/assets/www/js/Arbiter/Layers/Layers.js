@@ -100,6 +100,17 @@ Arbiter.Layers = (function() {
 			}
 		},
 
+		toggleWMSLayers : function(visibility){
+			var map = Arbiter.Map.getMap();
+			
+			var wmsLayers = map.getLayersByClass("OpenLayers.Layer.WMS");
+			
+			for(var i = 0; i < wmsLayers.length; i++){
+				wmsLayers[i].setVisibility(visibility);
+			}
+			
+		},
+		
 		/**
 		 * Set the layers visibility
 		 */

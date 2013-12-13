@@ -37,6 +37,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 
 public class MapActivity extends FragmentActivity implements CordovaInterface, Map.MapChangeListener, Map.CordovaMap{
     private ArbiterDialogs dialogs;
@@ -44,6 +45,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     private ArbiterProject arbiterProject;
     private InsertProjectHelper insertHelper;
     private MapChangeHelper mapChangeHelper;
+    private IncompleteProjectHelper incompleteProjectHelper;
+    private boolean menuPrepared;
     
     // For CORDOVA
     private CordovaWebView cordovaWebView;
@@ -179,6 +182,19 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     			Map.getMap().zoomToCurrentPosition(cordovaWebView);
     		}
     	});
+    	
+    	RelativeLayout incompleteBar = (RelativeLayout) findViewById(R.id.incompleteProjectBar);
+    	
+    	incompleteBar.setOnClickListener(new OnClickListener(){
+    		@Override
+    		public void onClick(View v){
+    			startAOIActivity();
+    		}
+    	});	
+    	
+    	initIncompleteProjectHelper();
+    	
+    	incompleteProjectHelper.setSyncButton(syncButton);
     }
     
     @Override
@@ -190,7 +206,27 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_map, menu);
+        
         return true;
+    }
+    
+    private void initIncompleteProjectHelper(){
+    	if(incompleteProjectHelper == null){
+    		incompleteProjectHelper = new IncompleteProjectHelper(this);
+    	}
+    }
+    
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu){
+    	if(!this.menuPrepared){
+    		initIncompleteProjectHelper();
+    		
+    		incompleteProjectHelper.setInsertButton(menu);
+        	
+        	this.menuPrepared = true;
+    	}
+    	
+    	return true;
     }
     
     private void openInsertFeatureDialog(){
@@ -200,6 +236,11 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     	DialogFragment frag = InsertFeatureDialog.newInstance(title, cancel);
     	
     	frag.show(getSupportFragmentManager(), InsertFeatureDialog.TAG);
+    }
+    
+    private void startAOIActivity(){
+    	Intent aoiIntent = new Intent(this, AOIActivity.class);
+		this.startActivity(aoiIntent);
     }
     
     @Override
@@ -221,8 +262,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
         		return true;
         	
         	case R.id.action_aoi:
-        		Intent aoiIntent = new Intent(this, AOIActivity.class);
-        		this.startActivity(aoiIntent);
+        		startAOIActivity();
         		
         		return true;
         		
@@ -270,12 +310,21 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     }
     
     private void updateProjectAOI(){
+    	final Activity activity = this;
+    	
     	final String aoi = ArbiterState.getArbiterState().getNewAOI();
 		
 		CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run(){
 				updateProjectAOI(aoi);
+				
+				activity.runOnUiThread(new Runnable(){
+					@Override
+					public void run(){
+						incompleteProjectHelper.toggleComplete(true);
+					}
+				});
 			}
 		});
     }

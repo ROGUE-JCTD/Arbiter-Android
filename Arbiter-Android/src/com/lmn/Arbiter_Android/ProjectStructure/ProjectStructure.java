@@ -15,7 +15,7 @@ import android.content.Context;
 public class ProjectStructure {
 	private ProjectAlerts alerts;
 	private static final String PROJECTS_DIRECTORY_NAME = "projects";
-	private static final String DEFAULT_PROJECT_AOI = "-20037508.34,-20037508.34,20037508.34,20037508.34";
+	private static final String DEFAULT_PROJECT_AOI = "";
 	private static final String DEFAULT_INCLUDE_DEFAULT_LAYER = "true";
 	private static final String DEFAULT_DEFAULT_LAYER_VISIBILITY = "true";
 	

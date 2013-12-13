@@ -48,6 +48,9 @@
 	<string name="sync_in_progress_msg">Sync in progress&#8230;</string>
 	<string name="error_syncing">Error</string>
 	<string name="error_syncing_msg">Unable to sync</string>
+	<string name="project_incomplete_msg">Project is not available offline. \n\nPlease select an area of interest.</string>
+	<string name="initializing">Initializing</string>
+	<string name="please_wait">Please wait&#8230;</string>
 	
     <!-- MAP ACTIVITY STRINGS -->
     <string name="map_activity_name">Arbiter</string>

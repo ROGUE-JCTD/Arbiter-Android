@@ -115,6 +115,39 @@
     </RelativeLayout>
     
     <RelativeLayout
+        android:id="@+id/incompleteContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone">
+        
+        <View 
+            android:id="@+id/incompleteMarginView"
+            android:layout_height="0dp"
+            android:layout_width="0dp"
+            android:layout_marginTop="24dp"/>
+        
+	    <RelativeLayout
+	        android:id="@+id/incompleteProjectBar"
+	        android:layout_below="@id/incompleteMarginView"
+	        android:layout_width="150dp"
+	        android:layout_height="wrap_content"
+	        android:paddingTop="5dp"
+	        android:paddingBottom="5dp"
+	        android:paddingLeft="20dp"
+	        android:paddingRight="20dp"
+	        android:background="@color/transparent_red"
+	        android:clickable="true">
+	        
+		    <TextView
+		        android:id="@+id/projectIncompleteMessage"
+		        android:text="@string/project_incomplete_msg"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"/>    
+	    </RelativeLayout>
+    </RelativeLayout>
+    
+    <RelativeLayout
         android:id="@+id/editFeatureButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

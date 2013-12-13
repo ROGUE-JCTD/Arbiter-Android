@@ -208,4 +208,11 @@ public class Map{
 		
 		webview.loadUrl(url);
 	}
+	
+	public void zoomToCurrentPosition(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Cordova.Project.zoomToCurrentPosition()'))";
+		
+		webview.loadUrl(url);
+	}
 }

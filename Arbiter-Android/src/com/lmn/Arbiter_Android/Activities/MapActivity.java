@@ -170,6 +170,15 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     			mapChangeHelper.endInsertMode();
     		}
     	});
+    	
+    	ImageButton locationButton = (ImageButton) findViewById(R.id.locationButton);
+    	
+    	locationButton.setOnClickListener(new OnClickListener(){
+    		@Override
+    		public void onClick(View v){
+    			Map.getMap().zoomToCurrentPosition(cordovaWebView);
+    		}
+    	});
     }
     
     @Override

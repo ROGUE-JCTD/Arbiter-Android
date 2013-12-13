@@ -14,13 +14,13 @@ var app = (function() {
 			Arbiter.Layers.removeAllLayers();
 			
 			Arbiter.Layers.addDefaultLayer(true);
+			
+			for ( var i = 0; i < waitFuncs.length; i++) {
+				waitFuncs[i].call();
+			}
+
+			ArbiterInitialized = true;
 		});
-
-		for ( var i = 0; i < waitFuncs.length; i++) {
-			waitFuncs[i].call();
-		}
-
-		ArbiterInitialized = true;
 	};
 	
 	/**

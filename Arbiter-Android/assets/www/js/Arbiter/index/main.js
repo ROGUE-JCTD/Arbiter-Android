@@ -8,24 +8,28 @@ var app = (function() {
 	 */
 	var onDeviceReady = function() {
 		Arbiter.Init(function() {
-			Arbiter.Cordova.OOM_Workaround
-				.registerMapListeners();
 			
-			Arbiter.Controls.ControlPanel
-				.registerMapListeners();
+			// Get the file system for use in TileUtil.js
+			Arbiter.FileSystem.setFileSystem(function(){
+				Arbiter.Cordova.OOM_Workaround
+					.registerMapListeners();
 			
-			Arbiter.Util.TileUtil.registerMapListeners();
-			
-			Arbiter.Loaders.LayersLoader.addEventTypes();
-			
-			Arbiter.Loaders.LayersLoader.load();
+				Arbiter.Controls.ControlPanel
+					.registerMapListeners();
+				
+				//TileUtil.registerMapListeners();
+				
+				Arbiter.Loaders.LayersLoader.addEventTypes();
+				
+				Arbiter.Loaders.LayersLoader.load();
+				
+				for ( var i = 0; i < waitFuncs.length; i++) {
+					waitFuncs[i].call();
+				}
+
+				ArbiterInitialized = true;
+			});
 		});
-
-		for ( var i = 0; i < waitFuncs.length; i++) {
-			waitFuncs[i].call();
-		}
-
-		ArbiterInitialized = true;
 	};
 	
 	var onOnline = function(){

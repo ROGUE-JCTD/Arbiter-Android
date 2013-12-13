@@ -1,14 +1,30 @@
-Arbiter.Util.TileUtil = (function(){
-
+TileUtil = (function(){
+	
 	var onLayerAdded = function(){
 		var map = Arbiter.Map.getMap();
 		
-		map.events.register("addlayer", Arbiter.Util.TileUtil, function(event){
+		map.events.register("addlayer", TileUtil, function(event){
 			if(event && event.layer 
 					&& event.layer.getURL
 					&& event.layer.isBaseLayer){
 				
+				console.log("TileUtil layer added and it's the baselayer");
+				event.layer.getURL_Original = event.layer.getURL;
 				
+				event.layer.getURL = TileUtil.getURL;
+				
+				// Check to make sure OOM_Workaround is present and registered on the map
+				if(Arbiter.Cordova && Arbiter.Cordova.OOM_Workaround && Arbiter.Cordova.OOM_Workaround.registered
+						
+						// If the OOM_Workaround is also present, it's not guaranteed that this override will
+						// happen before the OOM_Workaround override.  OOM_Workaround's override sets the key
+						// Arbiter.Cordova.OOM_Workaround.OOM_Workaround to true if it has already overridden the
+						// layers getURL method.  If this is true, we need to make sure the OOM_Workaround override
+						// gets applied again.
+						&& event.layer.metadata && event.layer.metadata[Arbiter.Cordova.OOM_Workaround.OOM_Workaround]){
+					
+					Arbiter.Cordova.OOM_Workaround.overrideGetURL(event.layer);
+				}
 			}
 		});
 	};
@@ -106,6 +122,8 @@ Arbiter.Util.TileUtil = (function(){
 			
 			Arbiter.setMessageOverlay(Arbiter.localizeString("Caching Tiles","label","cachingTiles"), Arbiter.localizeString("Queuing Request","label","queuingRequest"));
 			
+			var map = Arbiter.Map.getMap();
+			
 			var layer = map.baseLayer;
 		
 			caching = {
@@ -148,7 +166,8 @@ Arbiter.Util.TileUtil = (function(){
 		cachingComplete: function(){
 		    console.log("---- caching complete!");
 		    console.log(caching);
-			
+		    var map = Arbiter.Map.getMap();
+		    
 		    if (caching.counterDownloadFailed > 0){
 		    	var msg = Arbiter.localizeString("Tile caching completed but {0} of {1} tiles failed to download. Recache if possible.","label","tilesFailed").format(caching.counterDownloadFailed, caching.counterMax);
 				alert(msg);
@@ -389,6 +408,7 @@ Arbiter.Util.TileUtil = (function(){
 		},
 		
 		testTileDownload: function(_url, _numTimes) {
+			var map = Arbiter.Map.getMap();
 			
 			//Get the baseLayer to cache
 			var layer = map.baseLayer;
@@ -487,11 +507,22 @@ Arbiter.Util.TileUtil = (function(){
 		},
 		
 		getURL: function(bounds) {
+			var map = Arbiter.Map.getMap();
+			
 			var xyz = TileUtil.getXYZ(bounds, map.baseLayer);
 		    var ext = TileUtil.getLayerFormatExtension(this);
 		    
 		    // use the info we have to derive were the tile would be stored on the device
-		    var path = Arbiter.fileSystem.root.fullPath + "/" + "Arbiter/osm" +"/" + xyz.z + "/" + xyz.x + "/" + xyz.y + "." + ext;
+		    var fileSystem = Arbiter.FileSystem.getFileSystem();
+		    
+		    var path;
+		    
+		    if(fileSystem !== null){
+		    	path = fileSystem.root.fullPath + "/" + "Arbiter/osm" +"/" + xyz.z + "/" + xyz.x + "/" + xyz.y + "." + ext;
+		    }else{
+		    	path = this.getURL_Original();
+		    }
+		    
 		 	return path;
 		},
 		
@@ -515,7 +546,8 @@ Arbiter.Util.TileUtil = (function(){
 		},
 		
 		queueCacheRequests: function(bounds, onlyCountTile) {
-		
+			var map = Arbiter.Map.getMap();
+			
 			// store current zoom since the function will change zoom level
 			var currentZoom = map.zoom;
 			
@@ -528,6 +560,7 @@ Arbiter.Util.TileUtil = (function(){
 		},
 		
 		queueCacheRequestsForZoom: function(layer, bounds, zoomLevel, onlyCountTile) {
+			var map = Arbiter.Map.getMap();
 			
 			var count = 0;
 			
@@ -594,6 +627,7 @@ Arbiter.Util.TileUtil = (function(){
 		
 		
 		queueCacheRequestsForZoomOpenLayers212: function(layer, bounds, zoomLevel, onlyCountTile) {
+			var map = Arbiter.Map.getMap();
 			
 			var count = 0;
 				
@@ -658,6 +692,7 @@ Arbiter.Util.TileUtil = (function(){
 		 */
 		getXYZ: function(bounds, layer, zoom) {
 			// unfortunately have to rely on map's zoom... 
+			var map = Arbiter.Map.getMap();
 			
 			var resolutionForZoom = map.getResolutionForZoom(zoom);
 			
@@ -818,7 +853,7 @@ Arbiter.Util.TileUtil = (function(){
 				console.log("---- TileUtil.saveTile. tileset: " + tileset + ", z: " + z + ", x: " + x + ", y: " + y + ", url: " + fileUrl);
 			}
 			
-			Arbiter.fileSystem.root.getDirectory(tileset, {create: true}, 
+			Arbiter.FileSystem.getFileSystem().root.getDirectory(tileset, {create: true}, 
 				function(tilesetDirEntry){
 					//console.log("---- tilesetDirEntry: " + tilesetDirEntry.fullPath);
 					tilesetDirEntry.getDirectory("" + z, {create: true}, 
@@ -889,7 +924,7 @@ Arbiter.Util.TileUtil = (function(){
 				// alert("inserted tile. id: " + res.insertId);
 				Arbiter.globalDatabase.transaction(
 					function(tx) {
-						var path = Arbiter.fileSystem.root.fullPath + "/" + tileset +"/" + z + "/" + x + "/" + y + "." + ext;
+						var path = Arbiter.FileSystem.getFileSystem().root.fullPath + "/" + tileset +"/" + z + "/" + x + "/" + y + "." + ext;
 		
 						var statement = "INSERT INTO tiles (tileset, z, x, y, path, url, ref_counter) VALUES (?, ?, ?, ?, ?, ?, ?);";
 						tx.executeSql(statement, [ tileset, z, x, y, path, url, 1 ], function(tx, res) {
@@ -1109,8 +1144,8 @@ Arbiter.Util.TileUtil = (function(){
 		
 		removeTileFromDevice: function(path, id, successCallback, errorCallback){
 			// remove tile from disk
-			var newPath = path.replace(Arbiter.fileSystem.root.fullPath + '/','');
-			Arbiter.fileSystem.root.getFile(newPath, {create: false},
+			var newPath = path.replace(Arbiter.FileSystem.getFileSystem().root.fullPath + '/','');
+			Arbiter.FileSystem.getFileSystem().root.getFile(newPath, {create: false},
 				function(fileEntry){
 					fileEntry.remove(
 						function(fileEntry){

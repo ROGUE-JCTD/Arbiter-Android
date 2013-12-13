@@ -5,6 +5,7 @@ Arbiter.Cordova.Project = (function(){
 	// the layerCount, execute the callback.
 	var layerCount = 0;
 	var layerFinishedCount = 0;
+	var currentPositionZoomLevel = 14;
 	
 	var reset = function(){
 		layerCount = 0;
@@ -278,6 +279,36 @@ Arbiter.Cordova.Project = (function(){
 		
 		zoomToDefault: function(){
 			zoomToExtent(Arbiter.DEFAULT_ZOOM_EXTENT);
+		},
+		
+		getCurrentPosition: function(onSuccess, onFailure){
+			navigator.geolocation.getCurrentPosition(function(position){
+				if(Arbiter.Util.funcExists(onSuccess)){
+					onSuccess(position);
+				}
+			}, function(e){
+				if(Arbiter.Util.funcExists(onFailure)){
+					onFailure(e);
+				}
+			});
+		},
+		
+		zoomToCurrentPosition: function(onSuccess, onFailure){
+			try{
+				this.getCurrentPosition(function(position){
+					var lonlat = new OpenLayers.LonLat(position.coords
+							.longitude, position.coords.latitude);
+					
+					var map = Arbiter.Map.getMap();
+					
+					lonlat.transform(new OpenLayers.Projection("EPSG:4326"),
+							new OpenLayers.Projection(map.getProjection()));
+					
+					map.setCenter(lonlat, currentPositionZoomLevel);
+				});
+			}catch(e){
+				console.log(e);
+			}
 		}
 	};
 })();

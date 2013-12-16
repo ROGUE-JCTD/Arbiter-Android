@@ -13,11 +13,16 @@ Arbiter.FeatureTableHelper = (function(){
 	};
 	
 	var getFeatures = function(tx, schema, context, onSuccess, onFailure){
+		
 		var sql = "select * from " + schema.getFeatureType() + ";";
 		
 		tx.executeSql(sql, [], function(tx, res){
-			for(var i = 0; i < res.rows.length; i++){
-				onSuccess.call(context, res.rows.item(i), i, res.rows.length);
+			if(res.rows.length > 0){
+				for(var i = 0; i < res.rows.length; i++){
+					onSuccess.call(context, res.rows.item(i), i, res.rows.length);
+				}
+			}else{
+				onSuccess.call(context, null, null, 0);
 			}
 		}, function(tx, e){
 			console.log("ERROR: Arbiter.FeatureTableHelper.getFeatures", e);

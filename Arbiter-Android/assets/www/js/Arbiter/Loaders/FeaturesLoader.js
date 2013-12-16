@@ -79,21 +79,26 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 	
 	return {
 		loadFeatures: function(schema, olLayer, onSuccess, onFailure){
-			
 			Arbiter.FeatureTableHelper.loadFeatures(schema, this, 
 					function(feature, currentFeatureIndex, featureCount){
 				try{
-					processFeature(schema, feature, olLayer);
+					if(feature !== null){
+						processFeature(schema, feature, olLayer);
+					}
 				} catch (e) {
 					if(Arbiter.Util.funcExists(onFailure)){
 						onFailure(e);
 					}
 				}
 				
-				if(Arbiter.Util.funcExists(onSuccess) 
-						&& (currentFeatureIndex === (featureCount - 1))){
-					onSuccess();
+				if(Arbiter.Util.funcExists(onSuccess)){
+					if(featureCount > 0 && (currentFeatureIndex === (featureCount - 1))){
+						onSuccess();
+					}else{
+						onSuccess();
+					}
 				}
+					
 			}, onFailure);
 		}
 	};

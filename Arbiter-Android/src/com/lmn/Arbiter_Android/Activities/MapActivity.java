@@ -66,7 +66,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
         
         cordovaWebView.loadUrl(ArbiterCordova.mainUrl, 5000);
         
-        mapChangeHelper = new MapChangeHelper(this, cordovaWebView);
+        mapChangeHelper = new MapChangeHelper(this, 
+        		cordovaWebView, incompleteProjectHelper);
     }
 
     private void Init(Bundle savedInstanceState){
@@ -310,11 +311,14 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     }
     
     private void updateProjectAOI(){
-    	final Activity activity = this;
+    	//final Activity activity = this;
     	
     	final String aoi = ArbiterState.getArbiterState().getNewAOI();
 		
-		CommandExecutor.runProcess(new Runnable(){
+    	updateProjectAOI(aoi);
+    	
+    	
+		/*CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run(){
 				updateProjectAOI(aoi);
@@ -326,11 +330,11 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
 					}
 				});
 			}
-		});
+		});*/
     }
     
     private void updateProjectAOI(String aoi){
-    	Context context = getApplicationContext();
+    	/*Context context = getApplicationContext();
 		String projectName = ArbiterProject.getArbiterProject().getOpenProject(this);
 		
 		ProjectDatabaseHelper helper = 
@@ -338,9 +342,18 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
 						ProjectStructure.getProjectPath(
 								context, projectName), false);
 		
+		// Update the aoi of the project
         PreferencesHelper.getHelper().update(helper.getWritableDatabase(),
-        		context, ArbiterProject.AOI, aoi);
+        		context, ArbiterProject.AOI, aoi);*/
+    	String title = getResources().getString(R.string.sync_in_progress);
+		String message = getResources().getString(R.string.sync_in_progress_msg);
+		
+    	arbiterProject.showSyncProgressDialog(this, title, message);
+    	
+        Map.getMap().updateAOI(cordovaWebView, aoi);
         
+        // Set the new aoi to null so the we know we're
+        // not setting the aoi anymore.
         ArbiterState.getArbiterState().setNewAOI(null);
     }
     

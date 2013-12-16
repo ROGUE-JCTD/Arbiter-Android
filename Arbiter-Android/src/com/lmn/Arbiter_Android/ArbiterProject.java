@@ -300,9 +300,14 @@ public class ArbiterProject {
 		this.resetDefaultProject = reset;
 	}
 	
+	public void updateSyncProgressStatus(String message, String percent){
+		Log.w("ArbiterProject", "ArbiterProject.updateSyncProgressStatus " + percent + "%");
+		syncProgressDialog.setMessage(message + " " + percent + "%");
+	}
+	
 	public void showSyncProgressDialog(Activity activity, String title, String message){
 		syncProgressDialog = ProgressDialog.show(activity,
-				title, message, true);
+				title, message + " 0%", true);
 	}
 	
 	public void dismissSyncProgressDialog(){

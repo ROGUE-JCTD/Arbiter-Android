@@ -1,5 +1,7 @@
 Arbiter = (function(){
 	var layerSchemas = {};
+	var aoiHasBeenSet = false;
+	var tileUtil = null;
 	
 	return {
 		
@@ -33,6 +35,25 @@ Arbiter = (function(){
 		
 		resetLayerSchemas: function(){
 			layerSchemas = {};
+		},
+		
+		/**
+		 * Has the aoi been set?
+		 */
+		aoiHasBeenSet: function(_hasBeenSet){
+			aoiHasBeenSet = _hasBeenSet;
+		},
+		
+		hasAOIBeenSet: function(){
+			return aoiHasBeenSet;
+		}, 
+		
+		setTileUtil: function(_tileUtil){
+			tileUtil = _tileUtil;
+		},
+		
+		getTileUtil: function(){
+			return tileUtil;
 		}
 	};
 })();

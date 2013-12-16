@@ -215,4 +215,11 @@ public class Map{
 		
 		webview.loadUrl(url);
 	}
+	
+	public void updateAOI(CordovaWebView webview, String aoi){
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Cordova.Project.updateAOI(" + aoi + ")'))";
+		
+		webview.loadUrl(url);
+	}
 }

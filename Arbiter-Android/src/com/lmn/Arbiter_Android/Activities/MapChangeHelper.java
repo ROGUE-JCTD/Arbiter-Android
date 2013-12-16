@@ -18,10 +18,14 @@ import com.lmn.Arbiter_Android.Map.Map;
 public class MapChangeHelper {
 	private FragmentActivity activity;
 	private CordovaWebView cordovaWebView;
+	private IncompleteProjectHelper incompleteProjectHelper;
 	
-	public MapChangeHelper(FragmentActivity activity, CordovaWebView cordovaWebView){
+	public MapChangeHelper(FragmentActivity activity, CordovaWebView cordovaWebView,
+			IncompleteProjectHelper incompleteProjectHelper){
+		
 		this.activity = activity;
 		this.cordovaWebView = cordovaWebView;
+		this.incompleteProjectHelper = incompleteProjectHelper;
 	}
 	
 	/**
@@ -42,6 +46,15 @@ public class MapChangeHelper {
 			@Override
 			public void run(){
 				Map.getMap().addLayers(cordovaWebView, layers, layerIds);
+			}
+		});
+	}
+	
+	public void onSyncCompleted(){
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				incompleteProjectHelper.toggleComplete(true);
 			}
 		});
 	}

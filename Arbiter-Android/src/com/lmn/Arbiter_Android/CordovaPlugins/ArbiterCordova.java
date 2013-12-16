@@ -17,6 +17,7 @@ import android.util.Log;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.Activities.MapChangeHelper;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
@@ -101,6 +102,12 @@ public class ArbiterCordova extends CordovaPlugin{
 			String wktGeometry = args.getString(1);
 			
 			doneInsertingFeature(featureType, wktGeometry);
+		}else if("updateTileSyncingStatus".equals(action)){
+			String percentComplete = args.getString(0);
+			
+			updateTileSyncingStatus(percentComplete);
+			
+			return true;
 		}else if("syncCompleted".equals(action)){
 			syncCompleted();
 			
@@ -110,21 +117,66 @@ public class ArbiterCordova extends CordovaPlugin{
 					? args.getString(0) : null);
 			
 			return true;
+		}else if("errorUpdatingAOI".equals(action)){
+			errorUpdatingAOI(args.getString(0));
 		}
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
 	}
 	
-	private void syncCompleted(){
-		arbiterProject.dismissSyncProgressDialog();
+	private void updateTileSyncingStatus(final String percentComplete){
+		final String message = cordova.getActivity().getResources()
+				.getString(R.string.sync_in_progress_msg);
+		
+		cordova.getActivity().runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				arbiterProject.updateSyncProgressStatus(message, percentComplete);
+			}
+		});
 	}
 	
-	private void syncFailed(String error){
-		arbiterProject.dismissSyncProgressDialog();
-		
-		showDialog(R.string.error_syncing, 
-				R.string.error_syncing_msg, error);
+	private void errorUpdatingAOI(final String error){
+		cordova.getActivity().runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				arbiterProject.dismissSyncProgressDialog();
+				
+				Util.showDialog(cordova.getActivity(), R.string.error_updating_aoi, 
+						R.string.error_updating_aoi_msg, error, null, null, null);
+			}
+		});
+	}
+	
+	private void syncCompleted(){
+		cordova.getActivity().runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				arbiterProject.dismissSyncProgressDialog();
+				
+				try{
+					((Map.MapChangeListener) cordova.getActivity())
+						.getMapChangeHelper().onSyncCompleted();
+				} catch(ClassCastException e){
+					e.printStackTrace();
+					throw new ClassCastException(cordova.getActivity().toString() 
+							+ " must be an instance of Map.MapChangeListener");
+				}
+			}
+		});
+	}
+	
+	private void syncFailed(final String error){
+		cordova.getActivity().runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				arbiterProject.dismissSyncProgressDialog();
+				
+				Util.showDialog(cordova.getActivity(), R.string.error_syncing, 
+						R.string.error_syncing_msg, error, null, null, null);
+			}
+		});
 	}
 	
 	private SQLiteDatabase getFeatureDatabase(){
@@ -222,34 +274,26 @@ public class ArbiterCordova extends CordovaPlugin{
 		arbiterProject.doneAddingLayers(cordova.getActivity().getApplicationContext());
 	}
 	
-	private void errorAddingLayers(String error){
-		doneAddingLayers();
-		
-		showDialog(R.string.error_adding_layers, 
-				R.string.error_adding_layers_msg, error);
+	private void errorAddingLayers(final String error){
+		cordova.getActivity().runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				doneAddingLayers();
+				
+				Util.showDialog(cordova.getActivity(), R.string.error_adding_layers, 
+						R.string.error_adding_layers_msg, error, null, null, null);
+			}
+		});
 	}
 	
 	private void errorLoadingFeatures(){
-		showDialog(R.string.error_loading_features, 
-				R.string.error_loading_features_msg, null);
-	}
-	
-	private void showDialog(int title, int message, String optionalMessage){
-		final Activity activity = cordova.getActivity();
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-		
-		String msg = activity.getResources().getString(message);
-		
-		if(optionalMessage != null){
-			msg += ": \n\t" + optionalMessage;
-		}
-		
-		builder.setTitle(title);
-		builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
-		builder.setMessage(msg);
-		
-		builder.create().show();
+		cordova.getActivity().runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				Util.showDialog(cordova.getActivity(), R.string.error_loading_features, 
+						R.string.error_loading_features_msg, null, null, null, null);
+			}
+		});
 	}
 	
 	private void errorCreatingProject(){

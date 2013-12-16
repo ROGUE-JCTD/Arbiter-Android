@@ -11,12 +11,14 @@ import org.apache.cordova.CordovaWebView;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
 import com.lmn.Arbiter_Android.Map.Map;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v4.app.FragmentActivity;
@@ -57,6 +59,18 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface, M
         arbiterProject.setSavedZoomLevel(null);
 	}
 	
+	private void showConfirmationDialog(){
+		Util.showDialog(getActivity(), R.string.update_aoi_alert,
+				R.string.update_aoi_alert_msg, null, android.R.string.cancel,
+				R.string.update, new Runnable(){
+			
+			@Override
+			public void run(){
+        		Map.getMap().setAOI(cordovaWebView);
+			}
+		});
+	}
+	
 	private void registerListeners(){
 		View cancel = (View) findViewById(R.id.cancelButton);
 		final ArbiterProject arbiterProject = ArbiterProject.getArbiterProject();
@@ -84,7 +98,7 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface, M
         			Log.w("AOIActivity", "AOIActivity: set new projects aoi");
         			Map.getMap().setNewProjectsAOI(cordovaWebView);
         		}else{
-        			Map.getMap().setAOI(cordovaWebView);
+        			showConfirmationDialog();
         		}
         	}
         });

@@ -124,6 +124,11 @@ Arbiter.Cordova = (function() {
 				[feature.layer.protocol.featureType, wktGeometry]);
 		},
 		
+		updateTileSyncingStatus: function(percent){
+			cordova.exec(null, null, "ArbiterCordova",
+					"updateTileSyncingStatus", [percent]);
+		},
+		
 		syncCompleted: function(){
 			
 			cordova.exec(function(){
@@ -135,6 +140,11 @@ Arbiter.Cordova = (function() {
 			
 			cordova.exec(null, null, "ArbiterCordova",
 					"syncFailed", [e]);
+		},
+		
+		errorUpdatingAOI: function(e){
+			cordova.exec(null, null, "ArbiterCordova",
+					"errorUpdatingAOI", [e]);
 		}
 	};
 })();

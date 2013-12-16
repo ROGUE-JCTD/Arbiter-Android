@@ -80,10 +80,23 @@ Arbiter.Cordova.Project = (function(){
 						// create the feature table for the layer
 						Arbiter.FeatureTableHelper.createFeatureTable(schema, function(){
 							
-							// After creating the feature table for the layer,
-							// download the features from the layer
-							context.downloadFeatures(schema, bounds, encodedCredentials, function(){
-								
+							if(bounds !== null && bounds !== undefined && bounds !== ""){
+								// After creating the feature table for the layer,
+								// download the features from the layer
+								context.downloadFeatures(schema, bounds, encodedCredentials, function(){
+									
+									// All the features have been downloaded and inserted
+									// for this layer.  Increment the layerFinishedCount 
+									incrementLayerFinishedCount();
+									
+									// If all the layers have finished downloading,
+									// call the callback.
+									if(doneGettingLayers() && Arbiter.Util.funcExists(onSuccess)){
+										
+										onSuccess.call(context);
+									}
+								}, onFailure);
+							}else{
 								// All the features have been downloaded and inserted
 								// for this layer.  Increment the layerFinishedCount 
 								incrementLayerFinishedCount();
@@ -94,7 +107,8 @@ Arbiter.Cordova.Project = (function(){
 									
 									onSuccess.call(context);
 								}
-							}, onFailure);
+							}
+							
 						}, onFailure);
 					}, onFailure);
 				}, onFailure);
@@ -148,22 +162,24 @@ Arbiter.Cordova.Project = (function(){
 			Arbiter.FeatureDbHelper.getFeatureDatabase().close();
 			
 			Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
+				var bounds = null;
+				
 				if(_aoi !== null && _aoi !== undefined 
 						&& _aoi !== ""){
 					
 					var aoi = _aoi.split(',');
 					
-					var bounds = new Arbiter.Util.Bounds(aoi[0], 
-							aoi[1], aoi[2], aoi[3]);
-					
-					storeData(context, layers, bounds, function(){
-						Arbiter.Loaders.LayersLoader.load(function(){
-							context.zoomToAOI(context, function(){
-								Arbiter.Cordova.doneCreatingProject();
-							}, onFailure);
+					bounds = new Arbiter.Util.Bounds(aoi[0], 
+						aoi[1], aoi[2], aoi[3]);
+				}
+				
+				storeData(context, layers, bounds, function(){
+					Arbiter.Loaders.LayersLoader.load(function(){
+						context.zoomToAOI(context, function(){
+							Arbiter.Cordova.doneCreatingProject();
 						}, onFailure);
 					}, onFailure);
-				}
+				}, onFailure);
 			});
 		},
 		
@@ -180,8 +196,12 @@ Arbiter.Cordova.Project = (function(){
 			
 			Arbiter.PreferencesHelper.get(Arbiter.AOI, context, function(_aoi){
 				var aoi = _aoi.split(','); 
+				var bounds = null;
 				
-				var bounds = new Arbiter.Util.Bounds(aoi[0], aoi[1], aoi[2], aoi[3]);
+				if(_aoi !== null && _aoi !== undefined && _aoi !== ""){
+					bounds = new Arbiter.Util.Bounds(aoi[0], aoi[1], aoi[2], aoi[3]);
+				}
+				
 				storeData(context, layers, bounds, function(){
 					Arbiter.Loaders.LayersLoader.load(onSuccess, onFailure);
 				}, onFailure);
@@ -230,12 +250,35 @@ Arbiter.Cordova.Project = (function(){
 		
 		/**
 		 * Get the area of interest in the aoi map and call the native method to
-		 * set the projects aoi
+		 * save it to be set when onResume gets called on the MapActivity
 		 */
 		setProjectsAOI : function(layers) {
 			var bbox = Arbiter.Map.getCurrentExtent().toBBOX();
 			
 			cordova.exec(null, null, "ArbiterCordova", "setProjectsAOI", [bbox]);
+		},
+		
+		updateAOI: function(left, bottom, right, top){
+			/*// onSyncSuccess execute the native
+			// method to close the update's 
+			// progress dialog.
+			var onSuccess = function(){
+				Arbiter.Cordova.doneUpdatingAOI();
+			};*/
+			
+			var aoi = left + ", " + bottom 
+				+ ", " + right + ", " + top;
+			
+			// onSyncFailure execute the native
+			// method to report the error to the
+			// user.
+			var onFailure = function(e){
+				Arbiter.Cordova.errorUpdatingAOI(e);
+			};
+			
+			Arbiter.PreferencesHelper.put(Arbiter.AOI, aoi, this, function(){
+				Arbiter.Layers.SyncHelper.sync(true);
+			}, onFailure);
 		},
 		
 		zoomToSavedBounds: function(context, onSuccess, onFailure){

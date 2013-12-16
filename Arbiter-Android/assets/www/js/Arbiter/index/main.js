@@ -1,5 +1,5 @@
 var app = (function() {
-
+	
 	var waitFuncs = [];
 	var ArbiterInitialized = false;
 
@@ -11,23 +11,34 @@ var app = (function() {
 			
 			// Get the file system for use in TileUtil.js
 			Arbiter.FileSystem.setFileSystem(function(){
-				Arbiter.Cordova.OOM_Workaround
-					.registerMapListeners();
-			
-				Arbiter.Controls.ControlPanel
-					.registerMapListeners();
 				
-				//TileUtil.registerMapListeners();
+				// Get the AOI to check to see if it's been set
+				Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
+					
+					if(_aoi !== null && _aoi !== undefined 
+							&& _aoi !== ""){
+						Arbiter.aoiHasBeenSet(true);
+					}
+					
+					Arbiter.Cordova.OOM_Workaround
+						.registerMapListeners();
 				
-				Arbiter.Loaders.LayersLoader.addEventTypes();
-				
-				Arbiter.Loaders.LayersLoader.load();
-				
-				for ( var i = 0; i < waitFuncs.length; i++) {
-					waitFuncs[i].call();
-				}
-
-				ArbiterInitialized = true;
+					Arbiter.Controls.ControlPanel
+						.registerMapListeners();
+					
+					Arbiter.setTileUtil(new Arbiter.Util.TileUtil(Arbiter.ApplicationDbHelper.getDatabase(),
+							Arbiter.ProjectDbHelper.getProjectDatabase(), Arbiter.Map.getMap()));
+					
+					Arbiter.Loaders.LayersLoader.addEventTypes();
+					
+					Arbiter.Loaders.LayersLoader.load();
+					
+					for ( var i = 0; i < waitFuncs.length; i++) {
+						waitFuncs[i].call();
+					}
+	
+					ArbiterInitialized = true;
+				});
 			});
 		});
 	};

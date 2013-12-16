@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TileIdsHelper;
 
 public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "arbiter_project.db";
@@ -39,6 +40,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		LayersHelper.getLayersHelper().createTable(db);
 		PreferencesHelper.getHelper().createTable(db);
+		TileIdsHelper.getHelper().createTable(db);
 	}
 
 	@Override
@@ -46,9 +48,11 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 		// TODO: Migrate the tables
 		db.execSQL("DROP TABLE IF EXISTS " + LayersHelper.LAYERS_TABLE_NAME);
 		db.execSQL("DROP TABLE IF EXISTS " + PreferencesHelper.TABLE_NAME);
+		db.execSQL("DROP TABLE IF EXISTS " + TileIdsHelper.TABLE_NAME);
 		
 		LayersHelper.getLayersHelper().createTable(db);
 		PreferencesHelper.getHelper().createTable(db);
+		TileIdsHelper.getHelper().createTable(db);
 	}
 	
 	@Override

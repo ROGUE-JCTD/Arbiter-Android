@@ -28,9 +28,7 @@ Arbiter.Map = (function() {
 			});
 
 			if (callback !== null && callback !== undefined) {
-				console.log("createMap callback executing");
 				callback.call();
-				console.log("createMap callback executed");
 			}
 		},
 

@@ -305,46 +305,22 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     			if(!arbiterProject.isSameProject(getApplicationContext())){
         			Map.getMap().resetWebApp(cordovaWebView);
         			arbiterProject.makeSameProject();
+        			
+        			// If the user changed projects, check to 
+        			// see if the project has an aoi or not
+        			incompleteProjectHelper.checkForAOI();
         		}
     		}
     	}
     }
     
     private void updateProjectAOI(){
-    	//final Activity activity = this;
-    	
     	final String aoi = ArbiterState.getArbiterState().getNewAOI();
 		
     	updateProjectAOI(aoi);
-    	
-    	
-		/*CommandExecutor.runProcess(new Runnable(){
-			@Override
-			public void run(){
-				updateProjectAOI(aoi);
-				
-				activity.runOnUiThread(new Runnable(){
-					@Override
-					public void run(){
-						incompleteProjectHelper.toggleComplete(true);
-					}
-				});
-			}
-		});*/
     }
     
     private void updateProjectAOI(String aoi){
-    	/*Context context = getApplicationContext();
-		String projectName = ArbiterProject.getArbiterProject().getOpenProject(this);
-		
-		ProjectDatabaseHelper helper = 
-				ProjectDatabaseHelper.getHelper(context, 
-						ProjectStructure.getProjectPath(
-								context, projectName), false);
-		
-		// Update the aoi of the project
-        PreferencesHelper.getHelper().update(helper.getWritableDatabase(),
-        		context, ArbiterProject.AOI, aoi);*/
     	String title = getResources().getString(R.string.sync_in_progress);
 		String message = getResources().getString(R.string.sync_in_progress_msg);
 		

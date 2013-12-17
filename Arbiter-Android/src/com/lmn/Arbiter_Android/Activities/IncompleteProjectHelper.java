@@ -82,7 +82,7 @@ public class IncompleteProjectHelper {
 				message, true);
 	}
 	
-	private void checkForAOI(){
+	public void checkForAOI(){
 		if(insertButton == null || incompleteContainer == null 
 				|| syncButton == null){
 			
@@ -105,6 +105,8 @@ public class IncompleteProjectHelper {
 						if(aoi == null || aoi.equals("")){
 							Log.w("IncompleteProjectHelper", "IncompleteProjectHelper aoi isn't set!");
 							toggleComplete(false);
+						}else{
+							toggleComplete(true);
 						}
 						
 						checkAOIProgress.dismiss();

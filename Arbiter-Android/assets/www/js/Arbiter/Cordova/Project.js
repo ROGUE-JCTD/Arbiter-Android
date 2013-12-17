@@ -136,7 +136,7 @@ Arbiter.Cordova.Project = (function(){
 		}, 30000);
 	};
 	
-	var storeFeatureData = function(layers, bounds, onSuccess, onFailure){
+	var storeFeatureData = function(layers, bounds, cacheTiles, onSuccess, onFailure){
 		reset();
 		
 		layerCount = layers.length;
@@ -144,17 +144,29 @@ Arbiter.Cordova.Project = (function(){
 		for(var i = 0; i < layers.length; i++){
 			getLayerSchema(layers[i], bounds, function(){
 				if(doneGettingLayers()){
-					if(Arbiter.Util.funcExists(onSuccess)){
-						onSuccess();
+					if(cacheTiles){
+						console.log("caching tiles!");
+						var olAOI = new OpenLayers.Bounds(bounds.getLeft(), 
+								bounds.getBottom(), bounds.getRight(), bounds.getTop());
+						
+						Arbiter.getTileUtil().cacheTiles(olAOI, function(){
+							console.log("Tiles cached!");
+							onSuccess();
+						}, onFailure);
+					}else{
+						console.log("not caching tiles!");
+						if(Arbiter.Util.funcExists(onSuccess)){
+							onSuccess();
+						}
 					}
 				}
 			}, onFailure);
 		}
 	};
 	
-	var storeData = function(context, layers, bounds, onSuccess, onFailure){
+	var storeData = function(context, layers, bounds, cacheTiles, onSuccess, onFailure){
 		Arbiter.ServersHelper.loadServers(context, function(){
-			storeFeatureData(layers, bounds, onSuccess, onFailure);
+			storeFeatureData(layers, bounds, cacheTiles, onSuccess, onFailure);
 		}, onFailure);
 	};
 	
@@ -169,12 +181,12 @@ Arbiter.Cordova.Project = (function(){
 		createProject: function(layers){
 			var context = this;
 			
+			Arbiter.Cordova.setState(Arbiter.Cordova.STATES.CREATING_PROJECT);
+			
 			var onSuccess = function(){
 				Arbiter.Loaders.LayersLoader.load(function(){
 					
-					context.zoomToAOI(context, function(){
-						Arbiter.Cordova.doneCreatingProject();
-					}, onFailure);
+					Arbiter.Cordova.doneCreatingProject();
 				}, onFailure);
 			};
 			
@@ -198,14 +210,28 @@ Arbiter.Cordova.Project = (function(){
 						aoi[1], aoi[2], aoi[3]);
 				}
 				
+				console.log("Arbiter.Cordova.Project.createProject bounds = ", bounds);
+				
 				if(layers.length > 0){
-					storeData(context, layers, bounds, function(){
+					storeData(context, layers, bounds, true, function(){
 						onSuccess();
 					}, onFailure);
 				}else{
 					// If there are no layers, that means that there are
 					// either no layers, or it's just the osm default layer
-					onSuccess();
+					
+					if(bounds === null){
+						throw "Arbiter.Project.CreateProject bounds should not be " 
+							+ bounds;
+					}
+					
+					var olAOI = new OpenLayers.Bounds(bounds.getLeft(), 
+							bounds.getBottom(), bounds.getRight(), bounds.getTop());
+					
+					Arbiter.getTileUtil().cacheTiles(olAOI, function(){
+						console.log("Tiles cached!");
+						onSuccess();
+					}, onFailure);
 				}
 			});
 		},
@@ -230,7 +256,7 @@ Arbiter.Cordova.Project = (function(){
 				}
 				
 				if(layers.length > 0){
-					storeData(context, layers, bounds, function(){
+					storeData(context, layers, bounds, false, function(){
 						Arbiter.Loaders.LayersLoader.load(onSuccess, onFailure);
 					}, onFailure);
 				}else{
@@ -311,7 +337,7 @@ Arbiter.Cordova.Project = (function(){
 		
 		zoomToAOI: function(context, onSuccess, onFailure){
 			Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
-				
+				console.log("zoomToAOI", _aoi);
 				if(_aoi !== null && _aoi !== undefined 
 						&& _aoi !== ""){
 					

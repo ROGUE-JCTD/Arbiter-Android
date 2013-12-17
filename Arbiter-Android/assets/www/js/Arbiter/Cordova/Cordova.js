@@ -1,8 +1,42 @@
 Arbiter.Cordova = (function() {
 	var wktFormatter = new OpenLayers.Format.WKT();
 	
+	var state = 0;
+	
+	var isNeutral = function(){
+		return state === Arbiter.Cordova.STATES.NEUTRAL;
+	};
+	
+	var waitForNeutralQueue = [];
+	
+	var waitForNeutral = function(func){
+		if(!Arbiter.Util.funcExists(func)){
+			return;
+		}
+		
+		if(isNeutral()){
+			func();
+		}else{
+			waitForNeutralQueue.push(func);
+		}
+	};
+	
+	var executeWaitingFuncs = function(){
+		for(var func = waitForNeutralQueue.shift(); Arbiter.Util.funcExists(func);
+			func = waitForNeutralQueue.shift()){
+		
+			func();
+		}
+	};
+	
 	return {
 
+		STATES : {
+				NEUTRAL: 0,
+				CREATING_PROJECT: 1,
+				UPDATING: 2
+		},
+		
 		/**
 		 * Save the current maps extent
 		 */
@@ -15,7 +49,10 @@ Arbiter.Cordova = (function() {
 						"resetWebApp", [bbox, zoom]);
 			};
 			
-			Arbiter.SQLiteTransactionManager.executeAfterDone(reset);
+			// Don't reset while a sync is occurring.
+			waitForNeutral(function(){
+				Arbiter.SQLiteTransactionManager.executeAfterDone(reset);
+			});
 		},
 		
 		setNewProjectsAOI: function(){
@@ -26,13 +63,20 @@ Arbiter.Cordova = (function() {
 		},
 		
 		doneCreatingProject: function(){
-			cordova.exec(null, null, "ArbiterCordova",
+			cordova.exec(function(){
+				Arbiter.Cordova.Project.zoomToAOI();
+				
+				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.NEUTRAL);
+			}, null, "ArbiterCordova",
 					"doneCreatingProject", []);
 		},
 		
 		errorCreatingProject: function(e){
+			
 			console.log("errorCreatingProject", e);
-			cordova.exec(null, null, "ArbiterCordova",
+			cordova.exec(function(){
+				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.NEUTRAL);
+			}, null, "ArbiterCordova",
 					"errorCreatingProject", [e]);
 		},
 		
@@ -129,22 +173,45 @@ Arbiter.Cordova = (function() {
 					"updateTileSyncingStatus", [percent]);
 		},
 		
+		createProjectTileSyncingStatus: function(percent){
+			cordova.exec(null, null, "ArbiterCordova",
+					"createProjectTileSyncingStatus", [percent]);
+		},
+		
 		syncCompleted: function(){
-			
 			cordova.exec(function(){
 				Arbiter.Cordova.resetWebApp();
+				
+				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.NEUTRAL);
 			}, null, "ArbiterCordova", "syncCompleted", []);
 		},
 		
 		syncFailed: function(e){
 			
-			cordova.exec(null, null, "ArbiterCordova",
+			cordova.exec(function(){
+				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.NEUTRAL);
+			}, null, "ArbiterCordova",
 					"syncFailed", [e]);
 		},
 		
 		errorUpdatingAOI: function(e){
-			cordova.exec(null, null, "ArbiterCordova",
+			
+			cordova.exec(function(){
+				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.NEUTRAL);
+			}, null, "ArbiterCordova",
 					"errorUpdatingAOI", [e]);
+		},
+		
+		getState: function(){
+			return state;
+		},
+		
+		setState: function(_state){
+			state = _state;
+			
+			if(isNeutral()){
+				executeWaitingFuncs();
+			}
 		}
 	};
 })();

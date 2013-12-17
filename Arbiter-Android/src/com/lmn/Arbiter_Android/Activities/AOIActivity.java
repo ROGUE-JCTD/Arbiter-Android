@@ -12,13 +12,11 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
-import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
 import com.lmn.Arbiter_Android.Map.Map;
 
 import android.os.Bundle;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v4.app.FragmentActivity;
@@ -95,7 +93,6 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface, M
         	@Override
         	public void onClick(View v){
         		if(isCreatingProject){
-        			Log.w("AOIActivity", "AOIActivity: set new projects aoi");
         			Map.getMap().setNewProjectsAOI(cordovaWebView);
         		}else{
         			showConfirmationDialog();

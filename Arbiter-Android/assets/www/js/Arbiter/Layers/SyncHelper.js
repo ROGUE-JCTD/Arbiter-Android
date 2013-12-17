@@ -122,6 +122,8 @@ Arbiter.Layers.SyncHelper = (function(){
 	
 	return {
 		sync: function(_cacheTiles, onSuccess, onFailure){
+			Arbiter.Cordova.setState(Arbiter.Cordova.STATES.UPDATING);
+			
 			reset();
 			
 			cacheTiles = _cacheTiles;

@@ -113,6 +113,21 @@ Arbiter.FeatureTableHelper = (function(){
     		var insertCount = 0;
     		var featureCount = features.length;
     		
+    		// If the featureCount is 0, increment the
+    		// insertCount and execute the onSuccess
+    		// callback if done.
+    		if(featureCount === 0){
+    			
+    			if(((++insertCount === featureCount) || (featureCount === 0)) && 
+						Arbiter.Util.funcExists(onSuccess)){
+					
+					console.log("calling insertFeatures callback!");
+					onSuccess();
+				}
+    			
+    			return;
+    		}
+    		
     		var db = Arbiter.FeatureDbHelper.getFeatureDatabase();
     		var context = this;
     		
@@ -121,9 +136,7 @@ Arbiter.FeatureTableHelper = (function(){
     				context.insertFeature(tx, schema, srid, 
     						features[i], isDownload, function(){
     					
-    					insertCount++;
-    					
-    					if(insertCount === featureCount && 
+    					if(++insertCount === featureCount && 
     							Arbiter.Util.funcExists(onSuccess)){
     						
     						console.log("calling insertFeatures callback!");

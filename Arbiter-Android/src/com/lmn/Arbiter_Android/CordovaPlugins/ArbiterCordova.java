@@ -7,7 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -18,7 +17,6 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
-import com.lmn.Arbiter_Android.Activities.MapChangeHelper;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
@@ -65,11 +63,11 @@ public class ArbiterCordova extends CordovaPlugin{
 			return true;
 		}else if("doneCreatingProject".equals(action)){
 			
-			doneCreatingProject();
+			doneCreatingProject(callbackContext);
 			
 			return true;
 		}else if("errorCreatingProject".equals(action)){
-			errorCreatingProject();
+			errorCreatingProject(callbackContext);
 			
 			return true;
 		}else if("errorLoadingFeatures".equals(action)){
@@ -108,17 +106,23 @@ public class ArbiterCordova extends CordovaPlugin{
 			updateTileSyncingStatus(percentComplete);
 			
 			return true;
+		}else if("createProjectTileSyncingStatus".equals(action)){
+			String percentComplete = args.getString(0);
+			
+			createProjectTileSyncingStatus(percentComplete);
+			
+			return true;
 		}else if("syncCompleted".equals(action)){
-			syncCompleted();
+			syncCompleted(callbackContext);
 			
 			return true;
 		}else if("syncFailed".equals(action)){
 			syncFailed((args.length() > 0) 
-					? args.getString(0) : null);
+					? args.getString(0) : null, callbackContext);
 			
 			return true;
 		}else if("errorUpdatingAOI".equals(action)){
-			errorUpdatingAOI(args.getString(0));
+			errorUpdatingAOI(args.getString(0), callbackContext);
 		}
 		
 		// Returning false results in a "MethodNotFound" error.
@@ -137,7 +141,19 @@ public class ArbiterCordova extends CordovaPlugin{
 		});
 	}
 	
-	private void errorUpdatingAOI(final String error){
+	private void createProjectTileSyncingStatus(final String percentComplete){
+		final String message = cordova.getActivity().getResources()
+				.getString(R.string.create_project_msg);
+		
+		cordova.getActivity().runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				arbiterProject.updateProjectCreationProgressStatus(message, percentComplete);
+			}
+		});
+	}
+	
+	private void errorUpdatingAOI(final String error, final CallbackContext callback){
 		cordova.getActivity().runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
@@ -147,9 +163,11 @@ public class ArbiterCordova extends CordovaPlugin{
 						R.string.error_updating_aoi_msg, error, null, null, null);
 			}
 		});
+		
+		callback.success();
 	}
 	
-	private void syncCompleted(){
+	private void syncCompleted(final CallbackContext callbackContext){
 		cordova.getActivity().runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
@@ -163,11 +181,13 @@ public class ArbiterCordova extends CordovaPlugin{
 					throw new ClassCastException(cordova.getActivity().toString() 
 							+ " must be an instance of Map.MapChangeListener");
 				}
+				
+				callbackContext.success();
 			}
 		});
 	}
 	
-	private void syncFailed(final String error){
+	private void syncFailed(final String error, final CallbackContext callback){
 		cordova.getActivity().runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
@@ -177,6 +197,8 @@ public class ArbiterCordova extends CordovaPlugin{
 						R.string.error_syncing_msg, error, null, null, null);
 			}
 		});
+		
+		callback.success();
 	}
 	
 	private SQLiteDatabase getFeatureDatabase(){
@@ -296,15 +318,28 @@ public class ArbiterCordova extends CordovaPlugin{
 		});
 	}
 	
-	private void errorCreatingProject(){
+	private void errorCreatingProject(CallbackContext callback){
 		Log.w("ArbiterCordova", "ArbiterCordova.errorCreatingProject");
 		ArbiterProject.getArbiterProject().errorCreatingProject(
 				cordova.getActivity());
+		
+		callback.success();
 	}
 	
-	private void doneCreatingProject(){
+	private void doneCreatingProject(CallbackContext callbackContext){
 		ArbiterProject.getArbiterProject().doneCreatingProject(
 				cordova.getActivity().getApplicationContext());
+		
+		try{
+			((Map.MapChangeListener) cordova.getActivity())
+				.getMapChangeHelper().onProjectCreated();
+		} catch(ClassCastException e){
+			e.printStackTrace();
+			throw new ClassCastException(cordova.getActivity().toString() 
+					+ " must be an instance of Map.MapChangeListener");
+		}
+		
+		callbackContext.success();
 	}
 	
 	private void setNewProjectsAOI(final String aoi, final CallbackContext callbackContext){

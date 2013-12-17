@@ -9,7 +9,10 @@ Arbiter.Util.TileUtil = function(_appDb, _projectDb, _map){
 		map.events.register("addlayer", TileUtil, function(event){
 			if(event && event.layer 
 					&& event.layer.getURL
-					&& event.layer.isBaseLayer){
+					&& event.layer.isBaseLayer
+					
+					// For now, going to limit this to an OSM layer
+					&& event.layer instanceof OpenLayers.Layer.OSM){
 				
 				event.layer.getURL_Original = event.layer.getURL;
 				
@@ -115,7 +118,7 @@ Arbiter.Util.TileUtil = function(_appDb, _projectDb, _map){
 	 * @param {OpenLayers.Bounds} aoi Area of interest to cache.
 	 */
 	this.startCachingTiles = function(aoi, successCallback) {
-		console.log("---- startCachingTiles");
+		console.log("---- startCachingTiles", aoi, successCallback);
 		
 		if (typeof caching !== 'undefined') {
 			console.log("TileUtil.startCachingTiles: Tile Caching already in progress. Aborting new request");
@@ -529,7 +532,18 @@ Arbiter.Util.TileUtil = function(_appDb, _projectDb, _map){
 	
 		var percent = Math.round(caching.counterDownloaded/caching.counterMax * 100);
 		//Arbiter.setMessageOverlay(Arbiter.localizeString("Caching Tiles","label","cachingTiles"), Arbiter.localizeString("Downloaded: ","label","downloaded") + percent + "%");
-		Arbiter.Cordova.updateTileSyncingStatus(percent);
+		var state = Arbiter.Cordova.getState();
+		
+		if(state === Arbiter.Cordova.STATES.UPDATING){
+			Arbiter.Cordova.updateTileSyncingStatus(percent);
+		}else if(state === Arbiter.Cordova.STATES.CREATING_PROJECT){
+			Arbiter.Cordova.createProjectTileSyncingStatus(percent);
+		}else{
+			console.log("TileUtil.onUpdateCachingDownloadProgress WARNING: \n\n"
+					+ "Arbiter.Cordova.getState() is " + state + ", but should be either " 
+					+ Arbiter.Cordova.STATES.CREATING_PROJECT + " or " 
+					+ Arbiter.Cordova.STATES.UPDATING);
+		}
 		
 		if (TileUtil.debugProgress) {
 			console.log("onUpdateCachingDownloadProgress: " + percent + ". counterDownloaded: " + caching.counterDownloaded + ", counterMax: " + caching.counterMax);
@@ -1043,7 +1057,7 @@ Arbiter.Util.TileUtil = function(_appDb, _projectDb, _map){
 						}
 						
 						if (removeCounter === res.rows.length) {
-							TileUtil.deleteTileIdsEntries(projectDb, successCallback);
+							TileUtil.deleteTileIdsEntries(successCallback);
 						}
 					};
 					
@@ -1092,12 +1106,12 @@ Arbiter.Util.TileUtil = function(_appDb, _projectDb, _map){
 				if (successCallback){
 					successCallback();
 				}
-			}, function(e1, e2) {
+			}, function(tx, e) {
 				//Arbiter.error("chk9", e1, e2);
-				console.log("TileUtil.deleteTileIdsEntries error", e1, e2);
+				console.log("TileUtil.deleteTileIdsEntries error", e);
 			});					
-		}, function(e1, e2) {
-			console.log("TileUtil.deleteTileIdsEntries error", e1, e2);
+		}, function(e) {
+			console.log("TileUtil.deleteTileIdsEntries error", e);
 		});	
 	};
 	

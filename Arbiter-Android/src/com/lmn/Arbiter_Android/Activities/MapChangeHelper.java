@@ -39,6 +39,15 @@ public class MapChangeHelper {
 		reloadMap();
 	}
 	
+	public void onProjectCreated(){
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				incompleteProjectHelper.checkForAOI();
+			}
+		});
+	}
+	
 	public void onLayersAdded(final ArrayList<Layer> layers, final long[] layerIds,
 			final String includeDefaultLayer, final String defaultLayerVisibility) {
 		

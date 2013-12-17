@@ -1,5 +1,7 @@
 Arbiter = (function(){
 	var layerSchemas = {};
+	var layerSchemasLength = 0;
+	
 	var aoiHasBeenSet = false;
 	var tileUtil = null;
 	
@@ -25,16 +27,26 @@ Arbiter = (function(){
 			return layerSchemas;
 		},
 		
+		getLayerSchemasLength: function(){
+			return layerSchemasLength;
+		},
+		
 		/**
 		 * key is the id of the layer in the 
 		 * projects database
 		 */
 		putLayerSchema: function(key, schema){
+			// If the key isn't in layerSchemas yet, increment the length
+			if(layerSchemas[key] === null || layerSchemas[key] === undefined){
+				layerSchemasLength++;
+			}
+			
 			layerSchemas[key] = schema;
 		},
 		
 		resetLayerSchemas: function(){
 			layerSchemas = {};
+			layerSchemasLength = 0;
 		},
 		
 		/**

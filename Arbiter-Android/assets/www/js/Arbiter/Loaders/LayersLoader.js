@@ -46,9 +46,6 @@ Arbiter.Loaders.LayersLoader = (function(){
 		
 		olLayer.setVisibility(schema.isVisible());
 		
-		// TODO: BUG - The success callback isn't getting called
-		// for every feature. It should only be called after all
-		// of the features are loaded for the layer.
 		var onSuccess = function(){
 			featuresLoadedFor++;
 			isDone(_onSuccess);
@@ -72,6 +69,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 	};
 	
 	var loadLayers = function(includeDefaultLayer, defaultLayerVisibility, onSuccess){
+		
 		reset();
 		
 		clearMap();
@@ -79,13 +77,20 @@ Arbiter.Loaders.LayersLoader = (function(){
 		var layerSchemas = Arbiter.getLayerSchemas();
 		
 		var layer;
-
+		
 		if (includeDefaultLayer === "true") {
 			Arbiter.Layers.addDefaultLayer(defaultLayerVisibility);
 		}
 		
 		if(layerSchemas === undefined 
-				|| layerSchemas === null){
+				|| layerSchemas === null 
+				|| (Arbiter.getLayerSchemasLength() === 0)){
+			
+			setBaseLayer();
+			
+			if(Arbiter.Util.funcExists(onSuccess)){
+				isDone(onSuccess);
+			}
 			
 			return;
 		}
@@ -156,7 +161,6 @@ Arbiter.Loaders.LayersLoader = (function(){
 						
 						// Load the default layer info
 						loadDefaultLayerInfo(this, function(includeDefaultLayer, defaultLayerVisibility){
-							
 							// Load the layers onto the map
 							loadLayers(includeDefaultLayer, defaultLayerVisibility, function(){
 								if(Arbiter.Util.funcExists(onSuccess)){

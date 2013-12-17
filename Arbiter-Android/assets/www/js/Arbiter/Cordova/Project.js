@@ -136,9 +136,25 @@ Arbiter.Cordova.Project = (function(){
 		}, 30000);
 	};
 	
+	var storeFeatureData = function(layers, bounds, onSuccess, onFailure){
+		reset();
+		
+		layerCount = layers.length;
+		
+		for(var i = 0; i < layers.length; i++){
+			getLayerSchema(layers[i], bounds, function(){
+				if(doneGettingLayers()){
+					if(Arbiter.Util.funcExists(onSuccess)){
+						onSuccess();
+					}
+				}
+			}, onFailure);
+		}
+	};
+	
 	var storeData = function(context, layers, bounds, onSuccess, onFailure){
 		Arbiter.ServersHelper.loadServers(context, function(){
-			context.storeFeatureData(layers, bounds, onSuccess, onFailure);
+			storeFeatureData(layers, bounds, onSuccess, onFailure);
 		}, onFailure);
 	};
 	
@@ -152,6 +168,15 @@ Arbiter.Cordova.Project = (function(){
 	return {
 		createProject: function(layers){
 			var context = this;
+			
+			var onSuccess = function(){
+				Arbiter.Loaders.LayersLoader.load(function(){
+					
+					context.zoomToAOI(context, function(){
+						Arbiter.Cordova.doneCreatingProject();
+					}, onFailure);
+				}, onFailure);
+			};
 			
 			var onFailure = function(e){
 				console.log("Arbiter.Cordova.Project", e);
@@ -173,19 +198,21 @@ Arbiter.Cordova.Project = (function(){
 						aoi[1], aoi[2], aoi[3]);
 				}
 				
-				storeData(context, layers, bounds, function(){
-					Arbiter.Loaders.LayersLoader.load(function(){
-						context.zoomToAOI(context, function(){
-							Arbiter.Cordova.doneCreatingProject();
-						}, onFailure);
+				if(layers.length > 0){
+					storeData(context, layers, bounds, function(){
+						onSuccess();
 					}, onFailure);
-				}, onFailure);
+				}else{
+					// If there are no layers, that means that there are
+					// either no layers, or it's just the osm default layer
+					onSuccess();
+				}
 			});
 		},
 		
 		addLayers: function(layers){
 			var context = this;
-			console.log("Arbiter.Cordova.Project.addLayers", layers);
+			
 			var onSuccess = function(){
 				Arbiter.Cordova.doneAddingLayers();
 			};
@@ -202,26 +229,16 @@ Arbiter.Cordova.Project = (function(){
 					bounds = new Arbiter.Util.Bounds(aoi[0], aoi[1], aoi[2], aoi[3]);
 				}
 				
-				storeData(context, layers, bounds, function(){
+				if(layers.length > 0){
+					storeData(context, layers, bounds, function(){
+						Arbiter.Loaders.LayersLoader.load(onSuccess, onFailure);
+					}, onFailure);
+				}else{
+					// If there are no layers, that means that the 
+					// default osm layer got added.
 					Arbiter.Loaders.LayersLoader.load(onSuccess, onFailure);
-				}, onFailure);
+				}
 			}, onFailure);
-		},
-		
-		storeFeatureData: function(layers, bounds, onSuccess, onFailure){
-			reset();
-			
-			layerCount = layers.length;
-			
-			for(var i = 0; i < layers.length; i++){
-				getLayerSchema(layers[i], bounds, function(){
-					if(doneGettingLayers()){
-						if(Arbiter.Util.funcExists(onSuccess)){
-							onSuccess();
-						}
-					}
-				}, onFailure);
-			}
 		},
 		
 		/**
@@ -259,13 +276,6 @@ Arbiter.Cordova.Project = (function(){
 		},
 		
 		updateAOI: function(left, bottom, right, top){
-			/*// onSyncSuccess execute the native
-			// method to close the update's 
-			// progress dialog.
-			var onSuccess = function(){
-				Arbiter.Cordova.doneUpdatingAOI();
-			};*/
-			
 			var aoi = left + ", " + bottom 
 				+ ", " + right + ", " + top;
 			

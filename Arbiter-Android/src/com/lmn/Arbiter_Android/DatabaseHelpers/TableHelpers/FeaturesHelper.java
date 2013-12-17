@@ -11,6 +11,7 @@ public class FeaturesHelper{
 	public static final String ID = "arbiter_id";
 	public static final String SYNC_STATE = "sync_state";
 	public static final String MODIFIED_STATE = "modified_state";
+	public static final String FID = "fid";
 	
 	public class SYNC_STATES{
 		public static final String NOT_SYNCED = "0";

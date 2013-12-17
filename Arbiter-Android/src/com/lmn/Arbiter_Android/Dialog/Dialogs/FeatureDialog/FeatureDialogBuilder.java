@@ -42,7 +42,8 @@ public class FeatureDialogBuilder {
 			value = attributes.getAsString(key);
 			
 			if(!key.equals(FeaturesHelper.SYNC_STATE) 
-					&& !key.equals(FeaturesHelper.MODIFIED_STATE)){
+					&& !key.equals(FeaturesHelper.MODIFIED_STATE) 
+					&& !key.equals(FeaturesHelper.FID)){
 				
 				appendAttribute(key, value);
 			}
@@ -99,7 +100,8 @@ public class FeatureDialogBuilder {
 		
 		for(String key : attributes.keySet()){
 			if(!key.equals(FeaturesHelper.SYNC_STATE) 
-					&& !key.equals(FeaturesHelper.MODIFIED_STATE)){
+					&& !key.equals(FeaturesHelper.MODIFIED_STATE)
+					&& !key.equals(FeaturesHelper.FID)){
 				
 				attributes.put(key, editTexts.get(i++)
 					.getText().toString());

@@ -49,6 +49,8 @@
 	<string name="error_syncing">Error</string>
 	<string name="error_syncing_msg">Unable to sync</string>
 	<string name="project_incomplete_msg">Project is not available offline. \n\nPlease select an area of interest.</string>
+	<string name="click_me">( Click me )</string>
+	
 	<string name="initializing">Initializing</string>
 	<string name="please_wait">Please wait&#8230;</string>
 	<string name="update_aoi_alert">Area of Interest</string>

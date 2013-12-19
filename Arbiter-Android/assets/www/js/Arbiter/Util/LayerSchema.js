@@ -11,6 +11,7 @@ Arbiter.Util.LayerSchema = function(){
 	var editable = null;
 	var visibility = null;
 	var serverId = null;
+	var mediaColumn = null;
 	
 	var LayerSchema;
 	
@@ -50,6 +51,10 @@ Arbiter.Util.LayerSchema = function(){
 					attribute = new Arbiter.Util.Attribute(property.name,
 							property.type.substr(4), property.nillable);
 					
+					if(property.name === "media" || property.name === "fotos"){
+						mediaColumn = property.name;
+					}
+					
 					attributes.push(attribute);
 					
 					if(property.restriction && property.restriction.enumeration){
@@ -60,7 +65,7 @@ Arbiter.Util.LayerSchema = function(){
 		};
 		
 		LayerSchema(_url, _workspace, _featureType, _srid, properties, _serverId);
-	}else if(arguments.length === 11){ // Loaded from database
+	}else if(arguments.length === 12){ // Loaded from database
 		var _url = arguments[0];
 		var _workspace = arguments[1];
 		var _prefix = arguments[2];
@@ -72,6 +77,7 @@ Arbiter.Util.LayerSchema = function(){
 		var _attributes = arguments[8];
 		var _visibility = arguments[9];
 		var _serverId = arguments[10];
+		var _mediaColumn = arguments[11];
 		
 		LayerSchema = function(_url, _workspace, 
 				_prefix, _featureType, _srid, 
@@ -91,11 +97,13 @@ Arbiter.Util.LayerSchema = function(){
 			geometryType = _geometryType;
 			visibility = _visibility;
 			serverId = _serverId;
+			mediaColumn = _mediaColumn;
 		};
 		
 		LayerSchema(_url, _workspace, _prefix, _featureType, 
 				_srid, _geometryName, _geometryType, 
-				_enumeration, _attributes, _visibility, _serverId);
+				_enumeration, _attributes, _visibility, _serverId, _mediaColumn);
+		
 	}else if(arguments.length === 5){ // LayerGroup
 		var _url = arguments[0];
 		var _workspace = arguments[1];
@@ -169,7 +177,10 @@ Arbiter.Util.LayerSchema = function(){
 		
 		isEditable: function(){
 			return editable;
-		}
+		}, 
 		
+		getMediaColumn: function(){
+			return mediaColumn;
+		}
 	};
 };

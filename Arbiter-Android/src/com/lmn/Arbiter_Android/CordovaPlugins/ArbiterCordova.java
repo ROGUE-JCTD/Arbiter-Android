@@ -318,28 +318,39 @@ public class ArbiterCordova extends CordovaPlugin{
 		});
 	}
 	
-	private void errorCreatingProject(CallbackContext callback){
+	private void errorCreatingProject(final CallbackContext callback){
 		Log.w("ArbiterCordova", "ArbiterCordova.errorCreatingProject");
-		ArbiterProject.getArbiterProject().errorCreatingProject(
-				cordova.getActivity());
 		
-		callback.success();
+		cordova.getActivity().runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				ArbiterProject.getArbiterProject().errorCreatingProject(
+						cordova.getActivity());
+				
+				callback.success();
+			}
+		});
 	}
 	
-	private void doneCreatingProject(CallbackContext callbackContext){
-		ArbiterProject.getArbiterProject().doneCreatingProject(
-				cordova.getActivity().getApplicationContext());
-		
-		try{
-			((Map.MapChangeListener) cordova.getActivity())
-				.getMapChangeHelper().onProjectCreated();
-		} catch(ClassCastException e){
-			e.printStackTrace();
-			throw new ClassCastException(cordova.getActivity().toString() 
-					+ " must be an instance of Map.MapChangeListener");
-		}
-		
-		callbackContext.success();
+	private void doneCreatingProject(final CallbackContext callbackContext){
+		cordova.getActivity().runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				ArbiterProject.getArbiterProject().doneCreatingProject(
+						cordova.getActivity().getApplicationContext());
+				
+				try{
+					((Map.MapChangeListener) cordova.getActivity())
+						.getMapChangeHelper().onProjectCreated();
+				} catch(ClassCastException e){
+					e.printStackTrace();
+					throw new ClassCastException(cordova.getActivity().toString() 
+							+ " must be an instance of Map.MapChangeListener");
+				}
+				
+				callbackContext.success();
+			}
+		});
 	}
 	
 	private void setNewProjectsAOI(final String aoi, final CallbackContext callbackContext){

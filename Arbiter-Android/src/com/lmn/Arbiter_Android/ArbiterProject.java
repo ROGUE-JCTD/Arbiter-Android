@@ -26,6 +26,7 @@ public class ArbiterProject {
 	// Keys for preferences table in project db
 	public static final String INCLUDE_DEFAULT_LAYER = "include_default_layer";
 	public static final String DEFAULT_LAYER_VISIBILITY = "default_layer_visibility";
+	public static final String PROJECT_NAME = "project_name";
 	public static final String AOI = "aoi";
 	
 	// The name of the project that was open.

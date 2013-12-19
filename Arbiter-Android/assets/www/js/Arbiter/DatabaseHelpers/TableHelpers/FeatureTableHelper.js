@@ -389,10 +389,16 @@ Arbiter.FeatureTableHelper = (function(){
 				var attributes = [];
 				var row = null;
 				
+				var mediaColumn = null;
+				
 				for(var i = 0; i < res.rows.length; i++){
 					row = res.rows.item(i);
 					
 					if(row.name !== context.ID && row.name !== geometryName){
+						if(row.name === "media" || row.name === "fotos"){
+							mediaColumn = row.name;
+						}
+						
 						attributes.push(new Arbiter.Util.Attribute(row.name, 
 								row.type, row.notnull));
 					}
@@ -400,7 +406,8 @@ Arbiter.FeatureTableHelper = (function(){
 				
 				var schema = new Arbiter.Util.LayerSchema(url,
 						workspace, prefix, featureType, srid, geometryName,
-						geometryType, enumeration, attributes, visibility, serverId);
+						geometryType, enumeration, attributes,
+						visibility, serverId, mediaColumn);
 				
 				Arbiter.putLayerSchema(layer[layersHelper.layerId()], schema);
 				

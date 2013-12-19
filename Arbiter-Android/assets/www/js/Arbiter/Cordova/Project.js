@@ -59,9 +59,17 @@ Arbiter.Cordova.Project = (function(){
 					return;
 				}
 				
-				var schema = new Arbiter.Util.LayerSchema(url,
-						results.targetNamespace, featureType,srid,
-						results.featureTypes[0].properties, serverId);
+				var schema;
+				
+				try{
+					schema = new Arbiter.Util.LayerSchema(url,
+							results.targetNamespace, featureType,srid,
+							results.featureTypes[0].properties, serverId);
+				}catch(e){
+					var msg = "Arbiter.Cordova.Project.getLayerSchema ERROR creating layer schema: " + e;
+					console.log("Arbiter.Cordova.Project.getLayerSchema ERROR creating layer schema", e);
+					throw msg;
+				}
 				
 				var helper = Arbiter.GeometryColumnsHelper;
 				
@@ -69,22 +77,28 @@ Arbiter.Cordova.Project = (function(){
 				
 				content[Arbiter.LayersHelper.workspace()] = results.targetNamespace;
 				
+				console.log("udpating the workspace!");
 				// Update the layers workspace in the Layers table.
 				Arbiter.LayersHelper.updateLayer(featureType, content, this, function(){
+					console.log("udpated the workspace of the layer");
 					
 					// After updating the layer workspace, 
 					// add the layer to the GeometryColumns table
 					Arbiter.GeometryColumnsHelper.addToGeometryColumns(schema, function(){
+						console.log("added the table to the geometrycolumns table!");
 						
 						// After adding the layer to the GeometryColumns table
 						// create the feature table for the layer
 						Arbiter.FeatureTableHelper.createFeatureTable(schema, function(){
+							console.log("Arbiter.Cordova.Project.createFeatureTable");
 							
 							if(bounds !== null && bounds !== undefined && bounds !== ""){
+								console.log("Arbiter.Cordova.Project.createFeatureTable bounds aren't empty");
+								
 								// After creating the feature table for the layer,
 								// download the features from the layer
 								context.downloadFeatures(schema, bounds, encodedCredentials, function(){
-									
+									console.log("successfully got layerSchema");
 									// All the features have been downloaded and inserted
 									// for this layer.  Increment the layerFinishedCount 
 									incrementLayerFinishedCount();
@@ -92,11 +106,12 @@ Arbiter.Cordova.Project = (function(){
 									// If all the layers have finished downloading,
 									// call the callback.
 									if(doneGettingLayers() && Arbiter.Util.funcExists(onSuccess)){
-										
+										console.log("successfully got layerSchemas");
 										onSuccess.call(context);
 									}
 								}, onFailure);
 							}else{
+								console.log("successfully got layerSchema");
 								// All the features have been downloaded and inserted
 								// for this layer.  Increment the layerFinishedCount 
 								incrementLayerFinishedCount();
@@ -151,7 +166,9 @@ Arbiter.Cordova.Project = (function(){
 						
 						Arbiter.getTileUtil().cacheTiles(olAOI, function(){
 							console.log("Tiles cached!");
-							onSuccess();
+							if(Arbiter.Util.funcExists(onSuccess)){
+								onSuccess();
+							}
 						}, onFailure);
 					}else{
 						console.log("not caching tiles!");
@@ -283,10 +300,19 @@ Arbiter.Cordova.Project = (function(){
 				
 				Arbiter.FeatureTableHelper.insertFeatures(schema, schema.getSRID(),
 						features, isDownload, function(){
-					
-					if(Arbiter.Util.funcExists(onSuccess)){
-						onSuccess();
+					try{
+						console.log("inserted features now downloading media for said features");
+						
+						Arbiter.MediaHelper.downloadMedia(schema, encodedCredentials, features, function(){
+							if(Arbiter.Util.funcExists(onSuccess)){
+								console.log("executing download features onSuccess");
+								onSuccess();
+							}
+						}, onFailure);
+					}catch(e){
+						console.log("Media failed to download");
 					}
+					
 				});
 			}, onFailure);
 		},

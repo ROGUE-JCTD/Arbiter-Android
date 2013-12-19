@@ -73,6 +73,9 @@ public class ProjectStructure {
 		
 		PreferencesHelper.getHelper().insert(helper.getWritableDatabase(), 
 				context, ArbiterProject.DEFAULT_LAYER_VISIBILITY, DEFAULT_DEFAULT_LAYER_VISIBILITY);
+		
+		PreferencesHelper.getHelper().insert(helper.getWritableDatabase(),
+				context, ArbiterProject.PROJECT_NAME, defaultProjectName);
 	}
 	
 	private boolean projectExists(Context context){

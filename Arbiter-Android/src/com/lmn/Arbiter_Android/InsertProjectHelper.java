@@ -38,6 +38,7 @@ public class InsertProjectHelper {
 			public void run(){
 				insertNewProject(activity);
 				
+				Log.w("InsertProjectHelper", "InsertProjectHelper: insertedProject");
 				activity.runOnUiThread(new Runnable(){
 					@Override
 					public void run(){
@@ -55,7 +56,7 @@ public class InsertProjectHelper {
 	 * table, download and insert the features in the
 	 * projects aoi into the featureType's table
 	 */
-	public void performFeatureDbWork(){
+	private void performFeatureDbWork(){
 		Map.getMap().createProject(cordovaMap.getWebView(), 
 				arbiterProject.getNewProject().getLayers());
 	}
@@ -66,6 +67,8 @@ public class InsertProjectHelper {
 		Project newProject = arbiterProject.getNewProject();
 		
 		String projectName = newProject.getProjectName();
+		
+		Log.w("InsertProjectHelper", "InsertProjectHelper.insertNewProject projectName = " + projectName);
 		
 		// Create the project directory
 		createProjectDirectory(activity, projectName);
@@ -94,6 +97,8 @@ public class InsertProjectHelper {
 		// Set the open project
 		ArbiterProject.getArbiterProject().setOpenProject(context, 
 			newProject.getProjectName());
+		
+		Log.w("InsertProjectHelper", "InsertProjectHelper.setOpenProject projectName = " + newProject.getProjectName());
 	}
 	
 	private void createProjectDirectory(Activity activity, String projectName){
@@ -121,6 +126,9 @@ public class InsertProjectHelper {
 		
 		PreferencesHelper.getHelper().insert(helper.getWritableDatabase(), 
 				context, ArbiterProject.DEFAULT_LAYER_VISIBILITY, includeDefaultLayer);
+		
+		PreferencesHelper.getHelper().insert(helper.getWritableDatabase(),
+				context, ArbiterProject.PROJECT_NAME, newProject.getProjectName());
 		
 		// ArbiterProject's setOpenProject usually loads this info
 		// from the project's projectDb, but since this was ran

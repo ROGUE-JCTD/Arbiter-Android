@@ -26,8 +26,14 @@ var app = (function() {
 					Arbiter.Controls.ControlPanel
 						.registerMapListeners();
 					
-					Arbiter.setTileUtil(new Arbiter.Util.TileUtil(Arbiter.ApplicationDbHelper.getDatabase(),
-							Arbiter.ProjectDbHelper.getProjectDatabase(), Arbiter.Map.getMap()));
+					Arbiter.setTileUtil(
+						new Arbiter.Util.TileUtil(
+							Arbiter.ApplicationDbHelper.getDatabase(),
+							Arbiter.ProjectDbHelper.getProjectDatabase(),
+							Arbiter.Map.getMap(),
+							Arbiter.FileSystem.getFileSystem()
+						)
+					);
 					
 					Arbiter.Loaders.LayersLoader.addEventTypes();
 					
@@ -39,6 +45,8 @@ var app = (function() {
 	
 					ArbiterInitialized = true;
 				});
+			}, function(e){
+				console.log("Error initializing Arbiter - ", e);
 			});
 		});
 	};

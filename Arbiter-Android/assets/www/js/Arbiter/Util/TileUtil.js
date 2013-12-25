@@ -1,8 +1,9 @@
-Arbiter.Util.TileUtil = function(_appDb, _projectDb, _map){
+Arbiter.Util.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
 	var TileUtil = this;
 	var appDb = _appDb;
 	var projectDb = _projectDb;
 	var map = _map;
+	var fileSystem = _fileSystem;
 	
 	var registerOnLayerAdded = function(){
 		
@@ -57,34 +58,27 @@ Arbiter.Util.TileUtil = function(_appDb, _projectDb, _map){
 			
 	this.dumpFiles = function() {
 		console.log("---- TileUtil.dumpFiles");
-		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, 
-			function(fs){
-				try {
-					 console.log("---- fs.root: " + fs.root.name);
-					 var directoryReader = fs.root.createReader();
-					 directoryReader.readEntries(
-						function(entries) {
-							 var i;
-							 for (i=0; i<entries.length; i++) {
-								 if (entries[i].isDirectory) {
-									 console.log("--{ Dir: " + entries[i].name, "path: " + entries[i].fullPath);
-								 } else {
-									 console.log("--{ File: " + entries[i].name, "path: " + entries[i].fullPath);
-								 }
-							 }
-						},
-						function(err){
-							console.log("TileUtil.dumpFiles ERROR", err);
-						}
-					);
-				} catch (e) {
-					console.log("TileUtil.dumpFiles ERROR", e);
+		try {
+			 console.log("---- fileSystem.root: " + fileSystem.root.name);
+			 var directoryReader = fileSystem.root.createReader();
+			 directoryReader.readEntries(
+				function(entries) {
+					 var i;
+					 for (i=0; i<entries.length; i++) {
+						 if (entries[i].isDirectory) {
+							 console.log("--{ Dir: " + entries[i].name, "path: " + entries[i].fullPath);
+						 } else {
+							 console.log("--{ File: " + entries[i].name, "path: " + entries[i].fullPath);
+						 }
+					 }
+				},
+				function(err){
+					console.log("TileUtil.dumpFiles ERROR", err);
 				}
-			}, 
-			function(err) {
-				console.log("TileUtil.dumpFiles ERROR failed to get fs (fileSystem)", err);
-			}
-		);	
+			);
+		} catch (e) {
+			console.log("TileUtil.dumpFiles ERROR", e);
+		}
 	};
 	
 	this.dumpDirectory = function(dir) {
@@ -559,7 +553,7 @@ Arbiter.Util.TileUtil = function(_appDb, _projectDb, _map){
 	    var path;
 	    
 	    if(Arbiter.hasAOIBeenSet()){
-	    	path = Arbiter.FileSystem.getFileSystem().root.fullPath + "/" + "Arbiter/osm" +"/" 
+	    	path = fileSystem.root.fullPath + "/" + "Arbiter/osm" +"/" 
 	    		+ xyz.z + "/" + xyz.x + "/" + xyz.y + "." + ext;
 	    }else{
 	    	path = this.getURL_Original(bounds);
@@ -897,7 +891,7 @@ Arbiter.Util.TileUtil = function(_appDb, _projectDb, _map){
 			console.log("---- TileUtil.saveTile. tileset: " + tileset + ", z: " + z + ", x: " + x + ", y: " + y + ", url: " + fileUrl);
 		}
 		
-		Arbiter.FileSystem.getFileSystem().root.getDirectory(tileset, {create: true, exclusive: false}, 
+		fileSystem.root.getDirectory(tileset, {create: true, exclusive: false}, 
 			function(tilesetDirEntry){
 				//console.log("---- tilesetDirEntry: " + tilesetDirEntry.fullPath);
 				tilesetDirEntry.getDirectory("" + z, {create: true, exclusive: false}, 
@@ -972,7 +966,7 @@ Arbiter.Util.TileUtil = function(_appDb, _projectDb, _map){
 		if (tileNewRefCounter === 1) {
 			// alert("inserted tile. id: " + res.insertId);
 			appDb.transaction(function(tx) {
-				var path = Arbiter.FileSystem.getFileSystem().root.fullPath + "/" + tileset +"/" + z + "/" + x + "/" + y + "." + ext;
+				var path = fileSystem.root.fullPath + "/" + tileset +"/" + z + "/" + x + "/" + y + "." + ext;
 	
 				var statement = "INSERT INTO tiles (tileset, z, x, y, path, url, ref_counter) VALUES (?, ?, ?, ?, ?, ?, ?);";
 				tx.executeSql(statement, [ tileset, z, x, y, path, url, 1 ], function(tx, res) {
@@ -1211,8 +1205,8 @@ Arbiter.Util.TileUtil = function(_appDb, _projectDb, _map){
 	
 	this.removeTileFromDevice = function(path, id, successCallback, errorCallback){
 		// remove tile from disk
-		var newPath = path.replace(Arbiter.FileSystem.getFileSystem().root.fullPath + '/','');
-		Arbiter.FileSystem.getFileSystem().root.getFile(newPath, {create: false},
+		var newPath = path.replace(fileSystem.root.fullPath + '/','');
+		fileSystem.root.getFile(newPath, {create: false},
 			function(fileEntry){
 				fileEntry.remove(
 					function(fileEntry){

@@ -83,14 +83,23 @@ Arbiter.FileSystem = (function(){
 		setFileSystem: function(onSuccess, onFailure){
 			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(_fileSystem){
 				fileSystem = _fileSystem;
+				
+				if(Arbiter.Util.funcExists(onSuccess)){
+					onSuccess();
+				}
 			}, function(e){
+				
 				if(Arbiter.Util.funcExists(onFailure)){
 					onFailure(e.code);
 				}
 			});
 		},
 		
-		getFileSystem: function(onSuccess, onFailure){
+		getFileSystem: function(){
+			return fileSystem;
+		},
+		
+		ensureMediaDirectoryExists: function(onSuccess, onFailure){
 			Arbiter.PreferencesHelper.get(Arbiter.PROJECT_NAME, Arbiter.FileSystem, function(projectName){
 				
 				// Make sure the directories being 
@@ -105,7 +114,7 @@ Arbiter.FileSystem = (function(){
 				
 			}, function(e){
 				if(Arbiter.Util.funcExists(onFailure)){
-					onFailure("Arbiter.FileSystem createMediaDirectories ERROR - ", e);
+					onFailure("Arbiter.FileSystem createMediaDirectories ERROR - " + e);
 				}
 			});
 		}

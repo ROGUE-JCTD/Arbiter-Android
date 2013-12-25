@@ -158,82 +158,95 @@ Arbiter.MediaHelper = (function(){
 		MEDIA_TO_SEND: "mediaToSend",
 		
 		syncMedia: function(layer, onSuccess, onFailure) {
-	        var url = layer.protocol.url;
-	        var index = url.indexOf("geoserver/wfs");
-	        url = url.substring(0,index) + "file-service/upload";
-	        var header = layer.protocol.headers;
-	        Arbiter.PreferencesHelper.get(MEDIA_TO_SEND, Arbiter.MediaHelper, function(_value){
-	        	if(_value === null || _value === undefined){
-	        		console.log("Arbiter.MediaHelper no media to send");
-	        		
-	        		return;
-	        	}
-	        	
-	        	var value = JSON.parse(_value);
-	        	
-	            var mediaLayer = value.layer[layer.name];
-	            if(mediaLayer !== null && mediaLayer !== undefined
-	            		&& mediaLayer.length > 0) {
-	            	
-	                var mediaCounter = 0;
-	                var failedMedia = new Array();
-	                var mediaCallback = function(success,media) {
-	                    mediaCounter++;
-	                    console.log("MEDIA CALLBACK: success:", success," media: ",media);
-	                    if(success === false) {
-	                        failedMedia.push(media);
-	                    }
-	                    if(mediaCounter === mediaLayer.length) {
-	                        if(Arbiter.Util.funcExists(onSuccess)) {
-	                            onSuccess(layer.name,failedMedia);
-	                        }
-	                    }
-	                };
-	                for(var i = 0; i < mediaLayer.length;i++) {
-	                    sendMedia(url, header['Authorization'], mediaLayer[i],mediaCallback);
-	                }
-	            }
-	        }, function(e){
-	        	if(Arbiter.Util.funcExists(onFailure)){
+			
+			Arbiter.FileSystem.ensureMediaDirectoryExists(function(){
+				var url = layer.protocol.url;
+		        var index = url.indexOf("geoserver/wfs");
+		        url = url.substring(0,index) + "file-service/upload";
+		        var header = layer.protocol.headers;
+		        Arbiter.PreferencesHelper.get(MEDIA_TO_SEND, Arbiter.MediaHelper, function(_value){
+		        	if(_value === null || _value === undefined){
+		        		console.log("Arbiter.MediaHelper no media to send");
+		        		
+		        		return;
+		        	}
+		        	
+		        	var value = JSON.parse(_value);
+		        	
+		            var mediaLayer = value.layer[layer.name];
+		            if(mediaLayer !== null && mediaLayer !== undefined
+		            		&& mediaLayer.length > 0) {
+		            	
+		                var mediaCounter = 0;
+		                var failedMedia = new Array();
+		                var mediaCallback = function(success,media) {
+		                    mediaCounter++;
+		                    console.log("MEDIA CALLBACK: success:", success," media: ",media);
+		                    if(success === false) {
+		                        failedMedia.push(media);
+		                    }
+		                    if(mediaCounter === mediaLayer.length) {
+		                        if(Arbiter.Util.funcExists(onSuccess)) {
+		                            onSuccess(layer.name,failedMedia);
+		                        }
+		                    }
+		                };
+		                for(var i = 0; i < mediaLayer.length;i++) {
+		                    sendMedia(url, header['Authorization'], mediaLayer[i],mediaCallback);
+		                }
+		            }
+		        }, function(e){
+		        	if(Arbiter.Util.funcExists(onFailure)){
+		        		onFailure(e);
+		        	}
+		        });
+			}, function(e){
+				if(Arbiter.Util.funcExists(onFailure)){
 	        		onFailure(e);
 	        	}
-	        });
+			});
 	    },
 	    
 	    downloadMedia: function(schema, encodedCredentials, features, onSuccess, onFailure){
 	    	
-	    	var _success = function(){
-	    		if(Arbiter.Util.funcExists(onSuccess)){
-	    			onSuccess();
+	    	Arbiter.FileSystem.ensureMediaDirectoryExists(function(){
+	    		var _success = function(){
+		    		if(Arbiter.Util.funcExists(onSuccess)){
+		    			onSuccess();
+		    		}
+		    	};
+		    	
+		    	reset();
+		    	
+		    	if(features === null || features === undefined){
+		    		_success();
+		    		
+		    		return;
+		    	}
+		    	
+		    	featureCount = features.length;
+		    	
+		    	if(featureCount === 0){
+		    		_success();
+		    	}
+		    	
+		    	var media = null;
+		    	
+		    	for(var i = 0; i < featureCount; i++){
+		    		
+		    		_downloadMedia(getMediaUrl(schema), encodedCredentials, 
+		    				getMediaFromFeature(schema, features[i]), function(){
+		    			
+		    			if(++featureDownloaded === featureCount){
+		    				_success();
+		    			}
+		    		}, onFailure);
+		    	}
+	    	}, function(e){
+	    		if(Arbiter.Util.funcExists(onFailure)){
+	    			onFailure(e);
 	    		}
-	    	};
-	    	
-	    	reset();
-	    	
-	    	if(features === null || features === undefined){
-	    		_success();
-	    		
-	    		return;
-	    	}
-	    	
-	    	featureCount = features.length;
-	    	
-	    	if(featureCount === 0){
-	    		_success();
-	    	}
-	    	
-	    	var media = null;
-	    	
-	    	for(var i = 0; i < featureCount; i++){
-	    		
-	    		_downloadMedia(getMediaUrl(schema), encodedCredentials, 
-	    				getMediaFromFeature(schema, features[i]), function(){
-	    			
-	    			if(++featureDownloaded === featureCount){
-	    				_success();
-	    			}
-	    		}, onFailure);
-	    	}
+	    	});
 	    }
 	};
 })();

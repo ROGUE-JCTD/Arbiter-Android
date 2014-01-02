@@ -12,38 +12,45 @@ var app = (function() {
 			// Get the file system for use in TileUtil.js
 			Arbiter.FileSystem.setFileSystem(function(){
 				
-				// Get the AOI to check to see if it's been set
-				Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
+				// Make sure the directories for storing tiles exists
+				Arbiter.FileSystem.ensureTileDirectoryExists(function(){
 					
-					if(_aoi !== null && _aoi !== undefined 
-							&& _aoi !== ""){
-						Arbiter.aoiHasBeenSet(true);
-					}
+					// Get the AOI to check to see if it's been set
+					Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
+						
+						if(_aoi !== null && _aoi !== undefined 
+								&& _aoi !== ""){
+							Arbiter.aoiHasBeenSet(true);
+						}
+						
+						Arbiter.Cordova.OOM_Workaround
+							.registerMapListeners();
 					
-					Arbiter.Cordova.OOM_Workaround
-						.registerMapListeners();
-				
-					Arbiter.Controls.ControlPanel
-						.registerMapListeners();
+						Arbiter.Controls.ControlPanel
+							.registerMapListeners();
+						
+						Arbiter.setTileUtil(
+							new Arbiter.Util.TileUtil(
+								Arbiter.ApplicationDbHelper.getDatabase(),
+								Arbiter.ProjectDbHelper.getProjectDatabase(),
+								Arbiter.Map.getMap(),
+								Arbiter.FileSystem.getFileSystem()
+							)
+						);
+						
+						Arbiter.Loaders.LayersLoader.addEventTypes();
+						
+						Arbiter.Loaders.LayersLoader.load();
+						
+						for ( var i = 0; i < waitFuncs.length; i++) {
+							waitFuncs[i].call();
+						}
+		
+						ArbiterInitialized = true;
+					});
 					
-					Arbiter.setTileUtil(
-						new Arbiter.Util.TileUtil(
-							Arbiter.ApplicationDbHelper.getDatabase(),
-							Arbiter.ProjectDbHelper.getProjectDatabase(),
-							Arbiter.Map.getMap(),
-							Arbiter.FileSystem.getFileSystem()
-						)
-					);
-					
-					Arbiter.Loaders.LayersLoader.addEventTypes();
-					
-					Arbiter.Loaders.LayersLoader.load();
-					
-					for ( var i = 0; i < waitFuncs.length; i++) {
-						waitFuncs[i].call();
-					}
-	
-					ArbiterInitialized = true;
+				}, function(e){
+					console.log("Error initializing Arbiter during Tile Directory creation", e);
 				});
 			}, function(e){
 				console.log("Error initializing Arbiter - ", e);

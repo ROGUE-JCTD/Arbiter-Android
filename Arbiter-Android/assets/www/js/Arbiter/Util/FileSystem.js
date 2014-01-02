@@ -99,17 +99,23 @@ Arbiter.FileSystem = (function(){
 			return fileSystem;
 		},
 		
+		ensureTileDirectoryExists: function(onSuccess, onFailure){
+			createTileDirectories(function(){
+				if(Arbiter.Util.funcExists(onSuccess)){
+					onSuccess(fileSystem);
+				}
+			}, onFailure);
+		},
+		
 		ensureMediaDirectoryExists: function(onSuccess, onFailure){
 			Arbiter.PreferencesHelper.get(Arbiter.PROJECT_NAME, Arbiter.FileSystem, function(projectName){
 				
 				// Make sure the directories being 
 				// used with the file api exist.
-				createTileDirectories(function(){
-					createMediaDirectories(projectName, function(){
-						if(Arbiter.Util.funcExists(onSuccess)){
-							onSuccess(fileSystem);
-						}
-					}, onFailure);
+				createMediaDirectories(projectName, function(){
+					if(Arbiter.Util.funcExists(onSuccess)){
+						onSuccess(fileSystem);
+					}
 				}, onFailure);
 				
 			}, function(e){

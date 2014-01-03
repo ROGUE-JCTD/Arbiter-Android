@@ -13,6 +13,7 @@
         android:text="@string/error_loading_features" />
     
     <HorizontalScrollView
+        android:id="@+id/mediaScrollView"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginLeft="14dp"
@@ -29,5 +30,17 @@
 			android:paddingRight="20dp" >
 	    </LinearLayout>
     </HorizontalScrollView>
+    
+    <ImageButton 
+        android:id="@+id/takePicture"
+        android:layout_below="@id/mediaScrollView"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent" 
+        android:padding="20dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:src="@drawable/camera"
+        android:contentDescription="@string/take_picture" />
     
 </RelativeLayout>

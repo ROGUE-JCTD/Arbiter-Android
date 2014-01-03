@@ -51,6 +51,7 @@
 	<string name="project_incomplete_msg">Project is not available offline. \n\nPlease select an area of interest.</string>
 	<string name="click_me">( Click me )</string>
 	<string name="media">media</string>
+	<string name="take_picture">Take picture</string>
 	<string name="initializing">Initializing</string>
 	<string name="please_wait">Please wait&#8230;</string>
 	<string name="update_aoi_alert">Area of Interest</string>

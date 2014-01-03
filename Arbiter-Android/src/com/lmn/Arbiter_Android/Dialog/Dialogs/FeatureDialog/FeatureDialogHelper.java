@@ -109,7 +109,7 @@ public class FeatureDialogHelper {
 	private boolean toggleEditMode(Button editButton, Button editOnMapButton,
 			Button cancelButton, Button deleteButton){
 		
-		this.editing = builder.toggleEditTexts();
+		this.editing = builder.toggleEditMode();
 		
 		toggleEditButtonText(editButton);
 		

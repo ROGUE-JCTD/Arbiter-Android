@@ -119,8 +119,12 @@ public class FeatureDialogBuilder {
 					&& !key.equals(FeaturesHelper.MODIFIED_STATE)
 					&& !key.equals(FeaturesHelper.FID)){
 				
-				attributes.put(key, editTexts.get(i++)
-					.getText().toString());
+				if(key.equals(MediaHelper.FOTOS) || key.equals(MediaHelper.MEDIA)){
+					// TODO: update media/fotos
+				}else{
+					attributes.put(key, editTexts.get(i++)
+							.getText().toString());
+				}
 			}
 		}
 	}

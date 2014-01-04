@@ -25,23 +25,23 @@ Arbiter.FileSystem = (function(){
 	var createMediaDirectories = function(projectName, onSuccess, onFailure){
 		var path = Arbiter.FileSystem.ROOT_LEVEL;
 		
-		fileSystem.root.getDirectory(Arbiter.FileSystem.ROOT_LEVEL, {create: true}, function(parent){
+		fileSystem.root.getDirectory(Arbiter.FileSystem.ROOT_LEVEL, {create: true}, function(dir){
 			
 			path += Arbiter.FileSystem.fileSeparator + Arbiter.FileSystem.PROJECTS;
 			
-			fileSystem.root.getDirectory(path, {create: true}, function(parent){
+			fileSystem.root.getDirectory(path, {create: true}, function(dir){
 				
 				path += Arbiter.FileSystem.fileSeparator + projectName;
 				
 				fileSystem.root.getDirectory(path,
-						{create: true}, function(parent){
+						{create: true}, function(dir){
 					
 					path += Arbiter.FileSystem.fileSeparator + Arbiter.FileSystem.MEDIA;
 					
-					fileSystem.root.getDirectory(path, {create: true}, function(parent){
+					fileSystem.root.getDirectory(path, {create: true}, function(mediaDir){
 						
 						if(Arbiter.Util.funcExists(onSuccess)){
-							onSuccess();
+							onSuccess(mediaDir);
 						}
 						
 					}, function(){
@@ -112,9 +112,9 @@ Arbiter.FileSystem = (function(){
 				
 				// Make sure the directories being 
 				// used with the file api exist.
-				createMediaDirectories(projectName, function(){
+				createMediaDirectories(projectName, function(mediaDir){
 					if(Arbiter.Util.funcExists(onSuccess)){
-						onSuccess(fileSystem);
+						onSuccess(mediaDir);
 					}
 				}, onFailure);
 				

@@ -1,5 +1,6 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
 
+import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -23,16 +24,18 @@ import android.view.LayoutInflater;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.MediaDialog;
+import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.Media.MediaHelper;
 
 public class MediaBuilder {
 	// The width and height of the media image view in dp
 	public static final int IMAGE_VIEW_WIDTH = 180;
 	public static final int IMAGE_VIEW_HEIGHT = 180;
-	public static final int REQUEST_IMAGE_CAPTURE = 1;
 		
 	private Activity activity;
 	private FragmentActivity fragActivity;
+	private CordovaWebView webview;
+	
 	private LinearLayout outerLayout;
 	private LayoutInflater inflater;
 	private ImageButton takePictureBtn;
@@ -46,6 +49,8 @@ public class MediaBuilder {
 		
 		try{
 			fragActivity = (FragmentActivity) activity;
+			
+			webview = ((Map.CordovaMap) activity).getWebView();
 		}catch(ClassCastException e){
 			e.printStackTrace();
 		}
@@ -83,18 +88,23 @@ public class MediaBuilder {
 		return scaledBitmap;
 	}
 	
-	private void dispatchTakePictureIntent() {
-	    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-	    
-	    if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
-	        activity.startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-	    }
+	private void takePicture() {
+	    webview.loadUrl("javascript:Arbiter.MediaHelper.takePicture();");
 	}
 	
 	private void onMediaClick(String imageUri){
 		Log.w("FeatureDialogBuilder", "FeatureDialogBuilder.onMediaClick uri = " + imageUri);
 		
 		MediaDialog.newInstance(imageUri).show(fragActivity.getSupportFragmentManager(), "MediaDialog");;
+	}
+	
+	private boolean cameraExists(){
+		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+	    if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
+	        return true;
+	    }
+	    
+	    return false;
 	}
 	
 	public void appendMedia(String key, String media) throws JSONException{
@@ -109,19 +119,24 @@ public class MediaBuilder {
 				.findViewById(R.id.attributeLabel);
 		
 		mediaLabel.setText(key);
-		
+	    
 		takePictureBtn = (ImageButton) mediaLayout.findViewById(R.id.takePicture);
 		
-		takePictureBtn.setOnClickListener(new OnClickListener(){
+		if(!cameraExists()){
+			// If the camera doesn't exist, then make the takePictureBtn hidden
+			takePictureBtn.setVisibility(View.GONE);
+		}else{
+			takePictureBtn.setOnClickListener(new OnClickListener(){
 
-			@Override
-			public void onClick(View v) {
-				dispatchTakePictureIntent();	
-			}
-		});
-		
-		// Default start not in edit mode
-		takePictureBtn.setEnabled(false);
+				@Override
+				public void onClick(View v) {
+					takePicture();	
+				}
+			});
+			
+			// Default start not in edit mode
+			takePictureBtn.setEnabled(false);
+		}
 		
 		if(media == null || media.equals("null")){
 			

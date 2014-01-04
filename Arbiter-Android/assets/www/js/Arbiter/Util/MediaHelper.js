@@ -154,6 +154,89 @@ Arbiter.MediaHelper = (function(){
         });
     };
     
+    var copyFail = function(e){
+    	console.log("Error copying file - ", e);
+    };
+    
+    var copySuccess = function(newFile){
+    	newFile.file(function(file) {
+            var reader = new FileReader();
+            
+            reader.onloadend = function(evt) {
+                var newFileName = SHA1(evt.target.result) + ".jpg";
+                newFile.getParent(function(parentDir) {
+                    newFile.moveTo(parentDir,newFileName,
+                        function(copiedFile) {
+                            //mediaEntries[mediaEntries.length] = newFileName;
+                            //Arbiter.PopulateMediaPanel();
+                    		console.log("newFile: ", newFile, newFile.fullPath);
+                    		
+                            /*newFile.remove(function(entry) {
+                            	console.log("removal succeeded");
+                            }, function(e) {
+                            	console.log("error removing file", e);
+                            });*/
+                        }, function(error) {
+                            if(error.code != FileError.PATH_EXISTS_ERR) {
+                                copyFail(null);
+                            } else {
+                                //mediaEntries[mediaEntries.length] = newFileName;
+                                //Arbiter.PopulateMediaPanel();
+                                newFile.remove(function() {
+                                	console.log("successfully removed file after error.");
+                                }, function() {
+                                	console.log("error removing file after error.");
+                                });
+                            }
+                        });
+                }, Arbiter.copyFail);
+            };
+            
+            reader.readAsDataURL(file);
+        }, Arbiter.copyFail);
+    };
+    
+    var copyMedia = function(fileEntry){
+    	var fileSystem = Arbiter.FileSystem.getFileSystem();
+    	
+    	// Make sure the media directory exists
+    	Arbiter.FileSystem.ensureMediaDirectoryExists(function(mediaDir){
+    		
+    		// Move media to the media directory
+    		mediaDir.getFile("temp.jpg", {create: true, exclusive: false},
+    			function(tempFile){
+    				tempFile.remove(function(){
+    					fileEntry.copyTo(mediaDir, "temp.jpg", function(newFile){
+    						
+    						fileEntry.remove(function(){
+    							copySuccess(newFile);
+    						}, function(e){
+    							console.log("Arbiter.MediaHelper - Could not remove temporary file - ", e);
+    							
+    							copySuccess(newFile);
+    						});
+    					}, function(e){
+    						copyFail("Arbiter.MediaHelper copyMedia - Error copying file - " + e);
+    					});
+    				}, function(e){
+    					copyFail("Arbiter.MediaHelper copyMedia - Error removing file - " + e);
+    				});
+    			}, function(e){
+    				copyFail("Arbiter.MediaHelper copyMedia - Error creating temp file - " + e);
+    			}
+    		);
+    	}, function(e){
+    		copyFail("Arbiter.MediaHelper copyMedia - Error getting media dir - " + e);
+    	});
+    };
+    
+    var onPictureTaken = function(imageUri){
+    	console.log("onPictureTaken: imageUri = " + imageUri);
+    	
+    	
+    	window.resolveLocalFileSystemURI(imageUri, copyMedia, copyFail);
+    };
+    
 	return {
 		MEDIA_TO_SEND: "mediaToSend",
 		
@@ -247,6 +330,24 @@ Arbiter.MediaHelper = (function(){
 	    			onFailure(e);
 	    		}
 	    	});
+	    },
+	    
+	    takePicture: function(){
+	    	console.log("Arbiter.MediaHelper.takePicture()");
+	    	
+	    	var cameraOptions = { 
+    			quality: 20, 
+    			allowEdit: false,
+    			correctOrientation: true,
+    			destinationType: Camera.DestinationType.FILE_URI,
+    			encodingType: Camera.EncodingType.JPEG 
+    	    };
+	    	
+	    	navigator.camera.getPicture(function(imageUri){
+	    		onPictureTaken(imageUri);
+	    	}, function(e){
+	    		console.log("Failed to take picture - ", e);
+	    	}, cameraOptions);
 	    }
 	};
 })();

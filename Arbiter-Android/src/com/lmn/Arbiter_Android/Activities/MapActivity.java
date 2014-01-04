@@ -1,5 +1,6 @@
 package com.lmn.Arbiter_Android.Activities;
 
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -16,9 +17,6 @@ import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.InsertFeatureDialog;
 import com.lmn.Arbiter_Android.Map.Map;
@@ -26,7 +24,6 @@ import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 import android.os.Bundle;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v4.app.DialogFragment;
@@ -51,6 +48,13 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     // For CORDOVA
     private CordovaWebView cordovaWebView;
     private final ExecutorService threadPool = Executors.newCachedThreadPool();
+    private CordovaPlugin activityResultCallback;
+    protected boolean activityResultKeepRunning;
+    
+    // Keep app running when pause is received. (default = true)
+    // If true, then the JavaScript and native code continue to run in the background
+    // when another application (activity) is started.
+    protected boolean keepRunning = true;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +63,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
         Config.init(this);
         
         Init(savedInstanceState);
+        
+        this.keepRunning = this.getBooleanProperty("KeepRunning", true);
         
         dialogs = new ArbiterDialogs(getApplicationContext(), getResources(), getSupportFragmentManager());
 
@@ -279,7 +285,13 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     @Override
     protected void onPause() {
     	super.onPause();
-        Log.d(TAG, "onPause");  
+        Log.d(TAG, "onPause"); 
+
+        if (this.cordovaWebView == null) {
+            return;
+        } else if(this.isFinishing()){
+            this.cordovaWebView.handlePause(this.keepRunning);
+        }
     }
     
     @Override 
@@ -287,6 +299,23 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     	super.onResume();
     	Log.w(TAG, TAG + " onResume");
     	
+    	if (this.cordovaWebView == null) {
+    		return;
+        }
+
+        this.cordovaWebView.handleResume(this.keepRunning,
+        	this.activityResultKeepRunning);
+
+        // If app doesn't want to run in background
+        if (!this.keepRunning || this.activityResultKeepRunning) {
+
+        	// Restore multitasking state
+            if (this.activityResultKeepRunning) {
+                this.keepRunning = this.activityResultKeepRunning;
+                this.activityResultKeepRunning = false;
+            }
+        }
+         
     	if(arbiterProject != null){
     		resetSavedExtent();
     		
@@ -408,15 +437,71 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
 	}
 	
 	@Override
-	public void setActivityResultCallback(CordovaPlugin cordovaPlugin) {
-		Log.d(TAG, "setActivityResultCallback is unimplemented");
-		
+	public void setActivityResultCallback(CordovaPlugin plugin) {
+		this.activityResultCallback = plugin; 
 	}
 
 	@Override
-	public void startActivityForResult(CordovaPlugin cordovaPlugin, Intent intent, int resultCode) {
-		Log.d(TAG, "startActivityForResult is unimplemented");
-		
+	public void startActivityForResult(CordovaPlugin command, Intent intent, int requestCode) {
+		this.activityResultCallback = command;
+	    this.activityResultKeepRunning = this.keepRunning;
+
+	    // If multitasking turned on, then disable it for activities that return results
+	    if (command != null) {
+	        this.keepRunning = false;
+	    }
+
+	    // Start activity
+	    super.startActivityForResult(intent, requestCode);
 	}
+	
+	/**
+	 * Called when an activity you launched exits, giving you the requestCode you started it with,
+	 * the resultCode it returned, and any additional data from it.
+	 *
+	 * @param requestCode       The request code originally supplied to startActivityForResult(),
+	 *                          allowing you to identify who this result came from.
+	 * @param resultCode        The integer result code returned by the child activity through its setResult().
+	 * @param data              An Intent, which can return result data to the caller (various data can be attached to Intent "extras").
+	 */
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+	    super.onActivityResult(requestCode, resultCode, intent);
+	    CordovaPlugin callback = this.activityResultCallback;
+	    if (callback != null) {
+	        callback.onActivityResult(requestCode, resultCode, intent);
+	    }
+	}
+	
+	/**
+     * Get boolean property for activity.
+     *
+     * @param name
+     * @param defaultValue
+     * @return the boolean value of the named property
+     */
+    public boolean getBooleanProperty(String name, boolean defaultValue) {
+        Bundle bundle = this.getIntent().getExtras();
+        if (bundle == null) {
+            return defaultValue;
+        }
+        name = name.toLowerCase(Locale.getDefault());
+        Boolean p;
+        try {
+            p = (Boolean) bundle.get(name);
+        } catch (ClassCastException e) {
+            String s = bundle.get(name).toString();
+            if ("true".equals(s)) {
+                p = true;
+            }
+            else {
+                p = false;
+            }
+        }
+        if (p == null) {
+            return defaultValue;
+        }
+        return p.booleanValue();
+    }
 }
 

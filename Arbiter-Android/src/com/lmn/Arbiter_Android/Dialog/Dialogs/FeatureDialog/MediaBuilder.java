@@ -88,14 +88,14 @@ public class MediaBuilder {
 		return scaledBitmap;
 	}
 	
-	private void takePicture() {
-	    webview.loadUrl("javascript:Arbiter.MediaHelper.takePicture();");
+	private void takePicture(String key, String media) {
+	    webview.loadUrl("javascript:Arbiter.MediaHelper.takePicture('"
+	    		+ key + "', " + media + ");");
 	}
 	
 	private void onMediaClick(String imageUri){
-		Log.w("FeatureDialogBuilder", "FeatureDialogBuilder.onMediaClick uri = " + imageUri);
-		
-		MediaDialog.newInstance(imageUri).show(fragActivity.getSupportFragmentManager(), "MediaDialog");;
+		MediaDialog.newInstance(imageUri).show(fragActivity
+				.getSupportFragmentManager(), "MediaDialog");;
 	}
 	
 	private boolean cameraExists(){
@@ -107,7 +107,7 @@ public class MediaBuilder {
 	    return false;
 	}
 	
-	public void appendMedia(String key, String media) throws JSONException{
+	public void appendMedia(final String key, final String media) throws JSONException{
 		// Append scrollview
 		RelativeLayout mediaLayout = (RelativeLayout) inflater
 				.inflate(R.layout.feature_media, null);
@@ -130,7 +130,7 @@ public class MediaBuilder {
 
 				@Override
 				public void onClick(View v) {
-					takePicture();	
+					takePicture(key, media);	
 				}
 			});
 			

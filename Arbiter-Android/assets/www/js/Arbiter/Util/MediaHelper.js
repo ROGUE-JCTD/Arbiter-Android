@@ -154,11 +154,17 @@ Arbiter.MediaHelper = (function(){
         });
     };
     
+    var addMediaToFeature = function(key, fileName, featuresMedia){
+    	featuresMedia.push(fileName);
+    	
+    	Arbiter.Cordova.addMediaToFeature(key, featuresMedia);
+    };
+    
     var copyFail = function(e){
     	console.log("Error copying file - ", e);
     };
     
-    var copySuccess = function(newFile){
+    var copySuccess = function(newFile, key, featuresMedia){
     	newFile.file(function(file) {
             var reader = new FileReader();
             
@@ -167,21 +173,13 @@ Arbiter.MediaHelper = (function(){
                 newFile.getParent(function(parentDir) {
                     newFile.moveTo(parentDir,newFileName,
                         function(copiedFile) {
-                            //mediaEntries[mediaEntries.length] = newFileName;
-                            //Arbiter.PopulateMediaPanel();
-                    		console.log("newFile: ", newFile, newFile.fullPath);
-                    		
-                            /*newFile.remove(function(entry) {
-                            	console.log("removal succeeded");
-                            }, function(e) {
-                            	console.log("error removing file", e);
-                            });*/
+                    	
+                            addMediaToFeature(key, newFileName, featuresMedia);
+                            
                         }, function(error) {
                             if(error.code != FileError.PATH_EXISTS_ERR) {
                                 copyFail(null);
                             } else {
-                                //mediaEntries[mediaEntries.length] = newFileName;
-                                //Arbiter.PopulateMediaPanel();
                                 newFile.remove(function() {
                                 	console.log("successfully removed file after error.");
                                 }, function() {
@@ -189,14 +187,20 @@ Arbiter.MediaHelper = (function(){
                                 });
                             }
                         });
-                }, Arbiter.copyFail);
+                }, function(e){
+                	copyFail("Arbiter.MediaHelper copySuccess" 
+                			+ " - error getting parent dir - " + e);
+                });
             };
             
             reader.readAsDataURL(file);
-        }, Arbiter.copyFail);
+        }, function(e){
+        	copyFail("Arbiter.MediaHelper copySuccess" 
+        			+ " - Error getting file - " + e);
+        });
     };
     
-    var copyMedia = function(fileEntry){
+    var copyMedia = function(fileEntry, key, featuresMedia){
     	var fileSystem = Arbiter.FileSystem.getFileSystem();
     	
     	// Make sure the media directory exists
@@ -208,11 +212,17 @@ Arbiter.MediaHelper = (function(){
     				tempFile.remove(function(){
     					fileEntry.copyTo(mediaDir, "temp.jpg", function(newFile){
     						
+    						// Delete the temporary file created by the camera
     						fileEntry.remove(function(){
-    							copySuccess(newFile);
+    							
+    							// The file was copied successfully,
+    							// so name the file properly.
+    							copySuccess(newFile, key, featuresMedia);
     						}, function(e){
     							console.log("Arbiter.MediaHelper - Could not remove temporary file - ", e);
     							
+    							// The file was copied successfully,
+    							// so name the file properly.
     							copySuccess(newFile);
     						});
     					}, function(e){
@@ -230,11 +240,10 @@ Arbiter.MediaHelper = (function(){
     	});
     };
     
-    var onPictureTaken = function(imageUri){
-    	console.log("onPictureTaken: imageUri = " + imageUri);
-    	
-    	
-    	window.resolveLocalFileSystemURI(imageUri, copyMedia, copyFail);
+    var onPictureTaken = function(imageUri, key, featuresMedia){
+    	window.resolveLocalFileSystemURI(imageUri, function(fileEntry){
+    		copyMedia(fileEntry, key, featuresMedia);
+    	}, copyFail);
     };
     
 	return {
@@ -332,8 +341,7 @@ Arbiter.MediaHelper = (function(){
 	    	});
 	    },
 	    
-	    takePicture: function(){
-	    	console.log("Arbiter.MediaHelper.takePicture()");
+	    takePicture: function(key, media){
 	    	
 	    	var cameraOptions = { 
     			quality: 20, 
@@ -344,7 +352,7 @@ Arbiter.MediaHelper = (function(){
     	    };
 	    	
 	    	navigator.camera.getPicture(function(imageUri){
-	    		onPictureTaken(imageUri);
+	    		onPictureTaken(imageUri, key, media);
 	    	}, function(e){
 	    		console.log("Failed to take picture - ", e);
 	    	}, cameraOptions);

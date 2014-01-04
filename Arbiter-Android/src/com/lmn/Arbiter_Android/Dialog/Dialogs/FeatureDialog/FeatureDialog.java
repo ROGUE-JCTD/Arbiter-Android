@@ -135,4 +135,8 @@ public class FeatureDialog extends ArbiterDialogFragment{
 			});
 		}
 	}
+	
+	public Feature updateFeaturesMedia(String key, String media){
+		return helper.updateFeaturesMedia(key, media);
+	}
 }

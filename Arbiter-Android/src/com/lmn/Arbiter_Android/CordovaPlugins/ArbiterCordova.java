@@ -21,6 +21,7 @@ import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
@@ -123,10 +124,23 @@ public class ArbiterCordova extends CordovaPlugin{
 			return true;
 		}else if("errorUpdatingAOI".equals(action)){
 			errorUpdatingAOI(args.getString(0), callbackContext);
+		}else if("addMediaToFeature".equals(action)){
+			String key = args.getString(0);
+			String media = args.getString(1);
+			
+			addMediaToFeature(key, media);
 		}
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
+	}
+	
+	private void addMediaToFeature(String key, String media){
+		FeatureDialog dialog = (FeatureDialog) getFragmentActivity()
+				.getSupportFragmentManager()
+				.findFragmentByTag(FeatureDialog.TAG);
+		
+		dialog.updateFeaturesMedia(key, media);
 	}
 	
 	private void updateTileSyncingStatus(final String percentComplete){

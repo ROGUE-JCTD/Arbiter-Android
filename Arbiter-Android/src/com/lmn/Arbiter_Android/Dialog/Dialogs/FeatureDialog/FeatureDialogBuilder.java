@@ -117,15 +117,21 @@ public class FeatureDialogBuilder {
 		for(String key : attributes.keySet()){
 			if(!key.equals(FeaturesHelper.SYNC_STATE) 
 					&& !key.equals(FeaturesHelper.MODIFIED_STATE)
-					&& !key.equals(FeaturesHelper.FID)){
+					&& !key.equals(FeaturesHelper.FID)
+					&& !key.equals(MediaHelper.FOTOS)
+					&& !key.equals(MediaHelper.MEDIA)){
 				
-				if(key.equals(MediaHelper.FOTOS) || key.equals(MediaHelper.MEDIA)){
-					// TODO: update media/fotos
-				}else{
 					attributes.put(key, editTexts.get(i++)
 							.getText().toString());
-				}
 			}
 		}
+	}
+	
+	public Feature updateFeaturesMedia(String key, String media){
+		ContentValues attributes = feature.getAttributes();
+		
+		attributes.put(key, media);
+		
+		return feature;
 	}
 }

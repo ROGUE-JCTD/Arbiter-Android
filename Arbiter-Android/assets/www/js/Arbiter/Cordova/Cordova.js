@@ -198,8 +198,7 @@ Arbiter.Cordova = (function() {
 			
 			cordova.exec(function(){
 				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.NEUTRAL);
-			}, null, "ArbiterCordova",
-					"errorUpdatingAOI", [e]);
+			}, null, "ArbiterCordova", "errorUpdatingAOI", [e]);
 		},
 		
 		getState: function(){
@@ -212,6 +211,13 @@ Arbiter.Cordova = (function() {
 			if(isNeutral()){
 				executeWaitingFuncs();
 			}
+		},
+		
+		addMediaToFeature: function(key, media){
+			console.log("Arbiter.Cordova.addMediaToFeature key = " + key);
+			console.log("Arbiter.Cordova.addMediaToFeature media = ", media);
+			cordova.exec(null , null, "ArbiterCordova",
+					"addMediaToFeature", [key, media]);
 		}
 	};
 })();

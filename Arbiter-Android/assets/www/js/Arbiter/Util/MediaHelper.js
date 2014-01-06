@@ -154,7 +154,7 @@ Arbiter.MediaHelper = (function(){
     var addMediaToFeature = function(key, fileName, featuresMedia){
     	featuresMedia.push(fileName);
     	
-    	Arbiter.Cordova.addMediaToFeature(key, featuresMedia);
+    	Arbiter.Cordova.addMediaToFeature(key, featuresMedia, fileName);
     };
     
     var copyFail = function(e){

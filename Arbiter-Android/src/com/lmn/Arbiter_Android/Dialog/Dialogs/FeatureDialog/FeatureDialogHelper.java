@@ -1,5 +1,11 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
@@ -159,6 +165,42 @@ public class FeatureDialogHelper {
 						projectName), false).getWritableDatabase();
 	}
 	
+	private void updateNewMedia(){
+		HashMap<String, MediaPanel> mediaPanels = builder.getMediaPanels();
+		MediaPanel mediaPanel = null;
+		
+		MediaSyncHelper helper = new MediaSyncHelper(activity);
+		JSONArray newMedia = null;
+		
+		String existingNewMedia = helper.getMediaToSend();
+		boolean insert = false;
+		
+		if(existingNewMedia == null){
+			insert = true;
+			existingNewMedia = "[]";
+		}
+		
+		try {
+			newMedia = new JSONArray(existingNewMedia);
+			
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		for(String key : mediaPanels.keySet()){
+			mediaPanel = mediaPanels.get(key);
+			
+			ArrayList<String> mediaToSend = mediaPanel.getMediaToSend();
+			
+			for(int i = 0, count = mediaToSend.size(); i < count; i++){
+				newMedia.put(mediaToSend.get(i));
+			}
+		}
+		
+		helper.updateMediaToSend(newMedia.toString(), insert);
+	}
+	
 	private boolean save() throws Exception{
 		SQLiteDatabase db = getFeatureDb();
 		
@@ -191,6 +233,10 @@ public class FeatureDialogHelper {
 					feature.getFeatureType(), 
 					feature.getId(), feature);
 		}
+		
+		// Update the mediaToSend property so that
+		// we know which files need to be synced.
+		updateNewMedia();
 		
 		return insertedNewFeature;
 	}
@@ -372,7 +418,7 @@ public class FeatureDialogHelper {
 		builder.create().show();
 	}
 	
-	public void updateFeaturesMedia(String key, String media){
-		this.builder.updateFeaturesMedia(key, media);
+	public void updateFeaturesMedia(String key, String media, String newMedia){
+		this.builder.updateFeaturesMedia(key, media, newMedia);
 	}
 }

@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
+import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 import com.lmn.Arbiter_Android.Media.MediaHelper;
 
@@ -143,10 +144,11 @@ public class FeatureDialogBuilder {
 		}
 	}
 	
-	public void updateFeaturesMedia(final String key, final String media){
+	public void updateFeaturesMedia(final String key, final String media, final String newMedia){
 		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
+				
 				ContentValues attributes = feature.getAttributes();
 				
 				attributes.put(key, media);
@@ -155,6 +157,12 @@ public class FeatureDialogBuilder {
 				
 				try {
 					Log.w("FeatureDialogBuilder", "FeatureDialogBuilder.updateFeaturesMedia loadMedia()");
+					
+					// Add new media to the arrayList of
+					// media to be synced.  This won't
+					// get saved until the feature is saved.
+					panel.addMediaToSend(newMedia);
+					
 					panel.loadMedia();
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
@@ -162,5 +170,9 @@ public class FeatureDialogBuilder {
 				}
 			}
 		});
+	}
+	
+	public HashMap<String, MediaPanel> getMediaPanels(){
+		return mediaPanels;
 	}
 }

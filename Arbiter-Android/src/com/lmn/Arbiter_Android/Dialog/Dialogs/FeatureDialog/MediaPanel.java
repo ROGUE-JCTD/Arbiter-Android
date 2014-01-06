@@ -1,5 +1,7 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
 
+import java.util.ArrayList;
+
 import org.apache.cordova.CordovaWebView;
 import org.json.JSONException;
 
@@ -31,6 +33,8 @@ public class MediaPanel {
 	private Feature feature;
 	private MediaLoader mediaLoader;
 	
+	private ArrayList<String> mediaToSend;
+	
 	public MediaPanel(Activity activity, Feature feature, 
 			LinearLayout outerLayout, LayoutInflater inflater){
 		
@@ -38,6 +42,7 @@ public class MediaPanel {
 		this.outerLayout = outerLayout;
 		this.inflater = inflater;
 		this.feature = feature;
+		this.mediaToSend = new ArrayList<String>();
 		
 		try{
 			
@@ -132,5 +137,13 @@ public class MediaPanel {
 		if(takePictureBtn != null){
 			takePictureBtn.setEnabled(!takePictureBtn.isEnabled());
 		}
+	}
+	
+	public void addMediaToSend(String fileName){
+		mediaToSend.add(fileName);
+	}
+	
+	public ArrayList<String> getMediaToSend(){
+		return mediaToSend;
 	}
 }

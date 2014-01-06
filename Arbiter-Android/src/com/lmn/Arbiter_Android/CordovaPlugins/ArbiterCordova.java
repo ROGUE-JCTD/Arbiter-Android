@@ -127,20 +127,21 @@ public class ArbiterCordova extends CordovaPlugin{
 		}else if("addMediaToFeature".equals(action)){
 			String key = args.getString(0);
 			String media = args.getString(1);
+			String newMedia = args.getString(2);
 			
-			addMediaToFeature(key, media);
+			addMediaToFeature(key, media, newMedia);
 		}
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
 	}
 	
-	private void addMediaToFeature(String key, String media){
+	private void addMediaToFeature(String key, String media, String newMedia){
 		FeatureDialog dialog = (FeatureDialog) getFragmentActivity()
 				.getSupportFragmentManager()
 				.findFragmentByTag(FeatureDialog.TAG);
 		
-		dialog.updateFeaturesMedia(key, media);
+		dialog.updateFeaturesMedia(key, media, newMedia);
 	}
 	
 	private void updateTileSyncingStatus(final String percentComplete){

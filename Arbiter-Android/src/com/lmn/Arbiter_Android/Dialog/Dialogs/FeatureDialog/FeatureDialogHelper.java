@@ -372,7 +372,7 @@ public class FeatureDialogHelper {
 		builder.create().show();
 	}
 	
-	public Feature updateFeaturesMedia(String key, String media){
-		return this.builder.updateFeaturesMedia(key, media);
+	public void updateFeaturesMedia(String key, String media){
+		this.builder.updateFeaturesMedia(key, media);
 	}
 }

@@ -1,6 +1,7 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.json.JSONException;
 
@@ -19,22 +20,22 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 import com.lmn.Arbiter_Android.Media.MediaHelper;
 
 public class FeatureDialogBuilder {
+	private Activity activity;
 	private Feature feature;
 	private LayoutInflater inflater;
 	private ArrayList<EditText> editTexts;
 	private LinearLayout outerLayout;
-	private MediaBuilder mediaBuilder;
+	private HashMap<String, MediaPanel> mediaPanels;
 	
 	public FeatureDialogBuilder(Activity activity, View view, Feature feature){
+		this.activity = activity;
 		this.feature = feature;
 		this.editTexts = new ArrayList<EditText>();
 		
 		this.inflater = activity.getLayoutInflater();
 		this.outerLayout = (LinearLayout) view.findViewById(R.id.outerLayout);
 		
-		this.mediaBuilder = new MediaBuilder(activity, feature,
-				this.outerLayout, this.inflater);
-		
+		this.mediaPanels = new HashMap<String, MediaPanel>();
 	}
 	
 	public void build(){
@@ -53,9 +54,13 @@ public class FeatureDialogBuilder {
 				
 				if(key.equals(MediaHelper.MEDIA) || key.equals(MediaHelper.FOTOS)){
 					try {
-						Log.w("FeatureDialogBuilder", "FeatureDialogBuilder.appendMedia(" + value + ")");
 						
-						mediaBuilder.appendMedia(key, value);
+						MediaPanel panel = new MediaPanel(activity, feature,
+								this.outerLayout, this.inflater);
+						
+						panel.appendMedia(key, value);
+						
+						mediaPanels.put(key, panel);
 					} catch (JSONException e) {
 						Log.e("FeatureDialogBuilder", "FeatureDialogBuilder.build() could not parse media json");
 						e.printStackTrace();
@@ -94,6 +99,16 @@ public class FeatureDialogBuilder {
 		editTexts.add(attributeValue);
 	}
 	
+	private void toggleMediaPanels(){
+		MediaPanel panel = null;
+		
+		for(String key : mediaPanels.keySet()){
+			panel = mediaPanels.get(key);
+			
+			panel.toggleEditMode();
+		}
+	}
+	
 	public boolean toggleEditMode(){
 		EditText editText = null;
 		boolean focusable = false;
@@ -106,7 +121,7 @@ public class FeatureDialogBuilder {
 			editText.setFocusableInTouchMode(!focusable);
 		}
 		
-		mediaBuilder.toggleEditMode();
+		toggleMediaPanels();
 		
 		return !focusable;
 	}
@@ -128,11 +143,24 @@ public class FeatureDialogBuilder {
 		}
 	}
 	
-	public Feature updateFeaturesMedia(String key, String media){
-		ContentValues attributes = feature.getAttributes();
-		
-		attributes.put(key, media);
-		
-		return feature;
+	public void updateFeaturesMedia(final String key, final String media){
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				ContentValues attributes = feature.getAttributes();
+				
+				attributes.put(key, media);
+				
+				MediaPanel panel = mediaPanels.get(key);
+				
+				try {
+					Log.w("FeatureDialogBuilder", "FeatureDialogBuilder.updateFeaturesMedia loadMedia()");
+					panel.loadMedia();
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 }

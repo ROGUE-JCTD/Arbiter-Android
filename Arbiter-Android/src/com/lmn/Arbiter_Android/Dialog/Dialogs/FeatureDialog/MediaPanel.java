@@ -4,8 +4,10 @@ import org.apache.cordova.CordovaWebView;
 import org.json.JSONException;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
@@ -18,7 +20,7 @@ import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.Map.Map;
 
-public class MediaBuilder {
+public class MediaPanel {
 		
 	private Activity activity;
 	private CordovaWebView webview;
@@ -27,8 +29,9 @@ public class MediaBuilder {
 	private LayoutInflater inflater;
 	private ImageButton takePictureBtn;
 	private Feature feature;
+	private MediaLoader mediaLoader;
 	
-	public MediaBuilder(Activity activity, Feature feature, 
+	public MediaPanel(Activity activity, Feature feature, 
 			LinearLayout outerLayout, LayoutInflater inflater){
 		
 		this.activity = activity;
@@ -44,7 +47,11 @@ public class MediaBuilder {
 		}
 	}
 	
-	private void takePicture(String key, String media) {
+	private void takePicture(String key) {
+		String media = getMedia(key);
+		
+		Log.w("MediaPanel", "MediaPanel media = " + media);
+		
 	    webview.loadUrl("javascript:Arbiter.MediaHelper.takePicture('"
 	    		+ key + "', " + media + ");");
 	}
@@ -58,7 +65,16 @@ public class MediaBuilder {
 	    return false;
 	}
 	
-	public RelativeLayout initMediaPanel(final String key, final String media){
+	private String getMedia(String key){
+		ContentValues attributes = feature.getAttributes();
+		
+		return attributes.getAsString(key);
+	}
+	
+	public RelativeLayout initMediaPanel(final String key){
+		
+		final String media = getMedia(key);
+				
 		// Append scrollview
 		RelativeLayout mediaLayout = (RelativeLayout) inflater
 				.inflate(R.layout.feature_media, null);
@@ -78,7 +94,7 @@ public class MediaBuilder {
 
 				@Override
 				public void onClick(View v) {
-					takePicture(key, media);	
+					takePicture(key);	
 				}
 			});
 			
@@ -92,17 +108,24 @@ public class MediaBuilder {
 		return mediaLayout;
 	}
 	
+	public void loadMedia() throws JSONException{
+		
+		if(mediaLoader != null){
+			mediaLoader.loadMedia();
+		}
+	}
+	
 	public void appendMedia(String key, String media) throws JSONException{
 		
-		RelativeLayout mediaLayout = initMediaPanel(key, media);
+		RelativeLayout mediaLayout = initMediaPanel(key);
 		
 		LinearLayout mediaView = (LinearLayout) mediaLayout
 						.findViewById(R.id.mediaList);
 		
-		MediaLoader mediaLoader = new MediaLoader(activity, key,
+		this.mediaLoader = new MediaLoader(activity, key,
 				feature, mediaView, inflater);
 		
-		mediaLoader.loadMedia();
+		loadMedia();
 	}
 	
 	public void toggleEditMode(){

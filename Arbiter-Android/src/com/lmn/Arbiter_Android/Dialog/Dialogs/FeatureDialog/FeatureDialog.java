@@ -136,7 +136,7 @@ public class FeatureDialog extends ArbiterDialogFragment{
 		}
 	}
 	
-	public Feature updateFeaturesMedia(String key, String media){
-		return helper.updateFeaturesMedia(key, media);
+	public void updateFeaturesMedia(String key, String media){
+		helper.updateFeaturesMedia(key, media);
 	}
 }

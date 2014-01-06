@@ -1,13 +1,4 @@
 Arbiter.MediaHelper = (function(){
-	var mediaToDownload = 0;
-	var featureCount = 0;
-	var featureDownloaded = 0;
-	
-	var reset = function(){
-		mediaToDownload = 0;
-		featureCount = 0;
-    	featureDownloaded = 0;
-	};
 	
 	var getMediaUrl = function(schema){
 		if(schema === null || schema === undefined){
@@ -35,12 +26,6 @@ Arbiter.MediaHelper = (function(){
         if(mediaAttribute !== null && mediaAttribute !== undefined) {
             featureMedia = JSON.parse(mediaAttribute);
             console.log("featureMedia parsed: ", featureMedia);
-            
-            if(featureMedia !== null && featureMedia !== undefined 
-            		&& featureMedia.length !== undefined) {
-            	
-                mediaToDownload += featureMedia.length;
-            }
         }
         
         return featureMedia;
@@ -62,32 +47,35 @@ Arbiter.MediaHelper = (function(){
         			onSuccess();
         		}
             }, function(error) {
-            	console.log("_downloadMediaEntry error", error);
-                // download
-                Arbiter.FileSystem.getFileSystem().root.getDirectory(path, {create: true, exclusive: false},
-                    function(dir) {
-                        var fileTransfer = new FileTransfer();
-                        var uri = encodeURI(url + entry);
-                        fileTransfer.download(uri,dir.fullPath + "/" + entry,
-                            function(result) {
-                                console.log("download complete: " + result.fullPath);
-                                if(Arbiter.Util.funcExists(onSuccess)){
-                                	onSuccess();
-                                }
-                            }, function(transferError) {
-                                console.log("download error source " + transferError.source);
-                                console.log("download error target " + transferError.target);
-                                console.log("upload error code" + transferError.code);
-                                if(Arbiter.Util.funcExists(onFailure)){
-                                	onFailure("Arbiter.MediaHelper - Error downloading media: source, target, code",
-                                			transferError.source, transferError.target, transferError.code);
-                                }
-                            }, undefined, {
-                                    headers: {
-                                        'Authorization': 'Basic ' + encodedCredentials
-                                }
-                            });
-                    }, onFailure);
+            	if(error.code === FileError.NOT_FOUND_ERR){
+            		console.log("_downloadMediaEntry - Don't have the file so downloading it...");
+            		
+            		 // download
+                    Arbiter.FileSystem.getFileSystem().root.getDirectory(path, {create: true, exclusive: false},
+                        function(dir) {
+                            var fileTransfer = new FileTransfer();
+                            var uri = encodeURI(url + entry);
+                            fileTransfer.download(uri,dir.fullPath + "/" + entry,
+                                function(result) {
+                                    console.log("download complete: " + result.fullPath);
+                                    if(Arbiter.Util.funcExists(onSuccess)){
+                                    	onSuccess();
+                                    }
+                                }, function(transferError) {
+                                    console.log("download error source " + transferError.source);
+                                    console.log("download error target " + transferError.target);
+                                    console.log("upload error code" + transferError.code);
+                                    if(Arbiter.Util.funcExists(onFailure)){
+                                    	onFailure("Arbiter.MediaHelper - Error downloading media: source, target, code",
+                                    			transferError.source, transferError.target, transferError.code);
+                                    }
+                                }, undefined, {
+                                        headers: {
+                                            'Authorization': 'Basic ' + encodedCredentials
+                                    }
+                                });
+                        }, onFailure);
+            	}
             });
 
     };
@@ -308,15 +296,14 @@ Arbiter.MediaHelper = (function(){
 		    		}
 		    	};
 		    	
-		    	reset();
-		    	
 		    	if(features === null || features === undefined){
 		    		_success();
 		    		
 		    		return;
 		    	}
 		    	
-		    	featureCount = features.length;
+		    	var featureCount = features.length;
+		    	var featureDownloaded = 0;
 		    	
 		    	if(featureCount === 0){
 		    		_success();
@@ -329,7 +316,11 @@ Arbiter.MediaHelper = (function(){
 		    		_downloadMedia(getMediaUrl(schema), encodedCredentials, 
 		    				getMediaFromFeature(schema, features[i]), function(){
 		    			
+		    			console.log("downloadMedia featureDownloaded = " + featureDownloaded
+		    					+ ", featureCount = " + featureCount);
+		    			
 		    			if(++featureDownloaded === featureCount){
+		    				console.log("executing downloadMedia Success");
 		    				_success();
 		    			}
 		    		}, onFailure);

@@ -32,7 +32,8 @@ public class FeatureDialogBuilder {
 		this.inflater = activity.getLayoutInflater();
 		this.outerLayout = (LinearLayout) view.findViewById(R.id.outerLayout);
 		
-		this.mediaBuilder = new MediaBuilder(activity, this.outerLayout, this.inflater);
+		this.mediaBuilder = new MediaBuilder(activity, feature,
+				this.outerLayout, this.inflater);
 		
 	}
 	

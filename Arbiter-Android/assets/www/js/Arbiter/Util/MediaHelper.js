@@ -93,8 +93,17 @@ Arbiter.MediaHelper = (function(){
 		
 		console.log("_downloadMedia media = ", media);
 		Arbiter.PreferencesHelper.get(Arbiter.PROJECT_NAME, Arbiter.MediaHelper, function(projectName){
-			for(var i = 0; i < media.length;i++) {
-	            _downloadMediaEntry(projectName, url, encodedCredentials, media[i], onSuccess, onFailure);
+			var mediaLength = media.length;
+			var downloadedMedia = 0;
+			
+			for(var i = 0; i < mediaLength;i++) {
+	            _downloadMediaEntry(projectName, url, encodedCredentials, media[i], function(){
+	            	if(++downloadedMedia === mediaLength){
+	            		if(Arbiter.Util.funcExists(onSuccess)){
+	            			onSuccess();
+	            		}
+	            	}
+	            }, onFailure);
 	        }
 		}, function(e){
 			if(Arbiter.Util.funcExists(onFailure)){

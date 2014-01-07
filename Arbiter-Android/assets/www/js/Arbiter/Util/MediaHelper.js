@@ -113,42 +113,53 @@ Arbiter.MediaHelper = (function(){
     };
     
     var sendMedia = function(url, header, media,mediaCallback) {
-        Arbiter.FileSystem.getFileSystem().root.getFile("Arbiter/Projects/" + Arbiter.currentProject.name + "/Media/" + media,
-        		{create: false, exclusive: false}, function(fileEntry) {
-        			
-            var options = new FileUploadOptions();
-            options.fileKey="file";
-            options.fileName=fileEntry.name;
-            options.mimeType="image/jpeg";
-            options.headers= {
-                    'Authorization': header
-            };
-                                    
-            var params = {};
-            
-            options.params = params;
-            
-            var ft = new FileTransfer();
-            ft.upload(fileEntry.fullPath, encodeURI(url), function(response) {
-                console.log("Code = " + response.responseCode);
-                console.log("Response = " + response.response);
-                console.log("Sent = " + response.bytesSent);
-                if(mediaCallback) {
-                    mediaCallback(true);
-                }
+    	
+    	Arbiter.FileSystem.ensureMediaDirectoryExists(function(mediaDir){
+    		console.log("path to media file: " + mediaDir.fullPath + "/" + media);
+    		mediaDir.getFile(media, {create: false, exclusive: false}, function(fileEntry) {
+            			
+                var options = new FileUploadOptions();
+                options.fileKey="file";
+                options.fileName=fileEntry.name;
+                options.mimeType="image/jpeg";
+                options.headers= {
+                        'Authorization': header
+                };
+                                        
+                var params = {};
+                
+                options.params = params;
+                
+                var ft = new FileTransfer();
+                ft.upload(fileEntry.fullPath, encodeURI(url), function(response) {
+                    console.log("Code = " + response.responseCode);
+                    console.log("Response = " + response.response);
+                    console.log("Sent = " + response.bytesSent);
+                    if(mediaCallback) {
+                        mediaCallback(true);
+                    }
+                }, function(error) {
+                    console.log("upload error source " + error.source);
+                    console.log("upload error target " + error.target);
+                    if(mediaCallback) {
+                        mediaCallback(false,media);
+                    }
+                }, options);
             }, function(error) {
-                console.log("upload error source " + error.source);
-                console.log("upload error target " + error.target);
+                console.log("Unable to transfer " + media + ": File not found locally.", media, error.code);
                 if(mediaCallback) {
                     mediaCallback(false,media);
                 }
-            }, options);
-        }, function(error) {
-            console.log("Unable to transfer " + media + ": File not found locally.", media);
-            if(mediaCallback) {
-                mediaCallback(false,media);
-            }
-        });
+            });
+    		
+    	}, function(e){
+    		console.log("Arbiter.MediaHelper sendMedia - "
+    				+ "error getting media directory", e);
+    		
+    		if(Arbiter.Util.funcExists(mediaCallback)){
+    			mediaCallback(false, media);
+    		}
+    	});
     };
     
     var addMediaToFeature = function(key, fileName, featuresMedia){
@@ -250,6 +261,9 @@ Arbiter.MediaHelper = (function(){
 	return {
 		MEDIA_TO_SEND: "mediaToSend",
 		
+		/**
+		 * @param {OpenLayers.Layer.Vector} layer Layer being synced.
+		 */
 		syncMedia: function(layer, onSuccess, onFailure) {
 			
 			var context = this;
@@ -259,18 +273,21 @@ Arbiter.MediaHelper = (function(){
 		        var index = url.indexOf("geoserver/wfs");
 		        url = url.substring(0,index) + "file-service/upload";
 		        var header = layer.protocol.headers;
-		        Arbiter.PreferencesHelper.get(context.MEDIA_TO_SEND, Arbiter.MediaHelper, function(_value){
-		        	if(_value === null || _value === undefined){
+		        var layerId = Arbiter.Util.getLayerId(layer);
+		        
+		        Arbiter.PreferencesHelper.get(context.MEDIA_TO_SEND, Arbiter.MediaHelper, function(_mediaToSend){
+		        	if(_mediaToSend === null || _mediaToSend === undefined){
 		        		console.log("Arbiter.MediaHelper no media to send");
 		        		
 		        		return;
 		        	}
 		        	
-		        	var value = JSON.parse(_value);
+		        	var mediaToSend = JSON.parse(_mediaToSend);
 		        	
-		            var mediaLayer = value.layer[layer.name];
-		            if(mediaLayer !== null && mediaLayer !== undefined
-		            		&& mediaLayer.length > 0) {
+		            var layerMedia = mediaToSend[layerId];
+		            
+		            if(layerMedia !== null && layerMedia !== undefined
+		            		&& layerMedia.length > 0) {
 		            	
 		                var mediaCounter = 0;
 		                var failedMedia = new Array();
@@ -280,14 +297,14 @@ Arbiter.MediaHelper = (function(){
 		                    if(success === false) {
 		                        failedMedia.push(media);
 		                    }
-		                    if(mediaCounter === mediaLayer.length) {
+		                    if(mediaCounter === layerMedia.length) {
 		                        if(Arbiter.Util.funcExists(onSuccess)) {
-		                            onSuccess(layer.name,failedMedia);
+		                            onSuccess(layerId, layer.name,failedMedia);
 		                        }
 		                    }
 		                };
-		                for(var i = 0; i < mediaLayer.length;i++) {
-		                    sendMedia(url, header['Authorization'], mediaLayer[i],mediaCallback);
+		                for(var i = 0; i < layerMedia.length;i++) {
+		                    sendMedia(url, header['Authorization'], layerMedia[i], mediaCallback);
 		                }
 		            }
 		        }, function(e){

@@ -63,8 +63,9 @@ public class MediaSyncHelper {
 		
 		if(mediaToSend == null){
 			insert = true;
-			mediaToSend = "{}";
 		}
+		
+		mediaToSend = "{}";
 		
 		if(insert){
 			PreferencesHelper.getHelper().insert(db, context,

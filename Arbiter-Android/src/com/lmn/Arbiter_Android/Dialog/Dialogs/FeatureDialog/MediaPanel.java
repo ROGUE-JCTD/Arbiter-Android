@@ -73,7 +73,15 @@ public class MediaPanel {
 	private String getMedia(String key){
 		ContentValues attributes = feature.getAttributes();
 		
-		return attributes.getAsString(key);
+		String media = attributes.getAsString(key);
+		
+		if(media == null || media.equals("null") ||
+				media.equals("undefined") || media.equals("")){
+			
+			media = "[]";
+		}
+		
+		return media;
 	}
 	
 	public RelativeLayout initMediaPanel(final String key){

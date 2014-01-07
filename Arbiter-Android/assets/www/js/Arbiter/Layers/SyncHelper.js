@@ -30,6 +30,8 @@ Arbiter.Layers.SyncHelper = (function(){
 		
 		var layerCount = wfsLayers.length;
 		
+		var syncedLayers = 0;
+		
 		if(layerCount === 0){
 			if(Arbiter.Util.funcExists(onSuccess)){
 				onSuccess();
@@ -43,8 +45,10 @@ Arbiter.Layers.SyncHelper = (function(){
 				console.log("Sync Media done layerId = " + layerId + " layerName = "
 						+ layerName + " failedMedia = ", failedMedia);
 				
-				if(Arbiter.Util.funcExists(onSuccess)){
-					onSuccess();
+				if(++syncedLayers === layerCount){
+					if(Arbiter.Util.funcExists(onSuccess)){
+						onSuccess();
+					}
 				}
 			}, function(e){
 				console.log("Arbiter.SyncHelper - error syncing media - ", e);
@@ -52,6 +56,8 @@ Arbiter.Layers.SyncHelper = (function(){
 				if(Arbiter.Util.funcExists(onFailure)){
 					onFailure("Arbiter.SyncHelper - error syncing media - " + e);
 				}
+				
+				++syncedLayers;
 			});
 		}
 	};

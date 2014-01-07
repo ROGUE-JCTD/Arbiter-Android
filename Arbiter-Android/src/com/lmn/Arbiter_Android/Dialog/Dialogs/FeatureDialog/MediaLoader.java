@@ -59,7 +59,15 @@ public class MediaLoader {
 	private String getMedia(){
 		ContentValues attributes = feature.getAttributes();
 		
-		return attributes.getAsString(key);
+		String media = attributes.getAsString(key);
+		
+		if(media == null || media.equals("null") ||
+				media.equals("undefined") || media.equals("")){
+			
+			media = "[]";
+		}
+		
+		return media;
 	}
 	
 	private int dpToPx(int dp){
@@ -104,10 +112,13 @@ public class MediaLoader {
 		
 		String media = getMedia();
 		
-		if(media == null || media.equals("null")){
+		if(media == null || media.equals("null") ||
+				media.equals("") || media.equals("undefined")){
 			
 			return;
 		}
+		
+		Log.w("MediaLoader", "MediaLoader.loadMedia() media = " + media);
 		
 		JSONArray mediaArray = new JSONArray(media);
 		int count = mediaArray.length();

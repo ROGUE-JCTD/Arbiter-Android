@@ -81,9 +81,10 @@ Arbiter.MediaHelper = (function(){
     };
     
 	var _downloadMedia = function(url,encodedCredentials, media, onSuccess, onFailure) {
+		console.log("_downloadMedia media = ", media);
 		
 		// If media doesn't exists execute the success callback
-		if(media === null || media === undefined){
+		if(media === null || media === undefined || media.length === 0){
 			if(Arbiter.Util.funcExists(onSuccess)){
 				onSuccess();
 			}
@@ -91,7 +92,6 @@ Arbiter.MediaHelper = (function(){
 			return;
 		}
 		
-		console.log("_downloadMedia media = ", media);
 		Arbiter.PreferencesHelper.get(Arbiter.PROJECT_NAME, Arbiter.MediaHelper, function(projectName){
 			var mediaLength = media.length;
 			var downloadedMedia = 0;

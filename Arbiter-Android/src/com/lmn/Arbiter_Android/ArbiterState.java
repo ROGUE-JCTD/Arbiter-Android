@@ -6,6 +6,7 @@ public class ArbiterState {
 	private ArbiterProject arbiterProject;
 	private String newAOI;
 	private Feature feature;
+	private String layerId;
 	
 	private ArbiterState(){
 		this.arbiterProject = ArbiterProject.getArbiterProject();
@@ -38,8 +39,9 @@ public class ArbiterState {
 		return newAOI != null;
 	}
 	
-	public void editingFeature(Feature feature){
+	public void editingFeature(Feature feature, String layerId){
 		this.feature = feature;
+		this.layerId = layerId;
 	}
 	
 	public void doneEditingFeature(){
@@ -48,5 +50,9 @@ public class ArbiterState {
 	
 	public Feature isEditingFeature(){
 		return this.feature;
+	}
+	
+	public String getLayerBeingEdited(){
+		return this.layerId;
 	}
 }

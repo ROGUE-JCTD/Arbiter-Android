@@ -3,6 +3,7 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
 import android.app.Activity;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
@@ -11,6 +12,7 @@ import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class MediaSyncHelper {
 	public static final String MEDIA_TO_SEND = "mediaToSend";
+	public static final String LAYERS = "layers";
 	
 	private Activity activity;
 	private Context context;
@@ -36,6 +38,7 @@ public class MediaSyncHelper {
 		String mediaToSend = PreferencesHelper.getHelper().get(db,
 				context, MEDIA_TO_SEND);
 		
+		Log.w("MediaSyncHelper", "MediaSyncHelper.getMediaToSend() - " + mediaToSend);
 		return mediaToSend;
 	}
 	
@@ -60,7 +63,7 @@ public class MediaSyncHelper {
 		
 		if(mediaToSend == null){
 			insert = true;
-			mediaToSend = "[]";
+			mediaToSend = "{}";
 		}
 		
 		if(insert){

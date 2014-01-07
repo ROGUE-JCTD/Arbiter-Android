@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
@@ -13,6 +14,7 @@ import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
@@ -25,6 +27,7 @@ import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -33,17 +36,20 @@ public class FeatureDialogHelper {
 	private Map.MapChangeListener mapListener;
 	
 	private Feature feature;
+	private String layerId;
+	
 	private FeatureDialogBuilder builder;
 	private boolean editing;
 	
 	public FeatureDialogHelper(FragmentActivity activity, View view, 
 			Feature feature, boolean startInEditMode,
 			Button editButton, Button editOnMapButton,
-			Button cancelButton, Button deleteButton){
+			Button cancelButton, Button deleteButton, String layerId){
 		
 		this.activity = activity;
 		this.feature = feature;
 		this.editing = false;
+		this.layerId = layerId;
 		
 		try{
 			this.mapListener = (Map.MapChangeListener) activity;
@@ -148,7 +154,7 @@ public class FeatureDialogHelper {
 	 * the feature on the map.
 	 */
 	public void editOnMap(){
-		ArbiterState.getArbiterState().editingFeature(feature);
+		ArbiterState.getArbiterState().editingFeature(feature, layerId);
 		
 		mapListener.getMapChangeHelper().onEditFeature(feature);
 		
@@ -165,23 +171,38 @@ public class FeatureDialogHelper {
 						projectName), false).getWritableDatabase();
 	}
 	
+	private String getNewMediaKey(){
+		return layerId;
+	}
+	
 	private void updateNewMedia(){
 		HashMap<String, MediaPanel> mediaPanels = builder.getMediaPanels();
 		MediaPanel mediaPanel = null;
 		
 		MediaSyncHelper helper = new MediaSyncHelper(activity);
-		JSONArray newMedia = null;
+		
+		JSONObject newMedia = null;
+		JSONArray mediaLayer = null;
+		
+		String newMediaKey = getNewMediaKey();
 		
 		String existingNewMedia = helper.getMediaToSend();
 		boolean insert = false;
 		
 		if(existingNewMedia == null){
 			insert = true;
-			existingNewMedia = "[]";
+			existingNewMedia = "{}";
 		}
 		
 		try {
-			newMedia = new JSONArray(existingNewMedia);
+			newMedia = new JSONObject(existingNewMedia);
+			
+			if(newMedia.has(newMediaKey)){
+				mediaLayer = newMedia.getJSONArray(newMediaKey);
+			}else{
+				mediaLayer = new JSONArray();
+				newMedia.put(newMediaKey, mediaLayer);
+			}
 			
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -194,10 +215,13 @@ public class FeatureDialogHelper {
 			ArrayList<String> mediaToSend = mediaPanel.getMediaToSend();
 			
 			for(int i = 0, count = mediaToSend.size(); i < count; i++){
-				newMedia.put(mediaToSend.get(i));
+				mediaLayer.put(mediaToSend.get(i));
 			}
+			
+			mediaPanel.clearMediaToSend();
 		}
 		
+		Log.w("FeatureDailogHelper", "FeatureDialogHelper.updateNewMedia() - " + newMedia.toString());
 		helper.updateMediaToSend(newMedia.toString(), insert);
 	}
 	

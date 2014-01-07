@@ -12,6 +12,7 @@ import android.widget.Button;
 
 public class FeatureDialog extends ArbiterDialogFragment{
 	private Feature feature;
+	private String layerId;
 	private FeatureDialogHelper helper;
 	private boolean startInEditMode;
 	private Button editOnMapButton;
@@ -21,13 +22,16 @@ public class FeatureDialog extends ArbiterDialogFragment{
 	
 	public static String TAG = "FeatureDialog";
 	
-	public static FeatureDialog newInstance(String title, int layout, Feature feature, boolean startInEditMode){
+	public static FeatureDialog newInstance(String title, int layout, 
+			Feature feature, String layerId, boolean startInEditMode){
+		
 		FeatureDialog frag = new FeatureDialog();
 		
 		frag.setTitle(title);
 		frag.setLayout(layout);
 		frag.startInEditMode = startInEditMode;
 		frag.feature = feature;
+		frag.layerId = layerId;
 		
 		return frag;
 	}
@@ -70,7 +74,7 @@ public class FeatureDialog extends ArbiterDialogFragment{
 		this.helper = new FeatureDialogHelper(getActivity(), 
 				view, feature, startInEditMode,
 				editButton, editOnMapButton,
-				cancelButton, deleteButton);
+				cancelButton, deleteButton, layerId);
 	}
 	
 	private void registerListeners(View view){

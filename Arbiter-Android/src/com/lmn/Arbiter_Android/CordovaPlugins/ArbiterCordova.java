@@ -20,8 +20,10 @@ import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.MediaSyncHelper;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
@@ -87,20 +89,23 @@ public class ArbiterCordova extends CordovaPlugin{
 			return true;
 		}else if("featureSelected".equals(action)){
 			String featureType = args.getString(0);
-			String id = args.getString(1);
+			String featureId = args.getString(1);
+			String layerId = args.getString(2);
 			
-			featureSelected(featureType, id);
+			featureSelected(featureType, featureId, layerId);
 			
 			return true;
 		}else if("updatedGeometry".equals(action)){
 			String updatedGeometry = args.getString(0);
+			String layerId = args.getString(1);
 			
-			updateGeometry(updatedGeometry);
+			updateGeometry(updatedGeometry, layerId);
 		}else if("doneInsertingFeature".equals(action)){
 			String featureType = args.getString(0);
 			String wktGeometry = args.getString(1);
+			String layerId = args.getString(2);
 			
-			doneInsertingFeature(featureType, wktGeometry);
+			doneInsertingFeature(featureType, wktGeometry, layerId);
 		}else if("updateTileSyncingStatus".equals(action)){
 			String percentComplete = args.getString(0);
 			
@@ -182,11 +187,26 @@ public class ArbiterCordova extends CordovaPlugin{
 		callback.success();
 	}
 	
+	// Clear the mediaToSend property in the Preferences table,
+	// which keeps track of files that need to be synced
+	private void clearMediaToSend(){
+		CommandExecutor.runProcess(new Runnable(){
+			@Override
+			public void run(){
+				MediaSyncHelper helper = new MediaSyncHelper(cordova.getActivity());
+				helper.clearMediaToSend();
+			}
+		});
+	}
+	
 	private void syncCompleted(final CallbackContext callbackContext){
+		
 		cordova.getActivity().runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
 				arbiterProject.dismissSyncProgressDialog();
+				
+				clearMediaToSend();
 				
 				try{
 					((Map.MapChangeListener) cordova.getActivity())
@@ -232,14 +252,14 @@ public class ArbiterCordova extends CordovaPlugin{
 				getFeatureDatabase(), featureType, wktGeometry);
 	}
 	
-	private void doneInsertingFeature(String featureType, String wktGeometry){
+	private void doneInsertingFeature(String featureType, String wktGeometry, String layerId){
 		Feature feature = getNewFeature(featureType, wktGeometry);
 		
-		ArbiterState.getArbiterState().editingFeature(feature);
+		ArbiterState.getArbiterState().editingFeature(feature, layerId);
 		
 		try{
 			((Map.MapChangeListener) cordova.getActivity())
-				.getMapChangeHelper().doneInsertingFeature();
+				.getMapChangeHelper().doneInsertingFeature(layerId);
 		} catch(ClassCastException e){
 			e.printStackTrace();
 			throw new ClassCastException(cordova.getActivity().toString() 
@@ -265,9 +285,9 @@ public class ArbiterCordova extends CordovaPlugin{
 		return activity;
 	}
 	
-	private void featureSelected(String featureType, String id){
+	private void featureSelected(String featureType, String featureId, String layerId){
 		FeatureHelper helper = new FeatureHelper(getFragmentActivity());
-		helper.displayFeatureDialog(featureType, id);
+		helper.displayFeatureDialog(featureType, featureId, layerId);
 	}
 	
 	/**
@@ -298,11 +318,11 @@ public class ArbiterCordova extends CordovaPlugin{
 		}
 	}
 	
-	private void updateGeometry(String updatedGeometry){
+	private void updateGeometry(String updatedGeometry, String layerId){
 		updateFeaturesGeometry(updatedGeometry);
 		
 		FeatureHelper helper = new FeatureHelper(getFragmentActivity());
-		helper.displayUpdatedFeature();
+		helper.displayUpdatedFeature(layerId);
 		
 		notifyDoneEditingFeature();
 	}

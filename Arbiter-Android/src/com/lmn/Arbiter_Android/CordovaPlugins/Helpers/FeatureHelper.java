@@ -22,17 +22,17 @@ public class FeatureHelper {
 		this.activity = activity;
 	}
 	
-	public void displayUpdatedFeature(){
+	public void displayUpdatedFeature(String layerId){
 		displayDialog(ArbiterState.getArbiterState()
-				.isEditingFeature(), true);
+				.isEditingFeature(), layerId, true);
 	}
 	
-	public void displayFeatureDialog(String featureType, String id){
+	public void displayFeatureDialog(String featureType, String featureId, String layerId){
 		SQLiteDatabase db = getFeatureDatabase();
 		
-		Feature feature = getFeature(db, featureType, id);
+		Feature feature = getFeature(db, featureType, featureId);
 		
-		displayDialog(feature, false);
+		displayDialog(feature, layerId, false);
 	}
 	
 	private SQLiteDatabase getFeatureDatabase(){
@@ -51,13 +51,13 @@ public class FeatureHelper {
 				getFeature(db, id, featureType);
 	}
 	
-	private void displayDialog(Feature feature, boolean startInEditMode){
+	private void displayDialog(Feature feature, String layerId, boolean startInEditMode){
 		Resources resources = activity.getResources();
 		
 		String title = resources.getString(R.string.feature_dialog_title);
 		
 		FeatureDialog dialog = FeatureDialog.newInstance(title, 
-				R.layout.feature_dialog, feature, startInEditMode);
+				R.layout.feature_dialog, feature, layerId, startInEditMode);
 		
 		FragmentManager manager = activity.getSupportFragmentManager();
 		

@@ -158,8 +158,9 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     			
     			FeatureHelper helper = new FeatureHelper(activity);
     			
-    			helper.displayFeatureDialog(selectedFeature
-    					.getFeatureType(), selectedFeature.getId());
+    			helper.displayFeatureDialog(selectedFeature.getFeatureType(),
+    					selectedFeature.getId(), ArbiterState.getArbiterState()
+    					.getLayerBeingEdited());
     		}
     	});
     	

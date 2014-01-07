@@ -77,8 +77,6 @@ public class MediaPanel {
 	}
 	
 	public RelativeLayout initMediaPanel(final String key){
-		
-		final String media = getMedia(key);
 				
 		// Append scrollview
 		RelativeLayout mediaLayout = (RelativeLayout) inflater
@@ -141,6 +139,10 @@ public class MediaPanel {
 	
 	public void addMediaToSend(String fileName){
 		mediaToSend.add(fileName);
+	}
+	
+	public void clearMediaToSend(){
+		mediaToSend.clear();
 	}
 	
 	public ArrayList<String> getMediaToSend(){

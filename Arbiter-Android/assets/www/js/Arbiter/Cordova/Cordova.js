@@ -109,17 +109,18 @@ Arbiter.Cordova = (function() {
 			// make call to plugin passing the featureType and features
 		},
 		
-		displayFeatureDialog : function(featureType, id){
+		displayFeatureDialog : function(featureType, featureId, layerId){
 			console.log("displayFeatureDialog: featureType = " + 
-					featureType + ", id = " + id);
+					featureType + ", featureId = " + featureId);
 			
 			if(featureType === null || featureType === undefined
-					|| id === undefined || id === null){
+					|| featureId === undefined || featureId === null
+					|| layerId === undefined || layerId === null){
 				return;
 			}
 			
-			cordova.exec(null, null, "ArbiterCordova",
-					"featureSelected", [featureType, id])
+			cordova.exec(null, null, "ArbiterCordova", "featureSelected",
+					[featureType, featureId, layerId])
 		},
 		
 		getUpdatedGeometry: function(){
@@ -129,7 +130,9 @@ Arbiter.Cordova = (function() {
 				
 				var schemas = Arbiter.getLayerSchemas();
 				
-				var schema = schemas[Arbiter.Util.getLayerId(selectedFeature.layer)];
+				var layerId = Arbiter.Util.getLayerId(selectedFeature.layer);
+				
+				var schema = schemas[layerId];
 				
 				var srid = Arbiter.Map.getMap().projection.projCode;
 				
@@ -140,7 +143,7 @@ Arbiter.Cordova = (function() {
 				Arbiter.Controls.ControlPanel.exitModifyMode();
 				
 				cordova.exec(null, null, "ArbiterCordova",
-						"updatedGeometry", [updatedGeometry]);
+						"updatedGeometry", [updatedGeometry, layerId]);
 			}
 		},
 		
@@ -165,7 +168,7 @@ Arbiter.Cordova = (function() {
 							srid, schema.getSRID(), feature));
 			
 			cordova.exec(null, null, "ArbiterCordova", "doneInsertingFeature", 
-				[feature.layer.protocol.featureType, wktGeometry]);
+				[feature.layer.protocol.featureType, wktGeometry, layerId]);
 		},
 		
 		updateTileSyncingStatus: function(percent){

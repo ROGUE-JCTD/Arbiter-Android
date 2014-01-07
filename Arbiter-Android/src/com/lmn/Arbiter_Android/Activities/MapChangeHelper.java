@@ -176,13 +176,13 @@ public class MapChangeHelper {
 		});
 	}
 	
-	public void doneInsertingFeature(){
+	public void doneInsertingFeature(final String layerId){
 		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
 				FeatureHelper helper = new FeatureHelper(activity);
     			
-    			helper.displayUpdatedFeature();
+    			helper.displayUpdatedFeature(layerId);
 				
 				toggleInsertFeatureBar(false);
 			}

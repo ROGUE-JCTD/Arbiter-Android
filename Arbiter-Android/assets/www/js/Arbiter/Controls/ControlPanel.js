@@ -133,7 +133,8 @@ Arbiter.Controls.ControlPanel = (function(){
 				
 				Arbiter.Cordova.displayFeatureDialog(
 						feature.layer.protocol.featureType,
-						feature.metadata[Arbiter.FeatureTableHelper.ID]
+						feature.metadata[Arbiter.FeatureTableHelper.ID],
+						Arbiter.Util.getLayerId(feature.layer)
 				);
 			}else{
 				var layerId = Arbiter.Util.getLayerId(insertedFeature.layer);

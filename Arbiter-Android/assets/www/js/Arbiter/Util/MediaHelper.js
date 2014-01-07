@@ -152,6 +152,10 @@ Arbiter.MediaHelper = (function(){
     };
     
     var addMediaToFeature = function(key, fileName, featuresMedia){
+    	if(featuresMedia === null || featuresMedia === undefined){
+    		featuresMedia = [];
+    	}
+    	
     	featuresMedia.push(fileName);
     	
     	Arbiter.Cordova.addMediaToFeature(key, featuresMedia, fileName);
@@ -248,12 +252,14 @@ Arbiter.MediaHelper = (function(){
 		
 		syncMedia: function(layer, onSuccess, onFailure) {
 			
+			var context = this;
+			
 			Arbiter.FileSystem.ensureMediaDirectoryExists(function(){
 				var url = layer.protocol.url;
 		        var index = url.indexOf("geoserver/wfs");
 		        url = url.substring(0,index) + "file-service/upload";
 		        var header = layer.protocol.headers;
-		        Arbiter.PreferencesHelper.get(MEDIA_TO_SEND, Arbiter.MediaHelper, function(_value){
+		        Arbiter.PreferencesHelper.get(context.MEDIA_TO_SEND, Arbiter.MediaHelper, function(_value){
 		        	if(_value === null || _value === undefined){
 		        		console.log("Arbiter.MediaHelper no media to send");
 		        		

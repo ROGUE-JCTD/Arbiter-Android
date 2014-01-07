@@ -22,6 +22,40 @@ Arbiter.Layers.SyncHelper = (function(){
 		}
 	};
 	
+	var syncMedia = function(onSuccess, onFailure){
+		var map = Arbiter.Map.getMap();
+		
+		// Get the WFS layers on the map
+		var wfsLayers = map.getLayersByClass("OpenLayers.Layer.Vector");
+		
+		var layerCount = wfsLayers.length;
+		
+		if(layerCount === 0){
+			if(Arbiter.Util.funcExists(onSuccess)){
+				onSuccess();
+			}
+			
+			return;
+		}
+		
+		for(var i = 0; i < layerCount; i++){
+			Arbiter.MediaHelper.syncMedia(wfsLayers[i], function(layerId, layerName, failedMedia){
+				console.log("Sync Media done layerId = " + layerId + " layerName = "
+						+ layerName + " failedMedia = ", failedMedia);
+				
+				if(Arbiter.Util.funcExists(onSuccess)){
+					onSuccess();
+				}
+			}, function(e){
+				console.log("Arbiter.SyncHelper - error syncing media - ", e);
+				
+				if(Arbiter.Util.funcExists(onFailure)){
+					onFailure("Arbiter.SyncHelper - error syncing media - " + e);
+				}
+			});
+		}
+	};
+	
 	/**
 	 * @param {Arbiter.Util.Bounds} aoi
 	 */
@@ -29,11 +63,15 @@ Arbiter.Layers.SyncHelper = (function(){
 		if(++syncedLayers === wfsLayerCount || wfsLayerCount === 0){
 			
 			var success = function(){
-				Arbiter.Cordova.syncCompleted();
-				
-				if(Arbiter.Util.funcExists(optionalSuccess)){
-					optionalSuccess();
-				}
+				syncMedia(function(){
+					Arbiter.Cordova.syncCompleted();
+					
+					if(Arbiter.Util.funcExists(optionalSuccess)){
+						optionalSuccess();
+					}
+				}, function(e){
+					
+				});
 			};
 			
 			if(cacheTiles){

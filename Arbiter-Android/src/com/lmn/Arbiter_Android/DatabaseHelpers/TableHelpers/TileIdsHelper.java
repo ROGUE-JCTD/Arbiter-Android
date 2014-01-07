@@ -1,7 +1,6 @@
 package com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers;
 
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 public class TileIdsHelper{
 	public static final String TABLE_NAME = "tileIds";
@@ -23,7 +22,6 @@ public class TileIdsHelper{
 		String sql = "CREATE TABLE " + TABLE_NAME + " (" +
 					ID + " INTEGER PRIMARY KEY AUTOINCREMENT);";
 		
-		Log.w("TileIdsHelper", "TileIdsHelper : " + sql);
 		db.execSQL(sql);
 	}
 }

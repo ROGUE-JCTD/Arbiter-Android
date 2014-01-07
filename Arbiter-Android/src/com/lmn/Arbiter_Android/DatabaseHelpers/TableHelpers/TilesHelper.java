@@ -1,8 +1,6 @@
 package com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers;
 
 import android.database.sqlite.SQLiteDatabase;
-import android.provider.BaseColumns;
-import android.util.Log;
 
 public class TilesHelper{
 	public static final String TABLE_NAME = "tiles";
@@ -38,7 +36,6 @@ public class TilesHelper{
 					URL + " TEXT NOT NULL, " +
 					REF_COUNTER + " INTEGER NOT NULL);";
 		
-		Log.w("TilesHelper", "TilesHelper : " + sql);
 		db.execSQL(sql);
 	}
 }

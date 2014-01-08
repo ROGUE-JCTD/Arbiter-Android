@@ -37,7 +37,7 @@ Arbiter.GeometryColumnsHelper = (function(){
 		              schema.getGeometryType(), 
 		              schema.getSRID(), 
 		              schema.getEnumeration().get()];
-		
+			
 			tx.executeSql(sql, values, function(tx, res){
 				console.log("SUCCESS: insert into geometry columns");
 				if(Arbiter.Util.funcExists(onSuccess)){

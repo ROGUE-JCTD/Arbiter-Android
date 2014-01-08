@@ -14,7 +14,6 @@ import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
@@ -27,7 +26,6 @@ import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -48,7 +46,7 @@ public class FeatureDialogHelper {
 		
 		this.activity = activity;
 		this.feature = feature;
-		this.editing = false;
+		this.editing = startInEditMode;
 		this.layerId = layerId;
 		
 		try{
@@ -59,8 +57,10 @@ public class FeatureDialogHelper {
 					+ " must be an instance of Map.MapChangeListener");
 		}
 		
-		this.builder = new FeatureDialogBuilder(activity, view, feature);
-		builder.build();
+		this.builder = new FeatureDialogBuilder(activity,
+				view, feature, startInEditMode);
+		
+		builder.build(startInEditMode);
 		
 		if(startInEditMode && editButton != null
 				&& editOnMapButton != null){
@@ -112,6 +112,17 @@ public class FeatureDialogHelper {
 		editButton.setText(text);
 	}
 	
+	private void toggleButtons(Button editButton, Button editOnMapButton,
+			Button cancelButton, Button deleteButton){
+		toggleEditButtonText(editButton);
+		
+		toggleEditOnMapButton(editOnMapButton);
+		
+		toggleCancelButton(cancelButton);
+		
+		toggleDeleteButton(deleteButton);
+	}
+	
 	/**
 	 * Toggle the view and return whether or not it's in edit mode.
 	 * @param editButton
@@ -123,13 +134,8 @@ public class FeatureDialogHelper {
 		
 		this.editing = builder.toggleEditMode();
 		
-		toggleEditButtonText(editButton);
-		
-		toggleEditOnMapButton(editOnMapButton);
-		
-		toggleCancelButton(cancelButton);
-		
-		toggleDeleteButton(deleteButton);
+		toggleButtons(editButton, editOnMapButton,
+				cancelButton, deleteButton);
 		
 		return editing;
 	}
@@ -221,7 +227,6 @@ public class FeatureDialogHelper {
 			mediaPanel.clearMediaToSend();
 		}
 		
-		Log.w("FeatureDailogHelper", "FeatureDialogHelper.updateNewMedia() - " + newMedia.toString());
 		helper.updateMediaToSend(newMedia.toString(), insert);
 	}
 	

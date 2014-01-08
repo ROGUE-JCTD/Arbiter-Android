@@ -7,7 +7,6 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.view.View;
 
 public class Util {
 	

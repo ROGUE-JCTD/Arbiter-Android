@@ -9,7 +9,6 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
@@ -55,8 +54,6 @@ public class MediaPanel {
 	private void takePicture(String key) {
 		String media = getMedia(key);
 		
-		Log.w("MediaPanel", "MediaPanel media = " + media);
-		
 	    webview.loadUrl("javascript:Arbiter.MediaHelper.takePicture('"
 	    		+ key + "', " + media + ");");
 	}
@@ -84,7 +81,7 @@ public class MediaPanel {
 		return media;
 	}
 	
-	public RelativeLayout initMediaPanel(final String key){
+	private RelativeLayout initMediaPanel(final String key, boolean startInEditMode){
 				
 		// Append scrollview
 		RelativeLayout mediaLayout = (RelativeLayout) inflater
@@ -110,7 +107,7 @@ public class MediaPanel {
 			});
 			
 			// Default start not in edit mode
-			takePictureBtn.setEnabled(false);
+			takePictureBtn.setEnabled(startInEditMode);
 		}
 		
 		// Append the mediaLayout to the dialog
@@ -126,9 +123,9 @@ public class MediaPanel {
 		}
 	}
 	
-	public void appendMedia(String key, String media) throws JSONException{
+	public void appendMedia(String key, String media, boolean startInEditMode) throws JSONException{
 		
-		RelativeLayout mediaLayout = initMediaPanel(key);
+		RelativeLayout mediaLayout = initMediaPanel(key, startInEditMode);
 		
 		LinearLayout mediaView = (LinearLayout) mediaLayout
 						.findViewById(R.id.mediaList);

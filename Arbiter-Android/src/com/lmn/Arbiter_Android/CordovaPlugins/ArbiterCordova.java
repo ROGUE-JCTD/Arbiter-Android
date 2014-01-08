@@ -96,6 +96,7 @@ public class ArbiterCordova extends CordovaPlugin{
 			
 			return true;
 		}else if("updatedGeometry".equals(action)){
+			
 			String updatedGeometry = args.getString(0);
 			String layerId = args.getString(1);
 			
@@ -285,9 +286,14 @@ public class ArbiterCordova extends CordovaPlugin{
 		return activity;
 	}
 	
-	private void featureSelected(String featureType, String featureId, String layerId){
-		FeatureHelper helper = new FeatureHelper(getFragmentActivity());
-		helper.displayFeatureDialog(featureType, featureId, layerId);
+	private void featureSelected(final String featureType, final String featureId, final String layerId){
+		cordova.getActivity().runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				FeatureHelper helper = new FeatureHelper(getFragmentActivity());
+				helper.displayFeatureDialog(featureType, featureId, layerId);
+			}
+		});
 	}
 	
 	/**

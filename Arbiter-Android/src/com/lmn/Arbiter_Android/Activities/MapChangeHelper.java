@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.apache.cordova.CordovaWebView;
 
 import android.support.v4.app.FragmentActivity;
+
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -180,6 +181,7 @@ public class MapChangeHelper {
 		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
+				
 				FeatureHelper helper = new FeatureHelper(activity);
     			
     			helper.displayUpdatedFeature(layerId);

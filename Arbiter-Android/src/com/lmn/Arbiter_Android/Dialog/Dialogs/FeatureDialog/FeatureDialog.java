@@ -55,6 +55,7 @@ public class FeatureDialog extends ArbiterDialogFragment{
 	
 	@Override
 	public void onNegativeClick() {
+		
 		if(helper.isEditing()){
 			helper.cancel();
 		}else{

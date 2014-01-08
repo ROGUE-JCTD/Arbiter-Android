@@ -1,13 +1,17 @@
 Arbiter.Util.Enumeration = function(){
-	var enumeration = "";
-
+	var enumeration = {};
+	
 	return {
 		get: function(){
-			return enumeration;
+			return JSON.stringify(enumeration);
 		},
 		
-		addEnumeration: function(attributeName, restrictions){
-			enumeration += attributeName + ":" + JSON.stringify(restrictions);
+		addEnumeration: function(_attributeName, _type, _enumeration){
+			
+			enumeration[_attributeName] = {
+				"type": _type,
+				"enumeration": _enumeration
+			};
 		}
 	};
 };

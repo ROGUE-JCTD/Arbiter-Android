@@ -48,6 +48,7 @@ Arbiter.Util.LayerSchema = function(){
 					geometryName = property.name;
 					geometryType = property.type.substring(4, property.type.indexOf("PropertyType"));
 				}else if(property.type.indexOf("xsd:") >= 0){
+					
 					attribute = new Arbiter.Util.Attribute(property.name,
 							property.type.substr(4), property.nillable);
 					
@@ -57,9 +58,8 @@ Arbiter.Util.LayerSchema = function(){
 					
 					attributes.push(attribute);
 					
-					if(property.restriction && property.restriction.enumeration){
-						enumeration.addEnumeration(property.name, property.restriction);
-					}
+					enumeration.addEnumeration(property.name,
+							property.type, property.enumeration);
 				}
 			}
 		};

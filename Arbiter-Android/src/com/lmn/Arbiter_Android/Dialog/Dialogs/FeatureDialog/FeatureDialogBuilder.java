@@ -1,5 +1,8 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.apache.cordova.CordovaInterface;
@@ -11,6 +14,7 @@ import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -215,7 +219,7 @@ public class FeatureDialogBuilder {
 		return dropdown;
 	}
 	
-	private void appendEditText(String key, String value, boolean startInEditMode){
+	private void appendEditText(String key, String value, boolean startInEditMode, EnumerationHelper helper){
 		View attributeView = inflater.inflate(R.layout.feature_attribute, null);
 		
 		setLabel(attributeView, key);
@@ -223,7 +227,24 @@ public class FeatureDialogBuilder {
 		EditText attributeValue = (EditText) attributeView.findViewById(R.id.attributeText);
 		
 		if(attributeValue != null){
-			attributeValue.setText(value);
+			String type = helper.getType();
+			
+			if(type.equals("xsd:dateTime")){
+				Log.w("FeatureDialogBuilder", "FeatureDialogBuilder.appendEditText datetime found");
+				attributeValue.setInputType(InputType.TYPE_CLASS_DATETIME);
+				
+				
+				try {
+					SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+					Date date = formatter.parse(value);
+					attributeValue.setText(date.toString());
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}else{
+				attributeValue.setText(value);
+			}
 			
 			setStartMode(attributeValue, startInEditMode);
 		}
@@ -255,7 +276,7 @@ public class FeatureDialogBuilder {
 				e.printStackTrace();
 			}
 		}else{
-			appendEditText(key, value, startInEditMode);
+			appendEditText(key, value, startInEditMode, helper);
 		}
 	}
 	

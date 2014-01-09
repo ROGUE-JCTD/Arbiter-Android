@@ -42,7 +42,7 @@ public class FeatureDialog extends ArbiterDialogFragment{
 		
 		setRetainInstance(true);
 	}
-
+	
 	@Override
 	public void onCancel(DialogInterface dialog){
 		onNegativeClick();

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 
 /**
  * This class creates a dialog for the project wizard
@@ -18,12 +19,19 @@ public abstract class ArbiterDialogFragment extends DialogFragment {
 	protected String ok;
 	protected String cancel;
 	protected int layout;
+	private AlertDialog myDialog;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		setRetainInstance(true);
+	}
+	
+	@Override
+	public void onStart(){
+		super.onStart();
+		myDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
 	}
 	
 	@Override
@@ -51,7 +59,8 @@ public abstract class ArbiterDialogFragment extends DialogFragment {
                 )
                 .create();
 		
-		//dialog.getWindow().getAttributes().windowAnimations = R.style.project_wizard_animation;
+		this.myDialog = dialog;
+		
 		return dialog;
 	}
 	

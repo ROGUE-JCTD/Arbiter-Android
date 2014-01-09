@@ -68,6 +68,54 @@ Arbiter.Loaders.LayersLoader = (function(){
 		olLayer.setVisibility(schema.isVisible());
 	};
 	
+	var addAOIToMap = function(_aoi){
+		console.log("addAOIToMap", _aoi);
+		
+		var context = this;
+		
+		var map = Arbiter.Map.getMap();
+		
+		var aoi = _aoi.split(',');
+		
+		var bounds = new OpenLayers.Bounds(aoi);
+		
+		console.log("aoi bounds", bounds);
+		var feature = new OpenLayers.Feature.Vector(bounds.toGeometry(), {});
+		
+		var oldLayers = map.getLayersByName(Arbiter.AOI);
+		
+		var aoiStyleMap = new OpenLayers.StyleMap({
+             'default': new OpenLayers.Style({
+                         fill: false,
+                         strokeColor: 'red',
+                         strokeWidth: 5
+                 }) 
+		});
+		 
+		var layer = new OpenLayers.Layer.Vector(Arbiter.AOI, { 
+			styleMap: aoiStyleMap 
+		});
+		
+		layer.addFeatures([feature]);
+		
+		if(oldLayers.length > 0){
+			map.removeLayer(oldLayers[0]);
+		}
+		
+		map.addLayer(layer);
+	};
+	
+	var loadAOILayer = function(){
+		Arbiter.PreferencesHelper.get(Arbiter.AOI, Arbiter.Loaders.LayersLoader, function(aoi){
+			
+			if(aoi !== null && aoi !== undefined && aoi !== ""){
+				addAOIToMap(aoi);
+			}
+		}, function(e){
+			console.log("Arbiter.Loaders.LayersLoader - Error loading aoi layer", e);
+		});
+	};
+	
 	var loadLayers = function(includeDefaultLayer, defaultLayerVisibility, onSuccess){
 		
 		reset();
@@ -117,6 +165,8 @@ Arbiter.Loaders.LayersLoader = (function(){
 		}
 		
 		setBaseLayer();
+		
+		loadAOILayer();
 	};
 	
 	var loadDefaultLayerInfo = function(context, onSuccess, onFailure){

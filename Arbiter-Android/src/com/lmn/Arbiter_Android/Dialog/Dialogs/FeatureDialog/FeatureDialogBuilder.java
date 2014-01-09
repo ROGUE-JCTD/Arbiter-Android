@@ -1,9 +1,5 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 
 import org.apache.cordova.CordovaInterface;
@@ -16,11 +12,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.FragmentActivity;
-import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -33,7 +27,6 @@ import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.GeometryColumnsHelper;
-import com.lmn.Arbiter_Android.Dialog.Dialogs.DateTime.DatePickerFragment;
 import com.lmn.Arbiter_Android.Media.MediaHelper;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 

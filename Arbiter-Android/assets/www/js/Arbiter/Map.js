@@ -43,7 +43,7 @@ Arbiter.Map = (function() {
 		getZoom : function() {
 			return map.getZoom();
 		},
-
+		
 		zoomToExtent : function(left, bottom, right, top, zoomLevel) {
 			if (zoomLevel === null || zoomLevel === undefined) {
 				map.zoomToExtent([ left, bottom, right, top ]);

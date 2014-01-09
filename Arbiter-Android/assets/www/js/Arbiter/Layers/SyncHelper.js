@@ -157,8 +157,9 @@ Arbiter.Layers.SyncHelper = (function(){
 		}
 		
 		for(var i = 0; i < wfsLayers.length; i++){
-			if(wfsLayers[i].strategies[0]){
-				
+			if((wfsLayers[i].name !== Arbiter.AOI) 
+					&& (wfsLayers[i].strategies[0])){
+					
 				wfsLayers[i].strategies[0].save();
 			}
 		}

@@ -86,7 +86,8 @@ Arbiter.Controls.Select = function(onSelect, onUnselect, includeOOMWorkaround){
 		
 		map.events.register("addlayer", context, function(event){
 			if(event && event.layer 
-					&& Arbiter.Util.layerIsEditable(event.layer)){
+					&& Arbiter.Util.layerIsEditable(event.layer)
+					&& event.layer.name !== Arbiter.AOI){
 				
 				vectorLayers.push(event.layer);
 				
@@ -101,7 +102,8 @@ Arbiter.Controls.Select = function(onSelect, onUnselect, includeOOMWorkaround){
 		map.events.register("removelayer", context, function(event){
 			
 			if(event && event.layer 
-					&& Arbiter.Util.layerIsEditable(event.layer)){
+					&& Arbiter.Util.layerIsEditable(event.layer)
+					&& event.layer !== Arbiter.AOI){
 				
 				removeFromVectorLayers(event.layer);
 				

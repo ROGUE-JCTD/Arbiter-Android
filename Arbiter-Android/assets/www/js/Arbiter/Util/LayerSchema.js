@@ -48,7 +48,7 @@ Arbiter.Util.LayerSchema = function(){
 					geometryName = property.name;
 					geometryType = property.type.substring(4, property.type.indexOf("PropertyType"));
 				}else if(property.type.indexOf("xsd:") >= 0){
-					
+					console.log("property", property);
 					attribute = new Arbiter.Util.Attribute(property.name,
 							property.type.substr(4), property.nillable);
 					

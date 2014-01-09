@@ -7,7 +7,6 @@ import org.json.JSONObject;
 import com.lmn.Arbiter_Android.R;
 
 import android.app.Activity;
-import android.view.LayoutInflater;
 import android.widget.ArrayAdapter;
 
 public class EnumerationHelper {
@@ -18,8 +17,7 @@ public class EnumerationHelper {
 	private JSONArray restriction;
 	private Activity activity;
 	
-	public EnumerationHelper(Activity activity, JSONObject enumeration,
-			LayoutInflater inflater){
+	public EnumerationHelper(Activity activity, JSONObject enumeration){
 		
 		try{
 			this.type = getType(enumeration);

@@ -2,6 +2,7 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -14,10 +15,12 @@ import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.v4.app.FragmentActivity;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -30,11 +33,13 @@ import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.GeometryColumnsHelper;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.DateTime.DatePickerFragment;
 import com.lmn.Arbiter_Android.Media.MediaHelper;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class FeatureDialogBuilder {
 	private Activity activity;
+	private FragmentActivity fragActivity;
 	private Context context;
 	private CordovaInterface cordovaInterface;
 	private AttributeHelper attributeHelper;
@@ -44,6 +49,7 @@ public class FeatureDialogBuilder {
 	private HashMap<String, MediaPanel> mediaPanels;
 	private JSONObject enumeration;
 	
+	
 	public FeatureDialogBuilder(Activity activity, View view,
 			Feature feature, boolean startInEditMode){
 		
@@ -52,6 +58,7 @@ public class FeatureDialogBuilder {
 		
 		try{
 			this.cordovaInterface = (CordovaInterface) activity;
+			this.fragActivity = (FragmentActivity) activity;
 		} catch(ClassCastException e){
 			e.printStackTrace();
 		}
@@ -124,11 +131,11 @@ public class FeatureDialogBuilder {
 		
 		if(attributeValue != null){
 			attributeValue.setText(value);
+			attributeHelper.add(fragActivity, key, attributeValue,
+					null, startInEditMode, value);
 		}
 		
 		outerLayout.addView(attributeView);
-		
-		attributeHelper.add(key, attributeValue);
 	}
 	
 	private void appendAttributes(boolean startInEditMode){
@@ -187,16 +194,9 @@ public class FeatureDialogBuilder {
 		}
 	}
 	
-	private void setStartMode(EditText editText, boolean startInEditMode){
-		editText.setFocusable(startInEditMode);
-		editText.setFocusableInTouchMode(startInEditMode);
-	}
-	
-	private void setStartMode(Spinner spinner, boolean startInEditMode){
-		spinner.setEnabled(startInEditMode);
-	}
-	
-	private Spinner appendDropDown(String key, ArrayAdapter<String> adapter, String value, boolean startInEditMode) throws JSONException{
+	private Spinner appendDropDown(String key, ArrayAdapter<String> adapter, String value,
+			EnumerationHelper enumHelper, boolean startInEditMode) throws JSONException{
+		
 		LinearLayout layout = (LinearLayout) inflater
 				.inflate(R.layout.feature_dropdown, null);
 		
@@ -208,50 +208,30 @@ public class FeatureDialogBuilder {
 		
 		dropdown.setSelection(position);
 		
-		setStartMode(dropdown, startInEditMode);
-		
 		setLabel(layout, key);
 		
 		outerLayout.addView(layout);
 		
-		attributeHelper.add(key, dropdown);
+		attributeHelper.add(fragActivity, key, dropdown,
+				enumHelper, startInEditMode);
 		
 		return dropdown;
 	}
 	
-	private void appendEditText(String key, String value, boolean startInEditMode, EnumerationHelper helper){
+	private void appendEditText(String key, String value, boolean startInEditMode, EnumerationHelper enumHelper){
 		View attributeView = inflater.inflate(R.layout.feature_attribute, null);
 		
 		setLabel(attributeView, key);
 		
-		EditText attributeValue = (EditText) attributeView.findViewById(R.id.attributeText);
+		final EditText attributeValue = (EditText) attributeView.findViewById(R.id.attributeText);
 		
 		if(attributeValue != null){
-			String type = helper.getType();
 			
-			if(type.equals("xsd:dateTime")){
-				Log.w("FeatureDialogBuilder", "FeatureDialogBuilder.appendEditText datetime found");
-				attributeValue.setInputType(InputType.TYPE_CLASS_DATETIME);
-				
-				
-				try {
-					SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-					Date date = formatter.parse(value);
-					attributeValue.setText(date.toString());
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}else{
-				attributeValue.setText(value);
-			}
-			
-			setStartMode(attributeValue, startInEditMode);
+			attributeHelper.add(fragActivity, key, attributeValue,
+					enumHelper, startInEditMode, value);
 		}
 		
 		outerLayout.addView(attributeView);
-		
-		attributeHelper.add(key, attributeValue);
 	}
 	
 	private void appendAttribute(String key, String value, boolean startInEditMode){
@@ -263,40 +243,42 @@ public class FeatureDialogBuilder {
 			e.printStackTrace();
 		}
 		
-		//Log.w("FeatureDialogBuilder", "FeatureDialogBuilder.appendAttribute() key = " + key + " enumeration = " + enumeration);
-		EnumerationHelper helper = new EnumerationHelper(activity, enumeration, inflater);
+		EnumerationHelper enumHelper = new EnumerationHelper(activity, enumeration);
 		
-		if(helper.hasEnumeration()){
+		if(enumHelper.hasEnumeration()){
 			try {
-				ArrayAdapter<String> adapter = helper.getSpinnerAdapter();
+				ArrayAdapter<String> adapter = enumHelper.getSpinnerAdapter();
 				
-				appendDropDown(key, adapter, value, startInEditMode);
+				appendDropDown(key, adapter, value,
+						enumHelper, startInEditMode);
+				
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}else{
-			appendEditText(key, value, startInEditMode, helper);
+			appendEditText(key, value, startInEditMode, enumHelper);
 		}
 	}
 	
-	private void toggleMediaPanels(){
+	private void toggleMediaPanels(boolean editMode){
 		MediaPanel panel = null;
 		
 		for(String key : mediaPanels.keySet()){
 			panel = mediaPanels.get(key);
 			
-			panel.toggleEditMode();
+			//panel.toggleEditMode();
+			panel.setEditMode(editMode);
 		}
 	}
 	
-	public boolean toggleEditMode(){
-		boolean focusable = attributeHelper.toggleEditMode();
+	public boolean setEditMode(boolean editMode){
+		boolean _editMode = attributeHelper.setEditMode(editMode);
 		
-		Log.w("FeatureDialogBuilder", "FeatureDialogBuilder editMode = " + focusable);
-		toggleMediaPanels();
+		Log.w("FeatureDialogBuilder", "FeatureDialogBuilder editMode = " + editMode);
+		toggleMediaPanels(editMode);
 		
-		return focusable;
+		return _editMode;
 	}
 	
 	public void updateFeature(){

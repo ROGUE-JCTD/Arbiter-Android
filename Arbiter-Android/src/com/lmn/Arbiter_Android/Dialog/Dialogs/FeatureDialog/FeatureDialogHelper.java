@@ -26,6 +26,7 @@ import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -70,11 +71,11 @@ public class FeatureDialogHelper {
 		}
 	}
 	
-	private void toggleCancelButton(Button cancelButton){
+	private void toggleCancelButton(boolean editMode, Button cancelButton){
 		String text;
 		Resources resources = activity.getResources();
 		
-		if(editing){
+		if(editMode){
 			text = resources.getString(R.string.cancel_editing);
 		}else{
 			text = resources.getString(R.string.back);
@@ -83,27 +84,27 @@ public class FeatureDialogHelper {
 		cancelButton.setText(text);
 	}
 	
-	private void toggleDeleteButton(Button deleteButton){
-		if(editing){
+	private void toggleDeleteButton(boolean editMode, Button deleteButton){
+		if(editMode){
 			deleteButton.setVisibility(View.GONE);
 		}else{
 			deleteButton.setVisibility(View.VISIBLE);
 		}
 	}
 	
-	private void toggleEditOnMapButton(Button editButton){
-		if(editing){
+	private void toggleEditOnMapButton(boolean editMode, Button editButton){
+		if(editMode){
 			editButton.setVisibility(View.VISIBLE);
 		}else{
 			editButton.setVisibility(View.GONE);
 		}
 	}
 	
-	private void toggleEditButtonText(Button editButton){
+	private void toggleEditButtonText(boolean editMode, Button editButton){
 		String text;
 		Resources resources = activity.getResources();
 		
-		if(editing){
+		if(editMode){
 			text = resources.getString(R.string.done_editing);
 		}else{
 			text = resources.getString(R.string.edit_attributes);
@@ -112,15 +113,16 @@ public class FeatureDialogHelper {
 		editButton.setText(text);
 	}
 	
-	private void toggleButtons(Button editButton, Button editOnMapButton,
-			Button cancelButton, Button deleteButton){
-		toggleEditButtonText(editButton);
+	private void toggleButtons(boolean editMode, Button editButton, 
+			Button editOnMapButton, Button cancelButton, Button deleteButton){
 		
-		toggleEditOnMapButton(editOnMapButton);
+		toggleEditButtonText(editMode, editButton);
 		
-		toggleCancelButton(cancelButton);
+		toggleEditOnMapButton(editMode, editOnMapButton);
 		
-		toggleDeleteButton(deleteButton);
+		toggleCancelButton(editMode, cancelButton);
+		
+		toggleDeleteButton(editMode, deleteButton);
 	}
 	
 	/**
@@ -129,12 +131,12 @@ public class FeatureDialogHelper {
 	 * @param editOnMapButton
 	 * @return
 	 */
-	private boolean toggleEditMode(Button editButton, Button editOnMapButton,
+	private boolean toggleEditMode(boolean editMode, Button editButton, Button editOnMapButton,
 			Button cancelButton, Button deleteButton){
 		
-		this.editing = builder.toggleEditMode();
+		this.editing = builder.setEditMode(editMode);
 		
-		toggleButtons(editButton, editOnMapButton,
+		toggleButtons(editMode, editButton, editOnMapButton,
 				cancelButton, deleteButton);
 		
 		return editing;
@@ -143,7 +145,8 @@ public class FeatureDialogHelper {
 	public void startEditMode(Button editButton, Button editOnMapButton,
 			Button cancelButton, Button deleteButton){
 		
-		toggleEditMode(editButton, editOnMapButton, cancelButton, deleteButton);
+		toggleEditMode(true, editButton, editOnMapButton,
+				cancelButton, deleteButton);
 	}
 	
 	private void dismiss(){
@@ -325,7 +328,7 @@ public class FeatureDialogHelper {
 							activity.runOnUiThread(new Runnable(){
 								@Override
 								public void run(){
-									toggleEditMode(editButton, editOnMapButton,
+									toggleEditMode(false, editButton, editOnMapButton,
 											cancelButton, deleteButton);
 									
 									if(insertedNewFeature){

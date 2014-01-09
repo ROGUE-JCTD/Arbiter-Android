@@ -136,9 +136,10 @@ public class MediaPanel {
 		loadMedia();
 	}
 	
-	public void toggleEditMode(){
+	public void setEditMode(boolean editMode){
 		if(takePictureBtn != null){
-			takePictureBtn.setEnabled(!takePictureBtn.isEnabled());
+			//takePictureBtn.setEnabled(!takePictureBtn.isEnabled());
+			takePictureBtn.setEnabled(editMode);
 		}
 	}
 	

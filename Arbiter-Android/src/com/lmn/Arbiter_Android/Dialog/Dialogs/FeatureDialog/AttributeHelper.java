@@ -7,83 +7,69 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 import com.lmn.Arbiter_Android.Media.MediaHelper;
 
 import android.content.ContentValues;
+import android.support.v4.app.FragmentActivity;
 import android.widget.EditText;
 import android.widget.Spinner;
 
 public class AttributeHelper {
-	private HashMap<String, EditText> editTexts;
-	private HashMap<String, Spinner> spinners;
+	private HashMap<String, Attribute> attributes;
 	
 	private Feature feature;
 	
 	public AttributeHelper(Feature feature){
-		this.editTexts = new HashMap<String, EditText>();
-		this.spinners = new HashMap<String, Spinner>();
+		this.attributes = new HashMap<String, Attribute>();
+		
 		this.feature = feature;
 	}
 	
-	public void add(String key, EditText editText){
-		editTexts.put(key, editText);
+	public void add(FragmentActivity activity, String key, EditText editText,
+			EnumerationHelper enumHelper, boolean startInEditMode, String value){
+		
+		attributes.put(key,  new Attribute(activity, editText,
+				enumHelper, startInEditMode, value));
 	}
 	
-	public void add(String key, Spinner spinner){
-		spinners.put(key, spinner);
+	public void add(FragmentActivity activity, String key, Spinner spinner,
+			EnumerationHelper enumHelper, boolean startInEditMode){
+		
+		attributes.put(key,  new Attribute(activity, spinner,
+				enumHelper, startInEditMode));
 	}
 	
-	public boolean toggleEditMode(){
-		EditText editText = null;
-		boolean focusable = false;
+	public boolean setEditMode(boolean editMode){
 		
-		for(String key : editTexts.keySet()){
-			editText = editTexts.get(key);
-			focusable = editText.isFocusable();
+		Attribute attribute = null;
+		
+		for(String key : attributes.keySet()){
+			attribute = attributes.get(key);
 			
-			editText.setFocusable(!focusable);
-			editText.setFocusableInTouchMode(!focusable);
+			attribute.setEditMode(editMode);
 		}
 		
-		Spinner spinner = null;
-		
-		for(String key : spinners.keySet()){
-			spinner = spinners.get(key);
-			focusable = spinner.isEnabled();
-			
-			spinner.setEnabled(!focusable);
-		}
-		
-		return !focusable;
+		return editMode;
 	}
 	
 	public void updateFeature(){
-		ContentValues attributes = feature.getAttributes();
+		ContentValues featureAttributes = feature.getAttributes();
 		
-		for(String key : editTexts.keySet()){
+		Attribute attribute = null;
+		String value = null;
+		
+		for(String key : attributes.keySet()){
 			if(!key.equals(FeaturesHelper.SYNC_STATE) 
 					&& !key.equals(FeaturesHelper.MODIFIED_STATE)
 					&& !key.equals(FeaturesHelper.FID)
 					&& !key.equals(MediaHelper.FOTOS)
 					&& !key.equals(MediaHelper.MEDIA)){
 				
-					attributes.put(key, editTexts.get(key)
-							.getText().toString());
+				attribute = attributes.get(key);
+				
+				value = attribute.getValue();
+				
+				if(value != null){
+					featureAttributes.put(key, attribute.getValue());
+				}
 			}
-		}
-		
-		String value = null;
-		
-		for(String key : editTexts.keySet()){
-			value = editTexts.get(key).getText().toString();
-			
-			attributes.put(key, value);
-		}
-		
-		Spinner spinner = null;
-		
-		for(String key : spinners.keySet()){
-			spinner = spinners.get(key); 
-			value = (String) spinner.getSelectedItem();
-			
-			attributes.put(key, value);
 		}
 	}
 }

@@ -116,28 +116,6 @@ public class FeatureDialogBuilder {
 		});
 	}
 	
-	private void appendGeometry(String key, String value, boolean startInEditMode){
-		View attributeView = inflater.inflate(R.layout.feature_attribute, null);
-		
-		if(key != null){
-			TextView attributeLabel = (TextView) attributeView.findViewById(R.id.attributeLabel);
-			
-			if(attributeLabel != null){
-				attributeLabel.setText(key);
-			}
-		}
-		
-		EditText attributeValue = (EditText) attributeView.findViewById(R.id.attributeText);
-		
-		if(attributeValue != null){
-			attributeValue.setText(value);
-			attributeHelper.add(fragActivity, key, attributeValue,
-					null, startInEditMode, value);
-		}
-		
-		outerLayout.addView(attributeView);
-	}
-	
 	private void appendAttributes(boolean startInEditMode){
 		String geometryName = feature.getGeometryName();
 		
@@ -174,24 +152,53 @@ public class FeatureDialogBuilder {
 		}
 	}
 	
-	private JSONObject getEnumeration(String key) throws JSONException{
-		JSONObject _enumeration = null;
+	private void appendAttribute(String key, String value, boolean startInEditMode){
+		JSONObject enumeration = null;
 		
-		if(enumeration != null && enumeration.has(key)){
-			_enumeration = enumeration.getJSONObject(key);
+		try{
+			enumeration = getEnumeration(key);
+		}catch(JSONException e){
+			e.printStackTrace();
 		}
 		
-		return _enumeration;
+		EnumerationHelper enumHelper = new EnumerationHelper(activity, enumeration);
+		
+		if(enumHelper.hasEnumeration()){
+			try {
+				ArrayAdapter<String> adapter = enumHelper.getSpinnerAdapter();
+				
+				appendDropDown(key, adapter, value,
+						enumHelper, startInEditMode);
+				
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else{
+			appendEditText(key, value, startInEditMode, enumHelper);
+		}
 	}
 	
-	private void setLabel(View layout, String key){
+	private void appendGeometry(String key, String value, boolean startInEditMode){
+		View attributeView = inflater.inflate(R.layout.feature_attribute, null);
+		
 		if(key != null){
-			TextView attributeLabel = (TextView) layout.findViewById(R.id.attributeLabel);
+			TextView attributeLabel = (TextView) attributeView.findViewById(R.id.attributeLabel);
 			
 			if(attributeLabel != null){
 				attributeLabel.setText(key);
 			}
 		}
+		
+		EditText attributeValue = (EditText) attributeView.findViewById(R.id.attributeText);
+		
+		if(attributeValue != null){
+			attributeValue.setText(value);
+			attributeHelper.add(fragActivity, key, attributeValue,
+					null, startInEditMode, value);
+		}
+		
+		outerLayout.addView(attributeView);
 	}
 	
 	private Spinner appendDropDown(String key, ArrayAdapter<String> adapter, String value,
@@ -234,30 +241,23 @@ public class FeatureDialogBuilder {
 		outerLayout.addView(attributeView);
 	}
 	
-	private void appendAttribute(String key, String value, boolean startInEditMode){
-		JSONObject enumeration = null;
+	private JSONObject getEnumeration(String key) throws JSONException{
+		JSONObject _enumeration = null;
 		
-		try{
-			enumeration = getEnumeration(key);
-		}catch(JSONException e){
-			e.printStackTrace();
+		if(enumeration != null && enumeration.has(key)){
+			_enumeration = enumeration.getJSONObject(key);
 		}
 		
-		EnumerationHelper enumHelper = new EnumerationHelper(activity, enumeration);
-		
-		if(enumHelper.hasEnumeration()){
-			try {
-				ArrayAdapter<String> adapter = enumHelper.getSpinnerAdapter();
-				
-				appendDropDown(key, adapter, value,
-						enumHelper, startInEditMode);
-				
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		return _enumeration;
+	}
+	
+	private void setLabel(View layout, String key){
+		if(key != null){
+			TextView attributeLabel = (TextView) layout.findViewById(R.id.attributeLabel);
+			
+			if(attributeLabel != null){
+				attributeLabel.setText(key);
 			}
-		}else{
-			appendEditText(key, value, startInEditMode, enumHelper);
 		}
 	}
 	

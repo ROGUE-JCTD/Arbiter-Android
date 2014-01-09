@@ -7,7 +7,6 @@ import java.util.Calendar;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.DateTime.DatePickerFragment;
 
 import android.support.v4.app.FragmentActivity;
-import android.text.InputType;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;

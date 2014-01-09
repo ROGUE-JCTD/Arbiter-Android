@@ -40,16 +40,24 @@ Arbiter.Layers.SyncHelper = (function(){
 			return;
 		}
 		
+		var success = function(){
+			if(++syncedLayers === layerCount){
+				if(Arbiter.Util.funcExists(onSuccess)){
+					onSuccess();
+				}
+			}
+		};
+		
 		for(var i = 0; i < layerCount; i++){
+			if(wfsLayers[i].name === Arbiter.AOI){
+				success();
+			}
+			
 			Arbiter.MediaHelper.syncMedia(wfsLayers[i], function(layerId, layerName, failedMedia){
 				console.log("Sync Media done layerId = " + layerId + " layerName = "
 						+ layerName + " failedMedia = ", failedMedia);
 				
-				if(++syncedLayers === layerCount){
-					if(Arbiter.Util.funcExists(onSuccess)){
-						onSuccess();
-					}
-				}
+				success();
 			}, function(e){
 				console.log("Arbiter.SyncHelper - error syncing media - ", e);
 				
@@ -142,8 +150,8 @@ Arbiter.Layers.SyncHelper = (function(){
 		
 		wfsLayerCount = wfsLayers.length;
 		
-		if(wfsLayers.length === 0){
-			
+		// Proceed as usual...
+		var success = function(){
 			Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
 				var aoi = _aoi.split(',');
 				
@@ -152,14 +160,22 @@ Arbiter.Layers.SyncHelper = (function(){
 				
 				onSyncSuccess(bounds);
 			});
+		};
+		
+		if(wfsLayers.length === 0){
+			
+			success();
 			
 			return;
 		}
 		
 		for(var i = 0; i < wfsLayers.length; i++){
-			if((wfsLayers[i].name !== Arbiter.AOI) 
-					&& (wfsLayers[i].strategies[0])){
-					
+			
+			if(wfsLayers[i].name === Arbiter.AOI){
+				
+				success();
+			}else if(wfsLayers[i].strategies[0]){
+				
 				wfsLayers[i].strategies[0].save();
 			}
 		}

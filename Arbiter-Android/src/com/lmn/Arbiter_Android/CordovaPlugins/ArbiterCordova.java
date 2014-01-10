@@ -259,10 +259,12 @@ public class ArbiterCordova extends CordovaPlugin{
 		Feature feature = ArbiterState.getArbiterState().isEditingFeature();
 		
 		if(feature == null){
+			
 			feature = getNewFeature(featureType, wktGeometry);
 			
 			ArbiterState.getArbiterState().editingFeature(feature, layerId);
 		}else{
+			
 			String key = feature.getGeometryName();
 			feature.getAttributes().put(key, wktGeometry);
 		}

@@ -12,6 +12,7 @@ import org.apache.cordova.CordovaWebView;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.InsertProjectHelper;
+import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
@@ -99,11 +100,6 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     	arbiterProject.getOpenProject(this);
     }
     
-    private void resetSavedExtent(){
-        arbiterProject.setSavedBounds(null);
-        arbiterProject.setSavedZoomLevel(null);
-    }
-    
     /**
      * Set listeners
      */
@@ -169,6 +165,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     	doneEditing.setOnClickListener(new OnClickListener(){
     		@Override
     		public void onClick(View v){
+    			
     			Map.getMap().getUpdatedGeometry(cordovaWebView);
     		}
     	});
@@ -300,6 +297,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     	super.onResume();
     	Log.w(TAG, TAG + " onResume");
     	
+    	final MapActivity activity = this;
+    	
     	if (this.cordovaWebView == null) {
     		return;
         }
@@ -318,29 +317,49 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
         }
          
     	if(arbiterProject != null){
-    		resetSavedExtent();
     		
-    		if(ArbiterState.getArbiterState().isCreatingProject()){
-    			arbiterProject.showCreateProjectProgress(
-    					this, 
-    					getResources().getString(R.string.create_project_progress),
-    					getResources().getString(R.string.create_project_msg)
-    			);
-    			
-    			insertHelper = new InsertProjectHelper(this);
-    			insertHelper.insert();
-    		}else if(ArbiterState.getArbiterState().isSettingAOI()){
-    			updateProjectAOI();
-    		}else{
-    			if(!arbiterProject.isSameProject(getApplicationContext())){
-        			Map.getMap().resetWebApp(cordovaWebView);
-        			arbiterProject.makeSameProject();
-        			
-        			// If the user changed projects, check to 
-        			// see if the project has an aoi or not
-        			incompleteProjectHelper.checkForAOI();
-        		}
-    		}
+    		getThreadPool().execute(new Runnable(){
+				@Override
+				public void run(){
+					OOMWorkaround oom = new OOMWorkaround(activity);
+    				oom.resetSavedBounds(false);
+    				
+    				activity.runOnUiThread(new Runnable(){
+    					@Override
+    					public void run(){
+    						
+				    		// Creating a project
+				    		if(ArbiterState.getArbiterState().isCreatingProject()){
+				    			arbiterProject.showCreateProjectProgress(
+				    					activity, 
+				    					getResources().getString(R.string.create_project_progress),
+				    					getResources().getString(R.string.create_project_msg)
+				    			);
+				    			
+				    			insertHelper = new InsertProjectHelper(activity);
+				    			insertHelper.insert();
+				    		}
+				    		// Setting the aoi
+				    		else if(ArbiterState.getArbiterState().isSettingAOI()){
+				    			Log.w(TAG, TAG + ".onResume() setting aoi");
+				    			updateProjectAOI();
+				    		}else{
+				    			// Project changed
+				    			if(!arbiterProject.isSameProject(getApplicationContext())){
+				    				
+				    				arbiterProject.makeSameProject();
+									
+									Map.getMap().resetWebApp(cordovaWebView);
+									
+									// If the user changed projects, check to 
+				        			// see if the project has an aoi or not
+				        			incompleteProjectHelper.checkForAOI();			
+				        		}
+				    		}
+    					}
+    				});
+				}
+			});
     	}
     }
     
@@ -410,24 +429,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
 		Log.d(TAG, message);
         if(message.equals("onPageFinished")){
         	if(obj instanceof String){
-        		if(((String) obj).equals(ArbiterCordova.mainUrl)){
-        			//if(ArbiterState.getState().isCreatingProject()){
-        			//	insertHelper.performFeatureDbWork();
-        			//}else{
-        				String savedBounds = arbiterProject.getSavedBounds();
-            			String savedZoom = arbiterProject.getSavedZoomLevel();
-            			
-            			if(savedBounds != null && savedZoom != null){
-            				Map.getMap().zoomToExtent(cordovaWebView, 
-                					arbiterProject.getSavedBounds(),
-                					arbiterProject.getSavedZoomLevel());
-            			}else{
-            				Map.getMap().zoomToAOI(cordovaWebView);
-            			}
-            			
-                        this.arbiterProject.makeSameProject();
-        			//}
-        		}else if(((String) obj).equals("about:blank")){
+        		if(((String) obj).equals("about:blank")){
         			this.cordovaWebView.loadUrl(ArbiterCordova.mainUrl);
         		}
         		

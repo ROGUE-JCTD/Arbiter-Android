@@ -343,25 +343,18 @@ Arbiter.Cordova.Project = (function(){
 			}, onFailure);
 		},
 		
-		zoomToSavedBounds: function(context, onSuccess, onFailure){
+		getSavedBounds: function(onSuccess, onFailure){
 			Arbiter.PreferencesHelper.get(Arbiter.SAVED_BOUNDS, this, function(savedBounds){
 				Arbiter.PreferencesHelper.get(Arbiter.SAVED_ZOOM_LEVEL, this, function(savedZoom){
-					if(savedBounds && savedZoom){
-						zoomToExtent(savedBounds, savedZoom);
-						
-						if(onSuccess !== null && onSuccess !== undefined){
-							onSuccess.call(context);
-						}
-					}else{
-						if(onFailure !== null && onFailure !== undefined){
-							onFailure.call(context);
-						}
+					
+					if(Arbiter.Util.funcExists(onSuccess)){
+						onSuccess(savedBounds, savedZoom);
 					}
-				});
-			});
+				}, onFailure);
+			}, onFailure);
 		},
 		
-		zoomToAOI: function(context, onSuccess, onFailure){
+		zoomToAOI: function(onSuccess, onFailure){
 			Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
 				console.log("zoomToAOI", _aoi);
 				if(_aoi !== null && _aoi !== undefined 
@@ -377,7 +370,7 @@ Arbiter.Cordova.Project = (function(){
 				
 				
 				if(Arbiter.Util.funcExists(onSuccess)){
-					onSuccess.call(context);
+					onSuccess();
 				}
 			}, onFailure);
 		},

@@ -124,27 +124,33 @@ Arbiter.Cordova = (function() {
 		},
 		
 		getUpdatedGeometry: function(){
-			var selectedFeature = Arbiter.Controls.ControlPanel.getSelectedFeature();
+			console.log("Arbiter.Cordova.getUpdatedGeometry");
+			var feature = Arbiter.Controls.ControlPanel.getSelectedFeature();
 			
-			if(selectedFeature !== null && selectedFeature !== undefined){
-				
-				var schemas = Arbiter.getLayerSchemas();
-				
-				var layerId = Arbiter.Util.getLayerId(selectedFeature.layer);
-				
-				var schema = schemas[layerId];
-				
-				var srid = Arbiter.Map.getMap().projection.projCode;
-				
-				var updatedGeometry = wktFormatter.write(
-						Arbiter.Util.getFeatureInNativeProjection(srid,
-								schema.getSRID(), selectedFeature));
-				
-				Arbiter.Controls.ControlPanel.exitModifyMode();
-				
-				cordova.exec(null, null, "ArbiterCordova",
-						"updatedGeometry", [updatedGeometry, layerId]);
+			if(feature === null || feature === undefined){
+				feature = Arbiter.Controls.ControlPanel.getInsertedFeature();
 			}
+			
+			if(feature === null){
+				return;
+			}
+				
+			var schemas = Arbiter.getLayerSchemas();
+			
+			var layerId = Arbiter.Util.getLayerId(feature.layer);
+			
+			var schema = schemas[layerId];
+			
+			var srid = Arbiter.Map.getMap().projection.projCode;
+			
+			var updatedGeometry = wktFormatter.write(
+					Arbiter.Util.getFeatureInNativeProjection(srid,
+							schema.getSRID(), feature));
+			
+			Arbiter.Controls.ControlPanel.exitModifyMode();
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"updatedGeometry", [updatedGeometry, layerId]);
 		},
 		
 		doneInsertingFeature: function(layerId, feature){

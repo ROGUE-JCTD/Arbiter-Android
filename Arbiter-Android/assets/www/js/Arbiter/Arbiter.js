@@ -15,8 +15,9 @@ Arbiter = (function(){
 		SELECTED_FID: "selected_fid",
 		SELECTED_LAYER: "selected_layer",
 		
-		SAVED_ZOOM_LEVEL: "saved_zoom_level",
+		SAVED_ZOOM_LEVEL: "saved_zoom",
 		SAVED_BOUNDS: "saved_bounds",
+		SHOULD_ZOOM_TO_AOI: "should_zoom_to_aoi",
 		
 		DEFAULT_ZOOM_EXTENT: "-20037508.34,-20037508.34,20037508.34,20037508.34",
 		

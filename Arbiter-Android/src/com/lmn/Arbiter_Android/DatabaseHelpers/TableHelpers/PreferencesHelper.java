@@ -5,12 +5,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
-import android.util.Log;
 
 public class PreferencesHelper implements BaseColumns{
 	public static final String TABLE_NAME = "preferences";
 	public static final String KEY = "key";
 	public static final String VALUE = "value";
+	
+	public static final String SAVED_BOUNDS = "saved_bounds";
+	public static final String SAVED_ZOOM_LEVEL = "saved_zoom";
+	public static final String SHOULD_ZOOM_TO_AOI = "should_zoom_to_aoi";
 	
 	private PreferencesHelper(){}
 	
@@ -32,7 +35,6 @@ public class PreferencesHelper implements BaseColumns{
 					VALUE + " TEXT, " +
 					"UNIQUE(" + KEY + "));";
 		
-		Log.w("PreferencesHelper", "PreferencesHelper : " + sql);
 		db.execSQL(sql);
 	}
 	
@@ -127,5 +129,22 @@ public class PreferencesHelper implements BaseColumns{
 		cursor.close();
 		
 		return result;
+	}
+	
+	public void put(SQLiteDatabase db, Context context, String key, String value){
+		String saved = PreferencesHelper.getHelper().get(db,
+				context, key);
+		
+		boolean insert = false;
+		
+		if(saved == null){
+			insert = true;
+		}
+		
+		if(insert){
+			this.insert(db, context, key, value);
+		}else{
+			this.update(db, context, key, value);
+		}
 	}
 }

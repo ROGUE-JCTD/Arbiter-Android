@@ -28,10 +28,15 @@ public class FeatureHelper {
 	}
 	
 	public void displayFeatureDialog(String featureType, String featureId, String layerId){
+		if(featureId == null || featureId.equals("null")
+				|| featureId.equals("undefined")){
+			return;
+		}
+		
 		SQLiteDatabase db = getFeatureDatabase();
-		
+			
 		Feature feature = getFeature(db, featureType, featureId);
-		
+			
 		displayDialog(feature, layerId, false);
 	}
 	

@@ -1,6 +1,7 @@
 package com.lmn.Arbiter_Android.CordovaPlugins;
 
 import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
@@ -15,13 +16,16 @@ import android.util.Log;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
+import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.MediaSyncHelper;
 import com.lmn.Arbiter_Android.Map.Map;
@@ -32,8 +36,6 @@ public class ArbiterCordova extends CordovaPlugin{
 	private final ArbiterProject arbiterProject;
 	public static final String mainUrl = "file:///android_asset/www/main.html";
 	public static final String aoiUrl = "file:///android_asset/www/aoi.html";
-	//public static final String mainUrl = "content://jsHybugger.org/file:///android_asset/www/main.html";
-	//public static final String aoiUrl = "content://jsHybugger.org/file:///android_asset/www/aoi.html";
 	
 	public ArbiterCordova(){
 		super();
@@ -254,9 +256,16 @@ public class ArbiterCordova extends CordovaPlugin{
 	}
 	
 	private void doneInsertingFeature(String featureType, String wktGeometry, String layerId){
-		Feature feature = getNewFeature(featureType, wktGeometry);
+		Feature feature = ArbiterState.getArbiterState().isEditingFeature();
 		
-		ArbiterState.getArbiterState().editingFeature(feature, layerId);
+		if(feature == null){
+			feature = getNewFeature(featureType, wktGeometry);
+			
+			ArbiterState.getArbiterState().editingFeature(feature, layerId);
+		}else{
+			String key = feature.getGeometryName();
+			feature.getAttributes().put(key, wktGeometry);
+		}
 		
 		try{
 			((Map.MapChangeListener) cordova.getActivity())
@@ -415,17 +424,28 @@ public class ArbiterCordova extends CordovaPlugin{
 		cordova.getActivity().finish();
 	} 
 	
-	private void resetWebApp(final String currentExtent, final String zoomLevel, final CallbackContext callbackContext){
+	
+	private void resetWebApp(final String currentExtent, final String zoomLevel,
+			final CallbackContext callbackContext){
+		
 		final Activity activity = this.cordova.getActivity();
 		final CordovaWebView webview = this.webView;
+		final boolean isCreatingProject = ArbiterState
+				.getArbiterState().isCreatingProject();
 		
-		activity.runOnUiThread(new Runnable(){
+		CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run(){
-				arbiterProject.setSavedZoomLevel(zoomLevel);
-                arbiterProject.setSavedBounds(currentExtent);
-                
-				webview.loadUrl("about:blank");
+				OOMWorkaround oom = new OOMWorkaround(activity);
+				oom.setSavedBounds(currentExtent, zoomLevel, isCreatingProject);
+				
+				activity.runOnUiThread(new Runnable(){
+					@Override
+					public void run(){
+		                
+						webview.loadUrl("about:blank");
+					}
+				});
 			}
 		});
 	}

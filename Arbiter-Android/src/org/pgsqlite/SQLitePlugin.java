@@ -184,14 +184,14 @@ public class SQLitePlugin extends CordovaPlugin
 	 * Clean up and close all open databases.
 	 *
 	 */
-	@Override
+	/*@Override
 	public void onDestroy() {
 		while (!dbmap.isEmpty()) {
 			String dbname = dbmap.keySet().iterator().next();
 			this.closeDatabase(dbname);
 			dbmap.remove(dbname);
 		}
-	}
+	}*/
 
 	// --------------------------------------------------------------------------
 	// LOCAL METHODS

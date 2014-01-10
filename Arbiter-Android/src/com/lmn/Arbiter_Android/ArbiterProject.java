@@ -37,9 +37,6 @@ public class ArbiterProject {
 	
 	private String includeDefaultLayer = "true";
 	private String defaultLayerVisibility = "true";
-	
-	private String savedBounds = null;
-    private String savedZoomLevel = null;
     
 	private ArbiterProject(){}
 	
@@ -274,22 +271,6 @@ public class ArbiterProject {
 		
 		return PreferencesHelper.getHelper().get(
 				helper.getWritableDatabase(), context, DEFAULT_LAYER_VISIBILITY);
-	}
-	
-	public String getSavedBounds(){
-        return this.savedBounds;
-	}
-	
-	public void setSavedBounds(String savedBounds){
-	        this.savedBounds = savedBounds;
-	}
-	
-	public String getSavedZoomLevel(){
-	        return this.savedZoomLevel;
-	}
-	
-	public void setSavedZoomLevel(String zoomLevel){
-	        this.savedZoomLevel = zoomLevel;
 	}
 	
 	public void showCreateProjectProgress(Activity activity, String title, String message){

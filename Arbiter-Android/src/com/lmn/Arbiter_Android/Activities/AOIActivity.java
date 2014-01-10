@@ -10,6 +10,7 @@ import org.apache.cordova.CordovaWebView;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
+import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
@@ -43,18 +44,11 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface, M
 		cordovaWebView = (CordovaWebView) findViewById(R.id.aoiWebView);
 		
 		Init();
-		
-        cordovaWebView.loadUrl(ArbiterCordova.aoiUrl, 5000);
 	}
 	
 	private void Init(){
 		registerListeners();
 		arbiterProject = ArbiterProject.getArbiterProject();
-	}
-	
-	private void resetSavedExtent(){
-        arbiterProject.setSavedBounds(null);
-        arbiterProject.setSavedZoomLevel(null);
 	}
 	
 	private void showConfirmationDialog(){
@@ -114,12 +108,34 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface, M
             Log.d(TAG, "onPause");
     }
     
+	private void resetSavedBounds(){
+		final boolean isCreatingProject = ArbiterState.getArbiterState()
+    			.isCreatingProject();
+    	
+		final AOIActivity activity = this;
+    	
+    	getThreadPool().execute(new Runnable(){
+    		@Override
+    		public void run(){
+    			OOMWorkaround oom = new OOMWorkaround(activity);
+    			oom.resetSavedBounds(isCreatingProject);
+    			
+    			activity.runOnUiThread(new Runnable(){
+    				@Override
+    				public void run(){
+    					cordovaWebView.loadUrl(ArbiterCordova.aoiUrl, 5000);
+    				}
+    			});
+    		}
+    	});
+	}
+	
     @Override 
     protected void onResume(){
     	super.onResume();
     	Log.d(TAG, "onResume");
     	
-    	resetSavedExtent();
+    	resetSavedBounds();
     }
     
     @Override
@@ -163,18 +179,7 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface, M
 		Log.d(TAG, message);
 		if(message.equals("onPageFinished")){
         	if(obj instanceof String){
-        		if(((String) obj).equals(ArbiterCordova.aoiUrl)){
-        			String savedBounds = arbiterProject.getSavedBounds();
-        			String savedZoom = arbiterProject.getSavedZoomLevel();
-        			
-        			if(savedBounds != null && savedZoom != null){
-        				Map.getMap().zoomToExtent(cordovaWebView, 
-            					arbiterProject.getSavedBounds(),
-            					arbiterProject.getSavedZoomLevel());
-        			}else{
-        				Map.getMap().zoomToDefault(cordovaWebView);
-        			}
-        		}else if(((String) obj).equals("about:blank")){
+        		if(((String) obj).equals("about:blank")){
         			this.cordovaWebView.loadUrl(ArbiterCordova.aoiUrl);
         		}
         	}

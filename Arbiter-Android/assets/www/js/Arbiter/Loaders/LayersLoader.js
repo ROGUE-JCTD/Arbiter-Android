@@ -136,6 +136,8 @@ Arbiter.Loaders.LayersLoader = (function(){
 			
 			setBaseLayer();
 			
+			loadAOILayer();
+			
 			if(Arbiter.Util.funcExists(onSuccess)){
 				isDone(onSuccess);
 			}

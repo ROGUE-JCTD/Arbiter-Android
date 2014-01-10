@@ -13,13 +13,13 @@ Arbiter.Controls.ControlPanel = (function(){
 	
 	var originalGeometry = null;
 	
-	var saveOriginalGeometry = function(){
-		if(selectedFeature === null 
-				|| selectedFeature === undefined){
+	var saveOriginalGeometry = function(feature){
+		if(feature === null 
+				|| feature === undefined){
 			return;
 		}
 		
-		originalGeometry = selectedFeature.geometry.clone();
+		originalGeometry = feature.geometry.clone();
 	};
 	
 	var _endInsertMode = function(){
@@ -60,14 +60,29 @@ Arbiter.Controls.ControlPanel = (function(){
 		});
 	};
 	
-	var startModifyMode = function(){
-		if(selectedFeature === null 
-				|| selectedFeature === undefined){
-			return;
+	var getInsertedOrSelectedFeature = function(){
+		var feature = null;
+		
+		if(selectedFeature !== null && selectedFeature !== undefined){
+			feature = selectedFeature;
+		}else if(insertedFeature !== null && insertedFeature !== undefined){
+			feature = insertedFeature;
 		}
 		
+		return feature;
+	};
+	
+	var startModifyMode = function(){
+		var feature = getInsertedOrSelectedFeature();
+		
+		if(feature === null){
+			throw "Arbiter.Controls.ControlPanel.enterModifyMode() - No feature to modify!";
+		}
+		
+		saveOriginalGeometry(feature);
+		
 		modifyControl = new Arbiter.Controls.Modify(
-				selectedFeature.layer, selectedFeature);
+				feature.layer, feature);
 		
 		selectControl.deactivate();
 		
@@ -75,9 +90,11 @@ Arbiter.Controls.ControlPanel = (function(){
 	};
 	
 	var endModifyMode = function(){
-		if(selectedFeature === null 
-				|| selectedFeature === undefined){
-			return;
+		var feature = getInsertedOrSelectedFeature();
+		
+		if(feature === null){
+			throw "Arbiter.Controls.ControlPanel.exitModifyMode()"
+				+ " feature should not be " + feature;
 		}
 		
 		// Deactivate the modifyControl
@@ -89,25 +106,27 @@ Arbiter.Controls.ControlPanel = (function(){
 		selectControl.activate();
 		
 		// Reselect the selectedFeature
-		selectControl.select(selectedFeature);
+		selectControl.select(feature);
 	};
 	
 	var restoreOriginalGeometry = function(){
+		
 		if(originalGeometry === null || originalGeometry === undefined){
 			throw "Arbiter.Controls.Select - couldn't restore original"
 			+ " geometry because originalGeometry is " + originalGeometry;
 		} 
 		
-		if(selectedFeature === null || selectedFeature === undefined){
-			
+		var feature = getInsertedOrSelectedFeature();
+		
+		if(feature === null){
 			throw "Arbiter.Controls.Select - couldn't restore original"
-				+ " geometry because selectedFeature is " + selectedFeature;
+			+ " geometry because selectedFeature is " + feature;
 		}
 		
 		// Get the center of the geometry
 		var centroid = originalGeometry.getCentroid();
 		
-		selectedFeature.move(new OpenLayers.LonLat(centroid.x, centroid.y));
+		feature.move(new OpenLayers.LonLat(centroid.x, centroid.y));
 	};
 	
 	var removeFeature = function(feature){
@@ -117,7 +136,7 @@ Arbiter.Controls.ControlPanel = (function(){
 	};
 	
 	selectControl = new Arbiter.Controls.Select(function(feature){
-		
+		console.log("feature selected and selectedFeature = " + selectedFeature);
 		// If the selectedFeature hasn't been
 		// cleared out yet, then it means this was
 		// the reselect of the feature in
@@ -125,18 +144,18 @@ Arbiter.Controls.ControlPanel = (function(){
 		if(selectedFeature === null 
 				|| selectedFeature === undefined){
 			
-			selectedFeature = feature;
-			
-			saveOriginalGeometry();
-			
 			if(insertedFeature === null || insertedFeature === undefined){
 				
+				selectedFeature = feature;
+				
+				console.log("feature selected and inserted feature is null");
 				Arbiter.Cordova.displayFeatureDialog(
 						feature.layer.protocol.featureType,
 						feature.metadata[Arbiter.FeatureTableHelper.ID],
 						Arbiter.Util.getLayerId(feature.layer)
 				);
 			}else{
+				console.log("feature selected and inserted feature isn't null");
 				var layerId = Arbiter.Util.getLayerId(insertedFeature.layer);
 				
 				Arbiter.Cordova.doneInsertingFeature(layerId, insertedFeature);
@@ -165,14 +184,23 @@ Arbiter.Controls.ControlPanel = (function(){
 		},
 		
 		enterModifyMode: function(){
-			startModifyMode();
+			try{
+				startModifyMode();
+			}catch(e){
+				console.log(e);
+			}
 		},
 		
 		exitModifyMode: function(){
-			endModifyMode();
+			try{
+				endModifyMode();
+			}catch(e){
+				console.log(e);
+			}
 		},
 		
 		unselect: function(){
+			console.log("ControlPanel.unselect()");
 			selectControl.unselect();
 		},
 		
@@ -190,6 +218,7 @@ Arbiter.Controls.ControlPanel = (function(){
 		 * Unselect the feature
 		 */
 		cancelSelection: function(){
+			console.log("ControlPanel.cancelSelection()");
 			if(insertedFeature === null || insertedFeature === undefined){
 				restoreOriginalGeometry();
 			}else{
@@ -203,6 +232,14 @@ Arbiter.Controls.ControlPanel = (function(){
 		
 		getSelectedFeature: function(){
 			return selectedFeature;
+		},
+		
+		getInsertedFeature: function(){
+			return insertedFeature;
+		},
+		
+		getOriginalGeometry: function(){
+			return originalGeometry;
 		},
 		
 		startInsertMode: function(layerId){

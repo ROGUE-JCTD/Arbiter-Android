@@ -26,6 +26,7 @@ import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -39,15 +40,21 @@ public class FeatureDialogHelper {
 	private FeatureDialogBuilder builder;
 	private boolean editing;
 	
+	// To prevent the user from doing something broken for now...
+	// TODO: Fix the ControlPanel.js logic...
+	private boolean keepEditOnMapDisabled;
+	
 	public FeatureDialogHelper(FragmentActivity activity, View view, 
 			Feature feature, boolean startInEditMode,
 			Button editButton, Button editOnMapButton,
 			Button cancelButton, Button deleteButton, String layerId){
 		
+		Log.w("FeatureDialogHelper", "FeatureDialogHelper created");
 		this.activity = activity;
 		this.feature = feature;
 		this.editing = startInEditMode;
 		this.layerId = layerId;
+		this.keepEditOnMapDisabled = false;
 		
 		try{
 			this.mapListener = (Map.MapChangeListener) activity;
@@ -94,6 +101,14 @@ public class FeatureDialogHelper {
 	private void toggleEditOnMapButton(boolean editMode, Button editButton){
 		if(editMode){
 			editButton.setVisibility(View.VISIBLE);
+			
+			if(feature.isNew()){
+				editButton.setEnabled(false);
+				keepEditOnMapDisabled = true;
+			}else{
+				// Keep the editOnMapButton disabled
+				editButton.setEnabled(!keepEditOnMapDisabled);
+			}
 		}else{
 			editButton.setVisibility(View.GONE);
 		}

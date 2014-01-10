@@ -1,6 +1,5 @@
 package com.lmn.Arbiter_Android;
 
-import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
@@ -31,38 +30,20 @@ public class OOMWorkaround {
 				path, false).getWritableDatabase();
 	}
 	
-	private SQLiteDatabase getApplicationDatabase(){
-		return ApplicationDatabaseHelper.getHelper(context)
-				.getWritableDatabase();
-	}
-	
 	public void resetSavedBounds(boolean isCreatingProject){
-		SQLiteDatabase db = null;
 		
-		if(isCreatingProject){
-			db = getApplicationDatabase();
+		SQLiteDatabase db = getProjectDatabase();
 			
-			PreferencesHelper.getHelper().put(db, context, 
-					PreferencesHelper.SHOULD_ZOOM_TO_AOI, "false");
-		}else{
-			db = getProjectDatabase();
-			
-			PreferencesHelper.getHelper().put(db, context, 
-					PreferencesHelper.SHOULD_ZOOM_TO_AOI, "true");
-		}
+		PreferencesHelper.getHelper().put(db, context, 
+			PreferencesHelper.SHOULD_ZOOM_TO_AOI, 
+			Boolean.toString(!isCreatingProject));
 		
 		PreferencesHelper.getHelper().delete(db, context, PreferencesHelper.SAVED_BOUNDS);
 		PreferencesHelper.getHelper().delete(db, context, PreferencesHelper.SAVED_ZOOM_LEVEL);
 	}
 	
 	public void setSavedBounds(String bounds, String zoom, boolean isCreatingProject){
-		SQLiteDatabase db = null;
-		
-		if(isCreatingProject){
-			db = getApplicationDatabase();
-		}else{
-			db = getProjectDatabase();
-		}
+		SQLiteDatabase db = getProjectDatabase();
 		
 		PreferencesHelper.getHelper().put(db, context, PreferencesHelper.SAVED_BOUNDS, bounds);
 		PreferencesHelper.getHelper().put(db, context, PreferencesHelper.SAVED_ZOOM_LEVEL, zoom);

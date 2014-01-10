@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesHelper;
 
@@ -30,7 +29,6 @@ public class ApplicationDatabaseHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		ServersHelper.getServersHelper().createTable(db);
 		TilesHelper.getHelper().createTable(db);
-		PreferencesHelper.getHelper().createTable(db);
 	}
 
 	@Override
@@ -38,11 +36,9 @@ public class ApplicationDatabaseHelper extends SQLiteOpenHelper {
 		// TODO: Migrate the tables
 		db.execSQL("DROP TABLE IF EXISTS " + ServersHelper.SERVERS_TABLE_NAME + ";");
 		db.execSQL("DROP TABLE IF EXISTS " + TilesHelper.TABLE_NAME + ";");
-		db.execSQL("DROP TABLE IF EXISTS " + PreferencesHelper.TABLE_NAME + ";");
 		
 		ServersHelper.getServersHelper().createTable(db);
 		TilesHelper.getHelper().createTable(db);
-		PreferencesHelper.getHelper().createTable(db);
 	}
 	
 	@Override

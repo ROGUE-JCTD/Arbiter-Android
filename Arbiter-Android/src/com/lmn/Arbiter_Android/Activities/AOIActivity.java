@@ -32,7 +32,6 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface, M
 	// For CORDOVA
     private CordovaWebView cordovaWebView;
     private final ExecutorService threadPool = Executors.newCachedThreadPool();
-    private ArbiterProject arbiterProject;
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +47,6 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface, M
 	
 	private void Init(){
 		registerListeners();
-		arbiterProject = ArbiterProject.getArbiterProject();
 	}
 	
 	private void showConfirmationDialog(){
@@ -117,6 +115,7 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface, M
     	getThreadPool().execute(new Runnable(){
     		@Override
     		public void run(){
+    			
     			OOMWorkaround oom = new OOMWorkaround(activity);
     			oom.resetSavedBounds(isCreatingProject);
     			

@@ -14,6 +14,7 @@ import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.InsertProjectHelper;
 import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.SyncConnectivityListener;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
@@ -45,6 +46,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     private MapChangeHelper mapChangeHelper;
     private IncompleteProjectHelper incompleteProjectHelper;
     private boolean menuPrepared;
+    private SyncConnectivityListener syncConnectivityListener;
     
     // For CORDOVA
     private CordovaWebView cordovaWebView;
@@ -128,6 +130,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     			Map.getMap().sync(cordovaWebView);
     		}
     	});
+    	
+    	syncConnectivityListener = new SyncConnectivityListener(getApplicationContext(), syncButton);
     	
     	ImageButton aoiButton = (ImageButton) findViewById(R.id.AOIButton);
     	

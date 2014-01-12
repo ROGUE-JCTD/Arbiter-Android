@@ -51,22 +51,22 @@ Arbiter.Layers.SyncHelper = (function(){
 		for(var i = 0; i < layerCount; i++){
 			if(wfsLayers[i].name === Arbiter.AOI){
 				success();
+			}else{
+				Arbiter.MediaHelper.syncMedia(wfsLayers[i], function(layerId, layerName, failedMedia){
+					console.log("Sync Media done layerId = " + layerId + " layerName = "
+							+ layerName + " failedMedia = ", failedMedia);
+					
+					success();
+				}, function(e){
+					console.log("Arbiter.SyncHelper - error syncing media - ", e);
+					
+					if(Arbiter.Util.funcExists(onFailure)){
+						onFailure("Arbiter.SyncHelper - error syncing media - " + e);
+					}
+					
+					++syncedLayers;
+				});
 			}
-			
-			Arbiter.MediaHelper.syncMedia(wfsLayers[i], function(layerId, layerName, failedMedia){
-				console.log("Sync Media done layerId = " + layerId + " layerName = "
-						+ layerName + " failedMedia = ", failedMedia);
-				
-				success();
-			}, function(e){
-				console.log("Arbiter.SyncHelper - error syncing media - ", e);
-				
-				if(Arbiter.Util.funcExists(onFailure)){
-					onFailure("Arbiter.SyncHelper - error syncing media - " + e);
-				}
-				
-				++syncedLayers;
-			});
 		}
 	};
 	

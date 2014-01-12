@@ -89,12 +89,16 @@ var app = (function() {
 	var onOnline = function(){
 		app.waitForArbiterInit(function(){
 			Arbiter.Layers.toggleWMSLayers(true);
+			
+			Arbiter.isOnline(true);
 		});
 	};
 	
 	var onOffline = function(){
 		app.waitForArbiterInit(function(){
 			Arbiter.Layers.toggleWMSLayers(false);
+			
+			Arbiter.isOnline(false);
 		});
 	};
 	

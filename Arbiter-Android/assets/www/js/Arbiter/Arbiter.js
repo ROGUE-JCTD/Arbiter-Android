@@ -5,6 +5,8 @@ Arbiter = (function(){
 	var aoiHasBeenSet = false;
 	var tileUtil = null;
 	
+	var isOnline = false;
+	
 	return {
 		
 		// Keys for preferences table in project db
@@ -68,6 +70,14 @@ Arbiter = (function(){
 		
 		getTileUtil: function(){
 			return tileUtil;
+		},
+		
+		isOnline: function(online){
+			if(online !== null && online !== undefined){
+				isOnline = online;
+			}
+			
+			return isOnline;
 		}
 	};
 })();

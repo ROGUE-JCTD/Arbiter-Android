@@ -31,14 +31,24 @@ Arbiter.MediaHelper = (function(){
         return featureMedia;
 	};
 	
+	var getMediaFromDbFeature = function(schema, dbFeature){
+		var mediaAttribute = dbFeature[schema.getMediaColumn()];
+		
+		var featureMedia = null;
+		
+        if(mediaAttribute !== null && mediaAttribute !== undefined) {
+            featureMedia = JSON.parse(mediaAttribute);
+        }
+        
+        return featureMedia;
+	};
+	
 	var _downloadMediaEntry = function(projectName, url,encodedCredentials, entry, onSuccess, onFailure) {
 		var fileSeparator = Arbiter.FileSystem.fileSeparator;
 		
 		var path = Arbiter.FileSystem.ROOT_LEVEL + fileSeparator 
 			+ Arbiter.FileSystem.PROJECTS + fileSeparator 
 			+ projectName + fileSeparator + Arbiter.FileSystem.MEDIA;
-		
-		console.log("_downloadMediaEntry = " + path + fileSeparator + entry);
 		
         //only download if we don't have it
         Arbiter.FileSystem.getFileSystem().root.getFile(path + fileSeparator + entry, {create: false, exclusive: false},
@@ -48,7 +58,6 @@ Arbiter.MediaHelper = (function(){
         		}
             }, function(error) {
             	if(error.code === FileError.NOT_FOUND_ERR){
-            		console.log("_downloadMediaEntry - Don't have the file so downloading it...");
             		
             		 // download
                     Arbiter.FileSystem.getFileSystem().root.getDirectory(path, {create: true, exclusive: false},
@@ -64,7 +73,7 @@ Arbiter.MediaHelper = (function(){
                                 }, function(transferError) {
                                     console.log("download error source " + transferError.source);
                                     console.log("download error target " + transferError.target);
-                                    console.log("upload error code" + transferError.code);
+                                    console.log("download error code" + transferError.code);
                                     if(Arbiter.Util.funcExists(onFailure)){
                                     	onFailure("Arbiter.MediaHelper - Error downloading media: source, target, code",
                                     			transferError.source, transferError.target, transferError.code);
@@ -81,7 +90,6 @@ Arbiter.MediaHelper = (function(){
     };
     
 	var _downloadMedia = function(url,encodedCredentials, media, onSuccess, onFailure) {
-		console.log("_downloadMedia media = ", media);
 		
 		// If media doesn't exists execute the success callback
 		if(media === null || media === undefined || media.length === 0){
@@ -112,6 +120,36 @@ Arbiter.MediaHelper = (function(){
 		});
     };
     
+    var getEncodedCredentials = function(schema){
+    	var serverId = schema.getServerId();
+		
+		var server = Arbiter.Util.Servers.getServer(serverId);
+		
+		return Arbiter.Util.getEncodedCredentials(
+					server.getUsername(), 
+					server.getPassword());
+    };
+    
+    var downloadMediaForDbFeature = function(schema, dbFeature, onSuccess, onFailure){
+		var serverId = schema.getServerId();
+		
+		var server = Arbiter.Util.Servers.getServer(serverId);
+		
+		var encodedCredentials = getEncodedCredentials(schema);
+		
+		_downloadMedia(getMediaUrl(schema), encodedCredentials, getMediaFromDbFeature(schema,
+				dbFeature), function(){
+			
+			if(Arbiter.Util.funcExists(onSuccess)){
+				onSuccess();
+			}
+		}, function(e){
+			if(Arbiter.Util.funcExists(onFailure)){
+				onFailure("downloadMediaForDbFeature error - " + e);
+			}
+		});
+	};
+    
     var sendMedia = function(url, header, media,mediaCallback) {
     	
     	Arbiter.FileSystem.ensureMediaDirectoryExists(function(mediaDir){
@@ -141,6 +179,8 @@ Arbiter.MediaHelper = (function(){
                 }, function(error) {
                     console.log("upload error source " + error.source);
                     console.log("upload error target " + error.target);
+                    console.log("upload error code" + error.code);
+                    
                     if(mediaCallback) {
                         mediaCallback(false,media);
                     }
@@ -258,6 +298,60 @@ Arbiter.MediaHelper = (function(){
     	}, copyFail);
     };
     
+    var downloadMediaForFeatures = function(schema, layerId, layerName,
+    		failedMedia, onSuccess, onFailure){
+    	
+    	var finishedFeatures = 0;
+		
+		Arbiter.FeatureTableHelper.loadFeatures(schema, this, 
+				function(feature, currentFeatureIndex, featureCount){
+			
+			if(featureCount === 0){
+				if(Arbiter.Util.funcExists(onSuccess)){
+					onSuccess(layerId, layerName, failedMedia);
+				}
+				
+				return;
+			}
+			
+			downloadMediaForDbFeature(schema, feature, function(){
+				
+				if(++finishedFeatures === featureCount){
+					if(Arbiter.Util.funcExists(onSuccess)){
+						onSuccess(layerId, layerName, failedMedia);
+					}
+				}
+			}, function(e){
+				if(Arbiter.Util.funcExists(onFailure)){
+					++finishedFeatures;
+					
+					onFailure("downloadMediaForFeatures media download failed - " + e);
+				}
+			});
+		}, function(e){
+			if(Arbiter.Util.funcExists(onFailure)){
+				onFailure("downloadMediaForFeatures - Error loading features - " + e);
+			}
+		});
+    };
+    
+    var downloadMediaForLayer = function(schema, layerId, layerName,
+    		failedMedia, onSuccess, onFailure){
+    	
+		downloadMediaForFeatures(schema, layerId, layerName,
+				failedMedia, function(){
+			
+			if(Arbiter.Util.funcExists(onSuccess)){
+				onSuccess();
+			}
+		}, function(e){
+			if(Arbiter.Util.funcExists(onFailure)){
+				onFailure("Arbiter.MediaHelper downloadMediaForLayers -"
+						+ " error downloading media - " + e);
+			}
+		});
+    };
+    
 	return {
 		MEDIA_TO_SEND: "mediaToSend",
 		
@@ -267,6 +361,15 @@ Arbiter.MediaHelper = (function(){
 		syncMedia: function(layer, onSuccess, onFailure) {
 			
 			var context = this;
+			
+			var failedMedia = new Array();
+			
+			var success = function(layerId, layerName){
+				var schema = Arbiter.getLayerSchemas()[layerId];
+				
+				downloadMediaForLayer(schema, layerId, layerName, 
+						failedMedia, onSuccess, onFailure);
+			};
 			
 			Arbiter.FileSystem.ensureMediaDirectoryExists(function(){
 				var url = layer.protocol.url;
@@ -279,9 +382,7 @@ Arbiter.MediaHelper = (function(){
 		        	if(_mediaToSend === null || _mediaToSend === undefined){
 		        		console.log("Arbiter.MediaHelper no media to send");
 		        		
-		        		if(Arbiter.Util.funcExists(onSuccess)) {
-                            onSuccess(layerId, layer.name, null);
-                        }
+                        success(layerId, layer.name);
 		        		
 		        		return;
 		        	}
@@ -294,26 +395,22 @@ Arbiter.MediaHelper = (function(){
 		            		&& layerMedia.length > 0) {
 		            	
 		                var mediaCounter = 0;
-		                var failedMedia = new Array();
-		                var mediaCallback = function(success,media) {
+		                
+		                var mediaCallback = function(_success,media) {
 		                    mediaCounter++;
-		                    console.log("MEDIA CALLBACK: success:", success," media: ",media);
-		                    if(success === false) {
+		                    console.log("MEDIA CALLBACK: success:", _success," media: ",media);
+		                    if(_success === false) {
 		                        failedMedia.push(media);
 		                    }
 		                    if(mediaCounter === layerMedia.length) {
-		                        if(Arbiter.Util.funcExists(onSuccess)) {
-		                            onSuccess(layerId, layer.name,failedMedia);
-		                        }
+		                    	success(layerId, layer.name);
 		                    }
 		                };
 		                for(var i = 0; i < layerMedia.length;i++) {
 		                    sendMedia(url, header['Authorization'], layerMedia[i], mediaCallback);
 		                }
 		            }else{
-		            	if(Arbiter.Util.funcExists(onSuccess)) {
-                            onSuccess(layerId, layer.name, null);
-                        }
+		            	success(layerId, layer.name);
 		            }
 		        }, function(e){
 		        	if(Arbiter.Util.funcExists(onFailure)){
@@ -355,9 +452,6 @@ Arbiter.MediaHelper = (function(){
 		    		
 		    		_downloadMedia(getMediaUrl(schema), encodedCredentials, 
 		    				getMediaFromFeature(schema, features[i]), function(){
-		    			
-		    			console.log("downloadMedia featureDownloaded = " + featureDownloaded
-		    					+ ", featureCount = " + featureCount);
 		    			
 		    			if(++featureDownloaded === featureCount){
 		    				console.log("executing downloadMedia Success");

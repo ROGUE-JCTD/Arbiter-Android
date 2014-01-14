@@ -116,8 +116,11 @@ Arbiter.Controls.ControlPanel = (function(){
 	};
 	
 	var endModifyMode = function(_cancel){
-		
 		cancel = _cancel;
+		
+		if(_cancel === null || _cancel === undefined){
+			cancel = false;
+		}
 		
 		if(selectedFeature === null 
 				|| selectedFeature === undefined){

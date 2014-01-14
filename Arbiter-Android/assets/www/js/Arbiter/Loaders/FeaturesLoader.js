@@ -125,21 +125,32 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 							onSuccess(activeControl, layerId, featureId, geometry);
 						}
 					}, function(e){
+						
+						console.log("error getting geometry", e);
+						
 						if(Arbiter.Util.funcExists(onFailure)){
 							onFailure(e);
 						}
 					});
 				}, function(e){
+					console.log("error getting featureId", e);
+					
 					if(Arbiter.Util.funcExists(onFailure)){
 						onFailure(e);
 					}
 				});
 			}, function(e){
+				
+				console.log("error getting layerId", e);
+				
 				if(Arbiter.Util.funcExists(onFailure)){
 					onFailure(e);
 				}
 			});
 		}, function(e){
+			
+			console.log("error getting activeControl", e);
+			
 			if(Arbiter.Util.funcExists(onFailure)){
 				onFailure(e);
 			}
@@ -160,6 +171,8 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 									featureId, geometry);
 						}
 					} catch (e) {
+						console.log("error loading feature", e);
+						
 						if(Arbiter.Util.funcExists(onFailure)){
 							onFailure(e);
 						}

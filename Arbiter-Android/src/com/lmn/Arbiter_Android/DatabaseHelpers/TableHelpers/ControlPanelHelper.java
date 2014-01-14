@@ -52,4 +52,11 @@ public class ControlPanelHelper {
 		PreferencesHelper.getHelper().put(projectDb, context, FEATURE_ID, "0");
 		PreferencesHelper.getHelper().put(projectDb, context, GEOMETRY, "0");
 	}
+	
+	public void setFeatureId(String featureId){
+		
+		SQLiteDatabase projectDb = getProjectDb();
+		
+		PreferencesHelper.getHelper().put(projectDb, context, FEATURE_ID, featureId);
+	}
 }

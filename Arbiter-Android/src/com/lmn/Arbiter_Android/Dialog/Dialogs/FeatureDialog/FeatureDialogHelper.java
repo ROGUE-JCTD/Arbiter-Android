@@ -107,12 +107,11 @@ public class FeatureDialogHelper {
 			editButton.setVisibility(View.VISIBLE);
 			
 			if(feature.isNew()){
-				editButton.setEnabled(false);
+				
 				keepEditOnMapDisabled = true;
-			}else{
-				// Keep the editOnMapButton disabled
-				editButton.setEnabled(!keepEditOnMapDisabled);
 			}
+			
+			editButton.setEnabled(!keepEditOnMapDisabled);
 		}else{
 			editButton.setVisibility(View.GONE);
 		}
@@ -274,6 +273,9 @@ public class FeatureDialogHelper {
 			
 			feature.setId(id);
 			
+			ControlPanelHelper controlPanelHelper = new ControlPanelHelper(activity);
+			controlPanelHelper.setFeatureId(id);
+			
 			insertedNewFeature = true;
 		}else{
 			if(feature.getSyncState().equals(FeaturesHelper.SYNC_STATES.SYNCED)){
@@ -409,6 +411,8 @@ public class FeatureDialogHelper {
 				
 				ControlPanelHelper cpHelper = new ControlPanelHelper(activity);
 				cpHelper.clearControlPanel();
+				
+				ArbiterState.getArbiterState().doneEditingFeature();
 				
 				activity.runOnUiThread(new Runnable(){
 					@Override

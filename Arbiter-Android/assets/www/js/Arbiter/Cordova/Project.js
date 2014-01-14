@@ -356,7 +356,7 @@ Arbiter.Cordova.Project = (function(){
 		
 		zoomToAOI: function(onSuccess, onFailure){
 			Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
-				console.log("zoomToAOI", _aoi);
+				
 				if(_aoi !== null && _aoi !== undefined 
 						&& _aoi !== ""){
 					

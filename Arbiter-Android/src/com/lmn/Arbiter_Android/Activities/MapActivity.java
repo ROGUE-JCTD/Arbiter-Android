@@ -19,6 +19,7 @@ import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.InsertFeatureDialog;
 import com.lmn.Arbiter_Android.Map.Map;
@@ -84,6 +85,19 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     	InitApplicationDatabase();
         InitArbiterProject();
         setListeners();
+        clearControlPanelKVP();
+    }
+    
+    private void clearControlPanelKVP(){
+    	//final MapActivity activity = this;
+        //getThreadPool().execute(new Runnable(){
+        //	@Override
+        //	public void run(){
+				ControlPanelHelper helper = new ControlPanelHelper(this);
+    				
+    			helper.clearControlPanel();
+        //	}
+    //    });
     }
     
     private void InitApplicationDatabase(){
@@ -148,19 +162,23 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     		@Override
     		public void onClick(View v){
     			// Toggle the cancel and done buttons
-    			mapChangeHelper.doneEditingFeature();
-    			
-    			// Exit modify mode
-    			Map.getMap().cancelEdit(cordovaWebView);
+    			mapChangeHelper.toggleEditButtons(false);
     			
     			// Open up the feature dialog for the selectedFeature
     			Feature selectedFeature = ArbiterState.getArbiterState().isEditingFeature();
+    			
+    			// Exit modify mode
+    			Map.getMap().cancelEdit(cordovaWebView,
+    					selectedFeature.getOriginalGeometry());
+    			
+    			selectedFeature.restoreGeometry();
     			
     			FeatureHelper helper = new FeatureHelper(activity);
     			
     			helper.displayFeatureDialog(selectedFeature.getFeatureType(),
     					selectedFeature.getId(), ArbiterState.getArbiterState()
-    					.getLayerBeingEdited());
+    					.getLayerBeingEdited(), selectedFeature.getOriginalGeometry(),
+    					ControlPanelHelper.CONTROLS.MODIFY);
     		}
     	});
     	

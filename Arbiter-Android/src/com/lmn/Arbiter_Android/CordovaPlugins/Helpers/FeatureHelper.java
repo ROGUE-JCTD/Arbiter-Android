@@ -5,12 +5,14 @@ import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
@@ -22,22 +24,49 @@ public class FeatureHelper {
 		this.activity = activity;
 	}
 	
-	public void displayUpdatedFeature(String layerId){
-		displayDialog(ArbiterState.getArbiterState()
-				.isEditingFeature(), layerId, true);
+	private Feature getNewFeature(String featureType, String wktGeometry){
+		return FeaturesHelper.getHelper().getNewFeature(
+				getFeatureDatabase(), featureType, wktGeometry);
 	}
 	
-	public void displayFeatureDialog(String featureType, String featureId, String layerId){
+	public void displayFeatureDialog(String featureType, String featureId,
+			String layerId, String wktGeometry, String mode){
+		
+		Feature feature = null;
+		boolean startInEditMode = false;
+		
 		if(featureId == null || featureId.equals("null")
 				|| featureId.equals("undefined")){
-			return;
+			
+			feature = ArbiterState.getArbiterState().isEditingFeature();
+			
+			// Inserting a new feature
+			if(feature == null){
+				feature = getNewFeature(featureType, wktGeometry);
+			}
+		}else{  // Existing feature is selected
+			
+			SQLiteDatabase db = getFeatureDatabase();
+			
+			feature = getFeature(db, featureType, featureId);
+			
+			feature.backupGeometry();
+		}
+			
+		Log.w("FeatureHelper", "FeatureHelper displayFeatureDialog mode = " + mode);
+		// Update the features geometry
+		if(mode.equals(ControlPanelHelper.CONTROLS.INSERT) 
+				|| mode.equals(ControlPanelHelper.CONTROLS.MODIFY)){
+			
+			if(!wktGeometry.equals("null")){
+				feature.getAttributes().put(feature
+						.getGeometryName(), wktGeometry);
+			}
+			
+			startInEditMode = true;
 		}
 		
-		SQLiteDatabase db = getFeatureDatabase();
-			
-		Feature feature = getFeature(db, featureType, featureId);
-			
-		displayDialog(feature, layerId, false);
+		displayDialog(feature, layerId, startInEditMode);
 	}
 	
 	private SQLiteDatabase getFeatureDatabase(){

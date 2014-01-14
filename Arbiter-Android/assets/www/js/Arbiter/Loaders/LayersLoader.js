@@ -215,15 +215,28 @@ Arbiter.Loaders.LayersLoader = (function(){
 						loadDefaultLayerInfo(this, function(includeDefaultLayer, defaultLayerVisibility){
 							// Load the layers onto the map
 							loadLayers(includeDefaultLayer, defaultLayerVisibility, function(){
-								if(Arbiter.Util.funcExists(onSuccess)){
-									onSuccess();
-								}
 								
-								// Sometimes after loading,
-								// the wfs layers do not get drawn
-								// properly.  This ensures they
-								// get drawn correctly.
-								redrawWFSLayers();
+								var controlPanelHelper = new Arbiter.ControlPanelHelper();
+								controlPanelHelper.getActiveControl(function(activeControl){
+									
+									controlPanelHelper.getLayerId(function(layerId){
+										
+										if(activeControl == controlPanelHelper.CONTROLS.INSERT){
+											Arbiter.Controls.ControlPanel.startInsertMode(layerId);
+										}
+										
+										if(Arbiter.Util.funcExists(onSuccess)){
+											onSuccess();
+										}
+										
+										// Sometimes after loading,
+										// the wfs layers do not get drawn
+										// properly.  This ensures they
+										// get drawn correctly.
+										redrawWFSLayers();
+									}, onFailure)
+								}, onFailure);
+								
 							});
 						}, onFailure);
 					}, onFailure);

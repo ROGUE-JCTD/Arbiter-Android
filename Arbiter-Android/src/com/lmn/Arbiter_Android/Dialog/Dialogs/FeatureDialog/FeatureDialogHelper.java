@@ -3,6 +3,7 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.apache.cordova.CordovaInterface;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,6 +14,7 @@ import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
@@ -33,6 +35,7 @@ import android.widget.Button;
 public class FeatureDialogHelper {
 	private FragmentActivity activity;
 	private Map.MapChangeListener mapListener;
+	private CordovaInterface cordovaInterface;
 	
 	private Feature feature;
 	private String layerId;
@@ -58,6 +61,7 @@ public class FeatureDialogHelper {
 		
 		try{
 			this.mapListener = (Map.MapChangeListener) activity;
+			this.cordovaInterface = (CordovaInterface) activity;
 		} catch(ClassCastException e){
 			e.printStackTrace();
 			throw new ClassCastException(activity.toString() 
@@ -177,6 +181,7 @@ public class FeatureDialogHelper {
 	 * the feature on the map.
 	 */
 	public void editOnMap(){
+		
 		ArbiterState.getArbiterState().editingFeature(feature, layerId);
 		
 		mapListener.getMapChangeHelper().onEditFeature(feature);
@@ -397,9 +402,24 @@ public class FeatureDialogHelper {
 	
 	public void cancel(){
 		//mapListener.getMapChangeHelper().cancelEditing();
-		mapListener.getMapChangeHelper().reloadMap();
 		
-		dismiss();
+		cordovaInterface.getThreadPool().execute(new Runnable(){
+			@Override
+			public void run(){
+				
+				ControlPanelHelper cpHelper = new ControlPanelHelper(activity);
+				cpHelper.clearControlPanel();
+				
+				activity.runOnUiThread(new Runnable(){
+					@Override
+					public void run(){
+						mapListener.getMapChangeHelper().reloadMap();
+						
+						dismiss();
+					}
+				});
+			}
+		});
 	}
 	
 	private void deleteFeature(){

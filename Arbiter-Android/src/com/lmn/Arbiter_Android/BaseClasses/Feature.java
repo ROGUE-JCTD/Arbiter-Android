@@ -3,12 +3,13 @@ package com.lmn.Arbiter_Android.BaseClasses;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 
 import android.content.ContentValues;
+import android.util.Log;
 
 public class Feature {
 	private String id;
 	private String featureType;
 	private String geometryName;
-	
+	private String originalGeometry;
 	private ContentValues attributes;
 	
 	public Feature(String id, String featureType, 
@@ -49,22 +50,6 @@ public class Feature {
 	public boolean isNew(){
 		return this.id == null;
 	}
-	
-	/*public Feature(Feature feature){
-		this.id = feature.getId();
-		this.geometryName = feature.getGeometryName();
-		this.attributes = copyAttributes(feature.getAttributes());
-	}
-	
-	private ContentValues copyAttributes(ContentValues _attributes){
-		ContentValues attributes = new ContentValues();
-		
-		for(String key : _attributes.keySet()){
-			attributes.put(key, _attributes.getAsString(key));
-		}
-		
-		return attributes;
-	}*/
 	
 	public String getId(){
 		return this.id;
@@ -108,5 +93,30 @@ public class Feature {
 	
 	public void setModifiedState(String state){
 		attributes.put(FeaturesHelper.MODIFIED_STATE, state);
+	}
+	
+	public String getOriginalGeometry(){
+		return this.originalGeometry;
+	}
+	
+	public String getGeometry(){
+		return attributes.getAsString(geometryName);
+	}
+	
+	public void backupGeometry(){
+		this.originalGeometry = attributes.getAsString(geometryName);
+	}
+	
+	public void restoreGeometry(){
+		attributes.put(geometryName, originalGeometry);
+	}
+	
+	public boolean geometryChanged(){
+		boolean geometryChanged = getGeometry().equals(originalGeometry);
+		
+		Log.w("Feature", "Feature - originalGeometry = " 
+				+ originalGeometry + ", new = " + getGeometry() 
+				+ ", geometryChanged = " + geometryChanged);
+		return geometryChanged;
 	}
 }

@@ -233,7 +233,6 @@ Arbiter.FeatureTableHelper = (function(){
     			var sql = "DELETE FROM " + schema.getFeatureType() + ";";
     			
     			tx.executeSql(sql, [], function(tx, res){
-    				console.log("Successfully cleared the feature table");
     				
     				if(Arbiter.Util.funcExists(onSuccess)){
     					onSuccess();

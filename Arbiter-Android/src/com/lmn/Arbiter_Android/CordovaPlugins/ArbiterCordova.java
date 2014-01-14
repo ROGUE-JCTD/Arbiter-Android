@@ -19,11 +19,13 @@ import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
+import com.lmn.Arbiter_Android.Activities.MapChangeHelper;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
@@ -93,22 +95,13 @@ public class ArbiterCordova extends CordovaPlugin{
 			String featureType = args.getString(0);
 			String featureId = args.getString(1);
 			String layerId = args.getString(2);
+			String wktGeometry = args.getString(3);
+			String mode = args.getString(4);
 			
-			featureSelected(featureType, featureId, layerId);
+			featureSelected(featureType, featureId,
+					layerId, wktGeometry, mode);
 			
 			return true;
-		}else if("updatedGeometry".equals(action)){
-			
-			String updatedGeometry = args.getString(0);
-			String layerId = args.getString(1);
-			
-			updateGeometry(updatedGeometry, layerId);
-		}else if("doneInsertingFeature".equals(action)){
-			String featureType = args.getString(0);
-			String wktGeometry = args.getString(1);
-			String layerId = args.getString(2);
-			
-			doneInsertingFeature(featureType, wktGeometry, layerId);
 		}else if("updateTileSyncingStatus".equals(action)){
 			String percentComplete = args.getString(0);
 			
@@ -239,46 +232,6 @@ public class ArbiterCordova extends CordovaPlugin{
 		callback.success();
 	}
 	
-	private SQLiteDatabase getFeatureDatabase(){
-		Context context = cordova.getActivity().getApplicationContext();
-		
-		String openProjectName = ArbiterProject.
-				getArbiterProject().getOpenProject(cordova.getActivity());
-		
-		return FeatureDatabaseHelper.getHelper(context,
-				ProjectStructure.getProjectPath(context, 
-						openProjectName), false).getWritableDatabase();
-	}
-	
-	private Feature getNewFeature(String featureType, String wktGeometry){
-		return FeaturesHelper.getHelper().getNewFeature(
-				getFeatureDatabase(), featureType, wktGeometry);
-	}
-	
-	private void doneInsertingFeature(String featureType, String wktGeometry, String layerId){
-		Feature feature = ArbiterState.getArbiterState().isEditingFeature();
-		
-		if(feature == null){
-			
-			feature = getNewFeature(featureType, wktGeometry);
-			
-			ArbiterState.getArbiterState().editingFeature(feature, layerId);
-		}else{
-			
-			String key = feature.getGeometryName();
-			feature.getAttributes().put(key, wktGeometry);
-		}
-		
-		try{
-			((Map.MapChangeListener) cordova.getActivity())
-				.getMapChangeHelper().doneInsertingFeature(layerId);
-		} catch(ClassCastException e){
-			e.printStackTrace();
-			throw new ClassCastException(cordova.getActivity().toString() 
-					+ " must be an instance of Map.MapChangeListener");
-		}
-	}
-	
 	/**
 	 * Cast the activity to a FragmentActivity
 	 * @return
@@ -297,27 +250,30 @@ public class ArbiterCordova extends CordovaPlugin{
 		return activity;
 	}
 	
-	private void featureSelected(final String featureType, final String featureId, final String layerId){
+	private void featureSelected(final String featureType, final String featureId,
+			final String layerId, final String wktGeometry, final String mode){
+		
 		cordova.getActivity().runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
 				FeatureHelper helper = new FeatureHelper(getFragmentActivity());
-				helper.displayFeatureDialog(featureType, featureId, layerId);
+				helper.displayFeatureDialog(featureType, featureId,
+						layerId, wktGeometry, mode);
+				
+				if(mode.equals(ControlPanelHelper.CONTROLS.INSERT)){
+					try{
+						
+						((Map.MapChangeListener) cordova.getActivity())
+						.getMapChangeHelper().doneInsertingFeature();
+						
+					}catch(ClassCastException e){
+						e.printStackTrace();
+					}
+				}
+				
+				notifyDoneEditingFeature();
 			}
 		});
-	}
-	
-	/**
-	 * Update the geometry of the feature being edited.
-	 * @param updatedGeometry
-	 */
-	private void updateFeaturesGeometry(String updatedGeometry){
-		Feature feature = ArbiterState
-				.getArbiterState().isEditingFeature();
-		
-		ContentValues attributes = feature.getAttributes();
-		
-		attributes.put(feature.getGeometryName(), updatedGeometry);
 	}
 	
 	/**
@@ -326,22 +282,14 @@ public class ArbiterCordova extends CordovaPlugin{
 	 */
 	private void notifyDoneEditingFeature(){
 		try{
+			// Done editing so toggle the buttons
 			((Map.MapChangeListener) cordova.getActivity())
-				.getMapChangeHelper().doneEditingFeature();
+				.getMapChangeHelper().toggleEditButtons(false);
 		} catch(ClassCastException e){
 			e.printStackTrace();
 			throw new ClassCastException(cordova.getActivity().toString() 
 					+ " must be an instance of Map.MapChangeListener");
 		}
-	}
-	
-	private void updateGeometry(String updatedGeometry, String layerId){
-		updateFeaturesGeometry(updatedGeometry);
-		
-		FeatureHelper helper = new FeatureHelper(getFragmentActivity());
-		helper.displayUpdatedFeature(layerId);
-		
-		notifyDoneEditingFeature();
 	}
 	
 	private void doneAddingLayers(){

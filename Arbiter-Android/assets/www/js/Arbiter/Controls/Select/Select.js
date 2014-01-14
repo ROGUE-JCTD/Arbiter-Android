@@ -28,9 +28,9 @@ Arbiter.Controls.Select = function(onSelect, onUnselect, includeOOMWorkaround){
 					onSelect(feature);
 				}
 			},
-			onUnselect: function(){
+			onUnselect: function(feature){
 				if(Arbiter.Util.funcExists(onUnselect)){
-					onUnselect();
+					onUnselect(feature);
 				}
 			}
 		});

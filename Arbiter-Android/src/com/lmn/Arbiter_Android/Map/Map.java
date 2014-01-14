@@ -165,9 +165,12 @@ public class Map{
 		webview.loadUrl(url);
 	}
 	
-	public void cancelEdit(CordovaWebView webview){
+	public void cancelEdit(CordovaWebView webview, String originalGeometry){
+		
+		Log.w("Map", "Map.cancelEdit geom = " + originalGeometry);
+		
 		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.ControlPanel.cancelEdit()'))";
+				+ "Arbiter.Controls.ControlPanel.cancelEdit(\"" + originalGeometry + "\")'))";
 		
 		webview.loadUrl(url);
 	}
@@ -182,13 +185,6 @@ public class Map{
 	public void unselect(CordovaWebView webview){
 		String url = "javascript:app.waitForArbiterInit(new Function('"
 				+ "Arbiter.Controls.ControlPanel.unselect()'))";
-		
-		webview.loadUrl(url);
-	}
-	
-	public void cancelSelection(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.ControlPanel.cancelSelection()'))";
 		
 		webview.loadUrl(url);
 	}

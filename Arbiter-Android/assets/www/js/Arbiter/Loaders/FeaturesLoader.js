@@ -3,6 +3,8 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 	
 	var wktFormatter = new OpenLayers.Format.WKT();
 	
+	var controlPanelHelper = new Arbiter.ControlPanelHelper();
+	
 	var addMetadata = function(dbFeature, olFeature){
 		if(olFeature.metadata === null 
 				|| olFeature.metadata === undefined){
@@ -55,7 +57,36 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 		}
 	};
 	
-	var processFeature = function(schema, dbFeature, olLayer){
+	var setSelectedState = function(olFeature, activeControl,
+			layerId, featureId, geometry){
+		
+		var olFeatureId = olFeature.metadata[Arbiter.FeatureTableHelper.ID];
+		
+		var olLayerId = Arbiter.Util.getLayerId(olFeature.layer);
+		
+		if((layerId == olLayerId) && (featureId == olFeatureId)){
+			
+			if(activeControl === controlPanelHelper.CONTROLS.SELECT){
+				
+				Arbiter.Controls.ControlPanel.setSelectedFeature(olFeature);
+				
+				//Arbiter.Controls.ControlPanel.select(olFeature);
+			}else if(activeControl === controlPanelHelper.CONTROLS.MODIFY){
+				
+				Arbiter.Controls.ControlPanel.setSelectedFeature(olFeature);
+				
+				Arbiter.Controls.ControlPanel.restoreGeometry(geometry);
+				
+				Arbiter.Controls.ControlPanel.enterModifyMode(olFeature);
+			}else if(activeControl === controlPanelHelper.CONTROLS.INSERT){
+				
+			}
+		}
+	};
+	
+	var processFeature = function(schema, dbFeature, olLayer,
+			activeControl, layerId, featureId, geometry){
+		
 		var olFeature = wktFormatter.
 			read(dbFeature[schema.getGeometryName()]);
 		
@@ -75,31 +106,79 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 		setState(olFeature);
 		
 		olLayer.addFeatures([olFeature]);
+		
+		setSelectedState(olFeature, activeControl,
+				layerId, featureId, geometry);
+	};
+	
+	var getControlPanelMode = function(onSuccess, onFailure){
+		
+		controlPanelHelper.getActiveControl(function(activeControl){
+			
+			controlPanelHelper.getLayerId(function(layerId){
+				
+				controlPanelHelper.getFeatureId(function(featureId){
+					
+					controlPanelHelper.getGeometry(function(geometry){
+						
+						if(Arbiter.Util.funcExists(onSuccess)){
+							onSuccess(activeControl, layerId, featureId, geometry);
+						}
+					}, function(e){
+						if(Arbiter.Util.funcExists(onFailure)){
+							onFailure(e);
+						}
+					});
+				}, function(e){
+					if(Arbiter.Util.funcExists(onFailure)){
+						onFailure(e);
+					}
+				});
+			}, function(e){
+				if(Arbiter.Util.funcExists(onFailure)){
+					onFailure(e);
+				}
+			});
+		}, function(e){
+			if(Arbiter.Util.funcExists(onFailure)){
+				onFailure(e);
+			}
+		});
 	};
 	
 	return {
 		loadFeatures: function(schema, olLayer, onSuccess, onFailure){
-			Arbiter.FeatureTableHelper.loadFeatures(schema, this, 
-					function(feature, currentFeatureIndex, featureCount){
-				try{
-					if(feature !== null){
-						processFeature(schema, feature, olLayer);
-					}
-				} catch (e) {
-					if(Arbiter.Util.funcExists(onFailure)){
-						onFailure(e);
-					}
-				}
+			
+			getControlPanelMode(function(activeControl, layerId, featureId, geometry){
 				
-				if(Arbiter.Util.funcExists(onSuccess)){
-					if(featureCount > 0 && (currentFeatureIndex === (featureCount - 1))){
-						onSuccess();
-					}else{
-						onSuccess();
+				Arbiter.FeatureTableHelper.loadFeatures(schema, this, 
+						function(feature, currentFeatureIndex, featureCount){
+					try{
+						if(feature !== null){
+							processFeature(schema, feature, olLayer,
+									activeControl, layerId,
+									featureId, geometry);
+						}
+					} catch (e) {
+						if(Arbiter.Util.funcExists(onFailure)){
+							onFailure(e);
+						}
 					}
-				}
 					
-			}, onFailure);
+					if(Arbiter.Util.funcExists(onSuccess)){
+						if(featureCount > 0 && (currentFeatureIndex === (featureCount - 1))){
+							onSuccess();
+						}else{
+							onSuccess();
+						}
+					}
+						
+				}, onFailure);
+			}, function(e){
+				if(Arbiter.Util.funcExists(onFailure)){
+					onFailure(e);
+				}
+			});
 		}
 	};
 })();

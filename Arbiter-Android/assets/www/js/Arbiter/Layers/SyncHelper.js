@@ -76,21 +76,28 @@ Arbiter.Layers.SyncHelper = (function(){
 	var onSyncSuccess = function(_aoi){
 		if(++syncedLayers === wfsLayerCount || wfsLayerCount === 0){
 			
+			var aoi = new OpenLayers.Bounds([_aoi.getLeft(),
+			    _aoi.getBottom(), _aoi.getRight(), _aoi.getTop()]);
+			
 			var success = function(){
 				syncMedia(function(){
 					Arbiter.Cordova.syncCompleted();
+					
+					Arbiter.Cordova.Project.zoomToAOI(function(){
+						console.log("successfully zoomed to aoi");
+					}, function(e){
+						console.log("error zooming to aoi", e);
+					});
 					
 					if(Arbiter.Util.funcExists(optionalSuccess)){
 						optionalSuccess();
 					}
 				}, function(e){
-					
+					console.log("SyncHelper.js - Error syncing media", e);
 				});
 			};
 			
 			if(cacheTiles){
-				var aoi = new OpenLayers.Bounds([_aoi.getLeft(),
-				    _aoi.getBottom(), _aoi.getRight(), _aoi.getTop()]);
 				
 				console.log("onSyncSuccess aoi: ", _aoi.getLeft() + ", " 
 						+ _aoi.getBottom() + ", " + _aoi.getRight() + ", " 

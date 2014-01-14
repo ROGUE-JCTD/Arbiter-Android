@@ -7,28 +7,23 @@ Arbiter.Controls.ControlPanel = (function(){
 	
 	var insertControl = null;
 	
-	var deleteControl = new Arbiter.Controls.Delete();
+	var controlPanelHelper = new Arbiter.ControlPanelHelper();
 	
-	var insertedFeature = null;
+	var wktFormatter = new OpenLayers.Format.WKT();
 	
-	var originalGeometry = null;
+	var mode = Arbiter.ControlPanelHelper.prototype.CONTROLS.SELECT;
 	
-	var saveOriginalGeometry = function(){
-		if(selectedFeature === null 
-				|| selectedFeature === undefined){
-			return;
-		}
-		
-		originalGeometry = selectedFeature.geometry.clone();
-	};
+	var cancel = false;
 	
 	var _endInsertMode = function(){
 		
-		insertControl.deactivate();
-		
-		insertControl = null;
-		
-		selectControl.activate();
+		if(insertControl !== null && insertControl !== undefined){
+			insertControl.deactivate();
+			
+			insertControl = null;
+			
+			selectControl.activate();
+		}
 	};
 	
 	var _startInsertMode = function(layerId){
@@ -49,44 +44,81 @@ Arbiter.Controls.ControlPanel = (function(){
 				"could not get schema for layer id '" + layerId + "'";
 		}
 		
-		insertControl = new Arbiter.Controls.Insert(olLayer,
-				geometryType, function(feature){
+		controlPanelHelper.set(0, layerId, controlPanelHelper.CONTROLS.INSERT, 0, function(){
 			
-			_endInsertMode();
-			
-			insertedFeature = feature;
-			
-			selectControl.select(feature);
+			insertControl = new Arbiter.Controls.Insert(olLayer,
+					geometryType, function(feature){
+				
+				_endInsertMode();
+				
+				mode = Arbiter.ControlPanelHelper.prototype.CONTROLS.INSERT;
+				
+				selectControl.select(feature);
+			});
+		}, function(e){
+			console.log("start insert mode error");
 		});
 	};
 	
-	var getInsertedOrSelectedFeature = function(){
-		var feature = null;
+	var getNativeGeometry = function(feature, layerId){
+		var schemas = Arbiter.getLayerSchemas();
 		
-		if(selectedFeature !== null && selectedFeature !== undefined){
-			feature = selectedFeature;
-		}else if(insertedFeature !== null && insertedFeature !== undefined){
-			feature = insertedFeature;
-		}
+		var schema = schemas[layerId];
 		
-		return feature;
+		var srid = Arbiter.Map.getMap().projection.projCode;
+		
+		var wktGeometry = wktFormatter.write(
+				Arbiter.Util.getFeatureInNativeProjection(srid,
+						schema.getSRID(), feature));
+		
+		return wktGeometry;
 	};
 	
-	var startModifyMode = function(){
-		if(selectedFeature === null 
-				|| selectedFeature === undefined){
-			return;
+	var startModifyMode = function(feature){
+		
+		var featureId = null;
+		
+		if(feature.metadata !== null && feature.metadata !== undefined){
+			featureId = feature.metadata[Arbiter.FeatureTableHelper.ID];
 		}
+		
+		var layerId = Arbiter.Util.getLayerId(feature.layer);
+		
+		var wktGeometry = getNativeGeometry(feature, layerId);
 		
 		modifyControl = new Arbiter.Controls.Modify(
-				selectedFeature.layer, selectedFeature);
+				feature.layer, feature, function(feature){
 		
-		selectControl.deactivate();
+			var wktGeometry = getNativeGeometry(feature, layerId);
+			
+			controlPanelHelper.set(featureId, layerId, 
+					controlPanelHelper.CONTROLS.MODIFY, 
+					wktGeometry, function(){
+				
+				console.log("successfully updated geometry");
+			}, function(e){
+				console.log("error updating modified geometry", e);
+			});
+		});
 		
-		modifyControl.activate();
+		controlPanelHelper.set(featureId, layerId,
+				controlPanelHelper.CONTROLS.MODIFY, wktGeometry, function(){
+			
+			selectControl.deactivate();
+			
+			modifyControl.activate();
+			
+			mode = Arbiter.ControlPanelHelper.prototype.CONTROLS.MODIFY;
+			
+		}, function(e){
+			console.log("start modify mode error", e);
+		});
 	};
 	
-	var endModifyMode = function(){
+	var endModifyMode = function(_cancel){
+		
+		cancel = _cancel;
+		
 		if(selectedFeature === null 
 				|| selectedFeature === undefined){
 			console.log("Arbiter.Controls.ControlPanel.exitModifyMode()"
@@ -95,23 +127,37 @@ Arbiter.Controls.ControlPanel = (function(){
 			return;
 		}
 		
-		// Deactivate the modifyControl
-		modifyControl.deactivate();
+		if(modifyControl === null || modifyControl === undefined){
+			console.log("Arbiter.Controls.ControlPanel.exitModifyMode()"
+					+ " modifyControl is " + modifyControl);
+			
+			return;
+		}
 		
-		modifyControl = null;
-		
-		// Reactivate the selectControl
-		selectControl.activate();
-		
-		// Reselect the selectedFeature
-		selectControl.select(selectedFeature);
+		controlPanelHelper.clear(function(){
+			
+			if(modifyControl){
+				// Deactivate the modifyControl
+				modifyControl.deactivate();
+				
+				modifyControl = null;
+			}
+			
+			// Reactivate the selectControl
+			selectControl.activate();
+			
+			// Reselect the selectedFeature
+			selectControl.select(selectedFeature);
+		}, function(e){
+			console.log("endModifyMode error",e);
+		});
 	};
 	
-	var restoreOriginalGeometry = function(){
+	var _restoreGeometry = function(wktGeometry){
 		
-		if(originalGeometry === null || originalGeometry === undefined){
-			throw "Arbiter.Controls.Select - couldn't restore original"
-			+ " geometry because originalGeometry is " + originalGeometry;
+		if(wktGeometry === null || wktGeometry === undefined){
+			throw "Arbiter.Controls.ControlPanel - couldn't restore original"
+			+ " geometry because wktGeometry is " + wktGeometry;
 		} 
 		
 		if(selectedFeature === null || selectedFeature === undefined){
@@ -119,8 +165,18 @@ Arbiter.Controls.ControlPanel = (function(){
 			+ " geometry because selectedFeature is " + selectedFeature;
 		}
 		
+		var geomFeature = wktFormatter.read(wktGeometry);
+		
 		// Get the center of the geometry
-		var centroid = originalGeometry.getCentroid();
+		var centroid = geomFeature.geometry.getCentroid();
+		
+		var layerId = Arbiter.Util.getLayerId(selectedFeature.layer);
+		
+		var schema = Arbiter.getLayerSchemas()[layerId];
+		var srid = Arbiter.Map.getMap().projection.projCode;
+		
+		centroid.transform(new OpenLayers.Projection(schema.getSRID()),
+				new OpenLayers.Projection(srid));
 		
 		selectedFeature.move(new OpenLayers.LonLat(centroid.x, centroid.y));
 	};
@@ -142,94 +198,99 @@ Arbiter.Controls.ControlPanel = (function(){
 			
 			selectedFeature = feature;
 			
-			saveOriginalGeometry();
+			var _mode = mode;
+			var _cancel = cancel;
 			
-			if(insertedFeature === null || insertedFeature === undefined){
-				
+			// Make sure the mode related variables are reset
+			mode = Arbiter.ControlPanelHelper.prototype.CONTROLS.SELECT;
+			cancel = false;
+			
+			var featureId = null;
+			
+			if(feature.metadata !== null && feature.metadata !== undefined){
+				featureId = feature.metadata[Arbiter.FeatureTableHelper.ID];
+			}
+			
+			var layerId = Arbiter.Util.getLayerId(feature.layer);
+			
+			controlPanelHelper.set(featureId, layerId, controlPanelHelper.CONTROLS.SELECT, 0, function(){
 				Arbiter.Cordova.displayFeatureDialog(
 						feature.layer.protocol.featureType,
-						feature.metadata[Arbiter.FeatureTableHelper.ID],
-						Arbiter.Util.getLayerId(feature.layer)
+						featureId,
+						layerId,
+						feature,
+						_mode,
+						_cancel
+						
 				);
-			}else{
-				var layerId = Arbiter.Util.getLayerId(insertedFeature.layer);
-				
-				Arbiter.Cordova.doneInsertingFeature(layerId, insertedFeature);
-			}
+			}, function(e){
+				console.log("Error saving select mode", e);
+			});
 		}
-	}, function(){
+	}, function(feature){
 		
 		// If the modifyControl is null,
 		// make sure selectedFeature is
 		// cleared out.
 		if(modifyControl === null){
 			selectedFeature = null;
-			originalGeometry = null;
+			
+			controlPanelHelper.clear();
 		}
 	});
-	
-	var setFeatureId = function(olFeature, featureId){
-		olFeature.metadata = {};
-		
-		olFeature.metadata[Arbiter.FeatureTableHelper.ID] = featureId; 
-	};
 	
 	return {
 		registerMapListeners: function(){
 			selectControl.registerMapListeners();
 		},
 		
-		enterModifyMode: function(){
-			
-			startModifyMode();
+		enterModifyMode: function(feature){
+			try{
+				if(feature === null 
+						|| feature === undefined){
+					
+					feature = selectedFeature;
+				}
+				
+				if(feature === null || feature === undefined){
+					throw "ControlPanel.js feature should not be " + feature;
+				}
+				
+				startModifyMode(feature);
+			}catch(e){
+				console.log("enterModifyMode error", e);
+			}
 		},
 		
-		exitModifyMode: function(){
+		exitModifyMode: function(_cancel){
 			
-			endModifyMode();
+			endModifyMode(_cancel);
 		},
 		
 		unselect: function(){
 			console.log("ControlPanel.unselect()");
 			selectControl.unselect();
+			
+			if(modifyControl === null){
+				selectedFeature = null;
+				
+				controlPanelHelper.clear();
+			}
 		},
 		
 		/**
 		 * Restore the geometry to its original location,
 		 * and exit modify mode.
 		 */
-		cancelEdit: function(){
-			restoreOriginalGeometry();
+		cancelEdit: function(wktGeometry){
 			
-			this.exitModifyMode();
-		},
-		
-		/**
-		 * Unselect the feature
-		 */
-		cancelSelection: function(){
-			console.log("ControlPanel.cancelSelection()");
-			if(insertedFeature === null || insertedFeature === undefined){
-				restoreOriginalGeometry();
-			}else{
-				removeFeature(insertedFeature);
-				
-				insertedFeature = null;
-			}
+			_restoreGeometry(wktGeometry);
 			
-			this.unselect();
+			this.exitModifyMode(true);
 		},
 		
 		getSelectedFeature: function(){
 			return selectedFeature;
-		},
-		
-		getInsertedFeature: function(){
-			return insertedFeature;
-		},
-		
-		getOriginalGeometry: function(){
-			return originalGeometry;
 		},
 		
 		startInsertMode: function(layerId){
@@ -238,6 +299,33 @@ Arbiter.Controls.ControlPanel = (function(){
 		
 		getInsertControl: function(){
 			return insertControl;
+		},
+		
+		restoreGeometry: function(wktGeometry){
+			_restoreGeometry(wktGeometry);
+		},
+		
+		/**
+		 * @param { OpenLayers.Feature.Vector } feature The feature to select.
+		 */
+		select: function(feature){
+			selectControl.select(feature);
+		},
+		
+		setSelectedFeature: function(feature){
+			selectedFeature = feature;
+		},
+		
+		setMode: function(_mode){
+			mode = _mode;
+		},
+		
+		getMode: function(){
+			return mode;
+		},
+		
+		getCancel: function(){
+			return cancel;
 		}
 	};
 })();

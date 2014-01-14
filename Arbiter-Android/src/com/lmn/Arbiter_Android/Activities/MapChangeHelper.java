@@ -13,7 +13,6 @@ import android.widget.TextView;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
-import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.Map.Map;
 
 public class MapChangeHelper {
@@ -73,7 +72,7 @@ public class MapChangeHelper {
 		reloadMap();
 	}
 	
-	private void toggleEditButtons(final boolean visible){
+	public void toggleEditButtons(final boolean visible){
 		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
@@ -100,15 +99,6 @@ public class MapChangeHelper {
 		});
 	}
 	
-	public void doneEditingFeature(){
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				toggleEditButtons(false);
-			}
-		});
-	}
-	
 	public void unselect(){
 		activity.runOnUiThread(new Runnable(){
 			@Override
@@ -123,15 +113,6 @@ public class MapChangeHelper {
 			@Override
 			public void run(){
 				Map.getMap().exitModifyMode(cordovaWebView);
-			}
-		});
-	}
-	
-	public void cancelEditing(){
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				Map.getMap().cancelSelection(cordovaWebView);
 			}
 		});
 	}
@@ -177,14 +158,10 @@ public class MapChangeHelper {
 		});
 	}
 	
-	public void doneInsertingFeature(final String layerId){
+	public void doneInsertingFeature(){
 		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
-				
-				FeatureHelper helper = new FeatureHelper(activity);
-    			
-    			helper.displayUpdatedFeature(layerId);
 				
 				toggleInsertFeatureBar(false);
 			}

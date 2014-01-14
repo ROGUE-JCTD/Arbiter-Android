@@ -104,72 +104,60 @@ Arbiter.Cordova = (function() {
 					"errorAddingLayers", [e]);
 		},
 		
-		// TODO: Right the native method and then call here
-		updateFeatureData : function(featureType, features) {
-			// make call to plugin passing the featureType and features
-		},
-		
-		displayFeatureDialog : function(featureType, featureId, layerId){
-			console.log("displayFeatureDialog: featureType = " + 
-					featureType + ", featureId = " + featureId);
-			
-			if(featureType === null || featureType === undefined
-					|| featureId === undefined || featureId === null
-					|| layerId === undefined || layerId === null){
-				return;
-			}
-			
-			cordova.exec(null, null, "ArbiterCordova", "featureSelected",
-					[featureType, featureId, layerId])
-		},
-		
 		getUpdatedGeometry: function(){
-			console.log("Arbiter.Cordova.getUpdatedGeometry");
-			var selectedFeature = Arbiter.Controls.ControlPanel.getSelectedFeature();
-				
-			if(selectedFeature !== null && selectedFeature !== undefined){
-				
-				var schemas = Arbiter.getLayerSchemas();
-				
-				var layerId = Arbiter.Util.getLayerId(selectedFeature.layer);
-				
-				var schema = schemas[layerId];
-				
-				var srid = Arbiter.Map.getMap().projection.projCode;
-				
-				var updatedGeometry = wktFormatter.write(
-						Arbiter.Util.getFeatureInNativeProjection(srid,
-								schema.getSRID(), selectedFeature));
-				
-				Arbiter.Controls.ControlPanel.exitModifyMode();
-				
-				cordova.exec(null, null, "ArbiterCordova",
-						"updatedGeometry", [updatedGeometry, layerId]);
+			var selectedFeature = Arbiter.Controls
+				.ControlPanel.getSelectedFeature();
+			
+			if(selectedFeature === null || selectedFeature === undefined){
+				throw "getUpdatedGeometry() - selectedFeature should not be empty";
 			}
-		},
-		
-		doneInsertingFeature: function(layerId, feature){
-			if(feature === null || feature === undefined){
-				throw "Arbiter.Cordova.doneInsertingFeature - "
-					+ "feature should not be '" + feature + "'";
+			
+			var featureId = null;
+			
+			if(selectedFeature.metadata !== null 
+					&& selectedFeature.metadata !== undefined){
+				
+				featureId = selectedFeature.metadata[
+				    Arbiter.FeatureTableHelper.ID];
 			}
+			
+			var layerId = Arbiter.Util.getLayerId(selectedFeature.layer);
 			
 			var schema = Arbiter.getLayerSchemas()[layerId];
 			
-			if(schema === null || schema === undefined){
-				throw "Arbiter.Cordova.doneInsertingFeature - "
-					+ "Could not get schema for layerId '"
-					+ layerId + "'";
-			}
+			var mode = Arbiter.Controls.ControlPanel.getMode();
+			
+			Arbiter.Controls.ControlPanel.exitModifyMode();
+			
+			this.displayFeatureDialog(schema.getFeatureType(), 
+					featureId, layerId, selectedFeature, mode, false);
+		},
+		
+		displayFeatureDialog : function(featureType, featureId, layerId,
+				feature, mode, cancel){
+			
+			console.log("displayFeatureDialog: featureType = " + 
+					featureType + ", featureId = " + featureId + ", mode = "
+					+ mode + ", cancel = " + cancel, feature);
+			
+			var schemas = Arbiter.getLayerSchemas();
+			
+			var schema = schemas[layerId];
 			
 			var srid = Arbiter.Map.getMap().projection.projCode;
 			
-			var wktGeometry = wktFormatter.write(Arbiter
-					.Util.getFeatureInNativeProjection(
-							srid, schema.getSRID(), feature));
+			var wktGeometry = null;
 			
-			cordova.exec(null, null, "ArbiterCordova", "doneInsertingFeature", 
-				[feature.layer.protocol.featureType, wktGeometry, layerId]);
+			if(cancel === false){
+				wktGeometry = wktFormatter.write(
+						Arbiter.Util.getFeatureInNativeProjection(srid,
+								schema.getSRID(), feature));
+			}
+			
+			Arbiter.Controls.ControlPanel.exitModifyMode();
+			
+			cordova.exec(null, null, "ArbiterCordova", "featureSelected",
+					[featureType, featureId, layerId, wktGeometry, mode]);
 		},
 		
 		updateTileSyncingStatus: function(percent){

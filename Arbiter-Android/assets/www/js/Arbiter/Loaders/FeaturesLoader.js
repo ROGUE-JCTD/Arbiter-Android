@@ -178,10 +178,12 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 						}
 					}
 					
-					if(Arbiter.Util.funcExists(onSuccess)){
-						if(featureCount > 0 && (currentFeatureIndex === (featureCount - 1))){
+					var funcExists = Arbiter.Util.funcExists(onSuccess);
+					
+					if(funcExists){
+						if(featureCount === 0){
 							onSuccess();
-						}else{
+						}else if(currentFeatureIndex === (featureCount - 1)){
 							onSuccess();
 						}
 					}

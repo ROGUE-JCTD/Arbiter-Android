@@ -136,10 +136,6 @@ Arbiter.Cordova = (function() {
 		displayFeatureDialog : function(featureType, featureId, layerId,
 				feature, mode, cancel){
 			
-			console.log("displayFeatureDialog: featureType = " + 
-					featureType + ", featureId = " + featureId + ", mode = "
-					+ mode + ", cancel = " + cancel, feature);
-			
 			var schemas = Arbiter.getLayerSchemas();
 			
 			var schema = schemas[layerId];
@@ -206,9 +202,6 @@ Arbiter.Cordova = (function() {
 		},
 		
 		addMediaToFeature: function(key, media, fileName){
-			console.log("Arbiter.Cordova.addMediaToFeature key = " + key);
-			console.log("Arbiter.Cordova.addMediaToFeature media = ", media);
-			console.log("Arbiter.Cordova.addMediaToFeature newMedia = ", fileName);
 			
 			cordova.exec(null , null, "ArbiterCordova",
 					"addMediaToFeature", [key, media, fileName]);

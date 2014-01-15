@@ -227,8 +227,6 @@ Arbiter.Cordova.Project = (function(){
 						aoi[1], aoi[2], aoi[3]);
 				}
 				
-				console.log("Arbiter.Cordova.Project.createProject bounds = ", bounds);
-				
 				if(layers.length > 0){
 					storeData(context, layers, bounds, true, function(){
 						onSuccess();

@@ -53,6 +53,7 @@ Arbiter.LayersHelper = (function(){
 			var sql = "select * from " + LAYERS_TABLE_NAME + ";";
 			
 			tx.executeSql(sql, [], function(tx, res){
+				
 				if(Arbiter.Util.funcExists(onSuccess)){
 					onSuccess.call(context, getLayersArray(res));
 				}

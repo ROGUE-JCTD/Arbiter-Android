@@ -340,9 +340,11 @@ Arbiter.FeatureTableHelper = (function(){
 		    			}
 		    		});
     			}, function(layer){ // If there is no geometry column, then the schema is not editable
+    				
     				var helper = Arbiter.LayersHelper;
     				var serverId = layer[helper.serverId()]
-    				var url = Arbiter.Util.Servers.getServer(serverId);
+    				var server = Arbiter.Util.Servers.getServer(serverId);
+    				var url = server.getUrl();
     				
     				var schema = new Arbiter.Util.LayerSchema(url, layer[helper.workspace()],
     						layer[helper.featureType()], layer[helper.layerVisibility()], serverId);

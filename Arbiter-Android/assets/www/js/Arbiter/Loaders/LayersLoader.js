@@ -17,6 +17,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 	};
 	
 	var isDone = function(onSuccess){
+		
 		if(featuresLoadedFor === layersToLoad){
 			onSuccess();
 			triggerDoneLoadingEvent();
@@ -69,7 +70,6 @@ Arbiter.Loaders.LayersLoader = (function(){
 	};
 	
 	var addAOIToMap = function(_aoi){
-		console.log("addAOIToMap", _aoi);
 		
 		var context = this;
 		
@@ -79,7 +79,6 @@ Arbiter.Loaders.LayersLoader = (function(){
 		
 		var bounds = new OpenLayers.Bounds(aoi);
 		
-		console.log("aoi bounds", bounds);
 		var feature = new OpenLayers.Feature.Vector(bounds.toGeometry(), {});
 		
 		var oldLayers = map.getLayersByName(Arbiter.AOI);
@@ -147,6 +146,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 		
 		var schema;
 		var key;
+		var editableLayers = 0;
 		
 		for(key in layerSchemas){
 			schema = layerSchemas[key];
@@ -161,6 +161,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 			schema = layerSchemas[key];
 			
 			if(schema.isEditable()){
+				editableLayers++;
 				// Load the vector layer
 				loadWFSLayer(key, schema, onSuccess);
 			}
@@ -169,6 +170,11 @@ Arbiter.Loaders.LayersLoader = (function(){
 		setBaseLayer();
 		
 		loadAOILayer();
+		
+		if(editableLayers === 0 
+				&& Arbiter.Util.funcExists(onSuccess)){
+			onSuccess();
+		}
 	};
 	
 	var loadDefaultLayerInfo = function(context, onSuccess, onFailure){
@@ -213,6 +219,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 						
 						// Load the default layer info
 						loadDefaultLayerInfo(this, function(includeDefaultLayer, defaultLayerVisibility){
+							
 							// Load the layers onto the map
 							loadLayers(includeDefaultLayer, defaultLayerVisibility, function(){
 								

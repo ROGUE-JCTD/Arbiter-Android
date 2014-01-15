@@ -2,6 +2,8 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
 import java.util.ArrayList;
 
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -24,6 +26,8 @@ public class LayersDialog extends ArbiterDialogFragment{
 	private LayerListAdapter layersAdapter;
 	@SuppressWarnings("unused")
 	private LayerLoaderCallbacks layerLoaderCallbacks;
+	
+	@SuppressWarnings("unused")
 	private AddLayersConnectivityListener connectivityListener;
 	
 	public static LayersDialog newInstance(String title, String ok, 
@@ -83,6 +87,16 @@ public class LayersDialog extends ArbiterDialogFragment{
 		}
 	}
 	
+	private void displayLayersLimit(){
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		
+		builder.setIcon(R.drawable.icon);
+		builder.setTitle(R.string.layers_limit);
+		builder.setMessage(R.string.too_many_layers);
+		
+		builder.create().show();
+	}
+	
 	public void registerListeners(View view){
 		ImageButton button = (ImageButton) view.findViewById(R.id.add_layers_button);
 		final LayersDialog frag = this;
@@ -96,9 +110,15 @@ public class LayersDialog extends ArbiterDialogFragment{
 
 				@Override
 				public void onClick(View v) {
-					// Open the add layers dialog
-					(new ArbiterDialogs(getActivity().getApplicationContext(), getActivity().getResources(), 
-							getActivity().getSupportFragmentManager())).showAddLayersDialog(frag.getCopyOfLayers());
+					
+					if(layersAdapter.getCount() < 5){
+						// Open the add layers dialog
+						(new ArbiterDialogs(getActivity().getApplicationContext(), getActivity().getResources(), 
+								getActivity().getSupportFragmentManager())).showAddLayersDialog(frag.getCopyOfLayers());
+					}else{
+						 displayLayersLimit();
+					}
+					
 				}
 			});
 		}

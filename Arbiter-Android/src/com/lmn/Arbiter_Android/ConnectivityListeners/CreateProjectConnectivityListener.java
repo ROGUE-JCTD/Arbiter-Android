@@ -2,9 +2,6 @@ package com.lmn.Arbiter_Android.ConnectivityListeners;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
-import com.lmn.Arbiter_Android.R.drawable;
-import com.lmn.Arbiter_Android.R.id;
-import com.lmn.Arbiter_Android.R.string;
 
 import android.app.AlertDialog;
 import android.support.v4.app.FragmentActivity;

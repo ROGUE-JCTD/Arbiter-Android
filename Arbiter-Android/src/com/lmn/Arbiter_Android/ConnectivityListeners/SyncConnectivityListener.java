@@ -1,7 +1,6 @@
 package com.lmn.Arbiter_Android.ConnectivityListeners;
 
 import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.R.color;
 
 import android.content.Context;
 import android.widget.ImageButton;

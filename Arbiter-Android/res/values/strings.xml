@@ -63,6 +63,8 @@
 	<string name="loading">Loading&#8230;</string>
 	<string name="no_network">No Network Connection</string>
 	<string name="check_network_connection">Please check your network connection.</string>
+	<string name="layers_limit">Layer limit reached</string>
+	<string name="too_many_layers">You have reached the maximum layers per project.</string>
 	
     <!-- MAP ACTIVITY STRINGS -->
     <string name="map_activity_name">Arbiter</string>

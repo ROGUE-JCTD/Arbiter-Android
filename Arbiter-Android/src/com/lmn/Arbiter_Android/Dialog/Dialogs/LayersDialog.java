@@ -12,6 +12,7 @@ import android.widget.ImageButton;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.ConnectivityListeners.AddLayersConnectivityListener;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.ListAdapters.LayerListAdapter;
@@ -23,6 +24,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 	private LayerListAdapter layersAdapter;
 	@SuppressWarnings("unused")
 	private LayerLoaderCallbacks layerLoaderCallbacks;
+	private AddLayersConnectivityListener connectivityListener;
 	
 	public static LayersDialog newInstance(String title, String ok, 
 			String cancel, int layout){
@@ -86,6 +88,9 @@ public class LayersDialog extends ArbiterDialogFragment{
 		final LayersDialog frag = this;
 		
 		if(button != null){
+			
+			connectivityListener = new AddLayersConnectivityListener(
+					getActivity().getApplicationContext(), button);
 			
 			button.setOnClickListener(new OnClickListener(){
 

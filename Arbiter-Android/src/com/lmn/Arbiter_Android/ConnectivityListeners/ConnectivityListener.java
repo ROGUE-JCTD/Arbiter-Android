@@ -1,4 +1,4 @@
-package com.lmn.Arbiter_Android;
+package com.lmn.Arbiter_Android.ConnectivityListeners;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -19,7 +19,7 @@ public class ConnectivityListener extends BroadcastReceiver{
 		context.registerReceiver(this, intentFilter);
 	}
 	
-	public boolean isConnected(Context context){
+	public boolean checkIsConnected(Context context){
 		ConnectivityManager cm =
 		        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		 
@@ -30,12 +30,16 @@ public class ConnectivityListener extends BroadcastReceiver{
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		this.isConnected = isConnected(context);
+		this.isConnected = checkIsConnected(context);
 		
 		onConnectivityChanged(this.isConnected);
 	}
 	
 	public void onConnectivityChanged(boolean isConnected){
 		
+	}
+	
+	public boolean isConnected(){
+		return this.isConnected;
 	}
 }

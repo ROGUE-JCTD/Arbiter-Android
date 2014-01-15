@@ -61,6 +61,8 @@
 	<string name="error_updating_aoi_msg">Could not update the area of interest!</string>
 	<string name="loading_feature_info">Feature is loading&#8230; Please wait&#8230;</string>
 	<string name="loading">Loading&#8230;</string>
+	<string name="no_network">No Network Connection</string>
+	<string name="check_network_connection">Please check your network connection.</string>
 	
     <!-- MAP ACTIVITY STRINGS -->
     <string name="map_activity_name">Arbiter</string>

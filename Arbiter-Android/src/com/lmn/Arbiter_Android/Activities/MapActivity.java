@@ -47,7 +47,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     private MapChangeHelper mapChangeHelper;
     private IncompleteProjectHelper incompleteProjectHelper;
     private boolean menuPrepared;
-    private SyncConnectivityListener syncConnectivityListener;
+    @SuppressWarnings("unused")
+	private SyncConnectivityListener syncConnectivityListener;
     
     // For CORDOVA
     private CordovaWebView cordovaWebView;
@@ -197,6 +198,9 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     	cancelInsert.setOnClickListener(new OnClickListener(){
     		@Override
     		public void onClick(View v){
+    			
+    			clearControlPanelKVP();
+    			
     			mapChangeHelper.endInsertMode();
     		}
     	});

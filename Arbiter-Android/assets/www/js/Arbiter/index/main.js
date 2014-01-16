@@ -24,22 +24,24 @@ var app = (function() {
 							console.log("savedBounds = " + savedBounds + ", savedZoom = "
 									+ savedZoom + ", aoi = " + _aoi);
 							
-							if(_aoi !== null && _aoi !== undefined 
-									&& _aoi !== ""){
-								Arbiter.aoiHasBeenSet(true);
+							var bounds = null;
+							
+							if(savedBounds !== null && savedBounds !== undefined 
+									&& savedZoom !== null 
+									&& savedZoom !== undefined){
 								
-								var bounds = null;
+								bounds = savedBounds.split(',');
 								
-								if(savedBounds !== null && savedBounds !== undefined 
-										&& savedZoom !== null 
-										&& savedZoom !== undefined){
+								Arbiter.Map.zoomToExtent(bounds[0], 
+										bounds[1], bounds[2], 
+										bounds[3], savedZoom);
+							}else{
+								
+								if(_aoi !== null && _aoi !== undefined 
+										&& _aoi !== ""){
 									
-									bounds = savedBounds.split(',');
+									Arbiter.aoiHasBeenSet(true);
 									
-									Arbiter.Map.zoomToExtent(bounds[0], 
-											bounds[1], bounds[2], 
-											bounds[3], savedZoom);
-								}else{
 									bounds = _aoi.split(',');
 									
 									Arbiter.Map.zoomToExtent(bounds[0], 

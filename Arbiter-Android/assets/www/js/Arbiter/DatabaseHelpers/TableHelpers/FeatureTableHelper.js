@@ -91,7 +91,7 @@ Arbiter.FeatureTableHelper = (function(){
     		sql += ");";
     		
     		tx.executeSql(sql, [], function(tx, res){
-    			console.log("SUCCESS: create table - " + sql);
+    			
     			if(Arbiter.Util.funcExists(onSuccess)){
     				onSuccess();
     			}
@@ -121,7 +121,6 @@ Arbiter.FeatureTableHelper = (function(){
     			if(((++insertCount === featureCount) || (featureCount === 0)) && 
 						Arbiter.Util.funcExists(onSuccess)){
 					
-					console.log("calling insertFeatures callback!");
 					onSuccess();
 				}
     			
@@ -139,7 +138,6 @@ Arbiter.FeatureTableHelper = (function(){
     					if(++insertCount === featureCount && 
     							Arbiter.Util.funcExists(onSuccess)){
     						
-    						console.log("calling insertFeatures callback!");
     						onSuccess();
     					}
     				}, onFailure);
@@ -211,7 +209,7 @@ Arbiter.FeatureTableHelper = (function(){
     		sql += ") VALUES (" + questionMarks + ");";
     		
     		tx.executeSql(sql, values, function(tx, res){
-    			console.log("SUCCESS: feature successfully inserted", feature);
+    			
     			if(Arbiter.Util.funcExists(onSuccess)){
     				onSuccess.call();
     			}

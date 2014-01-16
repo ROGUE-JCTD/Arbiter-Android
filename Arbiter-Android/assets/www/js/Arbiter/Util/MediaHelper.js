@@ -50,6 +50,12 @@ Arbiter.MediaHelper = (function(){
 			+ Arbiter.FileSystem.PROJECTS + fileSeparator 
 			+ projectName + fileSeparator + Arbiter.FileSystem.MEDIA;
 		
+		var authHeader = {
+                'Authorization': 'Basic ' + encodedCredentials
+        };
+		
+		console.log("authHeader: " + JSON.stringify(authHeader));
+		
         //only download if we don't have it
         Arbiter.FileSystem.getFileSystem().root.getFile(path + fileSeparator + entry, {create: false, exclusive: false},
             function(fileEntry) {
@@ -79,9 +85,7 @@ Arbiter.MediaHelper = (function(){
                                     			transferError.source, transferError.target, transferError.code);
                                     }
                                 }, undefined, {
-                                        headers: {
-                                            'Authorization': 'Basic ' + encodedCredentials
-                                    }
+                                        headers: authHeader
                                 });
                         }, onFailure);
             	}

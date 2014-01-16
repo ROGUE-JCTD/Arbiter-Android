@@ -52,6 +52,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     
     // For CORDOVA
     private CordovaWebView cordovaWebView;
+    
     private final ExecutorService threadPool = Executors.newCachedThreadPool();
     private CordovaPlugin activityResultCallback;
     protected boolean activityResultKeepRunning;
@@ -72,7 +73,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
         this.keepRunning = this.getBooleanProperty("KeepRunning", true);
         
         dialogs = new ArbiterDialogs(getApplicationContext(), getResources(), getSupportFragmentManager());
-
+        
         cordovaWebView = (CordovaWebView) findViewById(R.id.webView1);
         
         cordovaWebView.loadUrl(ArbiterCordova.mainUrl, 5000);

@@ -23,51 +23,16 @@ Arbiter.Layers.SyncHelper = (function(){
 	};
 	
 	var syncMedia = function(onSuccess, onFailure){
-		var map = Arbiter.Map.getMap();
 		
-		// Get the WFS layers on the map
-		var wfsLayers = map.getLayersByClass("OpenLayers.Layer.Vector");
-		
-		var layerCount = wfsLayers.length;
-		
-		var syncedLayers = 0;
-		
-		if(layerCount === 0){
-			if(Arbiter.Util.funcExists(onSuccess)){
-				onSuccess();
-			}
+		Arbiter.SQLiteTransactionManager.executeAfterDone(function(){
 			
-			return;
-		}
-		
-		var success = function(){
-			if(++syncedLayers === layerCount){
-				if(Arbiter.Util.funcExists(onSuccess)){
-					onSuccess();
-				}
-			}
-		};
-		
-		for(var i = 0; i < layerCount; i++){
-			if(wfsLayers[i].name === Arbiter.AOI){
-				success();
-			}else{
-				Arbiter.MediaHelper.syncMedia(wfsLayers[i], function(layerId, layerName, failedMedia){
-					console.log("Sync Media done layerId = " + layerId + " layerName = "
-							+ layerName + " failedMedia = ", failedMedia);
-					
-					success();
-				}, function(e){
-					console.log("Arbiter.SyncHelper - error syncing media - ", e);
-					
-					if(Arbiter.Util.funcExists(onFailure)){
-						onFailure("Arbiter.SyncHelper - error syncing media - " + e);
-					}
-					
-					++syncedLayers;
-				});
-			}
-		}
+			console.log("executing mediaSync");
+			var mediaSync = new Arbiter.MediaSync(Arbiter.getLayerSchemas());
+			mediaSync.startSync(function(failedOnUpload, failedOnDownload){
+				
+				onSuccess();
+			}, onFailure);
+		});
 	};
 	
 	/**
@@ -93,7 +58,7 @@ Arbiter.Layers.SyncHelper = (function(){
 						optionalSuccess();
 					}
 				}, function(e){
-					console.log("SyncHelper.js - Error syncing media", e);
+					onSyncFailure("Error syncing media - " + e);
 				});
 			};
 			

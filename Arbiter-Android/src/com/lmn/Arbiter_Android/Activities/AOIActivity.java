@@ -18,6 +18,9 @@ import com.lmn.Arbiter_Android.Map.Map;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v4.app.FragmentActivity;
@@ -26,7 +29,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-public class AOIActivity extends FragmentActivity implements CordovaInterface, Map.CordovaMap{
+public class AOIActivity extends FragmentActivity implements CordovaInterface, Map.CordovaMap, TileConfirmation{
 	private static final String TAG = "AOIActivity";
 	
 	// For CORDOVA
@@ -47,18 +50,6 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface, M
 	
 	private void Init(){
 		registerListeners();
-	}
-	
-	private void showConfirmationDialog(){
-		Util.showDialog(getActivity(), R.string.update_aoi_alert,
-				R.string.update_aoi_alert_msg, null, android.R.string.cancel,
-				R.string.update, new Runnable(){
-			
-			@Override
-			public void run(){
-        		Map.getMap().setAOI(cordovaWebView);
-			}
-		});
 	}
 	
 	private void registerListeners(){
@@ -85,9 +76,9 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface, M
         	@Override
         	public void onClick(View v){
         		if(isCreatingProject){
-        			Map.getMap().setNewProjectsAOI(cordovaWebView);
+        			Map.getMap().getTileCount(cordovaWebView);
         		}else{
-        			showConfirmationDialog();
+        			Map.getMap().setAOI(cordovaWebView);
         		}
         	}
         });
@@ -151,6 +142,39 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface, M
         super.onConfigurationChanged(newConfig);
     }
 
+    @Override
+    public void confirmTileCount(final String count){
+    	final AOIActivity activity = this;
+    	
+    	this.runOnUiThread(new Runnable(){
+    		@Override
+    		public void run(){
+    			
+    			AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+    			
+    			builder.setIcon(R.drawable.icon);
+    			builder.setTitle(R.string.warning);
+    			
+    			String message = activity.getResources()
+    					.getString(R.string.tile_cache_warning);
+    			
+    			message += " " + count;
+    			
+    			builder.setMessage(message);
+    			builder.setNegativeButton(android.R.string.cancel, null);
+    			builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener(){
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+
+	        			Map.getMap().setNewProjectsAOI(cordovaWebView);
+					}
+    			});
+    			builder.create().show();
+    		}
+    	});
+    }
+    
     /**
      * Map.CordovaMap methods
      */

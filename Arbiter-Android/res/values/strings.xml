@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+	<string name="warning">Warning</string>
     <string name="app_name">Arbiter-Android</string>
     <string name="action_findme">Find me</string>
     <string name="default_project_name">MyProject</string>
@@ -55,8 +55,7 @@
 	<string name="initializing">Initializing</string>
 	<string name="please_wait">Please wait&#8230;</string>
 	<string name="update_aoi_alert">Area of Interest</string>
-	<string name="update_aoi_alert_msg">Are you sure you want to update your Area of Interest?\n
-	     This will sync your changes with the server before updating.</string>
+	<string name="update_aoi_alert_msg">Updating your area of interest will also sync any changes you have made.</string>
 	<string name="error_updating_aoi">Error</string>
 	<string name="error_updating_aoi_msg">Could not update the area of interest!</string>
 	<string name="loading_feature_info">Feature is loading&#8230; Please wait&#8230;</string>
@@ -65,6 +64,8 @@
 	<string name="check_network_connection">Please check your network connection.</string>
 	<string name="layers_limit">Layer limit reached</string>
 	<string name="too_many_layers">You have reached the maximum layers per project.</string>
+	
+	<string name="tile_cache_warning">Tiles to download:</string>
 	
     <!-- MAP ACTIVITY STRINGS -->
     <string name="map_activity_name">Arbiter</string>

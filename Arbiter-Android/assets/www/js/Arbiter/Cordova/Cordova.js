@@ -37,6 +37,10 @@ Arbiter.Cordova = (function() {
 				UPDATING: 2
 		},
 		
+		SYNC_MESSAGE_ID : {
+			
+		},
+		
 		/**
 		 * Save the current maps extent
 		 */
@@ -53,6 +57,28 @@ Arbiter.Cordova = (function() {
 			waitForNeutral(function(){
 				Arbiter.SQLiteTransactionManager.executeAfterDone(reset);
 			});
+		},
+		
+		getTileCount: function(){
+			var bbox = Arbiter.Map.getCurrentExtent();
+			
+			var count = Arbiter.getTileUtil().getTileCount(bbox);
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"confirmTileCount", [count]);
+		},
+		
+		/**
+		 * Get the area of interest in the aoi map and call the native method to
+		 * save it to be set when onResume gets called on the MapActivity
+		 */
+		setProjectsAOI : function(layers) {
+			var bbox = Arbiter.Map.getCurrentExtent();
+			
+			var count = Arbiter.getTileUtil().getTileCount(bbox);
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"setProjectsAOI", [bbox.toBBOX(), count]);
 		},
 		
 		setNewProjectsAOI: function(){
@@ -159,6 +185,10 @@ Arbiter.Cordova = (function() {
 		updateTileSyncingStatus: function(percent){
 			cordova.exec(null, null, "ArbiterCordova",
 					"updateTileSyncingStatus", [percent]);
+		},
+		
+		updateSyncingStatus: function(messageId){
+			
 		},
 		
 		createProjectTileSyncingStatus: function(percent){

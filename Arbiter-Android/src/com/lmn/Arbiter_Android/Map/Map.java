@@ -59,6 +59,12 @@ public class Map{
 		}
 	}
 	
+	public void getTileCount(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.getTileCount()'));";
+		
+		webview.loadUrl(url);
+	}
+
 	public void setNewProjectsAOI(CordovaWebView webview){
 		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.setNewProjectsAOI()'));";
 		
@@ -66,7 +72,7 @@ public class Map{
 	}
 	
 	public void setAOI(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.Project.setProjectsAOI()'))";
+		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.setProjectsAOI()'))";
 		
 		webview.loadUrl(url);
 	}

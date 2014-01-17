@@ -8,8 +8,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -20,6 +22,7 @@ import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.Activities.MapChangeHelper;
+import com.lmn.Arbiter_Android.Activities.TileConfirmation;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
@@ -51,8 +54,9 @@ public class ArbiterCordova extends CordovaPlugin{
 		if("setProjectsAOI".equals(action)){
 			
 			String aoi = args.getString(0);
+			String tileCount = args.getString(1);
 			
-			setProjectsAOI(aoi, callbackContext);
+			setProjectsAOI(aoi, tileCount);
 			
 			return true;
 		}else if("resetWebApp".equals(action)){
@@ -62,6 +66,10 @@ public class ArbiterCordova extends CordovaPlugin{
 			resetWebApp(extent, zoomLevel, callbackContext);
 			
 			return true;
+		}else if("confirmTileCount".equals(action)){
+			String count = args.getString(0);
+			
+			confirmTileCount(count);
 		}else if("setNewProjectsAOI".equals(action)){
 			String aoi = args.getString(0);
 			
@@ -353,6 +361,16 @@ public class ArbiterCordova extends CordovaPlugin{
 		});
 	}
 	
+	private void confirmTileCount(final String count){
+		
+		try{
+			TileConfirmation tileConfirmation = (TileConfirmation) cordova.getActivity();
+			tileConfirmation.confirmTileCount(count);
+		}catch(ClassCastException e){
+			e.printStackTrace();
+		}
+	}
+	
 	private void setNewProjectsAOI(final String aoi, final CallbackContext callbackContext){
 		//ArbiterState.getState().setNewAOI(aoi);
 		ArbiterProject.getArbiterProject().getNewProject().setAOI(aoi);
@@ -362,16 +380,47 @@ public class ArbiterCordova extends CordovaPlugin{
 		cordova.getActivity().finish();
 	}
 	
+	private void showAOIConfirmationDialog(final String aoi, final String count){
+		final Activity activity = cordova.getActivity();
+		
+		String message = activity.getResources()
+				.getString(R.string.update_aoi_alert_msg);
+		
+		message += "\n\n" + activity.getResources().getString(
+				R.string.tile_cache_warning) + " " + count;
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		
+		builder.setIcon(R.drawable.icon);
+		builder.setTitle(R.string.update_aoi_alert);
+		builder.setMessage(message);
+		builder.setNegativeButton(android.R.string.cancel, null);
+		
+		builder.setPositiveButton(R.string.update, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				
+				ArbiterState.getArbiterState().setNewAOI(aoi);
+				
+				activity.finish();
+			}
+		});
+		
+		builder.create().show();
+	}
+	
 	/**
 	 * Set the ArbiterProject Singleton's newProject aoi, commit the project, and return to the map
 	 */
-	private void setProjectsAOI(final String aoi, final CallbackContext callbackContext){
-		
-		ArbiterState.getArbiterState().setNewAOI(aoi);
-		
-		callbackContext.success();
-		
-		cordova.getActivity().finish();
+	private void setProjectsAOI(final String aoi, final String count){
+		cordova.getActivity().runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				
+				showAOIConfirmationDialog(aoi, count);
+			}
+		});
 	} 
 	
 	

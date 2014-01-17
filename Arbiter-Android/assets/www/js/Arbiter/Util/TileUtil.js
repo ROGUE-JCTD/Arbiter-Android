@@ -240,6 +240,21 @@ Arbiter.Util.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
 		}
 	};
 	
+	this.getTileCount = function(aoi){
+		if(aoi === null || aoi === undefined){
+			throw "TileUtil.getTileCount aoi should not be " + aoi;
+		}
+		
+		//Arbiter.showMessageOverlay(Arbiter.localizeString("Caching Tiles","label","cachingTiles"));
+	
+		//-- make sure user wants to clear cache and then download tiles after 
+		//   telling them how many tiles will be downloaded 
+		var count = TileUtil.queueCacheRequests(aoi, true /* only count the tiles do not queue yet */);
+		console.log("Downloading " + count + " tiles!");
+		
+		return count;
+	};
+	
 	/**
 	 * @param {OpenLayers.Bounds} aoi The aoi for caching
 	 */
@@ -254,26 +269,6 @@ Arbiter.Util.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
 			console.log("Tile caching already in progress.  Aborting new request.");
 			return;
 		} 
-		
-		//Arbiter.showMessageOverlay(Arbiter.localizeString("Caching Tiles","label","cachingTiles"));
-	
-		//-- make sure user wants to clear cache and then download tiles after 
-		//   telling them how many tiles will be downloaded 
-		var count = TileUtil.queueCacheRequests(aoi, true /* only count the tiles do not queue yet */);
-		console.log("Downloading " + count + " tiles!");
-		//var okay = confirm(Arbiter.localizeString("Clear cache and download {0} tiles?","label","clearCache").format(count));
-		
-		/*if (!okay) {
-			console.log("-- cache cancelled by user");
-			Arbiter.hideMessageOverlay();
-			
-			if (successCallback){
-				successCallback();
-			}
-			
-			return;
-		}*/
-		
 		
 		//-- continue with clearing cache and then re downloading tiles 
 		TileUtil.clearCache("Arbiter/osm", function(){

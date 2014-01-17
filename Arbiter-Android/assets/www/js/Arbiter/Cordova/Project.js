@@ -315,16 +315,6 @@ Arbiter.Cordova.Project = (function(){
 			}, onFailure);
 		},
 		
-		/**
-		 * Get the area of interest in the aoi map and call the native method to
-		 * save it to be set when onResume gets called on the MapActivity
-		 */
-		setProjectsAOI : function(layers) {
-			var bbox = Arbiter.Map.getCurrentExtent().toBBOX();
-			
-			cordova.exec(null, null, "ArbiterCordova", "setProjectsAOI", [bbox]);
-		},
-		
 		updateAOI: function(left, bottom, right, top){
 			var aoi = left + ", " + bottom 
 				+ ", " + right + ", " + top;

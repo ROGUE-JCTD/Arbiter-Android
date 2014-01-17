@@ -15,6 +15,8 @@ Arbiter.Layers.SyncHelper = (function(){
 	};
 	
 	var onSyncFailure = function(e){
+		console.log("onSyncFailure", e);
+		
 		Arbiter.Cordova.syncFailed(e);
 		
 		if(Arbiter.Util.funcExists(optionalFailure)){

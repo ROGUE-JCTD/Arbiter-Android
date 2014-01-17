@@ -80,10 +80,16 @@ Arbiter.FeatureTableHelper = (function(){
     		
     		var attributes = schema.getAttributes();
     		
+    		var nillable = null;
+    		
     		for(var i = 0; i < attributes.length; i++){
     			sql += ", '" + attributes[i].getName() + "' " + attributes[i].getType();
     			
-    			if(!attributes[i].isNillable()){
+    			nillable = attributes[i].isNillable();
+    			
+    			if(nillable === false 
+    					|| nillable === "false"){
+    				
     				sql += " not null";
     			}
     		}

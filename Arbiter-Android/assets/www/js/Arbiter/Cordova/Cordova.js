@@ -187,6 +187,38 @@ Arbiter.Cordova = (function() {
 					"updateTileSyncingStatus", [percent]);
 		},
 		
+		updateMediaUploadingStatus: function(layer, finishedCount, totalCount,
+				finishedLayersUploading, queuedLayersUploading){
+			
+			console.log("updateMediaUploadingStatus layer = " + layer
+					+ ", finishedCount = " + finishedCount 
+					+ ", totalCount = " + totalCount + ", finishedLayers = " 
+					+ finishedLayersUploading + ", totalLayers = " + queuedLayersUploading);
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"updateMediaUploadingStatus",
+					[layer, finishedCount, totalCount,
+					 finishedLayersUploading,
+					 queuedLayersUploading]);
+		},
+		
+		updateMediaDownloadingStatus: function(layer, finishedCount,
+				totalCount, finishedLayersDownloading,
+				queuedLayersDownloading){
+			
+			console.log("updateMediaDownloadingStatus layer = " + layer
+					+ ", finishedCount = " + finishedCount 
+					+ ", totalCount = " + totalCount + ", finishedLayer = " 
+					+ finishedLayersDownloading + ", totalLayers = " 
+					+ queuedLayersDownloading);
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"updateMediaDownloadingStatus",
+					[layer, finishedCount, totalCount, 
+					 finishedLayersDownloading,
+					 queuedLayersDownloading]);
+		},
+		
 		updateSyncingStatus: function(messageId){
 			
 		},

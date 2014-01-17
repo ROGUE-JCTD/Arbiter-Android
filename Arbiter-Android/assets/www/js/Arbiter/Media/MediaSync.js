@@ -14,6 +14,12 @@ Arbiter.MediaSync = function(_layerSchemas){
 	this.onSyncComplete = null;
 	
 	this.initialized = false;
+	
+	this.finishedUploading = -1;
+	this.queuedUploading = 0;
+	
+	this.finishedDownloading = -1;
+	this.queueDownloading = 0;
 };
 
 // url
@@ -55,6 +61,9 @@ Arbiter.MediaSync.prototype.initialize = function(onSuccess, onFailure){
 			Arbiter.LayersHelper.loadLayers(context, function(layers){
 				
 				context.layers = layers;
+				
+				context.queueDownloading = layers.length - 1;
+				context.queuedUploading = layers.length - 1;
 				
 				console.log("loadedLayers: " + JSON.stringify(layers));
 				
@@ -137,8 +146,6 @@ Arbiter.MediaSync.prototype.startUploadForNext = function(){
 Arbiter.MediaSync.prototype.startDownloadForNext = function(){
 	var context = this;
 	
-	console.log("getting next to download");
-	
 	var layer = this.layersForDownload.shift();
 	
 	if(layer !== undefined){
@@ -151,14 +158,12 @@ Arbiter.MediaSync.prototype.startDownloadForNext = function(){
 Arbiter.MediaSync.prototype.uploadMedia = function(layer){
 	var context = this;
 	
-	console.log("uploading media for layer:", layer);
-	
 	var layerId = layer[Arbiter.LayersHelper.layerId()];
 	var serverId = layer[Arbiter.LayersHelper.serverId()];
 	
 	var mediaForLayer = this.mediaToSend[layerId];
 	
-	console.log("mediaForLayer is ", mediaForLayer);
+	this.finishedUploading++;
 	
 	if(mediaForLayer === null 
 			|| mediaForLayer === undefined 
@@ -171,8 +176,10 @@ Arbiter.MediaSync.prototype.uploadMedia = function(layer){
 	
 	var server = Arbiter.Util.Servers.getServer(serverId);
 	
-	var mediaUploader = new Arbiter.MediaUploader(mediaForLayer,
-			server, context.mediaDir);
+	var mediaUploader = new Arbiter.MediaUploader(
+			this.layerSchemas[layerId], mediaForLayer,
+			server, context.mediaDir, context.finishedUploading,
+			context.queuedUploading);
 	
 	mediaUploader.startUpload(function(failedMedia){
 		
@@ -194,8 +201,12 @@ Arbiter.MediaSync.prototype.downloadMedia = function(layer){
 	
 	var featureDb = Arbiter.FeatureDbHelper.getFeatureDatabase();
 	
+	this.finishedDownloading++;
+	
 	var mediaDownloader = new Arbiter.MediaDownloader(featureDb,
-			schema, server, context.mediaDir);
+			schema, server, context.mediaDir, 
+			context.finishedDownloading,
+			context.queueDownloading);
 	
 	mediaDownloader.startDownload(function(failedMedia){
 		

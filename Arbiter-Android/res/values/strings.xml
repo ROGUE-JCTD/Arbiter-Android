@@ -66,6 +66,9 @@
 	<string name="too_many_layers">You have reached the maximum layers per project.</string>
 	
 	<string name="tile_cache_warning">Tiles to download:</string>
+	<string name="syncing_media_title">Syncing Media</string>
+	<string name="downloaded">Downloaded: </string>
+	<string name="uploaded">Uploaded: </string>
 	
     <!-- MAP ACTIVITY STRINGS -->
     <string name="map_activity_name">Arbiter</string>

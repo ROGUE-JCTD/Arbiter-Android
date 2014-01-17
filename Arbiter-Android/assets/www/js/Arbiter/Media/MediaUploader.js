@@ -1,9 +1,13 @@
-Arbiter.MediaUploader = function(_media, _server, _mediaDir){
+Arbiter.MediaUploader = function(_schema, _media, _server, _mediaDir, 
+		_finishedLayersUploading, _queuedLayersUploading){
+	
+	this.schema = _schema;
 	this.media = _media;
 	this.server = _server;
 	this.mediaDir = _mediaDir;
-	
 	this.failedMedia = [];
+	this.finishedLayersUploading = _finishedLayersUploading;
+	this.queuedLayersUploading = _queuedLayersUploading;
 	
 	var credentials = Arbiter.Util.getEncodedCredentials(
 			this.server.getUsername(), 
@@ -20,10 +24,28 @@ Arbiter.MediaUploader = function(_media, _server, _mediaDir){
 	};
 	
 	this.onUploadSuccess = null;
+	
+	// Start at -1 to account for the first upload
+	this.finishedCount = -1;
+	
+	this.queuedCount = 0;
 };
 
 Arbiter.MediaUploader.prototype.startUpload = function(onSuccess){
 	this.onUploadSuccess = onSuccess;
+	
+	var mediaUploadCounter = new Arbiter.MediaUploadCounter(this.media);
+	
+	this.queuedCount = mediaUploadCounter.getCount();
+	
+	if(this.queuedCount === 0){
+		
+		if(Arbiter.Util.funcExists(this.onUploadSuccess)){
+			this.onUploadSuccess(this.failedMedia);
+		}
+		
+		return;
+	}
 	
 	this.startUploadingNext();
 };
@@ -31,7 +53,17 @@ Arbiter.MediaUploader.prototype.startUpload = function(onSuccess){
 Arbiter.MediaUploader.prototype.startUploadingNext = function(){
 	var next = this.media.shift();
 	
+	this.finishedCount++;
+	
+	Arbiter.Cordova.updateMediaUploadingStatus(
+			this.schema.getFeatureType(),
+			this.finishedCount,
+			this.queuedCount,
+			this.finishedLayersUploading,
+			this.queuedLayersUploading);
+	
 	if(next !== undefined){
+		
 		this.uploadNext(next);
 	}else{
 		if(Arbiter.Util.funcExists(this.onUploadSuccess)){

@@ -1,8 +1,10 @@
-Arbiter.MediaDownloader = function(_featureDb, _schema, _server, _mediaDir){
+Arbiter.MediaDownloader = function(_featureDb, _schema, _server, _mediaDir, _finishedLayersDownloading, _queuedLayersDownloading){
 	this.db = _featureDb;
 	this.schema = _schema;
 	this.server = _server;
 	this.mediaDir = _mediaDir;
+	this.finishedLayersDownloading = _finishedLayersDownloading;
+	this.queuedLayersDownloading = _queuedLayersDownloading;
 	
 	// key by arbiter_id
 	this.failedOnDownload = {};
@@ -24,6 +26,11 @@ Arbiter.MediaDownloader = function(_featureDb, _schema, _server, _mediaDir){
 	this.onDownloadSuccess = null;
 	
 	this.features = [];
+	
+	this.queuedCount = 0;
+	
+	// Start at -1 to account for the first download
+	this.finishedDownloading = -1;
 };
 
 Arbiter.MediaDownloader.prototype.startDownload = function(onSuccess){
@@ -32,6 +39,20 @@ Arbiter.MediaDownloader.prototype.startDownload = function(onSuccess){
 	this.onDownloadSuccess = onSuccess;
 	
 	this.getFeatures(function(){
+		
+		var mediaDownloadCounter = new Arbiter.MediaDownloadCounter(
+				context.schema, context.features);
+		
+		context.queuedCount = mediaDownloadCounter.getCount();
+		
+		if(context.queuedCount === 0){
+			
+			if(Arbiter.Util.funcExists(context.onDownloadSuccess)){
+				context.onDownloadSuccess(context.failedOnDownload);
+			}
+			
+			return;
+		}
 		
 		context.startDownloadingNext();
 	}, function(e){
@@ -74,6 +95,15 @@ Arbiter.MediaDownloader.prototype.startDownloadingNext = function(){
 	
 	var feature = this.features.shift();
 	
+	this.finishedDownloading++;
+	
+	Arbiter.Cordova.updateMediaDownloadingStatus(
+			this.schema.getFeatureType(), 
+			this.finishedDownloading,
+			this.queuedCount,
+			this.finishedLayersDownloading,
+			this.queuedLayersDownloading);
+	
 	if(feature !== undefined){
 		
 		var mediaDownloaderHelper = new Arbiter.MediaDownloaderHelper(feature, 
@@ -87,7 +117,6 @@ Arbiter.MediaDownloader.prototype.startDownloadingNext = function(){
 			
 			context.startDownloadingNext();
 		});
-		
 	}else{
 		
 		if(Arbiter.Util.funcExists(this.onDownloadSuccess)){

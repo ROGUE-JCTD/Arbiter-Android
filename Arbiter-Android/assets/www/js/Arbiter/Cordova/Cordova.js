@@ -187,36 +187,41 @@ Arbiter.Cordova = (function() {
 					"updateTileSyncingStatus", [percent]);
 		},
 		
-		updateMediaUploadingStatus: function(layer, finishedCount, totalCount,
-				finishedLayersUploading, queuedLayersUploading){
+		updateMediaUploadingStatus: function(layer, finishedCount, totalCount){
 			
 			console.log("updateMediaUploadingStatus layer = " + layer
 					+ ", finishedCount = " + finishedCount 
-					+ ", totalCount = " + totalCount + ", finishedLayers = " 
-					+ finishedLayersUploading + ", totalLayers = " + queuedLayersUploading);
+					+ ", totalCount = " + totalCount);
 			
 			cordova.exec(null, null, "ArbiterCordova",
 					"updateMediaUploadingStatus",
-					[layer, finishedCount, totalCount,
-					 finishedLayersUploading,
-					 queuedLayersUploading]);
+					[layer, finishedCount, totalCount]);
 		},
 		
-		updateMediaDownloadingStatus: function(layer, finishedCount,
-				totalCount, finishedLayersDownloading,
-				queuedLayersDownloading){
+		updateMediaDownloadingStatus: function(layer, finishedCount, totalCount){
 			
 			console.log("updateMediaDownloadingStatus layer = " + layer
 					+ ", finishedCount = " + finishedCount 
-					+ ", totalCount = " + totalCount + ", finishedLayer = " 
-					+ finishedLayersDownloading + ", totalLayers = " 
-					+ queuedLayersDownloading);
+					+ ", totalCount = " + totalCount);
 			
 			cordova.exec(null, null, "ArbiterCordova",
 					"updateMediaDownloadingStatus",
-					[layer, finishedCount, totalCount, 
-					 finishedLayersDownloading,
-					 queuedLayersDownloading]);
+					[layer, finishedCount, totalCount]);
+		},
+		
+		finishMediaUploading: function(){
+			console.log("finishMediaUploading");
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"finishMediaUploading", []);
+		},
+		
+		finishMediaDownloading: function(){
+			
+			console.log("finishMediaDownloading");
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"finishMediaDownloading", []);
 		},
 		
 		updateSyncingStatus: function(messageId){

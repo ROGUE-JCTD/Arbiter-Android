@@ -1,13 +1,10 @@
-Arbiter.MediaUploader = function(_schema, _media, _server, _mediaDir, 
-		_finishedLayersUploading, _queuedLayersUploading){
+Arbiter.MediaUploader = function(_schema, _media, _server, _mediaDir){
 	
 	this.schema = _schema;
 	this.media = _media;
 	this.server = _server;
 	this.mediaDir = _mediaDir;
 	this.failedMedia = [];
-	this.finishedLayersUploading = _finishedLayersUploading;
-	this.queuedLayersUploading = _queuedLayersUploading;
 	
 	var credentials = Arbiter.Util.getEncodedCredentials(
 			this.server.getUsername(), 
@@ -58,9 +55,7 @@ Arbiter.MediaUploader.prototype.startUploadingNext = function(){
 	Arbiter.Cordova.updateMediaUploadingStatus(
 			this.schema.getFeatureType(),
 			this.finishedCount,
-			this.queuedCount,
-			this.finishedLayersUploading,
-			this.queuedLayersUploading);
+			this.queuedCount);
 	
 	if(next !== undefined){
 		

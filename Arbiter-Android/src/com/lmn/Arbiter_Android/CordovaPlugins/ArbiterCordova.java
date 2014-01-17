@@ -154,31 +154,41 @@ public class ArbiterCordova extends CordovaPlugin{
 			String layer = args.getString(0);
 			String finished = args.getString(1);
 			String total = args.getString(2);
-			String finishedLayers = args.getString(3);
-			String totalLayers = args.getString(4);
 			
 			updateMediaSyncingStatus(layer, finished, total, 
-					MediaSyncingTypes.UPLOADING, finishedLayers,
-					totalLayers);
+					MediaSyncingTypes.UPLOADING);
 		}else if("updateMediaDownloadingStatus".equals(action)){
 			String layer = args.getString(0);
 			String finished = args.getString(1);
 			String total = args.getString(2);
-			String finishedLayers = args.getString(3);
-			String totalLayers = args.getString(4);
 			
 			updateMediaSyncingStatus(layer, finished, total, 
-					MediaSyncingTypes.DOWNLOADING, finishedLayers, totalLayers);
+					MediaSyncingTypes.DOWNLOADING);
+		}else if("finishMediaUploading".equals(action)){
+			
+			finishMediaUploading();
+		}else if("finishMediaDownloading".equals(action)){
+			finishMediaDownloading();
 		}
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
 	}
 	
+	private void finishMediaUploading(){
+		if(mediaUploadProgressDialog != null){
+			mediaUploadProgressDialog.dismiss();
+		}
+	}
+	
+	private void finishMediaDownloading(){
+		if(mediaDownloadProgressDialog != null){
+			mediaDownloadProgressDialog.dismiss();
+		}
+	}
+	
 	private void updateMediaSyncingStatus(final String layer, final String finished,
-			final String total, final int syncType,
-			final String finishedLayers, 
-			final String totalLayers){
+			final String total, final int syncType){
 		
 		final Activity activity = cordova.getActivity();
 		
@@ -197,11 +207,7 @@ public class ArbiterCordova extends CordovaPlugin{
 					if(mediaDownloadProgressDialog == null){
 						mediaDownloadProgressDialog = ProgressDialog.show(activity, title, message, true);
 					}else{
-						if(finished.equals(total) && finishedLayers.equals(totalLayers)){
-							mediaDownloadProgressDialog.dismiss();
-						}else{
-							mediaDownloadProgressDialog.setMessage(message);
-						}
+						mediaDownloadProgressDialog.setMessage(message);
 					}
 				}else{
 					message += activity.getResources().getString(R.string.uploaded);
@@ -211,11 +217,7 @@ public class ArbiterCordova extends CordovaPlugin{
 					if(mediaUploadProgressDialog == null){
 						mediaUploadProgressDialog = ProgressDialog.show(activity, title, message, true);
 					}else{
-						if(finished.equals(total) && finishedLayers.equals(totalLayers)){
-							mediaUploadProgressDialog.dismiss();
-						}else{
-							mediaUploadProgressDialog.setMessage(message);
-						}
+						mediaUploadProgressDialog.setMessage(message);
 					}
 				}
 			}

@@ -1,10 +1,9 @@
-Arbiter.MediaDownloader = function(_featureDb, _schema, _server, _mediaDir, _finishedLayersDownloading, _queuedLayersDownloading){
+Arbiter.MediaDownloader = function(_featureDb, _schema, _server, _mediaDir){
+	
 	this.db = _featureDb;
 	this.schema = _schema;
 	this.server = _server;
 	this.mediaDir = _mediaDir;
-	this.finishedLayersDownloading = _finishedLayersDownloading;
-	this.queuedLayersDownloading = _queuedLayersDownloading;
 	
 	// key by arbiter_id
 	this.failedOnDownload = {};
@@ -100,9 +99,7 @@ Arbiter.MediaDownloader.prototype.startDownloadingNext = function(){
 	Arbiter.Cordova.updateMediaDownloadingStatus(
 			this.schema.getFeatureType(), 
 			this.finishedDownloading,
-			this.queuedCount,
-			this.finishedLayersDownloading,
-			this.queuedLayersDownloading);
+			this.queuedCount);
 	
 	if(feature !== undefined){
 		

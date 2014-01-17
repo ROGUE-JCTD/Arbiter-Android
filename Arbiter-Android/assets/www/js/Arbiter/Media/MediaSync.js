@@ -110,6 +110,8 @@ Arbiter.MediaSync.prototype.onUploadComplete = function(){
 	console.log("MediaSync.js Upload completed.  The following"
 			+ " failed to upload:", this.failedOnUpload);
 	
+	Arbiter.Cordova.finishMediaUploading();
+	
 	this.startDownloadForNext();
 };
 
@@ -117,6 +119,8 @@ Arbiter.MediaSync.prototype.onDownloadComplete = function(){
 	// TODO: Handle errors
 	console.log("MediaSync.js Download completed.  The following"
 			+ " failed to download:", this.failedOnDownload);
+	
+	Arbiter.Cordova.finishMediaDownloading();
 	
 	if(Arbiter.Util.funcExists(this.onSyncComplete)){
 		this.onSyncComplete(this.failedOnUpload,
@@ -178,8 +182,7 @@ Arbiter.MediaSync.prototype.uploadMedia = function(layer){
 	
 	var mediaUploader = new Arbiter.MediaUploader(
 			this.layerSchemas[layerId], mediaForLayer,
-			server, context.mediaDir, context.finishedUploading,
-			context.queuedUploading);
+			server, context.mediaDir);
 	
 	mediaUploader.startUpload(function(failedMedia){
 		
@@ -204,9 +207,7 @@ Arbiter.MediaSync.prototype.downloadMedia = function(layer){
 	this.finishedDownloading++;
 	
 	var mediaDownloader = new Arbiter.MediaDownloader(featureDb,
-			schema, server, context.mediaDir, 
-			context.finishedDownloading,
-			context.queueDownloading);
+			schema, server, context.mediaDir);
 	
 	mediaDownloader.startDownload(function(failedMedia){
 		

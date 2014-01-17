@@ -43,7 +43,11 @@ public class AttributeHelper {
 		for(String key : attributes.keySet()){
 			attribute = attributes.get(key);
 			
-			attribute.setEditMode(editMode);
+			if(key.equals(feature.getGeometryName())){
+				attribute.setEditMode(false);
+			}else{
+				attribute.setEditMode(editMode);
+			}
 		}
 		
 		return editMode;

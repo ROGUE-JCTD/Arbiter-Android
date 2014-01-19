@@ -69,6 +69,12 @@
 	<string name="syncing_media_title">Syncing Media</string>
 	<string name="downloaded">Downloaded: </string>
 	<string name="uploaded">Uploaded: </string>
+	<string name="form_error_date">Please enter a valid date.</string>
+	<string name="form_error_integer">Please enter a valid integer.</string>
+	<string name="form_error_double">Please enter a valid number.</string>
+	<string name="form_error_bool">Please enter true or false.</string>
+	<string name="check_errors">Invalid entries</string>
+	<string name="check_errors_msg">Please fix errors before continuing.</string>
 	
     <!-- MAP ACTIVITY STRINGS -->
     <string name="map_activity_name">Arbiter</string>

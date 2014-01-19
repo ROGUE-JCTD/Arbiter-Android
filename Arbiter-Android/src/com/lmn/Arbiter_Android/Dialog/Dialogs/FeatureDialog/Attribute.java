@@ -4,9 +4,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.DateTime.DatePickerFragment;
 
+import android.content.res.Resources;
 import android.support.v4.app.FragmentActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -19,6 +24,7 @@ public class Attribute {
 	private SimpleDateFormat formatter;
 	private FragmentActivity activity;
 	private String dateValue;
+	private boolean valid;
 	
 	private Attribute(FragmentActivity activity, EnumerationHelper enumHelper){
 		this.enumHelper = enumHelper;
@@ -27,6 +33,7 @@ public class Attribute {
 		this.dateValue = null;
 		this.spinner = null;
 		this.editText = null;
+		this.valid = true;
 	}
 	
 	public Attribute(FragmentActivity activity, Spinner spinner,
@@ -174,5 +181,66 @@ public class Attribute {
 		}
 		
 		editText.setText(formattedDate);
+	}
+	
+	public boolean isValid(){
+		
+		return valid;
+	}
+	
+	public boolean updateValidity(){
+		Resources resources = activity.getResources();
+		String type = enumHelper.getType();
+		String val = editText.getText().toString();
+		
+		Util util = new Util();
+		
+		if(val.isEmpty()){
+			valid = true;
+		}else{
+			if(type.equals("xsd:integer") || type.equals("xsd:int")){
+				
+				valid = util.isInteger(val);
+				
+				if(!valid){
+					editText.setError(resources.getString(
+							R.string.form_error_integer));
+				}
+			}else if(type.equals("xsd:double")){
+				
+				valid = util.isDouble(val);
+				
+				if(!valid){
+					editText.setError(resources.getString(
+							R.string.form_error_double));
+				}
+			}else if(type.equals("xsd:boolean")){
+				
+				if(val.equals("true") || val.equals("false")){
+					valid = true;
+				}else{
+					valid = false;
+					editText.setError(resources.getString(
+							R.string.form_error_bool));
+				}
+			}else if(type.equals("xsd:dateTime") 
+					|| type.equals("xsd:date") 
+					|| type.equals("xsd:time")){
+				
+				try {
+					formatter.parse(dateValue);
+					valid = true;
+				} catch (ParseException e) {
+					valid = false;
+				}
+				
+				if(!valid){
+					editText.setError(resources.getString(
+							R.string.form_error_date));;
+				}
+			}
+		}
+		
+		return valid;
 	}
 }

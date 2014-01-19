@@ -137,7 +137,7 @@ public class FeatureDialogBuilder {
 						e.printStackTrace();
 					}
 				}else if(key.equals(geometryName)){
-					appendGeometry(key, value, startInEditMode);
+					appendGeometry(key, value);
 				}else{
 					appendAttribute(key, value, startInEditMode);
 				}
@@ -172,7 +172,7 @@ public class FeatureDialogBuilder {
 		}
 	}
 	
-	private void appendGeometry(String key, String value, boolean startInEditMode){
+	private void appendGeometry(String key, String value){
 		View attributeView = inflater.inflate(R.layout.feature_attribute, null);
 		
 		if(key != null){
@@ -188,7 +188,7 @@ public class FeatureDialogBuilder {
 		if(attributeValue != null){
 			attributeValue.setText(value);
 			attributeHelper.add(fragActivity, key, attributeValue,
-					null, startInEditMode, value);
+					null, false, value);
 		}
 		
 		outerLayout.addView(attributeView);
@@ -272,6 +272,10 @@ public class FeatureDialogBuilder {
 		toggleMediaPanels(editMode);
 		
 		return _editMode;
+	}
+	
+	public boolean checkFormValidity(){
+		return attributeHelper.checkFormValidity();
 	}
 	
 	public void updateFeature(){

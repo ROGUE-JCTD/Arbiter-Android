@@ -339,7 +339,6 @@ public class FeatureDialogHelper {
 				
 				final ProgressDialog progressDialog = startUpdateProgress();
 				
-				
 				CommandExecutor.runProcess(new Runnable(){
 					@Override
 					public void run(){
@@ -386,8 +385,18 @@ public class FeatureDialogHelper {
 	 */
 	public void endEditMode(Button editButton, Button editOnMapButton,
 			Button cancelButton, Button deleteButton){
-		
-		areYouSure(editButton, editOnMapButton, cancelButton, deleteButton);
+		if(builder.checkFormValidity()){
+			areYouSure(editButton, editOnMapButton,
+					cancelButton, deleteButton);
+		}else{
+			AlertDialog.Builder errorBuilder = new AlertDialog.Builder(activity);
+			
+			errorBuilder.setIcon(R.drawable.icon);
+			errorBuilder.setTitle(R.string.check_errors);
+			errorBuilder.setMessage(R.string.check_errors_msg);
+			
+			errorBuilder.create().show();
+		}
 	}
 	
 	public void unselect(){

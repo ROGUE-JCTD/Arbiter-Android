@@ -141,6 +141,7 @@
     <string name="server_url_hint">ex. http://example.com/geoserver</string>
     <string name="server_username_hint">Username</string>
     <string name="server_password_hint">Password</string>
+    <string name="server_show_password">Show Password</string>
 
     <!-- GO OFFLINE DIALOG STRINGS -->
     <string name="go_offline_dialog_title">Offline</string>

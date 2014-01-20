@@ -2,7 +2,12 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.Selection;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.lmn.Arbiter_Android.R;
@@ -18,6 +23,7 @@ public class AddServerDialog extends ArbiterDialogFragment{
 	private EditText urlField;
 	private EditText usernameField;
 	private EditText passwordField;
+	private CheckBox showPassword;
 	
 	public static AddServerDialog newInstance(String title, String ok, 
 			String cancel, int layout, Server server){
@@ -115,6 +121,23 @@ public class AddServerDialog extends ArbiterDialogFragment{
 		this.urlField = (EditText) view.findViewById(R.id.server_url);
 		this.usernameField = (EditText) view.findViewById(R.id.server_username);
 		this.passwordField = (EditText) view.findViewById(R.id.server_password);
+		this.showPassword = (CheckBox) view.findViewById(R.id.server_show_password);
+		
+		this.showPassword.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				if(showPassword.isChecked()) {
+					passwordField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+				} else {
+					passwordField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+				}
+				int position = passwordField.length();
+				Editable etext = passwordField.getText();
+				Selection.setSelection(etext, position);
+			}
+			
+		});
 		
 		if(server != null){
 			setFields(server);

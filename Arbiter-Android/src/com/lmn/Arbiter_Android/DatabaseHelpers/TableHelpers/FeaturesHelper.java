@@ -1,5 +1,9 @@
 package com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 
 import android.content.ContentValues;
@@ -61,10 +65,11 @@ public class FeaturesHelper{
 
 		String[] columnNames = cursor.getColumnNames();
 		
-		ContentValues attributes = new ContentValues();
+		LinkedHashMap<String, String> attributes = new LinkedHashMap<String, String>(cursor.getColumnCount());
 		
 		for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 			for(int i = 0; i < columnNames.length; i++){
+				
 				if(!columnNames[i].equals(ID)){
 					attributes.put(columnNames[i], cursor.getString(i));
 				}
@@ -76,10 +81,10 @@ public class FeaturesHelper{
 		return new Feature(id, featureType, geometryColumn, attributes);
 	}
 	
-	private ContentValues getEmptyAttributesWithGeometry(SQLiteDatabase db, 
+	private LinkedHashMap<String, String> getEmptyAttributesWithGeometry(SQLiteDatabase db, 
 			String featureType, String geometryColumn, String wktGeometry){
 		
-		ContentValues attributes = new ContentValues();
+		LinkedHashMap<String, String> attributes = new LinkedHashMap<String, String>();
 		
 		Cursor cursor = db.rawQuery("PRAGMA table_info(" + featureType + ")", null);
 		
@@ -110,7 +115,7 @@ public class FeaturesHelper{
 			e.printStackTrace();
 		}
 		
-		ContentValues attributes = getEmptyAttributesWithGeometry(db, 
+		LinkedHashMap<String, String> attributes = getEmptyAttributesWithGeometry(db, 
 				featureType, geometryColumn, wktGeometry);
 		
 		return new Feature(featureType, geometryColumn, attributes);
@@ -144,6 +149,16 @@ public class FeaturesHelper{
 		throw new FeatureHelperException(Errors.NO_GEOMETRY_COLUMN);
 	}
 	
+	private ContentValues getContentValues(LinkedHashMap<String, String> map){
+		ContentValues contentValues = new ContentValues();
+		
+		for(Map.Entry<String, String> entry : map.entrySet()){
+			contentValues.put(entry.getKey(), entry.getValue());
+		}
+		
+		return contentValues;
+	}
+	
 	public String insert(SQLiteDatabase db, String featureType, Feature feature){
 		
 		String id = null;
@@ -151,7 +166,7 @@ public class FeaturesHelper{
 		db.beginTransaction();
 		
 		try{
-			id = Long.toString(db.insert(featureType, null, feature.getAttributes()));
+			id = Long.toString(db.insert(featureType, null, getContentValues(feature.getAttributes())));
 			
 			db.setTransactionSuccessful();
 		} catch (Exception e){
@@ -181,7 +196,7 @@ public class FeaturesHelper{
 				throw new Exception("Feature Update: sync state should not be null");
 			}
 			
-			db.update(featureType, feature.getAttributes(), whereClause, whereArgs);
+			db.update(featureType, getContentValues(feature.getAttributes()), whereClause, whereArgs);
 			
 			db.setTransactionSuccessful();
 		} catch (Exception e){

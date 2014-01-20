@@ -28,7 +28,6 @@ import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -52,7 +51,6 @@ public class FeatureDialogHelper {
 			Button editButton, Button editOnMapButton,
 			Button cancelButton, Button deleteButton, String layerId){
 		
-		Log.w("FeatureDialogHelper", "FeatureDialogHelper created");
 		this.activity = activity;
 		this.feature = feature;
 		this.editing = startInEditMode;
@@ -385,6 +383,7 @@ public class FeatureDialogHelper {
 	 */
 	public void endEditMode(Button editButton, Button editOnMapButton,
 			Button cancelButton, Button deleteButton){
+		
 		if(builder.checkFormValidity()){
 			areYouSure(editButton, editOnMapButton,
 					cancelButton, deleteButton);

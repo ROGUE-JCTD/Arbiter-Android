@@ -138,8 +138,7 @@ public class ArbiterCordova extends CordovaPlugin{
 			
 			return true;
 		}else if("syncFailed".equals(action)){
-			syncFailed((args.length() > 0) 
-					? args.getString(0) : null, callbackContext);
+			syncFailed(args.getString(0), callbackContext);
 			
 			return true;
 		}else if("errorUpdatingAOI".equals(action)){

@@ -1,5 +1,7 @@
 package com.lmn.Arbiter_Android.BaseClasses;
 
+import java.util.LinkedHashMap;
+
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 
 import android.content.ContentValues;
@@ -10,10 +12,10 @@ public class Feature {
 	private String featureType;
 	private String geometryName;
 	private String originalGeometry;
-	private ContentValues attributes;
+	private LinkedHashMap<String, String> attributes;
 	
 	public Feature(String id, String featureType, 
-			String geometryName, ContentValues attributes){
+			String geometryName, LinkedHashMap<String, String> attributes){
 		
 		this.id = id;
 		this.featureType = featureType;
@@ -39,7 +41,7 @@ public class Feature {
 		}
 	}
 	
-	public Feature(String featureType, String geometryName, ContentValues attributes){
+	public Feature(String featureType, String geometryName, LinkedHashMap<String, String> attributes){
 		this.featureType = featureType;
 		this.geometryName = geometryName;
 		this.attributes = attributes;
@@ -67,11 +69,11 @@ public class Feature {
 		return this.geometryName;
 	}
 	
-	public ContentValues getAttributes(){
+	public LinkedHashMap<String, String> getAttributes(){
 		return this.attributes;
 	}
 	
-	public void setAttributes(ContentValues attributes){
+	public void setAttributes(LinkedHashMap<String, String> attributes){
 		this.attributes = attributes;
 	}
 	
@@ -80,7 +82,7 @@ public class Feature {
 	}
 	
 	public String getSyncState(){
-		return attributes.getAsString(FeaturesHelper.SYNC_STATE);
+		return attributes.get(FeaturesHelper.SYNC_STATE);
 	}
 	
 	public void setSyncState(String state){
@@ -88,7 +90,7 @@ public class Feature {
 	}
 	
 	public String getModifiedState(){
-		return attributes.getAsString(FeaturesHelper.MODIFIED_STATE);
+		return attributes.get(FeaturesHelper.MODIFIED_STATE);
 	}
 	
 	public void setModifiedState(String state){
@@ -100,11 +102,11 @@ public class Feature {
 	}
 	
 	public String getGeometry(){
-		return attributes.getAsString(geometryName);
+		return attributes.get(geometryName);
 	}
 	
 	public void backupGeometry(){
-		this.originalGeometry = attributes.getAsString(geometryName);
+		this.originalGeometry = attributes.get(geometryName);
 	}
 	
 	public void restoreGeometry(){

@@ -10,8 +10,6 @@ import com.lmn.Arbiter_Android.Dialog.Dialogs.DateTime.DatePickerFragment;
 
 import android.content.res.Resources;
 import android.support.v4.app.FragmentActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -25,6 +23,7 @@ public class Attribute {
 	private FragmentActivity activity;
 	private String dateValue;
 	private boolean valid;
+	private String startValue;
 	
 	private Attribute(FragmentActivity activity, EnumerationHelper enumHelper){
 		this.enumHelper = enumHelper;
@@ -43,6 +42,8 @@ public class Attribute {
 		
 		this.spinner = spinner;
 		
+		this.startValue = getSpinnerValue();
+				
 		setEditMode(startInEditMode);
 	}
 	
@@ -52,6 +53,8 @@ public class Attribute {
 		this(activity, enumHelper);
 		
 		this.editText = editText;
+		
+		this.startValue = value;
 		
 		setStartValue(value);
 		

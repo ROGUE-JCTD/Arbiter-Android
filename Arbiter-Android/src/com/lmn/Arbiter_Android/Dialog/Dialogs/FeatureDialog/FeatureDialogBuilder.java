@@ -1,6 +1,8 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.cordova.CordovaInterface;
 import org.json.JSONException;
@@ -8,7 +10,6 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.FragmentActivity;
@@ -112,12 +113,15 @@ public class FeatureDialogBuilder {
 	private void appendAttributes(boolean startInEditMode){
 		String geometryName = feature.getGeometryName();
 		
+		String key = null;
 		String value = null;
 		
-		ContentValues attributes = feature.getAttributes();
+		LinkedHashMap<String, String> attributes = feature.getAttributes();
 		
-		for(String key : attributes.keySet()){
-			value = attributes.getAsString(key);
+		for(Map.Entry<String, String> entry: attributes.entrySet()){
+			
+			key = entry.getKey();
+			value = entry.getValue();
 			
 			if(!key.equals(FeaturesHelper.SYNC_STATE) 
 					&& !key.equals(FeaturesHelper.MODIFIED_STATE) 
@@ -287,7 +291,7 @@ public class FeatureDialogBuilder {
 			@Override
 			public void run(){
 				
-				ContentValues attributes = feature.getAttributes();
+				LinkedHashMap<String, String> attributes = feature.getAttributes();
 				
 				attributes.put(key, media);
 				

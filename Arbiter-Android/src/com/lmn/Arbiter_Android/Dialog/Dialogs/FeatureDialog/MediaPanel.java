@@ -1,6 +1,7 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import org.apache.cordova.CordovaWebView;
 import org.json.JSONException;
@@ -68,9 +69,9 @@ public class MediaPanel {
 	}
 	
 	private String getMedia(String key){
-		ContentValues attributes = feature.getAttributes();
+		LinkedHashMap<String, String> attributes = feature.getAttributes();
 		
-		String media = attributes.getAsString(key);
+		String media = attributes.get(key);
 		
 		if(media == null || media.equals("null") ||
 				media.equals("undefined") || media.equals("")){

@@ -28,19 +28,32 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 		var attributes = schema.getAttributes();
 		
 		var attributeName = null;
+		var attributeType = null;
+		var attributeValue = null;
 		
 		for(var i = 0; i < attributes.length; i++){
 			attributeName = attributes[i].getName();
+			attributeType = attributes[i].getType();
+			attributeValue = dbFeature[attributeName];
 			
-			if(attributeName === Arbiter.FeatureTableHelper.FID){
+			if(attributeType !== "string" && 
+					(attributeValue === "" 
+						|| attributeValue === null 
+						|| attributeValue === undefined)){
 				
-				olFeature[Arbiter.FeatureTableHelper.FID] 
-					= dbFeature[Arbiter.FeatureTableHelper.FID];
-			}else if(attributeName !== Arbiter.FeatureTableHelper.SYNC_STATE
-					&& attributeName !== Arbiter.FeatureTableHelper.MODIFIED_STATE){
-				
-				olFeature.attributes[attributeName] = 
-					dbFeature[attributeName];
+				olFeature[attributeName] = null;
+			}else{
+				if(attributeName === Arbiter.FeatureTableHelper.FID){
+					
+					olFeature[Arbiter.FeatureTableHelper.FID] 
+						= dbFeature[Arbiter.FeatureTableHelper.FID];
+					
+				}else if(attributeName !== Arbiter.FeatureTableHelper.SYNC_STATE
+						&& attributeName !== Arbiter.FeatureTableHelper.MODIFIED_STATE){
+					
+					olFeature.attributes[attributeName] = 
+						dbFeature[attributeName];
+				}
 			}
 		}
 	};

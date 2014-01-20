@@ -68,7 +68,7 @@ public class DatePickerFragment extends DialogFragment implements  OnDateSetList
 	@Override
 	public void onDateSet(DatePicker view, int year, int monthOfYear,
 			int dayOfMonth) {
-		if(isFirstTimeSet){
+		if(isFirstTimeSet && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1){
 			isFirstTimeSet = false;
 			return;
 		}

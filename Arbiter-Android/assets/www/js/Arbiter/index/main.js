@@ -21,9 +21,6 @@ var app = (function() {
 						// Get the AOI to check to see if it's been set
 						Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
 							
-							console.log("savedBounds = " + savedBounds + ", savedZoom = "
-									+ savedZoom + ", aoi = " + _aoi);
-							
 							var bounds = null;
 							
 							if(savedBounds !== null && savedBounds !== undefined 
@@ -31,6 +28,12 @@ var app = (function() {
 									&& savedZoom !== undefined){
 								
 								bounds = savedBounds.split(',');
+								
+								if(_aoi !== null && _aoi !== undefined 
+										&& _aoi !== ""){
+									
+									Arbiter.aoiHasBeenSet(true);
+								}
 								
 								Arbiter.Map.zoomToExtent(bounds[0], 
 										bounds[1], bounds[2], 

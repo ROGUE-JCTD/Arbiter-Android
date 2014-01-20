@@ -9,11 +9,9 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class MediaHelper {
-	public static final String ROOT_PATH = "Arbiter";
-	public static final String PROJECTS_PATH = "Projects";
-	public static final String MEDIA_PATH = "Media";
 	public static final String MEDIA = "media";
 	public static final String FOTOS = "fotos";
 	
@@ -25,12 +23,8 @@ public class MediaHelper {
 	
 	public String getMediaUri(String fileName){
 		
-		String uri = Environment.getExternalStorageDirectory().getAbsolutePath() 
-				+ File.separator + ROOT_PATH + File.separator 
-				+ PROJECTS_PATH + File.separator 
-				+ ArbiterProject.getArbiterProject()
-					.getOpenProject(activity) + File.separator
-				+ MEDIA_PATH + File.separator
+		String uri = ProjectStructure.getMediaPath(ArbiterProject.getArbiterProject()
+				.getOpenProject(activity)) + File.separator
 				+ fileName;
 		
 		return uri;

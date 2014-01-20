@@ -190,14 +190,14 @@ public class ServersHelper implements BaseColumns{
 		
 		// Get a list of the projects
 		Project[] projects = ProjectStructure.
-				getProjectStructure().getProjects(context);
+				getProjectStructure().getProjects();
 
 		// Loop through list of projects,
 		// cleaning up the servers dependents
 		for(int i = 0; i < projects.length;i++){
 
 			// Get the projectDatabase and featureDatabase
-			path = ProjectStructure.getProjectPath(context, projects[i].getProjectName());
+			path = ProjectStructure.getProjectPath(projects[i].getProjectName());
 			projectDb = ProjectDatabaseHelper.getHelper(context,
 					path, false).getWritableDatabase();
 			
@@ -216,7 +216,7 @@ public class ServersHelper implements BaseColumns{
 		String openProjectName = ArbiterProject.
 				getArbiterProject().getOpenProject(activity);
 		
-		String path = ProjectStructure.getProjectPath(context, openProjectName);
+		String path = ProjectStructure.getProjectPath(openProjectName);
 		
 		ProjectDatabaseHelper.getHelper(context, path, false);
 		FeatureDatabaseHelper.getHelper(context, path, false);

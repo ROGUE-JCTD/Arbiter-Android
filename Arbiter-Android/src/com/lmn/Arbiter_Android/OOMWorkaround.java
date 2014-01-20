@@ -24,7 +24,7 @@ public class OOMWorkaround {
 		String projectName = ArbiterProject.getArbiterProject()
 				.getOpenProject(activity);
 		
-		String path = ProjectStructure.getProjectPath(context, projectName);
+		String path = ProjectStructure.getProjectPath(projectName);
 		
 		return ProjectDatabaseHelper.getHelper(context, 
 				path, false).getWritableDatabase();

@@ -151,8 +151,7 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 			public void run(){
 				ProjectDatabaseHelper helper = 
 						ProjectDatabaseHelper.getHelper(context, 
-								ProjectStructure.getProjectPath(
-										context, projectName), false);
+								ProjectStructure.getProjectPath(projectName), false);
 				
 				PreferencesHelper.getHelper().update(
 						helper.getWritableDatabase(), context,
@@ -174,7 +173,7 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 			public void run(){
 				ProjectDatabaseHelper helper = ProjectDatabaseHelper.
 						getHelper(context, ProjectStructure
-								.getProjectPath(context, projectName), false);
+								.getProjectPath(projectName), false);
 				
 				LayersHelper.getLayersHelper().updateAttributeValues(helper.getWritableDatabase(), context, layerId, values, new Runnable(){
 					@Override
@@ -216,7 +215,7 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 			@Override
 			public void run() {
 				
-				String path = ProjectStructure.getProjectPath(context, projectName);
+				String path = ProjectStructure.getProjectPath(projectName);
 				
 				ProjectDatabaseHelper projectHelper = ProjectDatabaseHelper.
 						getHelper(context, path, false);

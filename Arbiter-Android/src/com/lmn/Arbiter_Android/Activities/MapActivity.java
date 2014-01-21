@@ -134,14 +134,10 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     	});
     	
     	ImageButton syncButton = (ImageButton) findViewById(R.id.syncButton);
-    	
-    	final String title = activity.getResources().getString(R.string.sync_in_progress);
-		final String message = activity.getResources().getString(R.string.sync_in_progress_msg);
 		
     	syncButton.setOnClickListener(new OnClickListener(){
     		@Override
     		public void onClick(View v){
-    			arbiterProject.showSyncProgressDialog(activity, title, message);
     			
     			Map.getMap().sync(cordovaWebView);
     		}
@@ -357,11 +353,11 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     						
 				    		// Creating a project
 				    		if(ArbiterState.getArbiterState().isCreatingProject()){
-				    			arbiterProject.showCreateProjectProgress(
+				    			/*arbiterProject.showCreateProjectProgress(
 				    					activity, 
 				    					getResources().getString(R.string.create_project_progress),
 				    					getResources().getString(R.string.create_project_msg)
-				    			);
+				    			);*/
 				    			
 				    			insertHelper = new InsertProjectHelper(activity);
 				    			insertHelper.insert();
@@ -397,10 +393,6 @@ public class MapActivity extends FragmentActivity implements CordovaInterface, M
     }
     
     private void updateProjectAOI(String aoi){
-    	String title = getResources().getString(R.string.sync_in_progress);
-		String message = getResources().getString(R.string.sync_in_progress_msg);
-		
-    	arbiterProject.showSyncProgressDialog(this, title, message);
     	
         Map.getMap().updateAOI(cordovaWebView, aoi);
         

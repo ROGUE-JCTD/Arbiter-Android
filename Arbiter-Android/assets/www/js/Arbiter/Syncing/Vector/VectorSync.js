@@ -28,9 +28,7 @@ Arbiter.VectorSync.prototype.setQueuedCount = function(){
 	if(this.usingSpecificSchemas === false 
 			|| this.usingSpecificSchemas === "false"){
 		
-		console.log("before aoi");
 		var aoiLayer = this.map.getLayersByName(Arbiter.AOI);
-		console.log("before aoi");
 		
 		if(aoiLayer !== null 
 				&& aoiLayer !== undefined
@@ -72,7 +70,10 @@ Arbiter.VectorSync.prototype.pop = function(){
 	var layer = this.layers[++this.index];
 	
 	// Skip the aoi layer
-	if(layer.name === Arbiter.AOI){
+	if((this.usingSpecificSchemas !== true 
+			&& this.usingSpecificSchemas !== "true" )
+			&& layer.name === Arbiter.AOI){
+		
 		layer = this.layers[++this.index];
 	}
 	
@@ -119,13 +120,10 @@ Arbiter.VectorSync.prototype.startNextUpload = function(){
 
 Arbiter.VectorSync.prototype.startDownload = function(){
 	
-	console.log("startDownload vectorSync");
-	
 	if(this.layers.length > 0){
 		Arbiter.Cordova.showDownloadingVectorDataProgress(this.queuedCount);
 	}
 	
-	console.log("hello there chap");
 	this.index = -1;
 	
 	this.startNextDownload();
@@ -138,6 +136,8 @@ Arbiter.VectorSync.prototype.startNextDownload = function(){
 	console.log("bounds", JSON.stringify(this.bounds));
 	
 	if(layer !== null & layer !== undefined){
+		
+		console.log("layer isn't null or undefined");
 		
 		var schema = null;
 		
@@ -156,8 +156,12 @@ Arbiter.VectorSync.prototype.startNextDownload = function(){
 		
 		var downloader = new Arbiter.VectorDownloader(schema, this.bounds, function(){
 			
+			console.log("vectorDownloader success");
+			
 			callback();
 		}, function(featureType){
+			
+			console.log("vectorDownloader failure");
 			context.failedToDownload.push(featureType);
 			
 			callback();

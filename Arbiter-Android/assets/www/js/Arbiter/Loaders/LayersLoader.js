@@ -208,6 +208,8 @@ Arbiter.Loaders.LayersLoader = (function(){
 		load: function(onSuccess, onFailure){
 			var context = this;
 			
+			//Arbiter.Cordova.showLoadingLayersProgress();
+			
 			// Load the servers
 			Arbiter.ServersHelper.loadServers(this, function(){
 				

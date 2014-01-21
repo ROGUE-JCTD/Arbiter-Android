@@ -1,134 +1,7 @@
 Arbiter.Cordova.Project = (function(){
 	var describeFeatureTypeReader = new OpenLayers.Format.WFSDescribeFeatureType();
 	
-	// When the layerFinishedCount reaches
-	// the layerCount, execute the callback.
-	var layerCount = 0;
-	var layerFinishedCount = 0;
 	var currentPositionZoomLevel = 14;
-	
-	var reset = function(){
-		layerCount = 0;
-		layerFinishedCount = 0;
-	};
-	
-	var incrementLayerFinishedCount = function(){
-		layerFinishedCount++;
-	};
-	
-	var doneGettingLayers = function(){
-		return (layerFinishedCount == layerCount);
-	};
-	
-	var getLayerSchema = function(layer, onSuccess, onFailure){
-		
-		var serverId = layer[Arbiter.LayersHelper.serverId()];
-		
-		var server = Arbiter.Util.Servers.getServer(serverId);
-		var url = server.getUrl();
-		
-		var encodedCredentials = 
-			Arbiter.Util.getEncodedCredentials(
-					server.getUsername(), 
-					server.getPassword());
-		
-		var featureType = layer[Arbiter.LayersHelper.featureType()];
-		var srid = layer[Arbiter.GeometryColumnsHelper.featureGeometrySRID()];
-		
-		var gotRequestBack = false;
-		
-		var request = new OpenLayers.Request.GET({
-			url: url + "/wfs?service=wfs&version=1.0.0&request=DescribeFeatureType&typeName=" + featureType,
-			headers: {
-				Authorization: 'Basic ' + encodedCredentials
-			},
-			success: function(response){
-				gotRequestBack = true;
-				
-				var context = Arbiter.Cordova.Project;
-				var results = describeFeatureTypeReader.read(response.responseText);
-				
-				// If there are no feature types, return.
-				if(!results.featureTypes || !results.featureTypes.length){
-					
-					incrementLayerFinishedCount();
-					
-					if(doneGettingLayers() && Arbiter.Util.funcExists(onSuccess)){
-						onSuccess.call(context);
-					}
-					
-					return;
-				}
-				
-				var schema;
-				
-				try{
-					schema = new Arbiter.Util.LayerSchema(url,
-							results.targetNamespace, featureType,srid,
-							results.featureTypes[0].properties, serverId);
-				}catch(e){
-					var msg = "Arbiter.Cordova.Project.getLayerSchema ERROR creating layer schema: " + e;
-					console.log("Arbiter.Cordova.Project.getLayerSchema ERROR creating layer schema", e);
-					throw msg;
-				}
-				
-				var helper = Arbiter.GeometryColumnsHelper;
-				
-				var content = {};
-				
-				content[Arbiter.LayersHelper.workspace()] = results.targetNamespace;
-				
-				console.log("udpating the workspace!");
-				// Update the layers workspace in the Layers table.
-				Arbiter.LayersHelper.updateLayer(featureType, content, this, function(){
-					console.log("udpated the workspace of the layer");
-					
-					// After updating the layer workspace, 
-					// add the layer to the GeometryColumns table
-					Arbiter.GeometryColumnsHelper.addToGeometryColumns(schema, function(){
-						console.log("added the table to the geometrycolumns table!");
-						
-						// After adding the layer to the GeometryColumns table
-						// create the feature table for the layer
-						Arbiter.FeatureTableHelper.createFeatureTable(schema, function(){
-								
-							// All the features have been downloaded and inserted
-							// for this layer.  Increment the layerFinishedCount 
-							incrementLayerFinishedCount();
-							
-							// If all the layers have finished downloading,
-							// call the callback.
-							if(doneGettingLayers() && Arbiter.Util.funcExists(onSuccess)){
-								console.log("successfully got layerSchemas");
-								onSuccess.call(context);
-							}
-							
-						}, onFailure);
-					}, onFailure);
-				}, onFailure);
-			},
-			failure: function(response){
-				gotRequestBack = true;
-				
-				if(Arbiter.Util.funcExists(onFailure)){
-					onFailure();
-				}
-			}
-		});
-		
-		// Couldn't find a way to set timeout for an openlayers
-		// request, so I did this to abort the request after
-		// 15 seconds of not getting a response
-		window.setTimeout(function(){
-			if(!gotRequestBack){
-				request.abort();
-				
-				if(Arbiter.Util.funcExists(onFailure)){
-					onFailure();
-				}
-			}
-		}, 30000);
-	};
 	
 	var getSchemasFromDbLayers = function(dbLayers){
 		var specificSchemas = [];
@@ -145,36 +18,40 @@ Arbiter.Cordova.Project = (function(){
 		return specificSchemas;
 	};
 	
-	var storeFeatureData = function(layers, bounds, cacheTiles, onSuccess, onFailure){
-		reset();
+	var prepareSync = function(layers, bounds, cacheTiles, onSuccess, onFailure){
 		
-		layerCount = layers.length;
-		
-		for(var i = 0; i < layers.length; i++){
-			getLayerSchema(layers[i], function(){
-				if(doneGettingLayers()){
-					
-					Arbiter.Loaders.LayersLoader.load(function(){
-						
-						if(bounds !== "" && bounds !== null && bounds !== undefined){
-							
-							var specificSchemas = getSchemasFromDbLayers(layers);
-							
-							Arbiter.Cordova.Project.sync(cacheTiles, false,
-									specificSchemas, onSuccess, onFailure);
-						}else{
-							if(Arbiter.Util.funcExists(onSuccess)){
-								onSuccess();
-							}
-						}
-					}, function(e){
-						if(Arbiter.Util.funcExists(onFailure)){
-							onFailure(e);
-						}
-					});
+		Arbiter.Loaders.LayersLoader.load(function(){
+			
+			if(bounds !== "" && bounds !== null && bounds !== undefined){
+				
+				var specificSchemas = getSchemasFromDbLayers(layers);
+				
+				Arbiter.Cordova.Project.sync(cacheTiles, true,
+						specificSchemas, onSuccess, onFailure);
+			}else{
+				if(Arbiter.Util.funcExists(onSuccess)){
+					onSuccess();
 				}
-			}, onFailure);
-		}
+			}
+		}, function(e){
+			if(Arbiter.Util.funcExists(onFailure)){
+				onFailure(e);
+			}
+		});
+	};
+	
+	var storeFeatureData = function(layers, bounds, cacheTiles, onSuccess, onFailure){
+		
+		var schemaDownloader = new Arbiter.SchemaDownloader(layers, function(failedLayers){
+			
+			prepareSync(layers, bounds, cacheTiles, onSuccess, onFailure);
+		}, function(e){
+			if(Arbiter.Util.funcExists(onFailure)){
+				onFailure(e);
+			}
+		});
+		
+		schemaDownloader.startDownload();
 	};
 	
 	var storeData = function(context, layers, bounds, cacheTiles, onSuccess, onFailure){
@@ -198,12 +75,13 @@ Arbiter.Cordova.Project = (function(){
 			
 			var onSuccess = function(){
 				
-				Arbiter.Cordova.doneCreatingProject();
+				Arbiter.Cordova.syncCompleted();
 			};
 			
 			var onFailure = function(e){
 				console.log("Arbiter.Cordova.Project", e);
 				Arbiter.Cordova.errorCreatingProject(e);
+				Arbiter.Cordova.syncCompleted();
 			};
 			
 			Arbiter.ProjectDbHelper.getProjectDatabase().close();
@@ -221,25 +99,22 @@ Arbiter.Cordova.Project = (function(){
 						aoi[1], aoi[2], aoi[3]);
 				}
 				
-				if(layers.length > 0){
-					storeData(context, layers, bounds, true, function(){
-						onSuccess();
-					}, onFailure);
-				}else{
-					
-				}
-			});
+				storeData(context, layers, bounds, true, function(){
+					onSuccess();
+				}, onFailure);
+			}, onFailure);
 		},
 		
 		addLayers: function(layers){
 			var context = this;
 			
 			var onSuccess = function(){
-				Arbiter.Cordova.doneAddingLayers();
+				Arbiter.Cordova.syncCompleted();
 			};
 			
 			var onFailure = function(e){
 				Arbiter.Cordova.errorAddingLayers(e);
+				Arbiter.Cordova.syncCompleted();
 			};
 			
 			Arbiter.PreferencesHelper.get(Arbiter.AOI, context, function(_aoi){
@@ -250,15 +125,10 @@ Arbiter.Cordova.Project = (function(){
 					bounds = new Arbiter.Util.Bounds(aoi[0], aoi[1], aoi[2], aoi[3]);
 				}
 				
-				if(layers.length > 0){
-					storeData(context, layers, bounds, false, function(){
-						Arbiter.Loaders.LayersLoader.load(onSuccess, onFailure);
-					}, onFailure);
-				}else{
-					// If there are no layers, that means that the 
-					// default osm layer got added.
-					Arbiter.Loaders.LayersLoader.load(onSuccess, onFailure);
-				}
+				storeData(context, layers, bounds, false, function(){
+					
+					onSuccess();
+				}, onFailure);
 			}, onFailure);
 		},
 		
@@ -413,20 +283,22 @@ Arbiter.Cordova.Project = (function(){
 						
 						if(Arbiter.Util.funcExists(onSuccess)){
 							onSuccess();
+						}else{
+							Arbiter.Cordova.syncCompleted();
 						}
-						
-						Arbiter.Cordova.syncCompleted();
 					}, function(e){
 						
 						console.log("sync failed", e);
 						
 						if(Arbiter.Util.funcExists(onFailure)){
 							onFailure(e);
+						}else{
+							Arbiter.Cordova.syncCompleted();
 						}
 					});
 					
 					if(downloadOnly === true || downloadOnly === "true"){
-						console.log("specific schemas", specificSchemas);
+						
 						syncHelper.setSpecificSchemas(specificSchemas);
 					}
 					

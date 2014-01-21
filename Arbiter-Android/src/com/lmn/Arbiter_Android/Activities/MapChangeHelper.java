@@ -39,7 +39,7 @@ public class MapChangeHelper {
 		reloadMap();
 	}
 	
-	public void onProjectCreated(){
+	public void onSyncCompleted(){
 		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
@@ -55,15 +55,6 @@ public class MapChangeHelper {
 			@Override
 			public void run(){
 				Map.getMap().addLayers(cordovaWebView, layers, layerIds);
-			}
-		});
-	}
-	
-	public void onSyncCompleted(){
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				incompleteProjectHelper.toggleComplete(true);
 			}
 		});
 	}

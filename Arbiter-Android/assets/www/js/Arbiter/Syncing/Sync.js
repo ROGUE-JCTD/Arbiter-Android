@@ -13,7 +13,9 @@ Arbiter.Sync = function(_map, _cacheTiles, _bounds,
 // ol layers
 Arbiter.Sync.prototype.setSpecificSchemas = function(schemas){
 	
-	if(this.downloadOnly !== true || this.downloadOnly !== "true"){
+	console.log("sync this.downloadOnly = " + this.downloadOnly);
+	
+	if(this.downloadOnly !== true && this.downloadOnly !== "true"){
 		throw "You cannot specify specific schema unless you're downloading only";
 	}
 	
@@ -31,6 +33,8 @@ Arbiter.Sync.prototype.onSyncCompleted = function(){
 
 Arbiter.Sync.prototype.onSyncFailed = function(e){
 	
+	Arbiter.Cordova.syncFailed(e);
+	
 	if(Arbiter.Util.funcExists(this.onFailure)){
 		this.onFailure(e);
 	}
@@ -45,25 +49,27 @@ Arbiter.Sync.prototype.sync = function(){
 		console.log("vector sync completed failedUploads = " 
 				+ JSON.stringify(failedUploads) 
 				+ ", failedDownloads = " 
-				+ failedDownloads);
+				+ JSON.stringify(failedDownloads));
 		
 		if(failedUploads.length > 0 || failedDownloads.length > 0){
 			
-			Arbiter.Cordova.alertVectorSyncFailures(context);
-		}else{
-			
-			context.startMediaSync();
+			//Arbiter.Cordova.alertVectorSyncFailures(context);
 		}
+
+			
+		context.startMediaSync();
 		
 	}, function(e){
 		context.onSyncFailed(e);
 	});
 	
 	if(this.specificSchemas !== null && this.specificSchemas !== undefined){
+		console.log("set vector specific schemas");
 		vectorSync.setSpecificSchemas(this.specificSchemas);
 	}
 	
 	if(this.downloadOnly === true || this.downloadOnly === "true"){
+		console.log("vector sync download only");
 		vectorSync.startDownload();
 	}else{
 		vectorSync.startUpload();
@@ -80,18 +86,17 @@ Arbiter.Sync.prototype.startMediaSync = function(){
 		console.log("media sync completed failedUploads = " 
 				+ JSON.stringify(failedUploads) 
 				+ ", failedDownloads = " 
-				+ failedDownloads);
+				+ JSON.stringify(failedDownloads));
 		
 		if(failedUploads.length > 0 || failedDownloads.length > 0){
 			
-			Arbiter.Cordova.alertMediaSyncFailures(context);
+			//Arbiter.Cordova.alertMediaSyncFailures(context);
+		}
+
+		if(context.cacheTiles === true || context.cacheTiles === "true"){
+			context.startTileCache();
 		}else{
-			
-			if(context.cacheTiles === true || context.cacheTiles === "true"){
-				context.startTileCache();
-			}else{
-				context.onSyncCompleted();
-			}
+			context.onSyncCompleted();
 		}
 
 	}, function(e){

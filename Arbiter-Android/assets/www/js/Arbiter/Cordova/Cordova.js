@@ -9,6 +9,8 @@ Arbiter.Cordova = (function() {
 	
 	var waitForNeutralQueue = [];
 	
+	var waitingForReset = false;
+	
 	var waitForNeutral = function(func){
 		if(!Arbiter.Util.funcExists(func)){
 			return;
@@ -53,10 +55,14 @@ Arbiter.Cordova = (function() {
 						"resetWebApp", [bbox, zoom]);
 			};
 			
-			// Don't reset while a sync is occurring.
-			waitForNeutral(function(){
-				Arbiter.SQLiteTransactionManager.executeAfterDone(reset);
-			});
+			if(waitingForReset !== true){
+				// Don't reset while a sync is occurring.
+				waitForNeutral(function(){
+					Arbiter.SQLiteTransactionManager.executeAfterDone(reset);
+				});
+				
+				waitingForReset = true;
+			}
 		},
 		
 		getTileCount: function(){
@@ -86,16 +92,6 @@ Arbiter.Cordova = (function() {
 			console.log("setNewProjectsAOI: bbox = " + bbox);
 			cordova.exec(null, null, "ArbiterCordova",
 					"setNewProjectsAOI", [bbox]);
-		},
-		
-		doneCreatingProject: function(){
-			console.log("doneCreatingProject");
-			cordova.exec(function(){
-				Arbiter.Cordova.Project.zoomToAOI();
-				
-				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.NEUTRAL);
-			}, null, "ArbiterCordova",
-					"doneCreatingProject", []);
 		},
 		
 		errorCreatingProject: function(e){
@@ -225,10 +221,6 @@ Arbiter.Cordova = (function() {
 					"finishMediaDownloading", []);
 		},
 		
-		updateSyncingStatus: function(messageId){
-			
-		},
-		
 		createProjectTileSyncingStatus: function(percent){
 			cordova.exec(null, null, "ArbiterCordova",
 					"createProjectTileSyncingStatus", [percent]);
@@ -313,5 +305,22 @@ Arbiter.Cordova = (function() {
 			cordova.exec(null, null, "ArbiterCordova",
 					"dismissDownloadingVectorDataProgress", []);
 		},
+		
+		showDownloadingSchemasProgress: function(count){
+			cordova.exec(null, null, "ArbiterCordova",
+					"showDownloadingSchemasProgress", [count]);
+		},
+		
+		updateDownloadingSchemasProgress: function(finished, total){
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"updateDownloadingSchemasProgress", [finished, total]);
+		},
+		
+		dismissDownloadingSchemasProgress: function(){
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"dismissDownloadingSchemasProgress", []);
+		}
 	};
 })();

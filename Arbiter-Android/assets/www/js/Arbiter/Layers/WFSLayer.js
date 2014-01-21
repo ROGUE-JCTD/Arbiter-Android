@@ -26,8 +26,6 @@ Arbiter.Layers.WFSLayer = (function(){
 		var saveStrategy = new OpenLayers.Strategy.Save();
 
 		saveStrategy.events.register("success", this, function(event) {
-			//Arbiter.Layers.SyncHelper.onSaveSuccess(key, event.object.layer,
-			//		encodedCredentials);
 			
 			var layer = saveStrategy.layer;
 			
@@ -46,7 +44,6 @@ Arbiter.Layers.WFSLayer = (function(){
 		
 		saveStrategy.events.register("fail", this, function(event){
 			console.log("save failed", event);
-			//Arbiter.Layers.SyncHelper.onSaveFailure();
 			
 			var layer = saveStrategy.layer;
 			

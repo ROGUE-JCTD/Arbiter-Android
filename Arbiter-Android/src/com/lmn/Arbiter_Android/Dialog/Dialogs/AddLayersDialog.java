@@ -134,8 +134,6 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 			
 			final String projectName = arbiterProject.getOpenProject(getActivity());
 			
-			arbiterProject.startAddingLayers(getActivity());
-			
 			// write the added layers to the database
 			CommandExecutor.runProcess(new Runnable(){
 				@Override

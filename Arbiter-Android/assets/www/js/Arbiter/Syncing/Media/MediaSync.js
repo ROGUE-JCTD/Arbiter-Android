@@ -54,8 +54,6 @@ Arbiter.MediaSync.prototype.initialize = function(onSuccess, onFailure){
 			if(mediaToSend !== null && mediaToSend !== undefined){
 				context.mediaToSend = JSON.parse(mediaToSend);
 			}
-			
-			console.log("mediaToSend", mediaToSend);
 				
 			// Load the layers from the database
 			Arbiter.LayersHelper.loadLayers(context, function(layers){
@@ -65,13 +63,9 @@ Arbiter.MediaSync.prototype.initialize = function(onSuccess, onFailure){
 				context.queueDownloading = layers.length - 1;
 				context.queuedUploading = layers.length - 1;
 				
-				console.log("loadedLayers: " + JSON.stringify(layers));
-				
 				context.initialized = true;
 				
 				success();
-				
-				console.log("media sync schema: " + JSON.stringify(context.layerSchemas));
 			}, function(e){
 				if(Arbiter.Util.funcExists(onFailure)){
 					onFailure("MediaSync.js Error loading layers - " + e);
@@ -115,7 +109,7 @@ Arbiter.MediaSync.prototype.startSync = function(onSuccess, onFailure, downloadO
 Arbiter.MediaSync.prototype.onUploadComplete = function(){
 	// TODO: Handle errors
 	console.log("MediaSync.js Upload completed.  The following"
-			+ " failed to upload:", JSON.stringify(this.failedOnUpload));
+			+ " failed to upload:", this.failedOnUpload);
 	
 	Arbiter.Cordova.finishMediaUploading();
 	
@@ -147,9 +141,8 @@ Arbiter.MediaSync.prototype.startUploadForNext = function(){
 	// available for download
 	this.layersForDownload.push(layer);
 	
-	if(layer !== undefined 
-			&& this.mediaToSend !== null 
-			&& this.mediaToSend !== undefined){
+	if(layer !== undefined && (this.mediaToSend !== null 
+			&& this.mediaToSend !== undefined)){
 		
 		this.uploadMedia(layer);
 	}else{
@@ -159,6 +152,8 @@ Arbiter.MediaSync.prototype.startUploadForNext = function(){
 
 Arbiter.MediaSync.prototype.startDownloadForNext = function(){
 	var context = this;
+	
+	console.log("startDownloadForNext", this.layersForDownload);
 	
 	var layer = this.layersForDownload.shift();
 	
@@ -205,6 +200,7 @@ Arbiter.MediaSync.prototype.uploadMedia = function(layer){
 Arbiter.MediaSync.prototype.downloadMedia = function(layer){
 	var context = this;
 	
+	console.log("downloadMedia called");
 	var layerId = layer[Arbiter.LayersHelper.layerId()];
 	var serverId = layer[Arbiter.LayersHelper.serverId()];
 	

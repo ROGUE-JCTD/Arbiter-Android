@@ -42,9 +42,6 @@ public class ArbiterProject {
 	
 	private static ArbiterProject project = null;
 	private Project newProject;
-	private ProgressDialog createProjectProgress;
-	private ProgressDialog addingLayersDialog;
-	private ProgressDialog syncProgressDialog;
 	
 	private boolean resetDefaultProject;
 	
@@ -201,27 +198,8 @@ public class ArbiterProject {
 	public void doneCreatingProject(Context context){
 		newProject = null;
 		
-		if(createProjectProgress != null){
-			createProjectProgress.dismiss();
-			createProjectProgress = null;
-		}
-		
 		LocalBroadcastManager.getInstance(context).sendBroadcast(
 				new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));
-	}
-	
-	public void startAddingLayers(Activity activity){
-		String addingLayersTitle = activity.getResources().getString(R.string.adding_layers);
-		String addingLayersMsg = activity.getResources().getString(R.string.adding_layers_msg);
-		
-		addingLayersDialog = ProgressDialog.show(activity, 
-				addingLayersTitle, addingLayersMsg, true);
-	}
-	
-	public void doneAddingLayers(Context context){
-		if(addingLayersDialog != null){
-			addingLayersDialog.dismiss();
-		}
 	}
 	
 	public Project getNewProject(){
@@ -273,38 +251,7 @@ public class ArbiterProject {
 				helper.getWritableDatabase(), context, DEFAULT_LAYER_VISIBILITY);
 	}
 	
-	public void showCreateProjectProgress(Activity activity, String title, String message){
-		createProjectProgress = ProgressDialog.show(activity, 
-				title, message + "0%", true);
-	}
-	
 	public void resetDefaultProject(boolean reset){
 		this.resetDefaultProject = reset;
-	}
-	
-	public void updateProjectCreationProgressStatus(String message, String percent){
-		if(createProjectProgress != null){
-			createProjectProgress.setMessage(message + " " + percent + "%");
-		}
-	}
-	
-	public void updateSyncProgressStatus(String message, String percent){
-		if(syncProgressDialog != null){
-			syncProgressDialog.setMessage(message + " " + percent + "%");
-		}else{
-			updateProjectCreationProgressStatus(message, percent);
-		}
-	}
-	
-	public void showSyncProgressDialog(Activity activity, String title, String message){
-		syncProgressDialog = ProgressDialog.show(activity,
-				title, message + " 0%", true);
-	}
-	
-	public void dismissSyncProgressDialog(){
-		if(syncProgressDialog != null){
-			syncProgressDialog.dismiss();
-			syncProgressDialog = null;
-		}
 	}
 }

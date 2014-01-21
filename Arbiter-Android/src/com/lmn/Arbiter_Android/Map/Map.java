@@ -173,8 +173,6 @@ public class Map{
 	
 	public void cancelEdit(CordovaWebView webview, String originalGeometry){
 		
-		Log.w("Map", "Map.cancelEdit geom = " + originalGeometry);
-		
 		String url = "javascript:app.waitForArbiterInit(new Function('"
 				+ "Arbiter.Controls.ControlPanel.cancelEdit(\"" + originalGeometry + "\")'))";
 		
@@ -206,7 +204,7 @@ public class Map{
 	
 	public void sync(CordovaWebView webview){
 		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Layers.SyncHelper.sync()'))";
+				+ "Arbiter.Cordova.Project.sync()'))";
 		
 		webview.loadUrl(url);
 	}

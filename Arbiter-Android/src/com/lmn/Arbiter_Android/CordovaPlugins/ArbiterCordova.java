@@ -1,7 +1,6 @@
 package com.lmn.Arbiter_Android.CordovaPlugins;
 
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
@@ -10,10 +9,7 @@ import org.json.JSONException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
@@ -22,20 +18,13 @@ import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
-import com.lmn.Arbiter_Android.Activities.MapChangeHelper;
 import com.lmn.Arbiter_Android.Activities.TileConfirmation;
-import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.MediaSyncHelper;
 import com.lmn.Arbiter_Android.Map.Map;
-import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ArbiterCordova extends CordovaPlugin{
 	private static final String TAG = "ArbiterCordova";
@@ -46,11 +35,17 @@ public class ArbiterCordova extends CordovaPlugin{
 	private ProgressDialog mediaUploadProgressDialog;
 	private ProgressDialog mediaDownloadProgressDialog;
 	
+	private ProgressDialog vectorUploadProgressDialog;
+	private ProgressDialog vectorDownloadProgressDialog;
+	
 	public ArbiterCordova(){
 		super();
 		this.arbiterProject = ArbiterProject.getArbiterProject();
 		this.mediaUploadProgressDialog = null;
 		this.mediaDownloadProgressDialog = null;
+		
+		this.vectorUploadProgressDialog = null;
+		this.vectorDownloadProgressDialog = null;
 	}
 	
 	public class MediaSyncingTypes {
@@ -168,10 +163,140 @@ public class ArbiterCordova extends CordovaPlugin{
 			finishMediaUploading();
 		}else if("finishMediaDownloading".equals(action)){
 			finishMediaDownloading();
+		}else if("showUploadingVectorDataProgress".equals(action)){
+			
+			String count = args.getString(0);
+			
+			showUploadingVectorDataProgress(count);
+		}else if("updateUploadingVectorDataProgress".equals(action)){
+			
+			String finished = args.getString(0);
+			String total = args.getString(1);
+			
+			updateUploadingVectorDataProgress(finished, total);
+		}else if("dismissUploadingVectorDataProgress".equals(action)){
+			
+			dismissUploadingVectorDataProgress();
+		}else if("showDownloadingVectorDataProgress".equals(action)){
+			
+			String count = args.getString(0);
+			
+			showDownloadingVectorDataProgress(count);
+		}else if("updateDownloadingVectorDataProgress".equals(action)){
+			
+			String finished = args.getString(0);
+			String total = args.getString(1);
+			
+			updateDownloadingVectorDataProgress(finished, total);
+		}else if("dismissDownloadingVectorDataProgress".equals(action)){
+			
+			dismissDownloadingVectorDataProgress();
 		}
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
+	}
+	
+	private void showUploadingVectorDataProgress(final String count){
+		
+		if(vectorUploadProgressDialog == null){
+			final Activity activity = cordova.getActivity();
+			
+			activity.runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					String title = activity.getResources().getString(R.string.syncing_vector_data);
+					String message = activity.getResources().getString(R.string.uploaded);
+					
+					message += "\t0\t/\t" + count;
+					
+					vectorUploadProgressDialog = ProgressDialog.show(cordova.getActivity(), title, message, true);
+				}
+			});
+		}
+	}
+	
+	private void updateUploadingVectorDataProgress(final String finished, final String total){
+		
+		if(vectorUploadProgressDialog != null){
+			final Activity activity = cordova.getActivity();
+			
+			activity.runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					String message = activity.getResources().getString(R.string.uploaded);
+					
+					message += "\t" + finished + "\t/\t" + total;
+					
+					vectorUploadProgressDialog.setMessage(message);
+				}
+			});
+		}
+	}
+
+	private void dismissUploadingVectorDataProgress(){
+		if(vectorUploadProgressDialog != null){
+			final Activity activity = cordova.getActivity();
+			
+			activity.runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					
+					vectorUploadProgressDialog.dismiss();
+				}
+			});
+		}
+	}
+
+	private void showDownloadingVectorDataProgress(final String count){
+		
+		if(vectorDownloadProgressDialog == null){
+			final Activity activity = cordova.getActivity();
+			
+			activity.runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					String title = activity.getResources().getString(R.string.syncing_vector_data);
+					String message = activity.getResources().getString(R.string.downloaded);
+					
+					message += "\t0\t/\t" + count;
+					
+					vectorDownloadProgressDialog = ProgressDialog.show(cordova.getActivity(), title, message, true);
+				}
+			});
+		}
+	}
+	
+	private void updateDownloadingVectorDataProgress(final String finished, final String total){
+		
+		if(vectorDownloadProgressDialog != null){
+			final Activity activity = cordova.getActivity();
+			
+			activity.runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					String message = activity.getResources().getString(R.string.downloaded);
+					
+					message += "\t" + finished + "\t/\t" + total;
+					
+					vectorDownloadProgressDialog.setMessage(message);
+				}
+			});
+		}
+	}
+
+	private void dismissDownloadingVectorDataProgress(){
+		if(vectorDownloadProgressDialog != null){
+			final Activity activity = cordova.getActivity();
+			
+			activity.runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					
+					vectorDownloadProgressDialog.dismiss();
+				}
+			});
+		}
 	}
 	
 	private void finishMediaUploading(){
@@ -201,7 +326,7 @@ public class ArbiterCordova extends CordovaPlugin{
 				if(syncType == MediaSyncingTypes.DOWNLOADING){
 					message += activity.getResources().getString(R.string.downloaded);
 					
-					message += "\t" + finished + "\t/ " + total;
+					message += "\t" + finished + "\t/\t" + total;
 					
 					if(mediaDownloadProgressDialog == null){
 						mediaDownloadProgressDialog = ProgressDialog.show(activity, title, message, true);
@@ -211,7 +336,7 @@ public class ArbiterCordova extends CordovaPlugin{
 				}else{
 					message += activity.getResources().getString(R.string.uploaded);
 					
-					message += "\t" + finished + "\t/ " + total;
+					message += "\t" + finished + "\t/\t" + total;
 					
 					if(mediaUploadProgressDialog == null){
 						mediaUploadProgressDialog = ProgressDialog.show(activity, title, message, true);

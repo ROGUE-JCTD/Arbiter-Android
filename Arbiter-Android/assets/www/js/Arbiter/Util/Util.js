@@ -63,6 +63,22 @@ Arbiter.Util = (function(){
 			}
 			
 			return false;
+		},
+		
+		getSchemaFromOlLayer: function(olLayer){
+			if((olLayer instanceof OpenLayers.Layer.Vector)
+					&& !(olLayer instanceof OpenLayers.Layer.Vector.RootContainer)){
+				
+				var layerId = this.getLayerId(olLayer);
+				
+				var schemas = Arbiter.getLayerSchemas();
+				
+				if(schemas !== null && schemas !== undefined){
+					return schemas[layerId];
+				}
+			}
+			
+			return null;
 		}
 	};
 })();

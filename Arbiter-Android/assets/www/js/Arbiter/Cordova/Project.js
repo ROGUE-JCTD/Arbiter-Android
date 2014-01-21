@@ -20,7 +20,8 @@ Arbiter.Cordova.Project = (function(){
 		return (layerFinishedCount == layerCount);
 	};
 	
-	var getLayerSchema = function(layer, bounds, onSuccess, onFailure){
+	var getLayerSchema = function(layer, onSuccess, onFailure){
+		
 		var serverId = layer[Arbiter.LayersHelper.serverId()];
 		
 		var server = Arbiter.Util.Servers.getServer(serverId);
@@ -90,38 +91,16 @@ Arbiter.Cordova.Project = (function(){
 						// After adding the layer to the GeometryColumns table
 						// create the feature table for the layer
 						Arbiter.FeatureTableHelper.createFeatureTable(schema, function(){
-							console.log("Arbiter.Cordova.Project.createFeatureTable");
+								
+							// All the features have been downloaded and inserted
+							// for this layer.  Increment the layerFinishedCount 
+							incrementLayerFinishedCount();
 							
-							if(bounds !== null && bounds !== undefined && bounds !== ""){
-								console.log("Arbiter.Cordova.Project.createFeatureTable bounds aren't empty");
-								
-								// After creating the feature table for the layer,
-								// download the features from the layer
-								context.downloadFeatures(schema, bounds, encodedCredentials, function(){
-									console.log("successfully got layerSchema");
-									// All the features have been downloaded and inserted
-									// for this layer.  Increment the layerFinishedCount 
-									incrementLayerFinishedCount();
-									
-									// If all the layers have finished downloading,
-									// call the callback.
-									if(doneGettingLayers() && Arbiter.Util.funcExists(onSuccess)){
-										console.log("successfully got layerSchemas");
-										onSuccess.call(context);
-									}
-								}, onFailure);
-							}else{
-								console.log("successfully got layerSchema");
-								// All the features have been downloaded and inserted
-								// for this layer.  Increment the layerFinishedCount 
-								incrementLayerFinishedCount();
-								
-								// If all the layers have finished downloading,
-								// call the callback.
-								if(doneGettingLayers() && Arbiter.Util.funcExists(onSuccess)){
-									
-									onSuccess.call(context);
-								}
+							// If all the layers have finished downloading,
+							// call the callback.
+							if(doneGettingLayers() && Arbiter.Util.funcExists(onSuccess)){
+								console.log("successfully got layerSchemas");
+								onSuccess.call(context);
 							}
 							
 						}, onFailure);
@@ -151,31 +130,48 @@ Arbiter.Cordova.Project = (function(){
 		}, 30000);
 	};
 	
+	var getSchemasFromDbLayers = function(dbLayers){
+		var specificSchemas = [];
+		
+		var layerId = null;
+		var arbiterSchemas = Arbiter.getLayerSchemas();
+		
+		for(var i = 0; i < dbLayers.length; i++){
+			layerId = dbLayers[i][Arbiter.LayersHelper.layerId()];
+			
+			specificSchemas.push(arbiterSchemas[layerId]);
+		}
+		
+		return specificSchemas;
+	};
+	
 	var storeFeatureData = function(layers, bounds, cacheTiles, onSuccess, onFailure){
 		reset();
 		
 		layerCount = layers.length;
 		
 		for(var i = 0; i < layers.length; i++){
-			getLayerSchema(layers[i], bounds, function(){
+			getLayerSchema(layers[i], function(){
 				if(doneGettingLayers()){
-					if(cacheTiles){
-						console.log("caching tiles!");
-						var olAOI = new OpenLayers.Bounds(bounds.getLeft(), 
-								bounds.getBottom(), bounds.getRight(), bounds.getTop());
+					
+					Arbiter.Loaders.LayersLoader.load(function(){
 						
-						Arbiter.getTileUtil().cacheTiles(olAOI, function(){
-							console.log("Tiles cached!");
+						if(bounds !== "" && bounds !== null && bounds !== undefined){
+							
+							var specificSchemas = getSchemasFromDbLayers(layers);
+							
+							Arbiter.Cordova.Project.sync(cacheTiles, false,
+									specificSchemas, onSuccess, onFailure);
+						}else{
 							if(Arbiter.Util.funcExists(onSuccess)){
 								onSuccess();
 							}
-						}, onFailure);
-					}else{
-						console.log("not caching tiles!");
-						if(Arbiter.Util.funcExists(onSuccess)){
-							onSuccess();
 						}
-					}
+					}, function(e){
+						if(Arbiter.Util.funcExists(onFailure)){
+							onFailure(e);
+						}
+					});
 				}
 			}, onFailure);
 		}
@@ -201,10 +197,8 @@ Arbiter.Cordova.Project = (function(){
 			Arbiter.Cordova.setState(Arbiter.Cordova.STATES.CREATING_PROJECT);
 			
 			var onSuccess = function(){
-				Arbiter.Loaders.LayersLoader.load(function(){
-					
-					Arbiter.Cordova.doneCreatingProject();
-				}, onFailure);
+				
+				Arbiter.Cordova.doneCreatingProject();
 			};
 			
 			var onFailure = function(e){
@@ -232,21 +226,7 @@ Arbiter.Cordova.Project = (function(){
 						onSuccess();
 					}, onFailure);
 				}else{
-					// If there are no layers, that means that there are
-					// either no layers, or it's just the osm default layer
 					
-					if(bounds === null){
-						throw "Arbiter.Project.CreateProject bounds should not be " 
-							+ bounds;
-					}
-					
-					var olAOI = new OpenLayers.Bounds(bounds.getLeft(), 
-							bounds.getBottom(), bounds.getRight(), bounds.getTop());
-					
-					Arbiter.getTileUtil().cacheTiles(olAOI, function(){
-						console.log("Tiles cached!");
-						onSuccess();
-					}, onFailure);
 				}
 			});
 		},
@@ -327,7 +307,8 @@ Arbiter.Cordova.Project = (function(){
 			};
 			
 			Arbiter.PreferencesHelper.put(Arbiter.AOI, aoi, this, function(){
-				Arbiter.Layers.SyncHelper.sync(true);
+				
+				Arbiter.Cordova.Project.sync(true);
 			}, onFailure);
 		},
 		
@@ -395,6 +376,68 @@ Arbiter.Cordova.Project = (function(){
 			}catch(e){
 				console.log(e);
 			}
+		},
+		
+		sync: function(_cacheTiles, _downloadOnly, _specificSchemas, onSuccess, onFailure){
+			console.log("sync");
+			var map = Arbiter.Map.getMap();
+			var cacheTiles = _cacheTiles;
+			var downloadOnly = _downloadOnly;
+			var specificSchemas = _specificSchemas;
+			
+			if(cacheTiles === null || cacheTiles === undefined){
+				cacheTiles = false;
+			}
+			
+			if(downloadOnly === null || downloadOnly === undefined){
+				downloadOnly = false;
+			}
+			
+			Arbiter.Cordova.setState(Arbiter.Cordova.STATES.UPDATING);
+			
+			Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
+				
+				if(_aoi !== null && _aoi !== undefined 
+						&& _aoi !== ""){
+					
+					var aoi = _aoi.split(',');
+					
+					var bounds = new Arbiter.Util.Bounds(aoi[0], aoi[1], aoi[2], aoi[3]);
+					
+					var syncHelper = new Arbiter.Sync(map, cacheTiles,
+							bounds, downloadOnly, function(){
+						
+						if(cacheTiles === true){
+							map.zoomToExtent(bounds, true);
+						}
+						
+						if(Arbiter.Util.funcExists(onSuccess)){
+							onSuccess();
+						}
+						
+						Arbiter.Cordova.syncCompleted();
+					}, function(e){
+						
+						console.log("sync failed", e);
+						
+						if(Arbiter.Util.funcExists(onFailure)){
+							onFailure(e);
+						}
+					});
+					
+					if(downloadOnly === true || downloadOnly === "true"){
+						console.log("specific schemas", specificSchemas);
+						syncHelper.setSpecificSchemas(specificSchemas);
+					}
+					
+					syncHelper.sync();
+				}
+			}, function(e){
+				
+				if(Arbiter.Util.funcExists(onFailure)){
+					onFailure(e);
+				}
+			});
 		}
 	};
 })();

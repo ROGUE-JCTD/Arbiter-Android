@@ -28,7 +28,6 @@ Arbiter.Layers.SyncHelper = (function(){
 		
 		Arbiter.SQLiteTransactionManager.executeAfterDone(function(){
 			
-			console.log("executing mediaSync");
 			var mediaSync = new Arbiter.MediaSync(Arbiter.getLayerSchemas());
 			mediaSync.startSync(function(failedOnUpload, failedOnDownload){
 				
@@ -205,8 +204,10 @@ Arbiter.Layers.SyncHelper = (function(){
 			});
 		},
 		
-		onSaveFailure: function(){
+		onSaveFailure: function(e){
 			// TODO: Handle save failed.
+			
+			console.log("onSaveFailure", e);
 			onSyncFailure("Sync failed - onSaveFailure");
 		}
 	};

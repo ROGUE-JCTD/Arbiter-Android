@@ -283,11 +283,17 @@ public class ArbiterProject {
 	}
 	
 	public void updateProjectCreationProgressStatus(String message, String percent){
-		createProjectProgress.setMessage(message + " " + percent + "%");
+		if(createProjectProgress != null){
+			createProjectProgress.setMessage(message + " " + percent + "%");
+		}
 	}
 	
 	public void updateSyncProgressStatus(String message, String percent){
-		syncProgressDialog.setMessage(message + " " + percent + "%");
+		if(syncProgressDialog != null){
+			syncProgressDialog.setMessage(message + " " + percent + "%");
+		}else{
+			updateProjectCreationProgressStatus(message, percent);
+		}
 	}
 	
 	public void showSyncProgressDialog(Activity activity, String title, String message){

@@ -54,9 +54,6 @@ public class TimePickerFragment extends DialogFragment implements OnTimeSetListe
 		int hour = calendar.get(Calendar.HOUR_OF_DAY);
 		int minute = calendar.get(Calendar.MINUTE);
 		
-		Log.w("TimePickerFragment", "TimePickerFragment hour = "
-				+ hour + ", minute = " + minute);
-		
 		// Create a new instance of DatePickerDialog and return it
 		return new TimePickerDialog(getActivity(), this, hour, minute,
 				DateFormat.is24HourFormat(getActivity()));
@@ -80,8 +77,6 @@ public class TimePickerFragment extends DialogFragment implements OnTimeSetListe
 		calendar.set(Calendar.MINUTE, minute);
 		
 		String datetime = formatter.format(calendar.getTime());
-		
-		Log.w(TAG, TAG + ".onTimeSet() set datetime = " + datetime);
 		
 		attribute.setDate(datetime);
 	}

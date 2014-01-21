@@ -70,6 +70,8 @@ Arbiter.MediaSync.prototype.initialize = function(onSuccess, onFailure){
 				context.initialized = true;
 				
 				success();
+				
+				console.log("media sync schema: " + JSON.stringify(context.layerSchemas));
 			}, function(e){
 				if(Arbiter.Util.funcExists(onFailure)){
 					onFailure("MediaSync.js Error loading layers - " + e);
@@ -92,7 +94,7 @@ Arbiter.MediaSync.prototype.initialize = function(onSuccess, onFailure){
 	});
 };
 
-Arbiter.MediaSync.prototype.startSync = function(onSuccess, onFailure){
+Arbiter.MediaSync.prototype.startSync = function(onSuccess, onFailure, downloadOnly){
 	var context = this;
 	
 	this.onSyncComplete = onSuccess;
@@ -101,14 +103,19 @@ Arbiter.MediaSync.prototype.startSync = function(onSuccess, onFailure){
 		
 		console.log("mediaSync initialized");
 		
-		context.startUploadForNext();
+		if(downloadOnly === true || downloadOnly === "true"){
+			this.layersForDownload = this.layers;
+			context.startDownloadForNext();
+		}else{
+			context.startUploadForNext();
+		}
 	}, onFailure);
 };
 
 Arbiter.MediaSync.prototype.onUploadComplete = function(){
 	// TODO: Handle errors
 	console.log("MediaSync.js Upload completed.  The following"
-			+ " failed to upload:", this.failedOnUpload);
+			+ " failed to upload:", JSON.stringify(this.failedOnUpload));
 	
 	Arbiter.Cordova.finishMediaUploading();
 	
@@ -118,7 +125,7 @@ Arbiter.MediaSync.prototype.onUploadComplete = function(){
 Arbiter.MediaSync.prototype.onDownloadComplete = function(){
 	// TODO: Handle errors
 	console.log("MediaSync.js Download completed.  The following"
-			+ " failed to download:", this.failedOnDownload);
+			+ " failed to download:", JSON.stringify(this.failedOnDownload));
 	
 	Arbiter.Cordova.finishMediaDownloading();
 	
@@ -140,7 +147,10 @@ Arbiter.MediaSync.prototype.startUploadForNext = function(){
 	// available for download
 	this.layersForDownload.push(layer);
 	
-	if(layer !== undefined){
+	if(layer !== undefined 
+			&& this.mediaToSend !== null 
+			&& this.mediaToSend !== undefined){
+		
 		this.uploadMedia(layer);
 	}else{
 		this.onUploadComplete();

@@ -67,6 +67,7 @@
 	
 	<string name="tile_cache_warning">Tiles to download:</string>
 	<string name="syncing_media_title">Syncing Media</string>
+	<string name="syncing_vector_data">Syncing Vector Data</string>
 	<string name="downloaded">Downloaded: </string>
 	<string name="uploaded">Uploaded: </string>
 	<string name="form_error_date">Please enter a valid date.</string>

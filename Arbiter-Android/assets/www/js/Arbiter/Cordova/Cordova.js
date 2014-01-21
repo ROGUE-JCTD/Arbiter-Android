@@ -89,6 +89,7 @@ Arbiter.Cordova = (function() {
 		},
 		
 		doneCreatingProject: function(){
+			console.log("doneCreatingProject");
 			cordova.exec(function(){
 				Arbiter.Cordova.Project.zoomToAOI();
 				
@@ -234,6 +235,7 @@ Arbiter.Cordova = (function() {
 		},
 		
 		syncCompleted: function(){
+			console.log("syncCompleted");
 			cordova.exec(function(){
 				Arbiter.Cordova.resetWebApp();
 				
@@ -242,6 +244,8 @@ Arbiter.Cordova = (function() {
 		},
 		
 		syncFailed: function(e){
+			
+			console.log("syncFailed");
 			
 			cordova.exec(function(){
 				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.NEUTRAL);
@@ -272,6 +276,42 @@ Arbiter.Cordova = (function() {
 			
 			cordova.exec(null , null, "ArbiterCordova",
 					"addMediaToFeature", [key, media, fileName]);
-		}
+		},
+		
+		showUploadingVectorDataProgress: function(count){
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"showUploadingVectorDataProgress", [count]);
+		},
+		
+		updateUploadingVectorDataProgress: function(finished, total){
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"updateUploadingVectorDataProgress", [finished, total]);
+		},
+		
+		dismissUploadingVectorDataProgress: function(){
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"dismissUploadingVectorDataProgress", []);
+		},
+		
+		showDownloadingVectorDataProgress: function(count){
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"showDownloadingVectorDataProgress", [count]);
+		},
+		
+		updateDownloadingVectorDataProgress: function(finished, total){
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"updateDownloadingVectorDataProgress", [finished, total]);
+		},
+		
+		dismissDownloadingVectorDataProgress: function(){
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"dismissDownloadingVectorDataProgress", []);
+		},
 	};
 })();

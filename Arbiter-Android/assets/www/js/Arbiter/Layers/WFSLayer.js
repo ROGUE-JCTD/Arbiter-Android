@@ -26,12 +26,41 @@ Arbiter.Layers.WFSLayer = (function(){
 		var saveStrategy = new OpenLayers.Strategy.Save();
 
 		saveStrategy.events.register("success", this, function(event) {
-			Arbiter.Layers.SyncHelper.onSaveSuccess(key, event.object.layer,
-					encodedCredentials);
+			//Arbiter.Layers.SyncHelper.onSaveSuccess(key, event.object.layer,
+			//		encodedCredentials);
+			
+			var layer = saveStrategy.layer;
+			
+			if(layer !== null && layer !== undefined){
+				var metadata = layer.metadata;
+				
+				if(metadata !== null && metadata !== undefined 
+						&& Arbiter.Util.funcExists(metadata["onSaveSuccess"])){
+					
+					var onSaveSuccess = metadata["onSaveSuccess"];
+					
+					onSaveSuccess();
+				}
+			}
 		});
 		
 		saveStrategy.events.register("fail", this, function(event){
-			Arbiter.Layers.SyncHelper.onSaveFailure();
+			console.log("save failed", event);
+			//Arbiter.Layers.SyncHelper.onSaveFailure();
+			
+			var layer = saveStrategy.layer;
+			
+			if(layer !== null && layer !== undefined){
+				var metadata = layer.metadata;
+				
+				if(metadata !== null && metadata !== undefined 
+						&& Arbiter.Util.funcExists(metadata["onSaveFailure"])){
+					
+					var onSaveFailure = metadata["onSaveFailure"];
+					
+					onSaveFailure();
+				}
+			}
 		});
 		
 		return saveStrategy;

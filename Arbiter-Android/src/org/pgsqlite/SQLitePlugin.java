@@ -237,7 +237,7 @@ public class SQLitePlugin extends CordovaPlugin
 		this.oldProjectName = ArbiterProject.getArbiterProject().
 				getOpenProject(cordova.getActivity());
 		
-		String path = ProjectStructure.getProjectPath(context, this.oldProjectName);
+		String path = ProjectStructure.getProjectPath(this.oldProjectName);
 		
 		// If the plugin doesn't know about the db,
 		// get it for plugin use.

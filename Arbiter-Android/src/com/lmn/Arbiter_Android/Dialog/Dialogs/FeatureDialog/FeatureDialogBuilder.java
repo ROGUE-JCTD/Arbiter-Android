@@ -70,7 +70,7 @@ public class FeatureDialogBuilder {
 		String projectName = ArbiterProject.getArbiterProject()
 				.getOpenProject(activity);
 		
-		String path = ProjectStructure.getProjectPath(context, projectName);
+		String path = ProjectStructure.getProjectPath(projectName);
 		
 		return FeatureDatabaseHelper.getHelper(context,
 				path, false).getWritableDatabase();

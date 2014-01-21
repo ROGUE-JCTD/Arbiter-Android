@@ -2,7 +2,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
     
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center|center_horizontal|center_vertical"
@@ -17,42 +17,48 @@
 	        android:ems="10"
 	        android:hint="@string/server_name_hint" >
 
-	        <requestFocus />
 	    </EditText>
 	    
 	    <EditText
 	        android:id="@+id/server_url"
+	        android:layout_below="@id/server_name"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:layout_marginBottom="20dip"
 	        android:ems="10"
 	        android:hint="@string/server_url_hint"
 	        android:inputType="textUri" >
-
-	        <requestFocus />
 	    </EditText>
 
 	    <EditText
 	        android:id="@+id/server_username"
+	        android:layout_below="@id/server_url"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:layout_marginBottom="20dip"
 	        android:ems="10"
 	        android:hint="@string/server_username_hint" >
-
-	        <requestFocus />
 	    </EditText>
 	    
 	    <EditText
 	        android:id="@+id/server_password"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:layout_marginBottom="40dip"
+	        android:layout_below="@id/server_username"
+	        android:layout_marginBottom="20dip"
 	        android:ems="10"
 	        android:hint="@string/server_password_hint"
 	        android:inputType="textPassword" >
-
-	        <requestFocus />
 	    </EditText>
-	</LinearLayout>
+
+	    <CheckBox
+	        android:id="@+id/server_show_password"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/server_password"
+	        android:focusable="false"
+	        android:focusableInTouchMode="false"
+	        android:text="@string/server_show_password" />
+
+	</RelativeLayout>
 </ScrollView>

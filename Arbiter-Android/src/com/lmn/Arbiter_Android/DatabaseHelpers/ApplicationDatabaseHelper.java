@@ -1,18 +1,21 @@
 package com.lmn.Arbiter_Android.DatabaseHelpers;
 
+import java.io.File;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesHelper;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ApplicationDatabaseHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "arbiter_application.db";
 	private static int DATABASE_VERSION = 1;
 	
 	private ApplicationDatabaseHelper(Context context){
-		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+		super(context, ProjectStructure.getApplicationRoot() + File.separator + DATABASE_NAME, null, DATABASE_VERSION);
 	}
 	
 	private static ApplicationDatabaseHelper helper = null;

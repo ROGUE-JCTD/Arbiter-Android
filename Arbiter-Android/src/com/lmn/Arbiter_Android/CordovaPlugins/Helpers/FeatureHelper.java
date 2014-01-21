@@ -76,8 +76,7 @@ public class FeatureHelper {
 				getArbiterProject().getOpenProject(activity);
 		
 		return FeatureDatabaseHelper.getHelper(context,
-				ProjectStructure.getProjectPath(context, 
-						openProjectName), false).getWritableDatabase();
+				ProjectStructure.getProjectPath(openProjectName), false).getWritableDatabase();
 	}
 	
 	private Feature getFeature(SQLiteDatabase db, String featureType, String id){

@@ -9,7 +9,9 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.widget.Button;
 
 /**
  * This class creates a dialog for the project wizard
@@ -19,6 +21,7 @@ public abstract class ArbiterDialogFragment extends DialogFragment {
 	protected String ok;
 	protected String cancel;
 	protected int layout;
+	protected OnClickListener validatingClickListener = null;
 	private AlertDialog myDialog;
 	
 	@Override
@@ -32,6 +35,11 @@ public abstract class ArbiterDialogFragment extends DialogFragment {
 	public void onStart(){
 		super.onStart();
 		myDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+		
+		if(validatingClickListener != null) {
+			Button positiveButton = myDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+	        positiveButton.setOnClickListener(validatingClickListener);
+		}
 	}
 	
 	@Override
@@ -64,7 +72,13 @@ public abstract class ArbiterDialogFragment extends DialogFragment {
 		return dialog;
 	}
 	
+	public OnClickListener getValidatingClickListener(){
+		return this.validatingClickListener;
+	}
 	
+	public void setValidatingClickListener(OnClickListener validatingClickListener){
+		this.validatingClickListener = validatingClickListener;
+	}
 	
 	public String getTitle(){
 		return this.title;

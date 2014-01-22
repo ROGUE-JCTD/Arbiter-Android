@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="warning">Warning</string>
+	<string name="error">Error</string>
     <string name="app_name">Arbiter-Android</string>
     <string name="action_findme">Find me</string>
     <string name="default_project_name">MyProject</string>
@@ -147,6 +148,9 @@
     <string name="server_username_hint">Username</string>
     <string name="server_password_hint">Password</string>
     <string name="server_show_password">Show Password</string>
+    <string name="validating_server">Validating Server</string>
+    <string name="authentication_failed">Authentication failed, check the username and password.</string>
+    <string name="unable_to_connect">Unable to connect to the server, make sure the url is correct.</string>
 
     <!-- GO OFFLINE DIALOG STRINGS -->
     <string name="go_offline_dialog_title">Offline</string>

@@ -68,8 +68,24 @@ Arbiter.VectorDownloader.prototype.onDownloadSuccess = function(features){
 				context.schema.getSRID(), features,
 				isDownload, function(){
 			
-			console.log("insertFeatures success");
-			context.onSuccess();
+			console.log("inserting features");
+			
+			var storeMediaForSchema = new Arbiter.StoreFeaturesMediaToDownload(
+					context.schema, features, function(failedToStore){
+				
+				console.log("insertFeatures success");
+				context.onSuccess();
+				
+			}, function(e){
+				
+				//TODO: handle error
+				console.log("VectorDownloader download error - " + JSON.stringify(e));
+				
+				console.log("insertFeatures success");
+				context.onSuccess();
+			});
+			
+			storeMediaForSchema.startStoring();
 			
 		}, function(e){
 			

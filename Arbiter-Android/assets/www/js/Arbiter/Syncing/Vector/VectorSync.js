@@ -4,10 +4,12 @@ Arbiter.VectorSync = function(_map, _bounds, _onSuccess, _onFailure){
 	
 	this.bounds = _bounds;
 	
+	console.log("get some layers!");
 	this.layers = this.map.getLayersByClass("OpenLayers.Layer.Vector");
 	
 	this.usingSpecificSchemas = false;
 	
+	console.log("hello there");
 	this.index = -1;
 	
 	this.failedToUpload = null;
@@ -157,6 +159,7 @@ Arbiter.VectorSync.prototype.putFailedDownload = function(failed){
 Arbiter.VectorSync.prototype.startNextDownload = function(){
 	
 	var context = this;
+	console.log("vector sync startNextDownload");
 	var layer = this.pop();
 	console.log("bounds: " + this.bounds.getLeft() 
 			+ ", " + this.bounds.getBottom()

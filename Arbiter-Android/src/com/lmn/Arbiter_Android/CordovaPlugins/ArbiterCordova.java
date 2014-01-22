@@ -414,6 +414,7 @@ public class ArbiterCordova extends CordovaPlugin{
 	}
 	
 	private void finishMediaUploading(){
+		Log.w("ArbiterCordova", TAG + " finisheMediaUploading");
 		if(mediaUploadProgressDialog != null){
 			mediaUploadProgressDialog.dismiss();
 			mediaUploadProgressDialog = null;

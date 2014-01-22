@@ -349,9 +349,10 @@ Arbiter.FeatureTableHelper = (function(){
     				var serverId = layer[helper.serverId()]
     				var server = Arbiter.Util.Servers.getServer(serverId);
     				var url = server.getUrl();
+    				var color = layer[helper.color()];
     				
     				var schema = new Arbiter.Util.LayerSchema(url, layer[helper.workspace()],
-    						layer[helper.featureType()], layer[helper.layerVisibility()], serverId);
+    						layer[helper.featureType()], layer[helper.layerVisibility()], serverId, color);
     				Arbiter.putLayerSchema(layer[helper.layerId()], schema);
     				
     				incrementLoadedCount();
@@ -379,6 +380,7 @@ Arbiter.FeatureTableHelper = (function(){
 			var geometryName = row[helper.featureGeometryName()];
 			var geometryType = row[helper.featureGeometryType()];
 			var enumeration = row[helper.featureEnumeration()];
+			var color = layer[layersHelper.color()];
 			
 			var workspace = layer[layersHelper.workspace()];
 			
@@ -412,7 +414,7 @@ Arbiter.FeatureTableHelper = (function(){
 				var schema = new Arbiter.Util.LayerSchema(url,
 						workspace, prefix, featureType, srid, geometryName,
 						geometryType, enumeration, attributes,
-						visibility, serverId, mediaColumn);
+						visibility, serverId, mediaColumn, color);
 				
 				Arbiter.putLayerSchema(layer[layersHelper.layerId()], schema);
 				

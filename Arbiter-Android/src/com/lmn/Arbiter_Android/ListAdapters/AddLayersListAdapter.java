@@ -7,6 +7,7 @@ import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -115,6 +116,7 @@ public class AddLayersListAdapter extends BaseAdapter implements ArbiterAdapter<
 		Layer listItem = items.get(position);
 		
 		if(listItem != null){
+			view.setBackgroundColor(Color.parseColor(listItem.getColor()));
 			TextView layerName = (TextView) view.findViewById(R.id.layerName);
 			TextView serverName = (TextView) view.findViewById(R.id.serverName);
 			CheckBox checkbox = (CheckBox) view.findViewById(R.id.addLayerCheckbox);

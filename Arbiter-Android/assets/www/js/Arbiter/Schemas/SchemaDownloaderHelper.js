@@ -17,6 +17,8 @@ Arbiter.SchemaDownloaderHelper = function(_layer, _onSuccess, _onFailure){
 	
 	this.describeFeatureTypeReader = new OpenLayers.Format.WFSDescribeFeatureType();
 	
+	this.color = this.layer[Arbiter.LayersHelper.color()];
+	
 	this.failed = false;
 	
 	this.workspace = null;
@@ -64,7 +66,7 @@ Arbiter.SchemaDownloaderHelper.prototype.downloadSchema = function(){
 			try{
 				context.schema = new Arbiter.Util.LayerSchema(context.url,
 						results.targetNamespace, context.featureType, context.srid,
-						results.featureTypes[0].properties, context.serverId);
+						results.featureTypes[0].properties, context.serverId, context.color);
 			}catch(e){
 				var msg = "Could not create schema - " + JSON.stringify(e);
 				

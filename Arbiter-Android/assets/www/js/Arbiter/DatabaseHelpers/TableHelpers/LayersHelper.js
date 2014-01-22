@@ -7,6 +7,7 @@ Arbiter.LayersHelper = (function(){
 	var FEATURE_TYPE = "feature_type"; 
 	var SERVER_ID = "server_id";
 	var BOUNDING_BOX = "bbox";
+	var COLOR = "color";
 	var LAYER_VISIBILITY = "visibility";
 	
 	var getLayersArray = function(res){
@@ -25,6 +26,7 @@ Arbiter.LayersHelper = (function(){
 			layer[SERVER_ID] = item[SERVER_ID];
 			layer[LAYER_VISIBILITY] = item[LAYER_VISIBILITY];
 			layer[BOUNDING_BOX] = item[BOUNDING_BOX];
+			layer[COLOR] = item[COLOR];
 			layer[LAYER_TITLE] = item[LAYER_TITLE];
 			
 			layers.push(layer);
@@ -143,6 +145,10 @@ Arbiter.LayersHelper = (function(){
 		
 		boundingBox: function(){
 			return BOUNDING_BOX;
+		},
+		
+		color: function(){
+			return COLOR;
 		},
 		
 		layerVisibility: function(){

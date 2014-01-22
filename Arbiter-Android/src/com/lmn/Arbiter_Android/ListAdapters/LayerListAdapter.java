@@ -1,6 +1,9 @@
 package com.lmn.Arbiter_Android.ListAdapters;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
@@ -18,6 +21,7 @@ import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
@@ -39,6 +43,27 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 	private final FragmentActivity activity;
 	private final Context context;
 	private final ArbiterProject arbiterProject;
+	
+	private static final Map<String, String> COLOR_MAP;
+    static {
+        Map<String, String> aMap = new HashMap<String,String>();
+        aMap.put("teal","#008080");
+		aMap.put("maroon","#800000");
+		aMap.put("green","#008000");
+		aMap.put("purple","#800080");
+		aMap.put("fuchsia","#FF00FF");
+		aMap.put("lime","#00FF00");
+		aMap.put("red","#FF0000");
+		aMap.put("black","#000000");
+		aMap.put("navy","#000080");
+		aMap.put("aqua","#00FFFF");
+		aMap.put("grey","#808080");
+		aMap.put("olive","#808000");
+		aMap.put("yellow","#FFFF00");
+		aMap.put("silver","#C0C0C0");
+		aMap.put("white","#FFFFFF");
+		COLOR_MAP = Collections.unmodifiableMap(aMap);
+    }
 	
 	public LayerListAdapter(FragmentActivity activity, int itemLayout){
 		
@@ -63,7 +88,7 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 				String visibility = ArbiterProject.getArbiterProject().getDefaultLayerVisibility();
 				
 				layers.add(new Layer(Layer.DEFAULT_FLAG, null, Server.DEFAULT_FLAG, null, null,
-						Layer.DEFAULT_LAYER_NAME, null, 
+						Layer.DEFAULT_LAYER_NAME, null, null,
 						(visibility.equals("true") ? true : false)));
 				
 				layers.get(layers.size() - 1).setIsDefaultLayer(true);
@@ -91,6 +116,10 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 		final Layer listItem = getItem(position);
 		
 		if(listItem != null){
+			if(listItem.getColor() != null) {
+				View layerColorView = view.findViewById(R.id.layerColor);
+				layerColorView.setBackgroundColor(Color.parseColor(COLOR_MAP.get(listItem.getColor())));
+			}
             TextView layerNameView = (TextView) view.findViewById(R.id.layerName);
             TextView serverNameView = (TextView) view.findViewById(R.id.serverName);
             ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteLayer);

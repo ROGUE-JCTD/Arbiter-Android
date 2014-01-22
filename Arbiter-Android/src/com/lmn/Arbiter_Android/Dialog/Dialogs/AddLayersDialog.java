@@ -2,6 +2,19 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
 import java.util.ArrayList;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.Spinner;
+
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Activities.AOIActivity;
@@ -23,23 +36,6 @@ import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnDismissListener;
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.ImageButton;
-import android.widget.ListView;
-import android.widget.Spinner;
-
 public class AddLayersDialog extends ArbiterDialogFragment{
 	@SuppressWarnings("unused")
 	private ServerLoaderCallbacks serverLoaderCallbacks;
@@ -55,6 +51,12 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	
 	private MapChangeListener mapChangeListener;
 	private ArbiterProject arbiterProject;
+	
+	private String[] colors = {"teal", "maroon", "green",
+            "purple", "fuchsia", "lime",
+            "red", "black", "navy",
+            "aqua", "grey", "olive",
+            "yellow", "silver", "white"};
 	
 	public static AddLayersDialog newInstance(String title, String ok, 
 			String cancel, int layout, ArrayList<Layer> layersInProject){
@@ -123,9 +125,27 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		final ArrayList<Layer> layers = new ArrayList<Layer>();
 		ArrayList<Layer> checked = this.addLayersAdapter.getCheckedLayers();
 		
+		int highestColorIndex = -1;
+		for(int i = 0; i < layersInProject.size(); i++) {
+			String layerColor = layersInProject.get(i).getColor();
+			if(layerColor != null) {
+				for(int j = 0; j < colors.length; j++) {
+					if(layerColor.equals(colors[j])) {
+						if(j > highestColorIndex) {
+							highestColorIndex = j;
+						}
+						break;
+					}
+				}
+			}
+		}
+		
 		// Create a deep copy of the list of the checked layers
 		for(int i = 0; i < checked.size(); i++){
-			layers.add(new Layer(checked.get(i)));
+			highestColorIndex++;
+			Layer layer = new Layer(checked.get(i));
+			layer.setColor(colors[highestColorIndex%colors.length]);
+			layers.add(layer);
 		}
 		
 		final String includeDefaultLayer = this.addLayersAdapter.includeDefaultLayer();

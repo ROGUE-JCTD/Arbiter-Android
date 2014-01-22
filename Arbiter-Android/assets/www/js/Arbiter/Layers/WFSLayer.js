@@ -1,11 +1,5 @@
 Arbiter.Layers.WFSLayer = (function(){
 	
-	var layerColors = ['aqua', 'yellow', 'teal',
-	                   'purple', 'fuchsia', 'lime',
-	                   'maroon', 'black', 'navy',
-	                   'olive', 'grey', 'red',
-	                   'green', 'silver', 'white' ];
-	
 	var createWFSProtocol = function(url, featureNamespace, geometryName,
 			featureType, srid, encodedCredentials) {
 
@@ -82,14 +76,7 @@ Arbiter.Layers.WFSLayer = (function(){
 		return saveStrategy;
 	};
 	
-	var getLayerColor = function(){
-		return layerColors[Arbiter.Map.getMap()
-		    .getNumLayers() % layerColors.length];
-	};
-	
-	var getStyleMap = function(geometryType){
-		var color = getLayerColor();
-		
+	var getStyleMap = function(geometryType, color){
         var defaultStyleTable = OpenLayers.Util.applyDefaults({
             fillColor: color,
             strokeColor: color
@@ -143,7 +130,7 @@ Arbiter.Layers.WFSLayer = (function(){
 				protocol : wfsProtocol
 			};
 			
-			var styleMap = getStyleMap(schema.getGeometryType());
+			var styleMap = getStyleMap(schema.getGeometryType(), schema.getColor());
 			
 			if(styleMap !== null && styleMap !== undefined){
 				options.styleMap = styleMap;

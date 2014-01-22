@@ -12,18 +12,20 @@ Arbiter.Util.LayerSchema = function(){
 	var visibility = null;
 	var serverId = null;
 	var mediaColumn = null;
+	var color = null;
 	
 	var LayerSchema;
 	
-	if(arguments.length === 6){ // Downloaded from the interwebs...
+	if(arguments.length === 7){ // Downloaded from the interwebs...
 		var _url = arguments[0];
 		var _workspace = arguments[1];
 		var _featureType = arguments[2];
 		var _srid = arguments[3];
 		var properties = arguments[4];
 		var _serverId = arguments[5];
+		var _color = arguments[6];
 		
-		LayerSchema = function(_url, _workspace, _featureType, _srid, properties, _serverId){
+		LayerSchema = function(_url, _workspace, _featureType, _srid, properties, _serverId, _color){
 			var parsedFeatureType = Arbiter.Util.parseFeatureType(_featureType);
 			featureType = parsedFeatureType.featureType;
 			prefix = parsedFeatureType.prefix;
@@ -36,6 +38,7 @@ Arbiter.Util.LayerSchema = function(){
 			enumeration = new Arbiter.Util.Enumeration();
 			visibility = true;
 			serverId = _serverId;
+			color = _color;
 			
 			var attribute = null;
 			
@@ -64,8 +67,8 @@ Arbiter.Util.LayerSchema = function(){
 			}
 		};
 		
-		LayerSchema(_url, _workspace, _featureType, _srid, properties, _serverId);
-	}else if(arguments.length === 12){ // Loaded from database
+		LayerSchema(_url, _workspace, _featureType, _srid, properties, _serverId, _color);
+	}else if(arguments.length === 13){ // Loaded from database
 		var _url = arguments[0];
 		var _workspace = arguments[1];
 		var _prefix = arguments[2];
@@ -78,12 +81,13 @@ Arbiter.Util.LayerSchema = function(){
 		var _visibility = arguments[9];
 		var _serverId = arguments[10];
 		var _mediaColumn = arguments[11];
+		var _color = arguments[12];
 		
 		LayerSchema = function(_url, _workspace, 
 				_prefix, _featureType, _srid, 
 				_geometryName, _geometryType,
 				_enumeration, _attributes, 
-				_visibility, _serverId){
+				_visibility, _serverId, _mediaColumn, _color){
 			
 			editable = true;
 			prefix = _prefix;
@@ -98,21 +102,23 @@ Arbiter.Util.LayerSchema = function(){
 			visibility = _visibility;
 			serverId = _serverId;
 			mediaColumn = _mediaColumn;
+			color = _color;
 		};
 		
 		LayerSchema(_url, _workspace, _prefix, _featureType, 
 				_srid, _geometryName, _geometryType, 
-				_enumeration, _attributes, _visibility, _serverId, _mediaColumn);
+				_enumeration, _attributes, _visibility, _serverId, _mediaColumn, _color);
 		
-	}else if(arguments.length === 5){ // LayerGroup
+	}else if(arguments.length === 6){ // LayerGroup
 		var _url = arguments[0];
 		var _workspace = arguments[1];
 		var _featureType = arguments[2];
 		var _visibility = arguments[3];
 		var _serverId = arguments[4];
+		var _color = arguments[5];
 		
 		LayerSchema = function(_url, _workspace, 
-				_featureType, _visibility, _serverId){
+				_featureType, _visibility, _serverId, _color){
 			var parsedFeatureType = Arbiter.Util.parseFeatureType(_featureType);
 			
 			workspace = _workspace;
@@ -122,9 +128,10 @@ Arbiter.Util.LayerSchema = function(){
 			editable = false;
 			visibility = _visibility;
 			serverId = _serverId;
+			color = _color;
 		};
 		
-		LayerSchema(_url, _workspace, _featureType, _visibility, _serverId);
+		LayerSchema(_url, _workspace, _featureType, _visibility, _serverId, _color);
 	}else{
 		throw "LayerSchema: Invalid number of arguments - " + arguments.length;
 	}
@@ -181,6 +188,10 @@ Arbiter.Util.LayerSchema = function(){
 		
 		getMediaColumn: function(){
 			return mediaColumn;
+		},
+		
+		getColor: function(){
+			return color;
 		}
 	};
 };

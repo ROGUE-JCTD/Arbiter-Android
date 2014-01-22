@@ -2,11 +2,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
+
 	<RelativeLayout
 	    android:layout_width="match_parent"
 	    android:layout_height="56dip"
 	    android:background="@drawable/list_selector"
-   		android:clickable="true">
+	    android:clickable="true" >
    		
 	    <!--  ListRow Left sied ToggleButton -->
 	    <LinearLayout android:id="@+id/visibilityToggle"
@@ -15,6 +16,12 @@
 	        android:padding="3dip"
 	        android:layout_alignParentLeft="true"
 	        android:layout_marginRight="5dip">
+
+	        <View
+	            android:id="@+id/layerColor"
+	            android:layout_width="26dp"
+	            android:layout_height="wrap_content"
+	            android:visibility="visible" />
 	 
 	        <ToggleButton
 	            android:id="@+id/layerVisibility"

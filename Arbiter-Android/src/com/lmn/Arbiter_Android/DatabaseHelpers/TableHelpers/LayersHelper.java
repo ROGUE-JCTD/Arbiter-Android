@@ -26,6 +26,7 @@ public class LayersHelper implements BaseColumns{
 	public static final String FEATURE_TYPE = "feature_type"; 
 	public static final String SERVER_ID = "server_id";
 	public static final String BOUNDING_BOX = "bbox";
+	public static final String COLOR = "color";
 	public static final String LAYER_VISIBILITY = "visibility";
 	public static final String WORKSPACE = "workspace";
 	private LayersHelper(){}
@@ -47,6 +48,7 @@ public class LayersHelper implements BaseColumns{
 					LAYER_TITLE + " TEXT, " +
 					FEATURE_TYPE + " TEXT, " +
 					BOUNDING_BOX + " TEXT, " +
+					COLOR + " TEXT, " +
 					LAYER_VISIBILITY + " TEXT, " +
 					WORKSPACE + " TEXT, " +
 					SERVER_ID + " INTEGER);";
@@ -64,7 +66,8 @@ public class LayersHelper implements BaseColumns{
 			SERVER_ID, // 2
 			LAYER_TITLE, // 3
 			BOUNDING_BOX, // 4
-			LAYER_VISIBILITY // 5
+			COLOR, // 5
+			LAYER_VISIBILITY // 6
 		};
 		
 		// get all of the layers and 
@@ -80,7 +83,7 @@ public class LayersHelper implements BaseColumns{
 		for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 			layers.add(new Layer(cursor.getInt(0),
 					cursor.getString(1), cursor.getInt(2), null, null, cursor.getString(3), 
-					cursor.getString(4), util.convertIntToBoolean(cursor.getInt(5))));
+					cursor.getString(4), cursor.getString(5), util.convertIntToBoolean(cursor.getInt(6))));
 		}
 		
 		cursor.close();
@@ -107,6 +110,7 @@ public class LayersHelper implements BaseColumns{
 				values.put(SERVER_ID, layer.getServerId());
 				values.put(FEATURE_TYPE, layer.getFeatureType());
 				values.put(BOUNDING_BOX, layer.getLayerBBOX());
+				values.put(COLOR, layer.getColor());
 				values.put(LAYER_VISIBILITY, layer.isChecked());
 				
 				layerIds[i] = db.insert(LAYERS_TABLE_NAME, null, values);
@@ -197,7 +201,7 @@ public class LayersHelper implements BaseColumns{
 			for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 				delete(projectDb, featureDb, context, new Layer(cursor.getInt(0),
 						cursor.getString(1), cursor.getInt(2), null, null, null, 
-						null, false));
+						null, null, false));
 			}
 			
 			cursor.close();

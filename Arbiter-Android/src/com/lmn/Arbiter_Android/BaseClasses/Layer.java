@@ -25,6 +25,8 @@ public class Layer {
 	
 	private String title;
 	private String boundingBox;
+	private String color = null;
+	
 	private int serverId;
 	
 	// Recycled for whether the layer is checked in the AddLayers List
@@ -34,12 +36,13 @@ public class Layer {
 	private boolean isDefaultLayer;
 	
 	public Layer(int layerId, String featureType, int serverId, String serverName, String serverUrl,
-			String title, String boundingBox, boolean checked){
+			String title, String boundingBox, String color, boolean checked){
 		this.layerId = layerId;
 		this.featureType = featureType;
 		this.serverName = serverName;
 		this.title = title;
 		this.boundingBox = boundingBox;
+		this.color = color;
 		this.srs = null;
 		this.serverId = serverId;
 		this.serverUrl = serverUrl;
@@ -50,9 +53,9 @@ public class Layer {
 	}
 	
 	public Layer(int layerId, String featureType, int serverId, String serverName, String serverUrl,
-			String title, String srs, String boundingBox, boolean checked){
+			String title, String srs, String boundingBox, String color, boolean checked){
 		this(layerId, featureType, serverId, serverName, serverUrl,
-				title, boundingBox, checked);
+				title, boundingBox, color, checked);
 		
 		this.srs = srs;
 	}
@@ -64,6 +67,7 @@ public class Layer {
 		this.serverName = item.getServerName();
 		this.title = item.getLayerTitle();
 		this.boundingBox = item.getLayerBBOX();
+		this.color = item.getColor();
 		this.checked = item.isChecked();
 		this.srs = item.getSRS();
 		this.serverId = item.getServerId();
@@ -116,6 +120,10 @@ public class Layer {
 		return boundingBox;
 	}
 	
+	public String getColor(){
+		return color;
+	}
+	
 	public boolean isChecked(){
 		return this.checked;
 	}
@@ -136,6 +144,10 @@ public class Layer {
 		this.checked = check;
 	}
 	
+	public void setColor(String color){
+		this.color = color;
+	}
+	
 	public String getWorkspace(){
 		return this.workspace;
 	}
@@ -147,7 +159,8 @@ public class Layer {
 				"\n\t serverName: " + serverName +
 				"\n\t serverId: " + serverId +
 				"\n\t title: " + title + 
-				"\n\t boundingBox: " + boundingBox;
+				"\n\t boundingBox: " + boundingBox +
+				"\n\t color: " + color;
 	}
 	
 }

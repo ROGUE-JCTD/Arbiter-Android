@@ -414,19 +414,35 @@ public class ArbiterCordova extends CordovaPlugin{
 	}
 	
 	private void finishMediaUploading(){
-		if(mediaUploadProgressDialog != null){
-			mediaUploadProgressDialog.dismiss();
-			mediaUploadProgressDialog = null;
-		}
+		Log.w("ArbiterCordova", TAG + " finisheMediaUploading");
+		final Activity activity = cordova.getActivity();
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				if(mediaUploadProgressDialog != null){
+					Log.w("ArbiterCordova", TAG + " finisheMediaUploading dismissing");
+					mediaUploadProgressDialog.dismiss();
+					mediaUploadProgressDialog = null;
+				}
+			}
+		});
 	}
 	
 	private void finishMediaDownloading(){
 		Log.w("ArbiterCordova", TAG + " finisheMediaDownloading");
-		if(mediaDownloadProgressDialog != null){
-			Log.w("ArbiterCordova", TAG + " finisheMediaDownloading dismissing");
-			mediaDownloadProgressDialog.dismiss();
-			mediaDownloadProgressDialog = null;
-		}
+		final Activity activity = cordova.getActivity();
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				if(mediaDownloadProgressDialog != null){
+					Log.w("ArbiterCordova", TAG + " finisheMediaDownloading dismissing");
+					mediaDownloadProgressDialog.dismiss();
+					mediaDownloadProgressDialog = null;
+				}
+			}
+		});
 	}
 	
 	private void showMediaUploadingStatus(final String layer, final String total){

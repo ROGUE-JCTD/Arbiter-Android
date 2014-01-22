@@ -2,7 +2,6 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
 import org.apache.cordova.CordovaInterface;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -17,7 +16,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.Selection;
 import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
@@ -118,7 +116,7 @@ public class AddServerDialog extends ArbiterDialogFragment{
 								@Override
 								public void run(){
 									builder.setTitle(context.getResources().getString(R.string.error));
-									builder.setIcon(context.getResources().getDrawable(R.drawable.warning));
+									builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
 									builder.setMessage(context.getResources().getString(R.string.authentication_failed));
 									
 									builder.create().show();
@@ -130,7 +128,7 @@ public class AddServerDialog extends ArbiterDialogFragment{
 								@Override
 								public void run(){
 									builder.setTitle(context.getResources().getString(R.string.error));
-									builder.setIcon(context.getResources().getDrawable(R.drawable.warning));
+									builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
 									builder.setMessage(context.getResources().getString(R.string.unable_to_connect));
 									
 									builder.create().show();
@@ -144,7 +142,7 @@ public class AddServerDialog extends ArbiterDialogFragment{
 							@Override
 							public void run(){
 								builder.setTitle(context.getResources().getString(R.string.error));
-								builder.setIcon(context.getResources().getDrawable(R.drawable.warning));
+								builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
 								builder.setMessage(context.getResources().getString(R.string.unable_to_connect));
 								
 								builder.create().show();

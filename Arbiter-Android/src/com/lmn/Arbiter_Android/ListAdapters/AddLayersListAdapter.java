@@ -116,7 +116,6 @@ public class AddLayersListAdapter extends BaseAdapter implements ArbiterAdapter<
 		Layer listItem = items.get(position);
 		
 		if(listItem != null){
-			view.setBackgroundColor(Color.parseColor(listItem.getColor()));
 			TextView layerName = (TextView) view.findViewById(R.id.layerName);
 			TextView serverName = (TextView) view.findViewById(R.id.serverName);
 			CheckBox checkbox = (CheckBox) view.findViewById(R.id.addLayerCheckbox);

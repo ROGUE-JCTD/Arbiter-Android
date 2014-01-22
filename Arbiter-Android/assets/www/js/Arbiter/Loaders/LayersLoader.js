@@ -43,6 +43,43 @@ Arbiter.Loaders.LayersLoader = (function(){
 	var loadWFSLayer = function(key, schema, _onSuccess){
 		var olLayer = Arbiter.Layers.WFSLayer.create(key, schema);
 		
+		olLayer.metadata["onSaveStart"] = function(event) {
+			var added = 0;
+			var modified = 0;
+			var removed = 0;
+			for (var i = 0; i < event.features.length; i++){
+				var feature = event.features[i];
+				if (feature.metadata !== undefined && feature.metadata !== null) {
+					if (feature.metadata.modified_state === Arbiter.FeatureTableHelper.MODIFIED_STATES.MODIFIED){
+						modified++;
+					} else if (feature.metadata.modified_state === Arbiter.FeatureTableHelper.MODIFIED_STATES.DELETED) {
+						removed++;
+					} else if (feature.metadata.modified_state === Arbiter.FeatureTableHelper.MODIFIED_STATES.INSERTED) {
+						added++;
+					}
+				}
+			}
+			var commitMsg = '{"' + event.object.layer.protocol.featureType + '":{';
+			if (added > 0){
+				commitMsg += '"added":' + added;
+			}
+			if (modified > 0){
+				if (added > 0){
+					commitMsg += ',';
+				}
+				commitMsg += '"modified":' + modified;
+			}
+			if (removed > 0){
+				if (added > 0 || modified > 0){
+					commitMsg += ',';
+				}
+				commitMsg += '"removed":' + removed;
+			}
+			commitMsg += '}}';
+			console.log(commitMsg);
+			event.object.layer.protocol.options.handle = commitMsg;
+		}
+		
 		Arbiter.Layers.addLayer(olLayer);
 		
 		olLayer.setVisibility(schema.isVisible());

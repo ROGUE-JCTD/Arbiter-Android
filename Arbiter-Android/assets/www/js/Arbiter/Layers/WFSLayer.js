@@ -24,6 +24,25 @@ Arbiter.Layers.WFSLayer = (function(){
 	
 	var getSaveStrategy = function(key, encodedCredentials) {
 		var saveStrategy = new OpenLayers.Strategy.Save();
+		
+		saveStrategy.events.register("start", this, function(event) {
+			//Arbiter.Layers.SyncHelper.onSaveSuccess(key, event.object.layer,
+			//		encodedCredentials);
+			
+			var layer = saveStrategy.layer;
+			
+			if(layer !== null && layer !== undefined){
+				var metadata = layer.metadata;
+				
+				if(metadata !== null && metadata !== undefined 
+						&& Arbiter.Util.funcExists(metadata["onSaveStart"])){
+					
+					var onSaveStart = metadata["onSaveStart"];
+					
+					onSaveStart(event);
+				}
+			}
+		});
 
 		saveStrategy.events.register("success", this, function(event) {
 			

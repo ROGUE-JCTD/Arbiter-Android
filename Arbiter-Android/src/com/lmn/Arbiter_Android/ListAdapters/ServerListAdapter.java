@@ -98,17 +98,18 @@ public class ServerListAdapter extends BaseAdapter implements ArbiterAdapter<Spa
 			if(serverName != null){
 				serverName.setText(server.getName());
 			}
-			
-			view.setOnClickListener(new OnClickListener(){
 
-				@Override
-				public void onClick(View v) {
+			if(serverName.getText() != "OpenStreetMap"){
+				view.setOnClickListener(new OnClickListener(){
+					@Override
+					public void onClick(View v) {
 					
-					// Open the add server dialog
-					(new ArbiterDialogs(activity.getApplicationContext(), activity.getResources(),
-							activity.getSupportFragmentManager())).showAddServerDialog(server);
-				}
-			});
+						// Open the add server dialog
+						(new ArbiterDialogs(activity.getApplicationContext(), activity.getResources(),
+								activity.getSupportFragmentManager())).showAddServerDialog(server);
+					}
+				});
+			}
 			
 			ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteServer);
 			

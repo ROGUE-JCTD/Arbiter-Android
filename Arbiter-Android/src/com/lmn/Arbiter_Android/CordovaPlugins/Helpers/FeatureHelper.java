@@ -86,9 +86,7 @@ public class FeatureHelper {
 	
 	private void displayDialog(Feature feature, String layerId, boolean startInEditMode){
 		
-		Resources resources = activity.getResources();
-		
-		String title = resources.getString(R.string.feature_dialog_title);
+		String title = feature.getFeatureType();
 		
 		FeatureDialog dialog = FeatureDialog.newInstance(title, 
 				R.layout.feature_dialog, feature, layerId, startInEditMode);

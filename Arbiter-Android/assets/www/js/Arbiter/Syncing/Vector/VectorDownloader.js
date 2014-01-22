@@ -4,6 +4,7 @@ Arbiter.VectorDownloader = function(_schema, _bounds, _onSuccess, _onFailure){
 	this.onSuccess = _onSuccess;
 	this.onFailure = _onFailure;
 	
+	console.log("VectorDownloader initializing");
 	var serverId = this.schema.getServerId();
 	
 	console.log("vectorDownloader serverId: " + serverId);

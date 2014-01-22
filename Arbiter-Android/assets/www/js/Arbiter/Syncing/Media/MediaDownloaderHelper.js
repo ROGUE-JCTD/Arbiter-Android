@@ -5,17 +5,26 @@ Arbiter.MediaDownloaderHelper = function(feature, schema,
 	this.header = _header;
 	this.url = _url;
 	
-	this.failedMedia = [];
+	this.failedMedia = null;
 	
 	var mediaAttribute = feature[schema.getMediaColumn()];
 	
 	this.featureMedia = [];
-	
+	this.index = -1;
     if(mediaAttribute !== null && mediaAttribute !== undefined) {
         this.featureMedia = JSON.parse(mediaAttribute);
     }
     
     this.onDownloadComplete = null;
+};
+
+Arbiter.MediaDownloaderHelper.prototype.pop = function(){
+	
+	if(++this.index < this.featureMedia.length){
+		return this.featureMedia[this.index];
+	}
+	
+	return undefined;
 };
 
 Arbiter.MediaDownloaderHelper.prototype.startDownload = function(onSuccess){
@@ -26,7 +35,13 @@ Arbiter.MediaDownloaderHelper.prototype.startDownload = function(onSuccess){
 };
 
 Arbiter.MediaDownloaderHelper.prototype.addToFailedMedia = function(_failed, _error){
+	
 	if(_failed !== null && _failed !== undefined){
+		
+		if(this.failedMedia === null || this.failedMedia === undefined){
+			this.failedMedia = [];
+		}
+		
 		this.failedMedia.push({
 			media: _failed,
 			error: _error
@@ -36,7 +51,7 @@ Arbiter.MediaDownloaderHelper.prototype.addToFailedMedia = function(_failed, _er
 
 Arbiter.MediaDownloaderHelper.prototype.startDownloadingNext = function(){
 	
-	var media = this.featureMedia.shift();
+	var media = this.pop();
 	
 	if(media !== undefined){
 		
@@ -68,9 +83,29 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
         	if(error.code === FileError.NOT_FOUND_ERR){
         		
                 var fileTransfer = new FileTransfer();
+                
+                var isFinished = false;
+                
+                var progressListener = new Arbiter.MediaProgressListener(fileTransfer,
+                		function(){
+                	
+                	if(isFinished === false){
+                		fileTransfer.abort();
+                	}
+                	
+                	onFailure("Download timed out");
+                	
+                },function(){
+                	return isFinished;
+                });
+                
+                progressListener.watchProgress();
+                
                 var uri = encodeURI(context.url + media);
                 fileTransfer.download(uri, context.mediaDir.fullPath + "/" + media, function(result) {
                         console.log("download complete: " + result.fullPath);
+                        
+                        isFinished = true;
                         
                         context.startDownloadingNext();
                         
@@ -79,7 +114,11 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
                         console.log("download error target " + transferError.target);
                         console.log("download error code" + transferError.code);
                         
-                        onFailure(transferError);
+                        isFinished = true;
+                        
+                        if(transferError.code !== FileTransferError.ABORT_ERR){
+                        	onFailure(transferError);
+                        }
                     }, undefined, {
                             headers: context.header
                     });

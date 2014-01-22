@@ -6,7 +6,7 @@ Arbiter.MediaDownloader = function(_featureDb, _schema, _server, _mediaDir){
 	this.mediaDir = _mediaDir;
 	
 	// key by arbiter_id
-	this.failedOnDownload = {};
+	this.failedOnDownload = null;
 	
 	var credentials = Arbiter.Util.getEncodedCredentials(
 			this.server.getUsername(),
@@ -22,20 +22,29 @@ Arbiter.MediaDownloader = function(_featureDb, _schema, _server, _mediaDir){
 		Authorization: 'Basic ' + credentials	
 	};
 	
-	this.onDownloadSuccess = null;
+	this.onDownloadComplete = null;
 	
 	this.features = [];
-	
+	this.index = -1;
 	this.queuedCount = 0;
 	
 	// Start at -1 to account for the first download
-	this.finishedDownloading = -1;
+	this.finishedDownloading = 0;
+};
+
+Arbiter.MediaDownloader.prototype.pop = function(){
+	
+	if(++this.index < this.features.length){
+		return this.features[this.index];
+	}
+	
+	return undefined;
 };
 
 Arbiter.MediaDownloader.prototype.startDownload = function(onSuccess){
 	var context = this;
 	
-	this.onDownloadSuccess = onSuccess;
+	this.onDownloadComplete = onSuccess;
 	
 	this.getFeatures(function(){
 		
@@ -46,8 +55,8 @@ Arbiter.MediaDownloader.prototype.startDownload = function(onSuccess){
 		
 		if(context.queuedCount === 0){
 			
-			if(Arbiter.Util.funcExists(context.onDownloadSuccess)){
-				context.onDownloadSuccess(context.failedOnDownload);
+			if(Arbiter.Util.funcExists(context.onDownloadComplete)){
+				context.onDownloadComplete(context.failedOnDownload);
 			}
 			
 			return;
@@ -57,6 +66,10 @@ Arbiter.MediaDownloader.prototype.startDownload = function(onSuccess){
 	}, function(e){
 		// TODO: Handle errors
 		console.log(e);
+		
+		if(Arbiter.Util.funcExists(context.onDownloadComplete)){
+			context.onDownloadComplete(context.failedOnDownload);
+		}
 	});
 };
 
@@ -89,17 +102,22 @@ Arbiter.MediaDownloader.prototype.getFeatures = function(onSuccess, onFailure){
 	});
 };
 
+Arbiter.MediaDownloader.prototype.putDownloadFailure = function(key, failedMedia){
+	
+	if(failedMedia !== null && failedMedia !== undefined){
+		
+		if(this.failedOnDownload === null || this.failedOnDownload === undefined){
+			this.failedOnDownload = {};
+		}
+		
+		this.failedOnDownload[key] = failedMedia;
+	}	
+};
+
 Arbiter.MediaDownloader.prototype.startDownloadingNext = function(){
 	var context = this;
 	
-	var feature = this.features.shift();
-	
-	this.finishedDownloading++;
-	
-	Arbiter.Cordova.updateMediaDownloadingStatus(
-			this.schema.getFeatureType(), 
-			this.finishedDownloading,
-			this.queuedCount);
+	var feature = this.pop();
 	
 	if(feature !== undefined){
 		
@@ -108,16 +126,23 @@ Arbiter.MediaDownloader.prototype.startDownloadingNext = function(){
 		
 		mediaDownloaderHelper.startDownload(function(failedMedia){
 			
+			Arbiter.Cordova.updateMediaDownloadingStatus(
+					context.schema.getFeatureType(), 
+					++context.finishedDownloading,
+					context.queuedCount);
+			
 			var key = feature[Arbiter.FeatureTableHelper.ID];
 			
-			context.failedOnDownload[key] = failedMedia; 
+			if(failedMedia !== null && failedMedia !== undefined){
+				context.putDownloadFailure(key, failedMedia)
+			}
 			
 			context.startDownloadingNext();
 		});
 	}else{
 		
-		if(Arbiter.Util.funcExists(this.onDownloadSuccess)){
-			this.onDownloadSuccess(this.failedOnDownload);
+		if(Arbiter.Util.funcExists(this.onDownloadComplete)){
+			this.onDownloadComplete(this.failedOnDownload);
 		}
 	}
 };

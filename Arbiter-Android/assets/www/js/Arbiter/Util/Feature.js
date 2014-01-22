@@ -26,6 +26,14 @@ Arbiter.Util.Feature = (function(){
         downloadFeatures: function(schema, bounds, 
         		encodedCredentials, onSuccess, onFailure){
         	
+        	if(schema.getSRID() === null || schema.getSRID() === undefined){
+        		if(Arbiter.Util.funcExists(onFailure)){
+					onFailure();
+				}
+        		
+        		return;
+        	}
+        	
             var srsNumberStr = schema.getSRID().substring(
             		schema.getSRID().indexOf(":") + 1);
             

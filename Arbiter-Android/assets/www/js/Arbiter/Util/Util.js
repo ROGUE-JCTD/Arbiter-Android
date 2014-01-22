@@ -79,6 +79,14 @@ Arbiter.Util = (function(){
 			}
 			
 			return null;
+		},
+		
+		existsAndNotNull: function(someVar){
+			if(someVar !== null && someVar !== undefined){
+				return true;
+			}
+			
+			return false;
 		}
 	};
 })();

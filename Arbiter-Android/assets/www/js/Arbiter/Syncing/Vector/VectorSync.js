@@ -10,8 +10,8 @@ Arbiter.VectorSync = function(_map, _bounds, _onSuccess, _onFailure){
 	
 	this.index = -1;
 	
-	this.failedToUpload = [];
-	this.failedToDownload = [];
+	this.failedToUpload = null;
+	this.failedToDownload = null;
 	
 	this.onSuccess = _onSuccess;
 	this.onFailure = _onFailure;
@@ -72,6 +72,7 @@ Arbiter.VectorSync.prototype.pop = function(){
 	// Skip the aoi layer
 	if((this.usingSpecificSchemas !== true 
 			&& this.usingSpecificSchemas !== "true" )
+			&& (layer !== null && layer !== undefined)
 			&& layer.name === Arbiter.AOI){
 		
 		layer = this.layers[++this.index];
@@ -82,11 +83,23 @@ Arbiter.VectorSync.prototype.pop = function(){
 
 Arbiter.VectorSync.prototype.startUpload = function(){
 	
-	if(this.layers.length > 0){
+	if(this.queuedCount > 0){
 		Arbiter.Cordova.showUploadingVectorDataProgress(this.queuedCount);
 	}
 	
 	this.startNextUpload();
+};
+
+Arbiter.VectorSync.prototype.putFailedUpload = function(failed){
+	
+	if(failed !== null && failed !== undefined){
+		
+		if(this.failedToUpload === null || this.failedToUpload === undefined){
+			this.failedToUpload = [];
+		}
+		
+		this.failedToUpload.push(failed);
+	}
 };
 
 Arbiter.VectorSync.prototype.startNextUpload = function(){
@@ -107,7 +120,7 @@ Arbiter.VectorSync.prototype.startNextUpload = function(){
 			callback();
 		}, function(featureType){
 			
-			context.failedToUpload.push(featureType);
+			context.putFailedUpload(featureType);
 			
 			callback();
 		});
@@ -120,7 +133,7 @@ Arbiter.VectorSync.prototype.startNextUpload = function(){
 
 Arbiter.VectorSync.prototype.startDownload = function(){
 	
-	if(this.layers.length > 0){
+	if(this.queuedCount > 0){
 		Arbiter.Cordova.showDownloadingVectorDataProgress(this.queuedCount);
 	}
 	
@@ -129,11 +142,26 @@ Arbiter.VectorSync.prototype.startDownload = function(){
 	this.startNextDownload();
 };
 
+Arbiter.VectorSync.prototype.putFailedDownload = function(failed){
+	
+	if(failed !== null && failed !== undefined){
+		
+		if(this.failedToDownload === null || this.failedToDownload === undefined){
+			this.failedToDownload = [];
+		}
+		
+		this.failedToDownload.push(failed);
+	}
+};
+
 Arbiter.VectorSync.prototype.startNextDownload = function(){
 	
 	var context = this;
 	var layer = this.pop();
-	console.log("bounds", JSON.stringify(this.bounds));
+	console.log("bounds: " + this.bounds.getLeft() 
+			+ ", " + this.bounds.getBottom()
+			+ ", " + this.bounds.getRight() 
+			+ ", " + this.bounds.getTop());
 	
 	if(layer !== null & layer !== undefined){
 		
@@ -162,8 +190,8 @@ Arbiter.VectorSync.prototype.startNextDownload = function(){
 		}, function(featureType){
 			
 			console.log("vectorDownloader failure");
-			context.failedToDownload.push(featureType);
 			
+			context.putFailedDownload(featureType)
 			callback();
 		});
 		

@@ -1,14 +1,10 @@
 package com.lmn.Arbiter_Android.Loaders;
 
-import java.io.IOException;
 import java.util.ArrayList;
-
-import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.IntentFilter;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
@@ -27,28 +23,20 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 	public AddLayersListLoader(AddLayersDialog dialog) {
 		super(dialog.getActivity().getApplicationContext());
 		this.dialog = dialog;
+		
 		this.getCapabilities = new GetCapabilities();
 	}
 
 	@Override
 	public ArrayList<Layer> loadInBackground() {
+		
 		ArrayList<Layer> _layers = null;
 		Server server = dialog.getSelectedServer();
-		
-		try {
 			
-			_layers = getCapabilities.getLayers(server,
-					dialog.getLayersInProject());
-				
-			_layers = addDefaultLayer(_layers, server);
+		_layers = getCapabilities.getLayers(server,
+				dialog.getLayersInProject());
 			
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (XmlPullParserException e){
-			e.printStackTrace();
-		} catch (Exception e){
-			e.printStackTrace();
-		}
+		_layers = addDefaultLayer(_layers, server);
 		
 		return _layers;
 	}

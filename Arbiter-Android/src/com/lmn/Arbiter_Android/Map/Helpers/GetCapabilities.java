@@ -1,6 +1,7 @@
 package com.lmn.Arbiter_Android.Map.Helpers;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,9 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.xmlpull.v1.XmlPullParserException;
 
 import android.util.Base64;
 import android.util.Log;
@@ -22,6 +28,8 @@ import com.lmn.Arbiter_Android.Map.Helpers.Parsers.ParseGetCapabilities;
 
 public class GetCapabilities {
 	private ParseGetCapabilities parser;
+	int timeout = 30000;
+	int soTimeout = 40000;
 	
 	public GetCapabilities(){
 		parser = ParseGetCapabilities.getParser();
@@ -33,9 +41,14 @@ public class GetCapabilities {
 	 * @return
 	 * @throws Exception
 	 */
-	public ArrayList<Layer> getLayers(Server server, ArrayList<Layer> layersInProject) throws Exception {
+	public ArrayList<Layer> getLayers(Server server, ArrayList<Layer> layersInProject){
 		if(server != null && server.getUrl() != null){
 			String url = server.getUrl() + "/wms?service=wms&version=1.1.1&request=getCapabilities";
+			
+			HttpParams params = new BasicHttpParams();
+			
+			HttpConnectionParams.setConnectionTimeout(params, timeout);
+			HttpConnectionParams.setSoTimeout(params, soTimeout);
 			
 			HttpClient client = new DefaultHttpClient();
 			HttpGet request = new HttpGet(url);
@@ -46,23 +59,51 @@ public class GetCapabilities {
 			request.addHeader("Authorization", "Basic " + credentials);
 			
 			Log.w("GetCapabilities", "GetCapabilities: " + url);
-			HttpResponse response = client.execute(request);
+			HttpResponse response = null;
+			
+			try {
+				response = client.execute(request);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 			Log.w("ADD_LAYERS_LIST_LOADER", "ADD_LAYERS_LIST_LOADER - Sending GET request to URL: " + url);
 			Log.w("ADD_LAYERS_LIST_LOADER", "ADD_LAYERS_LIST_LAODER - Response Code : " + response.getStatusLine().getStatusCode());
 			
-			BufferedReader reader = new BufferedReader(
-					new InputStreamReader(response.getEntity().getContent()));
+			BufferedReader reader = null;
 			
-			/*BufferedReader reader = new BufferedReader(
-					new InputStreamReader(this.dialog.getActivity().
-							getApplicationContext().getResources().getAssets().open("getcapabilities.xml")));*/
+			try {
+				reader = new BufferedReader(
+						new InputStreamReader(response.getEntity().getContent()));
+			} catch (IllegalStateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 				
-			List<Layer> layers = parser.parseGetCapabilities(server, reader);
+			List<Layer> layers = null;
 			
-			removeDuplicates(layers, layersInProject);
+			try {
+				layers = parser.parseGetCapabilities(server, reader);
+			} catch (XmlPullParserException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
-			Collections.sort(layers, new CompareAddLayersListItems());
+			if(layers != null){
+				removeDuplicates(layers, layersInProject);
+				
+				Collections.sort(layers, new CompareAddLayersListItems());
+			}
 			
 			return (ArrayList<Layer>) layers;
 		}

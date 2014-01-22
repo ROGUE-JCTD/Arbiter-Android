@@ -78,6 +78,7 @@
 	<string name="form_error_bool">Please enter true or false.</string>
 	<string name="check_errors">Invalid entries</string>
 	<string name="check_errors_msg">Please fix errors before continuing.</string>
+	<string name="loading_layers_please_wait">Loading layers from server. Please wait.</string>
 	
     <!-- MAP ACTIVITY STRINGS -->
     <string name="map_activity_name">Arbiter</string>
@@ -113,6 +114,7 @@
     <string name="add_layers_dialog_title">Add Layers</string>
     <string name="layer_filter_hint">Filter</string>
     <string name="action_add_server">Add Server</string>
+    <string name="choose_server">Server</string>
 
     <!-- WELCOME DIALOG STRINGS -->
 

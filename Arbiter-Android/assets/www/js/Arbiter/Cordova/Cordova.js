@@ -48,9 +48,10 @@ Arbiter.Cordova = (function() {
 		 */
 		resetWebApp : function(tx) {
 			var bbox = Arbiter.Map.getCurrentExtent().toBBOX();
+			
             var zoom = Arbiter.Map.getZoom();
 			var reset = function(){
-				console.log("resetWebApp");
+				console.log("resetWebApp: " + JSON.stringify(bbox));
 				cordova.exec(null, null, "ArbiterCordova",
 						"resetWebApp", [bbox, zoom]);
 			};
@@ -184,6 +185,12 @@ Arbiter.Cordova = (function() {
 					"updateTileSyncingStatus", [percent]);
 		},
 		
+		showMediaUploadingStatus: function(layer, count){
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"showMediaUploadingStatus", [layer, count]);
+		},
+		
 		updateMediaUploadingStatus: function(layer, finishedCount, totalCount){
 			
 			console.log("updateMediaUploadingStatus layer = " + layer
@@ -195,6 +202,19 @@ Arbiter.Cordova = (function() {
 					[layer, finishedCount, totalCount]);
 		},
 		
+		finishMediaUploading: function(){
+			console.log("finishMediaUploading");
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"finishMediaUploading", []);
+		},
+		
+		showMediaDownloadingStatus: function(layer, count){
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"showMediaDownloadingStatus", [layer, count]);
+		},
+		
 		updateMediaDownloadingStatus: function(layer, finishedCount, totalCount){
 			
 			console.log("updateMediaDownloadingStatus layer = " + layer
@@ -204,13 +224,6 @@ Arbiter.Cordova = (function() {
 			cordova.exec(null, null, "ArbiterCordova",
 					"updateMediaDownloadingStatus",
 					[layer, finishedCount, totalCount]);
-		},
-		
-		finishMediaUploading: function(){
-			console.log("finishMediaUploading");
-			
-			cordova.exec(null, null, "ArbiterCordova",
-					"finishMediaUploading", []);
 		},
 		
 		finishMediaDownloading: function(){
@@ -321,6 +334,20 @@ Arbiter.Cordova = (function() {
 			
 			cordova.exec(null, null, "ArbiterCordova",
 					"dismissDownloadingSchemasProgress", []);
+		},
+		
+		showErrorsSyncing: function(failedVectorUploads, failedVectorDownloads,
+				failedMediaUploads, failedMediaDownloads){
+			
+			console.log(
+					"\nshowErrosSyncing: failedVectorUploads = " + JSON.stringify(failedVectorUploads) 
+					+ "\n, failedVectorDownloads = " + JSON.stringify(failedVectorDownloads) 
+					+ "\n, failedMediaUploads = " + JSON.stringify(failedMediaUploads)
+					+ "\n, failedMediaDownloads = " + JSON.stringify(failedMediaDownloads) + "\n\n"
+			);
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"showErrorsSyncing", arguments);
 		}
 	};
 })();

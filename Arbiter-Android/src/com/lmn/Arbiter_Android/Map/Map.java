@@ -35,11 +35,11 @@ public class Map{
 		return map;
 	}
 	
-	public void createProject(CordovaWebView webview, final ArrayList<Layer> layers){
+	public void createProject(CordovaWebView webview, final ArrayList<Layer> layers, long[] layerIds){
 		try{
 			String url = "javascript:app.waitForArbiterInit(new Function('"
 					+ "Arbiter.Cordova.Project.createProject("
-					+ getLayersJSON(layers, null) + ")'))";
+					+ getLayersJSON(layers, layerIds) + ")'))";
 				
 			webview.loadUrl(url);
 		} catch (JSONException e){
@@ -118,8 +118,10 @@ public class Map{
 			jsonLayer = new JSONObject();
 			
 			if(layerIds == null){
+				Log.w("Map", "Map layer featureType = " + layer.getFeatureType() + "id = " + layer.getLayerId());
 				jsonLayer.put(LayersHelper._ID, layer.getLayerId());
 			}else{
+				Log.w("Map", "Map layer featureType = " + layer.getFeatureType() + "id = " + layerIds[i]);
 				jsonLayer.put(LayersHelper._ID, layerIds[i]);
 			}
 			

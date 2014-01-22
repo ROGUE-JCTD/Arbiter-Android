@@ -8,6 +8,14 @@ Arbiter.Sync = function(_map, _cacheTiles, _bounds,
 	this.onSuccess = _onSuccess;
 	this.onFailure = _onFailure;
 	this.specificSchemas = null;
+	
+	// Arrays
+	this.failedVectorUploads = null;
+	this.failedVectorDownloads = null;
+	
+	// Object[layerId]
+	this.failedMediaUploads = null;
+	this.failedMediaDownloads = null;
 };
 
 // ol layers
@@ -25,6 +33,19 @@ Arbiter.Sync.prototype.setSpecificSchemas = function(schemas){
 Arbiter.Sync.prototype.onSyncCompleted = function(){
 	
 	console.log("Arbiter.Sync completed");
+	
+	if(Arbiter.Util.existsAndNotNull(this.failedVectorUploads)
+			&& Arbiter.Util.existsAndNotNull(this.failedVectorDownloads) 
+			&& Arbiter.Util.existsAndNotNull(this.failedMediaUploads) 
+			&& Arbiter.Util.existsAndNotNull(this.failedMediaDownloads)){
+	
+		Arbiter.Cordova.showSyncingErrors(
+			this.failedVectorUploads,
+			this.failedVectorDownloads,
+			this.failedMediaUploads,
+			this.failedMediaDownloads
+		);
+	}
 	
 	if(Arbiter.Util.funcExists(this.onSuccess)){
 		this.onSuccess();
@@ -46,16 +67,13 @@ Arbiter.Sync.prototype.sync = function(){
 	var vectorSync = new Arbiter.VectorSync(this.map, this.bounds,
 			function(failedUploads, failedDownloads){
 		
+		context.failedVectorUploads = failedUploads;
+		context.failedVectorDownloads = failedDownloads;
+		
 		console.log("vector sync completed failedUploads = " 
 				+ JSON.stringify(failedUploads) 
 				+ ", failedDownloads = " 
 				+ JSON.stringify(failedDownloads));
-		
-		if(failedUploads.length > 0 || failedDownloads.length > 0){
-			
-			//Arbiter.Cordova.alertVectorSyncFailures(context);
-		}
-
 			
 		context.startMediaSync();
 		
@@ -83,15 +101,13 @@ Arbiter.Sync.prototype.startMediaSync = function(){
 	
 	mediaSync.startSync(function(failedUploads, failedDownloads){
 		
+		context.failedMediaUploads = failedUploads;
+		context.failedMediaDownloads = failedDownloads;
+		
 		console.log("media sync completed failedUploads = " 
 				+ JSON.stringify(failedUploads) 
 				+ ", failedDownloads = " 
 				+ JSON.stringify(failedDownloads));
-		
-		if(failedUploads.length > 0 || failedDownloads.length > 0){
-			
-			//Arbiter.Cordova.alertMediaSyncFailures(context);
-		}
 
 		if(context.cacheTiles === true || context.cacheTiles === "true"){
 			context.startTileCache();

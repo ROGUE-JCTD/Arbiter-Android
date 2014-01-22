@@ -225,6 +225,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		this.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
 			@Override
 		    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+				Log.w("AddLayersDialog", "AddLayersDialog spinner updated");
 		        // Server was selected so force the AddLayersListLoader to load
 				LocalBroadcastManager.getInstance(context).
 					sendBroadcast(new Intent(AddLayersListLoader.ADD_LAYERS_LIST_UPDATED));

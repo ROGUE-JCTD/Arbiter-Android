@@ -36,14 +36,13 @@ public class InsertProjectHelper {
 		CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run(){
-				insertNewProject(activity);
+				final long[] layerIds = insertNewProject(activity);
 				
-				Log.w("InsertProjectHelper", "InsertProjectHelper: insertedProject");
 				activity.runOnUiThread(new Runnable(){
 					@Override
 					public void run(){
 						//Map.getMap().resetWebApp(cordovaMap.getWebView());
-						performFeatureDbWork();
+						performFeatureDbWork(layerIds);
 					}
 				});
 			}
@@ -56,12 +55,12 @@ public class InsertProjectHelper {
 	 * table, download and insert the features in the
 	 * projects aoi into the featureType's table
 	 */
-	private void performFeatureDbWork(){
+	private void performFeatureDbWork(long[] layerIds){
 		Map.getMap().createProject(cordovaMap.getWebView(), 
-				arbiterProject.getNewProject().getLayers());
+				arbiterProject.getNewProject().getLayers(), layerIds);
 	}
 	
-	private void insertNewProject(final Activity activity){
+	private long[] insertNewProject(final Activity activity){
 		Context context = activity.getApplicationContext();
 		
 		Project newProject = arbiterProject.getNewProject();
@@ -81,10 +80,12 @@ public class InsertProjectHelper {
 		ProjectDatabaseHelper helper = getProjectDatabaseHelper(context, projectName);
 		
 		// Insert the layers into the new project
-		insertLayers(helper, context, newProject);
+		long[] layerIds = insertLayers(helper, context, newProject);
 		
 		// Insert the aoi and default layer info
 		insertProjectInfo(helper, context, newProject);
+		
+		return layerIds;
 	}
 	
 	private ProjectDatabaseHelper getProjectDatabaseHelper(Context context, String projectName){
@@ -106,9 +107,9 @@ public class InsertProjectHelper {
 			createProject(activity, projectName, false);
 	}
 	
-	private void insertLayers(ProjectDatabaseHelper helper, Context context, Project newProject){
+	private long[] insertLayers(ProjectDatabaseHelper helper, Context context, Project newProject){
 		// Save all of the layers to the project database
-		LayersHelper.getLayersHelper().insert(helper.
+		 return LayersHelper.getLayersHelper().insert(helper.
 			getWritableDatabase(), context, newProject.getLayers());
 	}
 	

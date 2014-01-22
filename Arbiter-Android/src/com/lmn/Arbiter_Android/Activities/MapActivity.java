@@ -39,7 +39,9 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
-public class MapActivity extends FragmentActivity implements CordovaInterface, Map.MapChangeListener, Map.CordovaMap{
+public class MapActivity extends FragmentActivity implements CordovaInterface,
+		Map.MapChangeListener, Map.CordovaMap{
+	
     private ArbiterDialogs dialogs;
     private String TAG = "MAP_ACTIVITY";
     private ArbiterProject arbiterProject;

@@ -196,7 +196,7 @@ Arbiter.Util.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
 	    
 		// we're done - go back to the view user had before they started caching
 	    //map.zoomTo();
-	    map.zoomToExtent(caching.extentOriginal, true);
+	    //map.zoomToExtent(caching.extentOriginal, true);
 	    
 	    // keep for debugging
 	    cachingLast = caching;

@@ -10,13 +10,23 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
+        <TextView 
+            android:id="@+id/chooseServer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="15dip"
+            android:layout_marginTop="30dip"
+            android:textSize="20sp"
+            android:text="@string/choose_server"/>
+        
 	    <Spinner
 	        android:id="@+id/serversSpinner"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_marginTop="15dip"
 	        android:layout_marginLeft="15dip"
-	        android:layout_alignParentLeft="true"
+	        android:layout_toRightOf="@id/chooseServer"
 	        android:layout_toLeftOf="@+id/add_server_button" />
 
 	    <ImageButton
@@ -37,7 +47,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dip"
         android:ems="10"
-        android:hint="@string/layer_filter_hint" >
+        android:hint="@string/layer_filter_hint"
+        android:visibility="gone" >
 
         <requestFocus />
     </MultiAutoCompleteTextView>

@@ -26,6 +26,14 @@ Arbiter.Cordova.Project = (function(){
 				
 				var specificSchemas = getSchemasFromDbLayers(layers);
 				
+				console.log("prepareSync dbLayers: " + JSON.stringify(layers));
+				
+				console.log("print specific schemas");
+				
+				for(var i = 0; i < specificSchemas.length; i++){
+					console.log("schema featureType = " + specificSchemas[i].getFeatureType());
+				}
+				
 				Arbiter.Cordova.Project.sync(cacheTiles, true,
 						specificSchemas, onSuccess, onFailure);
 			}else{
@@ -80,7 +88,7 @@ Arbiter.Cordova.Project = (function(){
 			
 			var onFailure = function(e){
 				console.log("Arbiter.Cordova.Project", e);
-				Arbiter.Cordova.errorCreatingProject(e);
+			//	Arbiter.Cordova.errorCreatingProject(e);
 				Arbiter.Cordova.syncCompleted();
 			};
 			
@@ -113,7 +121,7 @@ Arbiter.Cordova.Project = (function(){
 			};
 			
 			var onFailure = function(e){
-				Arbiter.Cordova.errorAddingLayers(e);
+			//	Arbiter.Cordova.errorAddingLayers(e);
 				Arbiter.Cordova.syncCompleted();
 			};
 			
@@ -263,53 +271,54 @@ Arbiter.Cordova.Project = (function(){
 				downloadOnly = false;
 			}
 			
-			Arbiter.Cordova.setState(Arbiter.Cordova.STATES.UPDATING);
-			
-			Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
+			if(Arbiter.getLayerSchemasLength() > 0 ||
+					((downloadOnly === true || downloadOnly === true)
+							&& specificSchemas.length > 0) || cacheTiles){
 				
-				if(_aoi !== null && _aoi !== undefined 
-						&& _aoi !== ""){
+				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.UPDATING);
+				
+				Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
 					
-					var aoi = _aoi.split(',');
-					
-					var bounds = new Arbiter.Util.Bounds(aoi[0], aoi[1], aoi[2], aoi[3]);
-					
-					var syncHelper = new Arbiter.Sync(map, cacheTiles,
-							bounds, downloadOnly, function(){
+					if(_aoi !== null && _aoi !== undefined 
+							&& _aoi !== ""){
 						
-						if(cacheTiles === true){
-							map.zoomToExtent(bounds, true);
+						var aoi = _aoi.split(',');
+						
+						var bounds = new Arbiter.Util.Bounds(aoi[0], aoi[1], aoi[2], aoi[3]);
+						
+						var syncHelper = new Arbiter.Sync(map, cacheTiles,
+								bounds, downloadOnly, function(){
+							
+							if(Arbiter.Util.funcExists(onSuccess)){
+								onSuccess();
+							}else{
+								Arbiter.Cordova.syncCompleted();
+							}
+						}, function(e){
+							
+							console.log("sync failed", e);
+							
+							if(Arbiter.Util.funcExists(onFailure)){
+								onFailure(e);
+							}else{
+								Arbiter.Cordova.syncCompleted();
+							}
+						});
+						
+						if(downloadOnly === true || downloadOnly === "true"){
+							
+							syncHelper.setSpecificSchemas(specificSchemas);
 						}
 						
-						if(Arbiter.Util.funcExists(onSuccess)){
-							onSuccess();
-						}else{
-							Arbiter.Cordova.syncCompleted();
-						}
-					}, function(e){
-						
-						console.log("sync failed", e);
-						
-						if(Arbiter.Util.funcExists(onFailure)){
-							onFailure(e);
-						}else{
-							Arbiter.Cordova.syncCompleted();
-						}
-					});
-					
-					if(downloadOnly === true || downloadOnly === "true"){
-						
-						syncHelper.setSpecificSchemas(specificSchemas);
+						syncHelper.sync();
 					}
+				}, function(e){
 					
-					syncHelper.sync();
-				}
-			}, function(e){
-				
-				if(Arbiter.Util.funcExists(onFailure)){
-					onFailure(e);
-				}
-			});
+					if(Arbiter.Util.funcExists(onFailure)){
+						onFailure(e);
+					}
+				});
+			}
 		}
 	};
 })();

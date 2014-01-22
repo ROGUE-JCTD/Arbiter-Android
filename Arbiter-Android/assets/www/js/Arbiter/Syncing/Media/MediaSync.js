@@ -1,13 +1,11 @@
 Arbiter.MediaSync = function(_layerSchemas){
 	this.mediaToSend = null;
-	this.failedOnUpload = {};
-	this.failedOnDownload = {};
+	this.failedOnUpload = null;
+	this.failedOnDownload = null;
 	this.layerSchemas = _layerSchemas;
 	
 	this.layers = [];
-	
-	// Gets populated as sync completes
-	this.layersForDownload = [];
+	this.index = -1;
 	
 	this.mediaDir = null;
 	
@@ -88,6 +86,15 @@ Arbiter.MediaSync.prototype.initialize = function(onSuccess, onFailure){
 	});
 };
 
+Arbiter.MediaSync.prototype.pop = function(){
+	
+	if(++this.index < this.layers.length){
+		return this.layers[this.index];
+	}
+	
+	return undefined;
+};
+
 Arbiter.MediaSync.prototype.startSync = function(onSuccess, onFailure, downloadOnly){
 	var context = this;
 	
@@ -98,9 +105,11 @@ Arbiter.MediaSync.prototype.startSync = function(onSuccess, onFailure, downloadO
 		console.log("mediaSync initialized");
 		
 		if(downloadOnly === true || downloadOnly === "true"){
-			this.layersForDownload = this.layers;
+			
+			console.log("media sync download only");
 			context.startDownloadForNext();
 		}else{
+			
 			context.startUploadForNext();
 		}
 	}, onFailure);
@@ -112,6 +121,8 @@ Arbiter.MediaSync.prototype.onUploadComplete = function(){
 			+ " failed to upload:", this.failedOnUpload);
 	
 	Arbiter.Cordova.finishMediaUploading();
+	
+	this.index = -1;
 	
 	this.startDownloadForNext();
 };
@@ -134,15 +145,16 @@ Arbiter.MediaSync.prototype.startUploadForNext = function(){
 	
 	console.log("getting next to upload");
 	
-	var layer = this.layers.shift();
-	
-	// Push the layer onto layersForDownload
-	// so that the layers will still be
-	// available for download
-	this.layersForDownload.push(layer);
+	var layer = this.pop();
 	
 	if(layer !== undefined && (this.mediaToSend !== null 
 			&& this.mediaToSend !== undefined)){
+		
+		if(this.index === 0){
+			Arbiter.Cordova.showMediaUploadingStatus(
+					layer[Arbiter.LayersHelper.featureType()],
+					context.queueUploading);
+		}
 		
 		this.uploadMedia(layer);
 	}else{
@@ -153,14 +165,33 @@ Arbiter.MediaSync.prototype.startUploadForNext = function(){
 Arbiter.MediaSync.prototype.startDownloadForNext = function(){
 	var context = this;
 	
-	console.log("startDownloadForNext", this.layersForDownload);
-	
-	var layer = this.layersForDownload.shift();
+	var layer = this.pop();
 	
 	if(layer !== undefined){
+		
+		if(this.index === 0){
+			Arbiter.Cordova.showMediaDownloadingStatus(
+					layer[Arbiter.LayersHelper.featureType()],
+					context.queueDownloading);
+		}
+		
 		this.downloadMedia(layer);
 	}else{
 		this.onDownloadComplete();
+	}
+};
+
+Arbiter.MediaSync.prototype.putFailedUpload= function(key, failed){
+	
+	if(failed !== null && failed !== undefined){
+		
+		if(this.failedOnUpload === null 
+				|| this.failedOnUpload === undefined){
+			
+			this.failedOnUpload = {};
+		}
+		
+		this.failedOnUpload[key] = failed;
 	}
 };
 
@@ -191,10 +222,24 @@ Arbiter.MediaSync.prototype.uploadMedia = function(layer){
 	
 	mediaUploader.startUpload(function(failedMedia){
 		
-		context.failedOnUpload[layerId] = failedMedia;
+		context.putFailedUpload(layerId, failedMedia);
 		
 		context.startUploadForNext();
 	});
+};
+
+Arbiter.MediaSync.prototype.putFailedDownload = function(key, failed){
+	
+	if(failed !== null && failed !== undefined){
+		
+		if(this.failedOnDownload === null 
+				|| this.failedOnDownload === undefined){
+			
+			this.failedOnDownload = {};
+		}
+		
+		this.failedOnDownload[key] = failed;
+	}
 };
 
 Arbiter.MediaSync.prototype.downloadMedia = function(layer){
@@ -217,7 +262,7 @@ Arbiter.MediaSync.prototype.downloadMedia = function(layer){
 	
 	mediaDownloader.startDownload(function(failedMedia){
 		
-		context.failedOnDownload[layerId] = failedMedia;
+		context.putFailedDownload(layerId, failedMedia);
 		
 		context.startDownloadForNext();
 	});

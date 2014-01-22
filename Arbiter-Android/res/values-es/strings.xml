@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="warning">Advertencia</string>
+	<string name="error">Error</string>
+    <string name="app_name">Arbiter-Android</string>
+    <string name="action_findme">Búscame</string>
+    <string name="default_project_name">MyProject</string>
+	<string name="delete">Borrar</string>
+	<string name="update">Actualizar</string>
+	<string name="default_layer_name">OpenStreetMap</string>
+	<string name="project_exists_title">Existe Proyecto</string>
+	<string name="project_already_exists">Ya existe proyecto. Por favor, cree un nuevo proyecto con un nombre diferente.</string>
+	<string name="project_creation_failed">creacion del proyecto fallido</string>
+	<string name="project_creation_failed_message">No pudo crear el proyecto. Comprobar para ver si usted esta fuera de espacio en disco.</string>
+	<string name="create_project_progress">Creando de proyecto.</string>
+	<string name="create_project_msg">Proyecto que se esta creando&#8230;</string>
+	<string name="error_creating_project">Error</string>
+	<string name="error_creating_project_msg">No se pudo crear el proyecto!</string>
+	<string name="error_loading_features">Error</string>
+	<string name="error_loading_features_msg">No se pudo crear el proyecto!</string>
+	<string name="error_adding_layers">Error</string>
+	<string name="error_adding_layers_msg">No se pudo agregar capas seleccionadas!</string>
+	<string name="adding_layers">Adición de capas</string>
+	<string name="adding_layers_msg">Adición de capas al mapa&#8230;</string>
+	<string name="feature_dialog_title">Elemeto</string>
+	<string name="latitude">Latitud</string>
+	<string name="longitude">Longitud</string>
+	<string name="example_longitude">ex. </string>
+	<string name="example_latitude">ex. </string>
+	<string name="back">Atrás</string>
+	<string name="edit_attributes">Editar</string>
+	<string name="done_editing">Terminado</string>
+	<string name="delete_feature">Borrar</string>
+	<string name="edit_feature">Mapa</string>
+	<string name="cancel_editing">Cancelar</string>
+	<string name="update_feature_title">Actualizar</string>
+	<string name="update_feature_msg">Actualizar este elemento?</string>
+	<string name="updating">Actualización</string>
+	<string name="updating_msg">Actualización en curso&#8230;</string>
+	<string name="insert_feature_title">Seleccionar capa para insertar en.</string>
+	<string name="insert_layer_title">Inserción en:</string>
+	<string name="insert_layer_text">Capa</string>
+	<string name="insert_feature_warning">Insertar el elemento</string>
+	<string name="insert_feature_warning_msg">Inserte el Elemento?</string>
+	<string name="delete_feature_warning">Eliminar elemento</string>
+	<string name="delete_feature_warning_msg">¿Seguro que quieres borrar este elemento?</string>
+	<string name="deleting_msg">Eliminación en curso&#8230;</string>
+	<string name="sync_in_progress">Sincronización</string>
+	<string name="sync_in_progress_msg">Sincronización en curso&#8230;</string>
+	<string name="error_syncing">Error</string>
+	<string name="error_syncing_msg">Incapaz de sincronizar</string>
+	<string name="project_incomplete_msg">Proyecto no está disponible sin conexión. \n \nPor favor, seleccione un área de interés.</string>
+	<string name="click_me">( Me clic )</string>
+	<string name="media">fotos</string>
+	<string name="take_picture">Tomar la foto</string>
+	<string name="initializing">Inicializar</string>
+	<string name="please_wait">Por favor, espere&#8230;</string>
+	<string name="update_aoi_alert">Áreas de interés</string>
+	<string name="update_aoi_alert_msg">Actualización de su área de interés también se sincronizará los cambios que ha realizado.</string>
+	<string name="error_updating_aoi">Error</string>
+	<string name="error_updating_aoi_msg">No se pudo actualizar el área de interés!</string>
+	<string name="loading_feature_info">El elemento se está cargando&#8230; Por favor, espere&#8230;</string>
+	<string name="loading">Cargando&#8230;</string>
+	<string name="no_network">Sin conexión a la red</string>
+	<string name="check_network_connection">Compruebe su conexión de red.</string>
+	<string name="layers_limit">Capa límite alcanzado</string>
+	<string name="too_many_layers">Usted ha llegado a las capas máximos por proyecto.</string>
+	
+	<string name="downloading_schemas">Descarga de esquemas</string>
+	<string name="downloading_tiles">Descarga de Teselas</string>
+	<string name="tile_cache_warning">Teselas para descargar:</string>
+	<string name="syncing_media_title">Sincronizar Fotos</string>
+	<string name="syncing_vector_data">Sincronización de datos vectoriales</string>
+	<string name="downloaded">Descargado: </string>
+	<string name="uploaded">Subido: </string>
+	<string name="form_error_date">Por favor, introduzca una fecha válida.</string>
+	<string name="form_error_integer">Por favor, introduzca un entero válido.</string>
+	<string name="form_error_double">Por favor, introduzca un número válido.</string>
+	<string name="form_error_bool">Por favor introduzca verdadero o falso.</string>
+	<string name="check_errors">Las entradas no válidas</string>
+	<string name="check_errors_msg">Por favor, corrija los errores antes de continuar.</string>
+	<string name="loading_layers_please_wait">Cargando capas de servidor. Por favor, espere.</string>
+	
+    <!-- MAP ACTIVITY STRINGS -->
+    <string name="map_activity_name">Arbiter</string>
+    <string name="action_new_feature">Dibujar</string>
+    <string name="action_servers">Servidores</string>
+    <string name="action_projects">Proyectos</string>
+    <string name="action_aoi">Área de Interés</string>
+    <string name="action_language">Idioma</string>
+    <string name="layers_button">Capas</string>
+    <string name="sync_button">Sincroniza</string>
+    <string name="location_button">Búscame</string>
+	<string name="aoi_button">Zoom en área de interés</string>
+	
+    <!-- PROJECTS ACTIVITY STRINGS -->
+    <string name="projects_activity_name">Proyectos</string>
+    <string name="delete_project">Eliminar proyecto</string>
+    <string name="action_new_project">Nuevo proyecto</string>
+    <string name="switch_project_title">Interruptor de Proyecto</string>
+    <string name="switch_project">Cambie a este proyecto?</string>
+
+    <!-- LAYERS DIALOG STRINGS -->
+    <string name="layers_dialog_title">Capas</string>
+    <string name="add_layers_button">Añadir capas</string>
+    <string name="action_add_layers">Añadir capas</string>
+    <string name="layer_visibility_off">Apagado</string>
+    <string name="layer_visibility_on">encender</string>
+    <string name="remove_layer">Eliminar la capa</string>
+
+    <!-- LAYER INFO DIALOG STRINGS -->
+    <string name="layer_info_dialog_title">Información de capa</string>
+
+    <!-- ADD LAYERS DIALOG STRINGS -->
+    <string name="add_layers_dialog_title">Añadir capas</string>
+    <string name="layer_filter_hint">Filtrar</string>
+    <string name="action_add_server">Añadir servidor</string>
+    <string name="choose_server">Servidor</string>
+
+    <!-- WELCOME DIALOG STRINGS -->
+
+    <string name="welcome_dialog_title">Bienvenido</string>
+    <string name="must_create_project">Antes de editar, primero debe crear un proyecto.</string>
+    <string name="create_project_question">¿Desea crear una ahora?</string>
+
+    <!-- PROJECT NAME DIALOG STRINGS -->
+
+    <string name="project_name_dialog_title">Nombre del proyecto</string>
+    <string name="choose_project_name">Introduzca el nombre del proyecto.</string>
+    <string name="choose_name_hint">Nuevo nombre de proyecto*</string>
+
+    <!-- SERVER DIALOG STRINGS -->
+
+    <string name="server_dialog_title">Servidores</string>
+    <string name="add_server_button">Añadir servidor</string>
+    <string name="delete_server_alert">Esto eliminará todas las capas en todos los proyectos asociados con este servidor!</string>
+	<string name="delete_server_title">Advertencia!!!</string>
+	<string name="update_server_alert">¿Está seguro?</string>
+	<string name="update_server_title">Advertencia!!!</string>
+	<string name="deleting_server">Borrado del servidor</string>
+	<string name="deleting_server_msg">Borrado del servidor en curso&#8230;</string>
+	
+    <!-- ADD SERVER DIALOG STRINGS -->
+
+    <string name="add_server_dialog_title">Añadir servidor</string>
+    <string name="server_name_hint">Nombre</string>
+    <string name="server_url_hint">ex. http://ejemplo.com/geoserver</string>
+    <string name="server_username_hint">Nombre de usuario</string>
+    <string name="server_password_hint">Contraseña</string>
+    <string name="server_show_password">Mostrar Contraseña</string>
+    <string name="validating_server">Validating Server</string>
+    <string name="authentication_failed">Error de autenticación, compruebe el nombre de usuario y contraseña.</string>
+    <string name="unable_to_connect">No se puede conectar con el servidor, asegúrese de que la URL es correcta.</string>
+
+    <!-- GO OFFLINE DIALOG STRINGS -->
+    <string name="go_offline_dialog_title">Desconectado</string>
+
+    <!-- CHOOSE AOI DIALOG STRINGS -->
+    <string name="choose_aoi_dialog_title">Elija área de interés</string>
+    <string name="title_activity_aoi">AOIActivity</string>
+    <string name="hello_world">¡Hola, mundo!</string>
+
+</resources>

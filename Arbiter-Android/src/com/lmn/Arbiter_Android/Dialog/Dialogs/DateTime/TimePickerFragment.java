@@ -62,7 +62,8 @@ public class TimePickerFragment extends DialogFragment implements OnTimeSetListe
 	@Override
 	public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 		
-		if(isFirstTimeSet && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1){
+		if(isFirstTimeSet && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1 &&
+				isFirstTimeSet && android.os.Build.VERSION.SDK_INT != android.os.Build.VERSION_CODES.JELLY_BEAN_MR2){
 			isFirstTimeSet = false;
 			return;
 		}

@@ -23,7 +23,7 @@ Arbiter.MediaDownloadCounter.prototype.getMediaCount = function(feature){
 	
 	var context = this;
 	
-	var mediaAttribute = feature[context.mediaColumn];
+	var mediaAttribute = feature[this.mediaColumn];
 	
 	var featureMedia = null;
 	
@@ -37,4 +37,6 @@ Arbiter.MediaDownloadCounter.prototype.getMediaCount = function(feature){
 		return 0;
 	}
 };
+
+
 

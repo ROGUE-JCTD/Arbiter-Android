@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FailedSync;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TileIdsHelper;
@@ -41,6 +42,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 		LayersHelper.getLayersHelper().createTable(db);
 		PreferencesHelper.getHelper().createTable(db);
 		TileIdsHelper.getHelper().createTable(db);
+		FailedSync.getHelper().createTable(db);
 	}
 
 	@Override
@@ -49,10 +51,12 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS " + LayersHelper.LAYERS_TABLE_NAME);
 		db.execSQL("DROP TABLE IF EXISTS " + PreferencesHelper.TABLE_NAME);
 		db.execSQL("DROP TABLE IF EXISTS " + TileIdsHelper.TABLE_NAME);
+		db.execSQL("DROP TABLE IF EXISTS " + FailedSync.TABLE_NAME);
 		
 		LayersHelper.getLayersHelper().createTable(db);
 		PreferencesHelper.getHelper().createTable(db);
 		TileIdsHelper.getHelper().createTable(db);
+		FailedSync.getHelper().createTable(db);
 	}
 	
 	@Override

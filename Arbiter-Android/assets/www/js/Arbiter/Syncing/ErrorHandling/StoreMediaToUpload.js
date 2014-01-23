@@ -81,7 +81,7 @@ Arbiter.StoreMediaToUpload.prototype.storeNext = function(){
 Arbiter.StoreMediaToUpload.prototype.store = function(obj){
 	var context = this;
 	
-	var storeMedia = new Arbiter.StoreMediaToUploadForLayer(obj.media, function(failed){
+	var storeMedia = new Arbiter.StoreMediaToUploadForLayer(obj.id, obj.media, function(failed){
 		
 		if(Arbiter.Util.existsAndNotNull(failed)){
 			context.addFailedToStore(obj.id, obj.media);

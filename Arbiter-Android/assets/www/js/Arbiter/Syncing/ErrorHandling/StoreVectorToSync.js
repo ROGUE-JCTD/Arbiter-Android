@@ -81,12 +81,12 @@ Arbiter.StoreVectorToSync.prototype.store = function(olLayer){
 		context.storeNext();
 	};
 	
-	Arbiter.FailedSyncHelper.insert(key, dataType, syncType, function(){
+	Arbiter.FailedSyncHelper.insert(key, dataType, syncType, key, function(){
 		
 		if(context.downloadOnly !== true && context.downloadOnly !== "true"){
 			syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.UPLOAD;
 			
-			Arbiter.FailedSyncHelper.insert(key, dataType, syncType, function(){
+			Arbiter.FailedSyncHelper.insert(key, dataType, syncType, key, function(){
 				
 				context.storeNext();
 				

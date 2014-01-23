@@ -30,6 +30,7 @@ Arbiter.FailedSyncHelper = (function(){
 		KEY: "key",
 		DATA_TYPE: "data_type",
 		SYNC_TYPE: "sync_type",
+		LAYER_ID: "layer_id",
 		
 		DATA_TYPES: {
 			VECTOR: 0,
@@ -44,14 +45,16 @@ Arbiter.FailedSyncHelper = (function(){
 		/**
 		 * returns empty array if none have failed
 		 */
-		getFailedToSync: function(onSuccess, onFailure){
+		getFailedToSync: function(dataType, syncType, onSuccess, onFailure){
 			var context = this;
 			
 			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
 			
 			db.transaction(function(tx){
 				
-				tx.executeSql("select * from " + TABLE_NAME + ";", [], function(tx, res){
+				tx.executeSql("select * from " + TABLE_NAME + " WHERE " 
+						+ context.DATA_TYPE + "=? AND " 
+						+ context.SYNC_TYPE + "=?;", [dataType, syncType], function(tx, res){
 					
 					var arrayOfFailed = getArrayOfFailed(res);
 					
@@ -72,9 +75,10 @@ Arbiter.FailedSyncHelper = (function(){
 			});
 		},
 		
-		insert: function(key, dataType, syncType, onSuccess, onFailure){
+		insert: function(key, dataType, syncType, layerId, onSuccess, onFailure){
 			
-			console.log("inserting key = " + key + " dataType = " + dataType + " syncType = " + syncType);
+			console.log("inserting key = " + key + " dataType = " + dataType 
+					+ " syncType = " + syncType + " layerId = " + layerId);
 			
 			var context = this;
 			
@@ -106,9 +110,10 @@ Arbiter.FailedSyncHelper = (function(){
 			});
 		},
 		
-		remove: function(key, dataType, syncType, onSuccess, onFailure){
+		remove: function(key, dataType, syncType, layerId, onSuccess, onFailure){
 			
-			console.log("removing key = " + key + " dataType = " + dataType + " syncType = " + syncType);
+			console.log("removing key = " + key + " dataType = " + dataType 
+					+ " syncType = " + syncType + " layerId = " + layerId);
 			
 			var context = this;
 			

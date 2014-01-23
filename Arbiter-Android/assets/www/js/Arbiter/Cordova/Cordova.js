@@ -185,53 +185,34 @@ Arbiter.Cordova = (function() {
 					"updateTileSyncingStatus", [percent]);
 		},
 		
-		showMediaUploadingStatus: function(layer, count){
+		updateMediaUploadingStatus: function(featureType,
+				finishedMediaCount, totalMediaCount,
+				finishedLayerCount, totalLayerCount){
 			
-			cordova.exec(null, null, "ArbiterCordova",
-					"showMediaUploadingStatus", [layer, count]);
+			console.log("updateMediaUploadingStatus featureType = " + featureType 
+					+ ", finishedMediaCount = " + finishedMediaCount 
+					+ ", totalMediaCount = " + totalMediaCount
+					+ ", finishedLayerCount = " + finishedLayerCount 
+					+ ", totalLayerCount = " + totalLayerCount);
+			
+			cordova.exec(null, null, "ArbiterCordova", "updateMediaUploadingStatus", 
+					[featureType, finishedMediaCount, totalMediaCount,
+					 finishedLayerCount, totalLayerCount]);
 		},
 		
-		updateMediaUploadingStatus: function(layer, finishedCount, totalCount){
+		updateMediaDownloadingStatus: function(featureType,
+				finishedMediaCount, totalMediaCount,
+				finishedLayerCount, totalLayerCount){
 			
-			console.log("updateMediaUploadingStatus layer = " + layer
-					+ ", finishedCount = " + finishedCount 
-					+ ", totalCount = " + totalCount);
+			console.log("updateMediaDownloadingStatus featureType = " + featureType 
+					+ ", finishedMediaCount = " + finishedMediaCount 
+					+ ", totalMediaCount = " + totalMediaCount
+					+ ", finishedLayerCount = " + finishedLayerCount 
+					+ ", totalLayerCount = " + totalLayerCount);
 			
-			cordova.exec(null, null, "ArbiterCordova",
-					"updateMediaUploadingStatus",
-					[layer, finishedCount, totalCount]);
-		},
-		
-		finishMediaUploading: function(){
-			console.log("finishMediaUploading");
-			
-			cordova.exec(null, null, "ArbiterCordova",
-					"finishMediaUploading", []);
-		},
-		
-		showMediaDownloadingStatus: function(layer, count){
-			
-			cordova.exec(null, null, "ArbiterCordova",
-					"showMediaDownloadingStatus", [layer, count]);
-		},
-		
-		updateMediaDownloadingStatus: function(layer, finishedCount, totalCount){
-			
-			console.log("updateMediaDownloadingStatus layer = " + layer
-					+ ", finishedCount = " + finishedCount 
-					+ ", totalCount = " + totalCount);
-			
-			cordova.exec(null, null, "ArbiterCordova",
-					"updateMediaDownloadingStatus",
-					[layer, finishedCount, totalCount]);
-		},
-		
-		finishMediaDownloading: function(){
-			
-			console.log("finishMediaDownloading");
-			
-			cordova.exec(null, null, "ArbiterCordova",
-					"finishMediaDownloading", []);
+			cordova.exec(null, null, "ArbiterCordova","updateMediaDownloadingStatus", 
+					[featureType, finishedMediaCount, totalMediaCount,
+					 finishedLayerCount, totalLayerCount]);
 		},
 		
 		createProjectTileSyncingStatus: function(percent){

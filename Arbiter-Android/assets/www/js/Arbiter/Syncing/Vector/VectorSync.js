@@ -121,7 +121,8 @@ Arbiter.VectorSync.prototype.startNextUpload = function(){
 		
 		var uploader = new Arbiter.VectorUploader(layer, function(){
 			
-			Arbiter.FailedSyncHelper.remove(key, dataType, syncType, function(){
+			Arbiter.FailedSyncHelper.remove(key, dataType, 
+					syncType, key, function(){
 				
 				callback();
 			}, function(){
@@ -195,7 +196,7 @@ Arbiter.VectorSync.prototype.startNextDownload = function(){
 		
 		var downloader = new Arbiter.VectorDownloader(schema, this.bounds, function(){
 			
-			Arbiter.FailedSyncHelper.remove(key, dataType, syncType, function(){
+			Arbiter.FailedSyncHelper.remove(key, dataType, syncType, key, function(){
 				
 				callback();
 			}, function(e){

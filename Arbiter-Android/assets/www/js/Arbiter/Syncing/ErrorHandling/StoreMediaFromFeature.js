@@ -74,7 +74,8 @@ Arbiter.StoreMediaFromFeature.prototype.store = function(mediaFile){
 	
 	var context = this;
 	
-	Arbiter.FailedSyncHelper.insert(key, dataType, syncType, function(){
+	Arbiter.FailedSyncHelper.insert(key, dataType, syncType,
+			this.schema.getLayerId(), function(){
 		
 		context.storeNext();
 	}, function(e){

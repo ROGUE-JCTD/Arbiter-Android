@@ -295,10 +295,6 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         		startAOIActivity();
         		
         		return true;
-        		
-        	case R.id.action_language:
-        		//menuEvents.showSettings(this);
-        		return true;
     		
     		default:
     			return super.onOptionsItemSelected(item);

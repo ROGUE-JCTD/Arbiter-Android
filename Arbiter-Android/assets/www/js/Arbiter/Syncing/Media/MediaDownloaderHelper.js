@@ -74,11 +74,32 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
 		context.startDownloadingNext();
 	};
 	
+	var onSuccess = function(){
+		
+		var key = media;
+		
+		var dataType = Arbiter.FailedSyncHelper.DATA_TYPES.MEDIA;
+		
+		var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.DOWNLOAD;
+		
+		Arbiter.FailedSyncHelper.remove(key, dataType, syncType, function(){
+			
+			context.startDownloadingNext();
+			
+		}, function(e){
+			
+			var msg = "Unable to remove " + key 
+				+ " from failed_sync - " + JSON.stringify(e);
+			
+			onFailure(msg);
+		});
+	};
+	
     //only download if we don't have it
     this.mediaDir.getFile(media, {create: false, exclusive: false},
         function(fileEntry) {
     		
-    		context.startDownloadingNext();
+    		onSuccess();
         }, function(error) {
         	if(error.code === FileError.NOT_FOUND_ERR){
         		
@@ -95,8 +116,6 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
                 	
                 	onFailure("Download timed out");
                 	
-                },function(){
-                	return isFinished;
                 });
                 
                 progressListener.watchProgress();
@@ -107,7 +126,9 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
                         
                         isFinished = true;
                         
-                        context.startDownloadingNext();
+                        progressListener.stopWatching();
+                        
+                        onSuccess();
                         
                     }, function(transferError) {
                         console.log("download error source " + transferError.source);
@@ -115,6 +136,8 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
                         console.log("download error code" + transferError.code);
                         
                         isFinished = true;
+                        
+                        progressListener.stopWatching();
                         
                         if(transferError.code !== FileTransferError.ABORT_ERR){
                         	onFailure(transferError);

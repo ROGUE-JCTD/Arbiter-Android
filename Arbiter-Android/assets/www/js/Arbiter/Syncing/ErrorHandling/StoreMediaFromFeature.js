@@ -5,18 +5,18 @@ Arbiter.StoreMediaFromFeature = function(_feature, _schema, _onSuccess){
 	this.onSuccess = _onSuccess;
 	this.failedToStore = null;
 	
-	console.log("feature: " + JSON.stringify(_feature));
+	this.featureMedia = [];
 	
-	console.log("schema mediaColumn = " + this.schema.getMediaColumn());
+	var media = this.getMediaFromOlFeature(this.feature);
 	
-	this.featureMedia = this.getMediaFromOlFeature(this.feature);
-	
-	console.log("featureMedia ", this.featureMedia);
+	if(Arbiter.Util.existsAndNotNull(media)){
+		this.featureMedia = media;
+	}
 };
 
 Arbiter.StoreMediaFromFeature.prototype.getMediaFromOlFeature = function(olFeature){
 	
-	return olFeature.attributes[this.schema.getMediaColumn()];
+	return JSON.parse(olFeature.attributes[this.schema.getMediaColumn()]);
 };
 
 Arbiter.StoreMediaFromFeature.prototype.storeComplete = function(){
@@ -46,12 +46,9 @@ Arbiter.StoreMediaFromFeature.prototype.storeNext = function(){
 	
 	if(mediaFile !== undefined){
 		
-		console.log("store media from features storeNext");
-		
 		this.store(mediaFile);
 	}else{
 		
-		console.log("media is undefined");
 		this.storeComplete();
 	}
 };
@@ -77,11 +74,8 @@ Arbiter.StoreMediaFromFeature.prototype.store = function(mediaFile){
 	
 	var context = this;
 	
-	console.log("storeMediaFromFeature store failed_sync");
-	
 	Arbiter.FailedSyncHelper.insert(key, dataType, syncType, function(){
 		
-		console.log("inserted " + key + " into failed_sync");
 		context.storeNext();
 	}, function(e){
 		

@@ -350,9 +350,12 @@ Arbiter.FeatureTableHelper = (function(){
     				var server = Arbiter.Util.Servers.getServer(serverId);
     				var url = server.getUrl();
     				
-    				var schema = new Arbiter.Util.LayerSchema(url, layer[helper.workspace()],
+    				var layerId = layer[helper.layerId()];
+    				
+    				console.log("creating layerschema layerid = " + layerId);
+    				var schema = new Arbiter.Util.LayerSchema(layerId, url, layer[helper.workspace()],
     						layer[helper.featureType()], layer[helper.layerVisibility()], serverId);
-    				Arbiter.putLayerSchema(layer[helper.layerId()], schema);
+    				Arbiter.putLayerSchema(layerId, schema);
     				
     				incrementLoadedCount();
     				
@@ -409,12 +412,16 @@ Arbiter.FeatureTableHelper = (function(){
 					}
 				}
 				
-				var schema = new Arbiter.Util.LayerSchema(url,
+				var layerId = layer[layersHelper.layerId()];
+				
+				console.log("creating layer schema layerId = " + layerId);
+				
+				var schema = new Arbiter.Util.LayerSchema(layerId, url,
 						workspace, prefix, featureType, srid, geometryName,
 						geometryType, enumeration, attributes,
 						visibility, serverId, mediaColumn);
 				
-				Arbiter.putLayerSchema(layer[layersHelper.layerId()], schema);
+				Arbiter.putLayerSchema(layerId, schema);
 				
 				if(Arbiter.Util.funcExists(onSuccess)){
 					onSuccess.call();

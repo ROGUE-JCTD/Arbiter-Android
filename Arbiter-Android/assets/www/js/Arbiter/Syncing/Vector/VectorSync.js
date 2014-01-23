@@ -4,12 +4,10 @@ Arbiter.VectorSync = function(_map, _bounds, _onSuccess, _onFailure){
 	
 	this.bounds = _bounds;
 	
-	console.log("get some layers!");
 	this.layers = this.map.getLayersByClass("OpenLayers.Layer.Vector");
 	
 	this.usingSpecificSchemas = false;
 	
-	console.log("hello there");
 	this.index = -1;
 	
 	this.failedToUpload = null;
@@ -117,9 +115,20 @@ Arbiter.VectorSync.prototype.startNextUpload = function(){
 			context.startNextUpload();
 		};
 		
+		var key = Arbiter.Util.getLayerId(layer);
+		var dataType = Arbiter.FailedSyncHelper.DATA_TYPES.VECTOR;
+		var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.UPLOAD;
+		
 		var uploader = new Arbiter.VectorUploader(layer, function(){
 			
-			callback();
+			Arbiter.FailedSyncHelper.remove(key, dataType, syncType, function(){
+				
+				callback();
+			}, function(){
+				console.log("Could not remove this layer from failed_sync - " + key);
+				
+				callback();
+			});
 		}, function(featureType){
 			
 			context.putFailedUpload(featureType);
@@ -159,16 +168,10 @@ Arbiter.VectorSync.prototype.putFailedDownload = function(failed){
 Arbiter.VectorSync.prototype.startNextDownload = function(){
 	
 	var context = this;
-	console.log("vector sync startNextDownload");
+	
 	var layer = this.pop();
-	console.log("bounds: " + this.bounds.getLeft() 
-			+ ", " + this.bounds.getBottom()
-			+ ", " + this.bounds.getRight() 
-			+ ", " + this.bounds.getTop());
 	
 	if(layer !== null & layer !== undefined){
-		
-		console.log("layer isn't null or undefined");
 		
 		var schema = null;
 		
@@ -185,11 +188,21 @@ Arbiter.VectorSync.prototype.startNextDownload = function(){
 			context.startNextDownload();
 		};
 		
+		var key = schema.getLayerId();
+		
+		var dataType = Arbiter.FailedSyncHelper.DATA_TYPES.VECTOR;
+		var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.DOWNLOAD;
+		
 		var downloader = new Arbiter.VectorDownloader(schema, this.bounds, function(){
 			
-			console.log("vectorDownloader success");
-			
-			callback();
+			Arbiter.FailedSyncHelper.remove(key, dataType, syncType, function(){
+				
+				callback();
+			}, function(e){
+				console.log("Could not store this layer in failed_sync: " + key);
+				
+				callback();
+			});
 		}, function(featureType){
 			
 			console.log("vectorDownloader failure");

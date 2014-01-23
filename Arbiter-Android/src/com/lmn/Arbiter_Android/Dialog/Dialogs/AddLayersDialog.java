@@ -46,7 +46,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	private ServerListAdapter serverAdapter;
 	private AddLayersListAdapter addLayersAdapter;
 	private Spinner spinner;
-	private ArrayList<Layer> layersInProject;
+	private ArrayList<Layer> layersInProject = null;
 	private boolean creatingProject;
 	
 	private MapChangeListener mapChangeListener;
@@ -126,15 +126,17 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		ArrayList<Layer> checked = this.addLayersAdapter.getCheckedLayers();
 		
 		int highestColorIndex = -1;
-		for(int i = 0; i < layersInProject.size(); i++) {
-			String layerColor = layersInProject.get(i).getColor();
-			if(layerColor != null) {
-				for(int j = 0; j < colors.length; j++) {
-					if(layerColor.equals(colors[j])) {
-						if(j > highestColorIndex) {
-							highestColorIndex = j;
+		if(layersInProject != null) {
+			for(int i = 0; i < layersInProject.size(); i++) {
+				String layerColor = layersInProject.get(i).getColor();
+				if(layerColor != null) {
+					for(int j = 0; j < colors.length; j++) {
+						if(layerColor.equals(colors[j])) {
+							if(j > highestColorIndex) {
+								highestColorIndex = j;
+							}
+							break;
 						}
-						break;
 					}
 				}
 			}

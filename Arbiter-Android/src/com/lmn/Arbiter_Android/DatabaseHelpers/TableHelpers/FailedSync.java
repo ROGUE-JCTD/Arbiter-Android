@@ -8,7 +8,7 @@ public class FailedSync implements BaseColumns{
 	public static final String KEY = "key";
 	public static final String DATA_TYPE = "data_type";
 	public static final String SYNC_TYPE = "sync_type";
-	
+	public static final String LAYER_ID = "layer_id";
 	
 	// vector data upload, download and media download
 	// media upload is already handled by mediaToSend
@@ -41,7 +41,8 @@ public class FailedSync implements BaseColumns{
 					" INTEGER PRIMARY KEY AUTOINCREMENT, " +
 					KEY + " TEXT, " +
 					DATA_TYPE + " INTEGER, " +
-					SYNC_TYPE + " INTEGER);";
+					SYNC_TYPE + " INTEGER, " + 
+					LAYER_ID + " INTEGER);";
 		
 		db.execSQL(sql);
 	}

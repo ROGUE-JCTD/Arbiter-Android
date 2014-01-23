@@ -1,13 +1,16 @@
-Arbiter.MediaDownloaderHelper = function(feature, schema,
-		_header, _url, _mediaDir){
+Arbiter.MediaDownloaderHelper = function(feature,
+		_schema, _header, _url, _mediaDir, 
+		_finishedMediaCount, _totalMediaCount,
+		_finishedFeatures, _totalFeatures,
+		_finishedLayers, _totalLayers){
 	
 	this.mediaDir = _mediaDir;
 	this.header = _header;
 	this.url = _url;
 	
 	this.failedMedia = null;
-	
-	var mediaAttribute = feature[schema.getMediaColumn()];
+	this.schema = _schema;
+	var mediaAttribute = feature[this.schema.getMediaColumn()];
 	
 	this.featureMedia = [];
 	this.index = -1;
@@ -15,6 +18,13 @@ Arbiter.MediaDownloaderHelper = function(feature, schema,
         this.featureMedia = JSON.parse(mediaAttribute);
     }
     
+    this.finishedMediaCount = _finishedMediaCount;
+    this.totalMediaCount = _totalMediaCount;
+    this.finishedFeatures = _finishedFeatures;
+    this.totalFeatures = _totalFeatures;
+    this.finishedLayers = _finishedLayers;
+    this.totalLayers = _totalLayers;
+    this.finishedMedia = 0;
     this.onDownloadComplete = null;
 };
 
@@ -30,6 +40,10 @@ Arbiter.MediaDownloaderHelper.prototype.pop = function(){
 Arbiter.MediaDownloaderHelper.prototype.startDownload = function(onSuccess){
 	
 	this.onDownloadComplete = onSuccess;
+	
+	if(this.featureMedia.length === 0){
+		this.updateProgressDialog(false);
+	}
 	
 	this.startDownloadingNext();
 };
@@ -59,9 +73,32 @@ Arbiter.MediaDownloaderHelper.prototype.startDownloadingNext = function(){
 	}else{
 		
 		if(Arbiter.Util.funcExists(this.onDownloadComplete)){
-			this.onDownloadComplete(this.failedMedia);
+			this.onDownloadComplete(this.finishedMediaCount, this.failedMedia);
 		}
 	}
+};
+
+Arbiter.MediaDownloaderHelper.prototype.updateProgressDialog = function(isMedia){
+	
+	// check if this is the last media file for the feature and increment the feature count if it is
+	if(!Arbiter.Util.existsAndNotNull(this.featureMedia[this.index + 1])){
+		this.finishedFeatures++;
+	}
+	
+	// check if this is the last feature and increment the layer count if it is
+	
+	if(this.finishedFeatures === this.totalFeatures){
+		this.finishedLayers++;
+	}
+	
+	if(isMedia === true){
+		this.finishedMediaCount++;
+	}
+	
+	Arbiter.Cordova.updateMediaDownloadingStatus(
+			this.schema.getFeatureType(), 
+			this.finishedMediaCount, this.totalMediaCount,
+			this.finishedLayers, this.totalLayers);
 };
 
 Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
@@ -82,7 +119,10 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
 		
 		var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.DOWNLOAD;
 		
-		Arbiter.FailedSyncHelper.remove(key, dataType, syncType, function(){
+		context.updateProgressDialog(true);
+		
+		Arbiter.FailedSyncHelper.remove(key, dataType, syncType,
+				context.schema.getLayerId(), function(){
 			
 			context.startDownloadingNext();
 			

@@ -1,6 +1,7 @@
-Arbiter.StoreMediaToUploadForLayer = function(_mediaArray, _onFinish){
+Arbiter.StoreMediaToUploadForLayer = function(_layerId, _mediaArray, _onFinish){
 	
 	this.onFinish = _onFinish;
+	this.layerId = _layerId;
 	this.mediaArray = _mediaArray;
 	this.failedMedia = null;
 	
@@ -64,7 +65,7 @@ Arbiter.StoreMediaToUploadForLayer.prototype.store = function(media){
 	var dataType = Arbiter.FailedSyncHelper.DATA_TYPES.MEDIA;
 	var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.UPLOAD;
 	
-	Arbiter.FailedSyncHelper.insert(key, dataType, syncType, function(){
+	Arbiter.FailedSyncHelper.insert(key, dataType, syncType, this.layerId, function(){
 		
 		context.storeNext();
 	}, function(e){

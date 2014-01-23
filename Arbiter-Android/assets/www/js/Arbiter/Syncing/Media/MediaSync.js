@@ -7,15 +7,13 @@ Arbiter.MediaSync = function(_dbLayers, _layerSchemas, _mediaDir, _mediaToSend){
 	this.layers = _dbLayers;
 	
 	this.layerSchemas = _layerSchemas;
-	this.queueDownloading = this.layers.length - 1;
-	this.queuedUploading = this.layers.length - 1;
+	this.totalLayers = this.layers.length;
 	
 	this.index = -1;
+	this.finishedLayersDownloading = 0;
+	this.finishedLayersUploading = 0;
 	
 	this.onSyncComplete = null;
-	
-	this.finishedUploading = -1;
-	this.finishedDownloading = -1;
 };
 
 // url
@@ -51,8 +49,6 @@ Arbiter.MediaSync.prototype.onUploadComplete = function(){
 	console.log("MediaSync.js Upload completed.  The following"
 			+ " failed to upload:", this.failedOnUpload);
 	
-	Arbiter.Cordova.finishMediaUploading();
-	
 	this.index = -1;
 	
 	this.startDownloadForNext();
@@ -62,8 +58,6 @@ Arbiter.MediaSync.prototype.onDownloadComplete = function(){
 	// TODO: Handle errors
 	console.log("MediaSync.js Download completed.  The following"
 			+ " failed to download:", JSON.stringify(this.failedOnDownload));
-	
-	Arbiter.Cordova.finishMediaDownloading();
 	
 	if(Arbiter.Util.funcExists(this.onSyncComplete)){
 		this.onSyncComplete(this.failedOnUpload,
@@ -81,12 +75,6 @@ Arbiter.MediaSync.prototype.startUploadForNext = function(){
 	if(layer !== undefined && (this.mediaToSend !== null 
 			&& this.mediaToSend !== undefined)){
 		
-		if(this.index === 0){
-			Arbiter.Cordova.showMediaUploadingStatus(
-					layer[Arbiter.LayersHelper.featureType()],
-					context.queueUploading);
-		}
-		
 		this.uploadMedia(layer);
 	}else{
 		this.onUploadComplete();
@@ -100,19 +88,13 @@ Arbiter.MediaSync.prototype.startDownloadForNext = function(){
 	
 	if(layer !== undefined){
 		
-		if(this.index === 0){
-			Arbiter.Cordova.showMediaDownloadingStatus(
-					layer[Arbiter.LayersHelper.featureType()],
-					context.queueDownloading);
-		}
-		
 		this.downloadMedia(layer);
 	}else{
 		this.onDownloadComplete();
 	}
 };
 
-Arbiter.MediaSync.prototype.putFailedUpload= function(key, failed){
+Arbiter.MediaSync.prototype.putFailedUpload = function(key, failed){
 	
 	if(failed !== null && failed !== undefined){
 		
@@ -134,11 +116,22 @@ Arbiter.MediaSync.prototype.uploadMedia = function(layer){
 	
 	var mediaForLayer = this.mediaToSend[layerId];
 	
-	this.finishedUploading++;
-	
 	if(mediaForLayer === null 
 			|| mediaForLayer === undefined 
 			|| mediaForLayer.length === 0){
+		
+		++this.finishedLayersUploading;
+		
+		if(this.finishedLayersUploading === this.totalLayers){
+			
+			var featureType = this.layerSchemas[layerId].getFeatureType();
+			var finishedMediaCount = 0;
+			var totalMediaCount = 0;
+			
+			Arbiter.Cordova.updateMediaUploadingStatus(featureType,
+					finishedMediaCount, totalMediaCount,
+					this.finishedLayersUploading, this.totalLayers);
+		}
 		
 		this.startUploadForNext();
 		
@@ -149,9 +142,12 @@ Arbiter.MediaSync.prototype.uploadMedia = function(layer){
 	
 	var mediaUploader = new Arbiter.MediaUploader(
 			this.layerSchemas[layerId], mediaForLayer,
-			server, context.mediaDir);
+			server, context.mediaDir,
+			this.finishedLayersUploading, this.totalLayers);
 	
 	mediaUploader.startUpload(function(failedMedia){
+		
+		++context.finishedLayersUploading;
 		
 		context.putFailedUpload(layerId, failedMedia);
 		
@@ -176,7 +172,6 @@ Arbiter.MediaSync.prototype.putFailedDownload = function(key, failed){
 Arbiter.MediaSync.prototype.downloadMedia = function(layer){
 	var context = this;
 	
-	console.log("downloadMedia called");
 	var layerId = layer[Arbiter.LayersHelper.layerId()];
 	var serverId = layer[Arbiter.LayersHelper.serverId()];
 	
@@ -186,12 +181,13 @@ Arbiter.MediaSync.prototype.downloadMedia = function(layer){
 	
 	var featureDb = Arbiter.FeatureDbHelper.getFeatureDatabase();
 	
-	this.finishedDownloading++;
-	
 	var mediaDownloader = new Arbiter.MediaDownloader(featureDb,
-			schema, server, context.mediaDir);
+			schema, server, this.mediaDir,
+			this.finishedLayersDownloading, this.totalLayers);
 	
 	mediaDownloader.startDownload(function(failedMedia){
+		
+		++context.finishedLayersDownloading;
 		
 		context.putFailedDownload(layerId, failedMedia);
 		

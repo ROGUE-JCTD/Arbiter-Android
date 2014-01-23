@@ -142,44 +142,33 @@ public class ArbiterCordova extends CordovaPlugin{
 			addMediaToFeature(key, media, newMedia);
 			
 			return true;
-		}else if("showMediaUploadingStatus".equals(action)){
-			String layer = args.getString(0);
-			String total = args.getString(1);
-			
-			showMediaUploadingStatus(layer, total);
-			
-			return true;
 		}else if("updateMediaUploadingStatus".equals(action)){
-			String layer = args.getString(0);
-			String finished = args.getString(1);
-			String total = args.getString(2);
+			Log.w("TAG","updateMediaUploadingStatus");
+			String featureType = args.getString(0);
+			int finishedMediaCount = args.getInt(1);
+			int totalMediaCount = args.getInt(2);
+			int finishedLayersUploading = args.getInt(3);
+			int totalLayers = args.getInt(4);
 			
-			updateMediaUploadingStatus(layer, finished, total);
-			
-			return true;
-		}else if("showMediaDownloadingStatus".equals(action)){
-			
-			String layer = args.getString(0);
-			String total = args.getString(1);
-			
-			showMediaDownloadingStatus(layer, total);
+			updateMediaUploadingStatus(featureType, finishedMediaCount,
+					totalMediaCount, finishedLayersUploading, totalLayers);
 			
 			return true;
 		}else if("updateMediaDownloadingStatus".equals(action)){
-			String layer = args.getString(0);
-			String finished = args.getString(1);
-			String total = args.getString(2);
+			Log.w("TAG",TAG + "- updateMediaDownloadingStatus");
 			
-			updateMediaDownloadingStatus(layer, finished, total);
-			
-			return true;
-		}else if("finishMediaUploading".equals(action)){
-			
-			finishMediaUploading();
-			
-			return true;
-		}else if("finishMediaDownloading".equals(action)){
-			finishMediaDownloading();
+			try{
+				String featureType = args.getString(0);
+				int finishedMediaCount = args.getInt(1);
+				int totalMediaCount = args.getInt(2);
+				int finishedLayersDownloading = args.getInt(3);
+				int totalLayers = args.getInt(4);
+				
+				updateMediaDownloadingStatus(featureType, finishedMediaCount,
+						totalMediaCount, finishedLayersDownloading, totalLayers);
+			}catch(JSONException e){
+				e.printStackTrace();
+			}
 			
 			return true;
 		}else if("showUploadingVectorDataProgress".equals(action)){
@@ -413,121 +402,102 @@ public class ArbiterCordova extends CordovaPlugin{
 		}
 	}
 	
-	private void finishMediaUploading(){
-		Log.w("ArbiterCordova", TAG + " finisheMediaUploading");
+	private boolean mediaSyncShouldBeDismissed(int finishedMediaCount,
+			int totalMediaCount, int finishedLayersCount, int totalLayersCount){
+		
+		boolean shouldBeDismissed = false;
+		
+		Log.w(TAG, TAG + "shouldBeDismissed - finishedMediaCount = " 
+				+ finishedMediaCount + ", totalMediaCount = " 
+				+ totalMediaCount + ", finishedLayersCount = "
+				+ finishedLayersCount + ", totalLayersCount = "
+				+ totalLayersCount);
+		
+		if(finishedMediaCount == totalMediaCount 
+				&& finishedLayersCount == totalLayersCount){
+			
+			shouldBeDismissed = true;
+		}
+		
+		return shouldBeDismissed;
+	}
+	
+	private void updateMediaUploadingStatus(final String featureType,
+			final int finishedMediaCount, final int totalMediaCount,
+			final int finishedLayersUploading, final int totalLayers){
+		
 		final Activity activity = cordova.getActivity();
+		
+		final boolean shouldBeDismissed = mediaSyncShouldBeDismissed(
+				finishedMediaCount, totalMediaCount,
+				finishedLayersUploading, totalLayers);
 		
 		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
-				if(mediaUploadProgressDialog != null){
-					Log.w("ArbiterCordova", TAG + " finisheMediaUploading dismissing");
-					mediaUploadProgressDialog.dismiss();
-					mediaUploadProgressDialog = null;
+				
+				if(shouldBeDismissed){
+					
+					if(mediaUploadProgressDialog != null){
+						mediaUploadProgressDialog.dismiss();
+						mediaUploadProgressDialog = null;
+					}
+				}else{
+				
+					String title = activity.getResources().getString(R.string.syncing_media_title);
+					
+					String message = featureType + "\n\n\t";
+					
+					message += activity.getResources().getString(R.string.uploaded);
+					
+					message += "\t" + finishedMediaCount + "\t/\t" + totalMediaCount;
+					
+					if(mediaUploadProgressDialog != null){
+						mediaUploadProgressDialog.setMessage(message);
+					}else{
+						mediaUploadProgressDialog = ProgressDialog.show(activity, title, message, true);
+					}
 				}
 			}
 		});
 	}
 	
-	private void finishMediaDownloading(){
-		Log.w("ArbiterCordova", TAG + " finisheMediaDownloading");
-		final Activity activity = cordova.getActivity();
-		
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				if(mediaDownloadProgressDialog != null){
-					Log.w("ArbiterCordova", TAG + " finisheMediaDownloading dismissing");
-					mediaDownloadProgressDialog.dismiss();
-					mediaDownloadProgressDialog = null;
-				}
-			}
-		});
-	}
 	
-	private void showMediaUploadingStatus(final String layer, final String total){
+	private void updateMediaDownloadingStatus(final String featureType,
+			final int finishedMediaCount, final int totalMediaCount,
+			final int finishedLayersUploading, final int totalLayers){
 		
 		final Activity activity = cordova.getActivity();
+		
+		final boolean shouldBeDismissed = mediaSyncShouldBeDismissed(
+				finishedMediaCount, totalMediaCount,
+				finishedLayersUploading, totalLayers);
 		
 		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
 				
-				String title = activity.getResources().getString(R.string.syncing_media_title);
-				String message = layer + "\n\n\t";
+				if(shouldBeDismissed){
+					
+					if(mediaDownloadProgressDialog != null){
+						mediaDownloadProgressDialog.dismiss();
+						mediaDownloadProgressDialog = null;
+					}
+				}else{
 				
-				message += activity.getResources().getString(R.string.uploaded);
-				
-				message += "\t0\t/\t" + total;
-				
-				if(mediaUploadProgressDialog == null){
-					mediaUploadProgressDialog = ProgressDialog.show(activity, title, message, true);
-				}
-			}
-		});
-	}
-	
-	private void showMediaDownloadingStatus(final String layer, final String total){
-		
-		final Activity activity = cordova.getActivity();
-		
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				
-				String title = activity.getResources().getString(R.string.syncing_media_title);
-				String message = layer + "\n\n\t";
-				
-				message += activity.getResources().getString(R.string.downloaded);
-				
-				message += "\t0\t/\t" + total;
-				
-				if(mediaDownloadProgressDialog == null){
-					mediaDownloadProgressDialog = ProgressDialog.show(activity, title, message, true);
-				}
-			}
-		});
-	}
-	
-	private void updateMediaUploadingStatus(final String layer,
-			final String finished, final String total){
-		
-		final Activity activity = cordova.getActivity();
-		
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				
-				String message = layer + "\n\n\t";
-				
-				message += activity.getResources().getString(R.string.uploaded);
-				
-				message += "\t" + finished + "\t/\t" + total;
-				
-				if(mediaUploadProgressDialog != null){
-					mediaUploadProgressDialog.setMessage(message);
-				}
-			}
-		});
-	}
-	
-	private void updateMediaDownloadingStatus(final String layer,
-			final String finished, final String total){
-	
-		final Activity activity = cordova.getActivity();
-		
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				
-				String message = layer + "\n\n\t";
-				
-				message += activity.getResources().getString(R.string.downloaded);
-				
-				message += "\t" + finished + "\t/\t" + total;
-				
-				if(mediaDownloadProgressDialog != null){
-					mediaDownloadProgressDialog.setMessage(message);
+					String title = activity.getResources().getString(R.string.syncing_media_title);
+					
+					String message = featureType + "\n\n\t";
+					
+					message += activity.getResources().getString(R.string.downloaded);
+					
+					message += "\t" + finishedMediaCount + "\t/\t" + totalMediaCount;
+					
+					if(mediaDownloadProgressDialog != null){
+						mediaDownloadProgressDialog.setMessage(message);
+					}else{
+						mediaDownloadProgressDialog = ProgressDialog.show(activity, title, message, true);
+					}
 				}
 			}
 		});

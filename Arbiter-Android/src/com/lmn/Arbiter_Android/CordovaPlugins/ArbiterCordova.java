@@ -24,7 +24,6 @@ import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
-import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.MediaSyncHelper;
 import com.lmn.Arbiter_Android.Map.Map;
 
 public class ArbiterCordova extends CordovaPlugin{
@@ -171,44 +170,20 @@ public class ArbiterCordova extends CordovaPlugin{
 			}
 			
 			return true;
-		}else if("showUploadingVectorDataProgress".equals(action)){
-			
-			String count = args.getString(0);
-			
-			showUploadingVectorDataProgress(count);
-			
-			return true;
 		}else if("updateUploadingVectorDataProgress".equals(action)){
 			
-			String finished = args.getString(0);
-			String total = args.getString(1);
+			int finished = args.getInt(0);
+			int total = args.getInt(1);
 			
 			updateUploadingVectorDataProgress(finished, total);
 			
 			return true;
-		}else if("dismissUploadingVectorDataProgress".equals(action)){
-			
-			dismissUploadingVectorDataProgress();
-			
-			return true;
-		}else if("showDownloadingVectorDataProgress".equals(action)){
-			
-			String count = args.getString(0);
-			
-			showDownloadingVectorDataProgress(count);
-			
-			return true;
 		}else if("updateDownloadingVectorDataProgress".equals(action)){
 			
-			String finished = args.getString(0);
-			String total = args.getString(1);
+			int finished = args.getInt(0);
+			int total = args.getInt(1);
 			
 			updateDownloadingVectorDataProgress(finished, total);
-			
-			return true;
-		}else if("dismissDownloadingVectorDataProgress".equals(action)){
-			
-			dismissDownloadingVectorDataProgress();
 			
 			return true;
 		}else if("showDownloadingSchemasProgress".equals(action)){
@@ -298,105 +273,85 @@ public class ArbiterCordova extends CordovaPlugin{
 		}
 	}
 	
-	private void showUploadingVectorDataProgress(final String count){
+	private boolean dismissVectorProgress(int finishedCount, int totalCount){
+		return finishedCount == totalCount;
+	}
+	
+	private void updateUploadingVectorDataProgress(final int finished, final int total){
 		
-		if(vectorUploadProgressDialog == null){
+		if(vectorUploadProgressDialog != null){
 			final Activity activity = cordova.getActivity();
+			
+			final boolean shouldDismissProgress = dismissVectorProgress(finished, total);
 			
 			activity.runOnUiThread(new Runnable(){
 				@Override
 				public void run(){
-					String title = activity.getResources().getString(R.string.syncing_vector_data);
-					String message = activity.getResources().getString(R.string.uploaded);
 					
-					message += "\t0\t/\t" + count;
-					
-					vectorUploadProgressDialog = ProgressDialog.show(cordova.getActivity(), title, message, true);
+					if(shouldDismissProgress){
+						
+						if(vectorUploadProgressDialog != null){
+							vectorUploadProgressDialog.dismiss();
+							vectorUploadProgressDialog = null;
+						}
+					}else{
+						
+						String title = activity.getResources().
+								getString(R.string.syncing_vector_data);
+						
+						String message = activity.getResources().getString(R.string.uploaded);
+						
+						message += "\t" + finished + "\t/\t" + total;
+						
+						if(vectorUploadProgressDialog != null){
+							
+							vectorUploadProgressDialog.setMessage(message);
+						}else{
+							
+							vectorUploadProgressDialog = ProgressDialog
+									.show(activity, title, message, true);
+						}
+					}
 				}
 			});
 		}
 	}
 	
-	private void updateUploadingVectorDataProgress(final String finished, final String total){
-		
-		if(vectorUploadProgressDialog != null){
-			final Activity activity = cordova.getActivity();
-			
-			activity.runOnUiThread(new Runnable(){
-				@Override
-				public void run(){
-					String message = activity.getResources().getString(R.string.uploaded);
-					
-					message += "\t" + finished + "\t/\t" + total;
-					
-					vectorUploadProgressDialog.setMessage(message);
-				}
-			});
-		}
-	}
-
-	private void dismissUploadingVectorDataProgress(){
-		if(vectorUploadProgressDialog != null){
-			final Activity activity = cordova.getActivity();
-			
-			activity.runOnUiThread(new Runnable(){
-				@Override
-				public void run(){
-					
-					vectorUploadProgressDialog.dismiss();
-					vectorUploadProgressDialog = null;
-				}
-			});
-		}
-	}
-
-	private void showDownloadingVectorDataProgress(final String count){
-		
-		if(vectorDownloadProgressDialog == null){
-			final Activity activity = cordova.getActivity();
-			
-			activity.runOnUiThread(new Runnable(){
-				@Override
-				public void run(){
-					String title = activity.getResources().getString(R.string.syncing_vector_data);
-					String message = activity.getResources().getString(R.string.downloaded);
-					
-					message += "\t0\t/\t" + count;
-					
-					vectorDownloadProgressDialog = ProgressDialog.show(cordova.getActivity(), title, message, true);
-				}
-			});
-		}
-	}
-	
-	private void updateDownloadingVectorDataProgress(final String finished, final String total){
+	private void updateDownloadingVectorDataProgress(final int finished, final int total){
 		
 		if(vectorDownloadProgressDialog != null){
 			final Activity activity = cordova.getActivity();
 			
-			activity.runOnUiThread(new Runnable(){
-				@Override
-				public void run(){
-					String message = activity.getResources().getString(R.string.downloaded);
-					
-					message += "\t" + finished + "\t/\t" + total;
-					
-					vectorDownloadProgressDialog.setMessage(message);
-				}
-			});
-		}
-	}
-
-	private void dismissDownloadingVectorDataProgress(){
-		if(vectorDownloadProgressDialog != null){
-			final Activity activity = cordova.getActivity();
+			final boolean shouldDismissProgress = dismissVectorProgress(finished, total);
 			
 			activity.runOnUiThread(new Runnable(){
 				@Override
 				public void run(){
 					
-					vectorDownloadProgressDialog.dismiss();
-					vectorDownloadProgressDialog = null;
+					if(shouldDismissProgress){
+						
+						if(vectorDownloadProgressDialog != null){
+							vectorDownloadProgressDialog.dismiss();
+							vectorDownloadProgressDialog = null;
+						}
+					}else{
+						
+						String title = activity.getResources().
+								getString(R.string.syncing_vector_data);
+						
+						String message = activity.getResources().getString(R.string.downloaded);
+						
+						message += "\t" + finished + "\t/\t" + total;
+						
+						if(vectorDownloadProgressDialog != null){
+							
+							vectorDownloadProgressDialog.setMessage(message);
+						}else{
+							
+							vectorDownloadProgressDialog = ProgressDialog
+									.show(activity, title, message, true);
+						}
+					}
 				}
 			});
 		}

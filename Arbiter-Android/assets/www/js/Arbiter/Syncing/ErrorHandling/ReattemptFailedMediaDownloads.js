@@ -5,6 +5,9 @@ Arbiter.ReattemptFailedMediaDownloads = function(_failedMediaUploads, _onSuccess
 	this.dataType = Arbiter.FailedSyncHelper.DATA_TYPES.MEDIA;
 	this.syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.DOWNLOAD;
 	this.mediaDir = null;
+	
+	this.finishedMediaCount = 0;
+	this.totalMediaCount = _failedMediaUploads.length;
 };
 
 Arbiter.ReattemptFailedMediaDownloads.prototype = new Arbiter.ReattemptFailed();
@@ -51,19 +54,31 @@ Arbiter.ReattemptFailedMediaDownloads.prototype.attempt = function(failedItem){
 	
 	var url = schema.getUrl();
 	
+	var finishedLayerCount = 0;
+	var totalLayerCount = 0;
+	
+	var callback = function(){
+		
+		Arbiter.Cordova.updateMediaUploadingStatus(schema.getFeatureType(),
+				++context.finishedMediaCount, context.totalMediaCount,
+				finishedLayerCount, totalLayerCount);
+		
+		context.attemptNext();
+	};
+	
 	this.upload(url, credentials, file, function(){
 		
 		Arbiter.FailedSyncHelper.remove(file, context.dataType,
 				context.syncType, layerId, function(){
 			
-			context.attemptNext();
+			callback();
 		}, function(e){
 			
 			console.log("Could not remove key = " + file + ", syncType = "
 					+ syncType + ", layerId = " + layerId + " - " 
 					+ JSON.stringify(e));
 			
-			context.attemptNext();
+			callback();
 		});
 	}, function(e){
 		

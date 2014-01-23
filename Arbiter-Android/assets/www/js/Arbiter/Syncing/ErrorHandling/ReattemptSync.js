@@ -3,8 +3,10 @@ Arbiter.ReattemptSync = function(_failedVectorUploads, _failedVectorDownloads,
 	
 	this.failedVectorUploads = _failedVectorUploads;
 	this.failedVectorDownloads = _failedVectorDownloads;
-	this.failedMediaUploads = _failedMediaUploads;
 	this.failedMediaDownloads = _failedMediaDownloads;
+	
+	// From mediaToSend
+	this.failedMediaUploads = _failedMediaUploads;
 	
 	this.onSuccess = _onSuccess;
 	this.onFailure = _onFailure;

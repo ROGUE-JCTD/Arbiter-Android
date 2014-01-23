@@ -5,6 +5,9 @@ Arbiter.ReattemptFailedVectorDownloads = function(_failedVectorDownloads, _onSuc
 	this.dataType = Arbiter.FailedSyncHelper.DATA_TYPES.VECTOR;
 	this.syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.DOWNLOAD;
 	this.bounds = null;
+	
+	this.finishedLayerCount = 0;
+	this.totalLayerCount = _failedVectorDownloads.length;
 };
 
 Arbiter.ReattemptFailedVectorDownloads.prototype = new Arbiter.ReattemptFailed();
@@ -49,12 +52,19 @@ Arbiter.ReattemptFailedVectorDownloads.prototype.attempt = function(failedItem){
 	
 	var key = failedItem;
 	
+	var callback = function(){
+		Arbiter.Cordova.updateDownloadingVectorDataProgress(
+			++context.finishedLayerCount, context.totalLayerCount);
+		
+		context.attemptNext();
+	};
+	
 	var vectorDownloader = new Arbiter.VectorDownloader(schema, this.bounds, function(){
 		
 		Arbiter.FailedSyncHelper.remove(key, context.dataType,
 				context.syncType, layerId, function(){
 			
-			context.attemptNext();
+			callback();
 		}, function(e){
 			
 			console.log("Could not remove key = " + key 
@@ -62,13 +72,13 @@ Arbiter.ReattemptFailedVectorDownloads.prototype.attempt = function(failedItem){
 					+ ", syncType = " + syncType
 					+ " - " + JSON.stringify(e));
 			
-			context.attemptNext();
+			callback();
 		});
 	}, function(featureType){
 		
 		context.addToFailedAttempts(failedItem);
 		
-		context.attemptNext();
+		callback();
 	});
 	
 	vectorDownloader.download();

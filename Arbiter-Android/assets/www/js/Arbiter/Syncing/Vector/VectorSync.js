@@ -16,14 +16,15 @@ Arbiter.VectorSync = function(_map, _bounds, _onSuccess, _onFailure){
 	this.onSuccess = _onSuccess;
 	this.onFailure = _onFailure;
 	
-	this.queuedCount = 0;
 	
-	this.setQueuedCount();
+	this.finishedLayerDownloadCount = 0;
+	this.finishedLayoutUploadCount = 0;
+	this.totalLayerCount = this.getTotalLayerCount();
 };
 
-Arbiter.VectorSync.prototype.setQueuedCount = function(){
+Arbiter.VectorSync.prototype.getTotalLayerCount = function(){
 	
-	this.queuedCount = this.layers.length;
+	var count = this.layers.length;
 	
 	if(this.usingSpecificSchemas === false 
 			|| this.usingSpecificSchemas === "false"){
@@ -34,15 +35,17 @@ Arbiter.VectorSync.prototype.setQueuedCount = function(){
 				&& aoiLayer !== undefined
 				&& aoiLayer.length > 0){
 			
-			this.queuedCount--;
+			count--;
 		}
 	}
+	
+	return count;
 };
 
 Arbiter.VectorSync.prototype.setSpecificSchemas = function(_schemas){
 	this.layers = _schemas;
 	
-	this.setQueuedCount();
+	this.totalLayerCount = this.layers.length;
 	
 	this.usingSpecificSchemas = true;
 };
@@ -50,15 +53,11 @@ Arbiter.VectorSync.prototype.setSpecificSchemas = function(_schemas){
 Arbiter.VectorSync.prototype.onUploadComplete = function(){
 	console.log("Vector data has finished uploading");
 	
-	Arbiter.Cordova.dismissUploadingVectorDataProgress();
-	
 	this.startDownload();
 };
 
 Arbiter.VectorSync.prototype.onDownloadComplete = function(){
 	console.log("Vector data has finished downloading");
-	
-	Arbiter.Cordova.dismissDownloadingVectorDataProgress();
 	
 	if(Arbiter.Util.funcExists(this.onSuccess)){
 		this.onSuccess(this.failedToUpload,
@@ -83,10 +82,6 @@ Arbiter.VectorSync.prototype.pop = function(){
 
 Arbiter.VectorSync.prototype.startUpload = function(){
 	
-	if(this.queuedCount > 0){
-		Arbiter.Cordova.showUploadingVectorDataProgress(this.queuedCount);
-	}
-	
 	this.startNextUpload();
 };
 
@@ -110,7 +105,8 @@ Arbiter.VectorSync.prototype.startNextUpload = function(){
 		
 		var callback = function(){
 			Arbiter.Cordova.updateUploadingVectorDataProgress(
-					(context.index + 1), context.queuedCount);
+					++context.finishedLayoutUploadCount,
+					context.totalLayerCount);
 			
 			context.startNextUpload();
 		};
@@ -144,10 +140,6 @@ Arbiter.VectorSync.prototype.startNextUpload = function(){
 };
 
 Arbiter.VectorSync.prototype.startDownload = function(){
-	
-	if(this.queuedCount > 0){
-		Arbiter.Cordova.showDownloadingVectorDataProgress(this.queuedCount);
-	}
 	
 	this.index = -1;
 	
@@ -184,7 +176,8 @@ Arbiter.VectorSync.prototype.startNextDownload = function(){
 		
 		var callback = function(){
 			Arbiter.Cordova.updateDownloadingVectorDataProgress(
-					(context.index + 1), context.queuedCount);
+					++context.finishedLayerDownloadCount,
+					context.totalLayerCount);
 			
 			context.startNextDownload();
 		};

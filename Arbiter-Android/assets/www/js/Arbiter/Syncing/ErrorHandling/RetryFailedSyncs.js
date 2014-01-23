@@ -70,14 +70,17 @@ Arbiter.RetryFailedSyncs.prototype.getFailedMediaUploads = function(){
 	var dataType = Arbiter.FailedSyncHelper.DATA_TYPES.MEDIA;
 	var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.UPLOAD;
 	
-	this.getFailed(dataType, syncType, function(arrayOfFailed){
+	Arbiter.PreferencesHelper.get(Arbiter.MEDIA_TO_SEND, this, function(_mediaToSend){
 		
-		context.failedMediaUploads = arrayOfFailed;
-		
-		context.getFailedMediaDownloads();
+		if(_mediaToSend !== null && _mediaToSend !== undefined){
+			context.failedMediaUploads = JSON.parse(_mediaToSend);
+			
+			context.getFailedMediaDownloads();
+		}
 	}, function(e){
 		
-		console.log(e);
+		console.log("Could not get " + Arbiter.MEDIA_TO_SEND
+				+ " - " + JSON.stringify(e));
 		
 		context.getFailedMediaDownloads();
 	});

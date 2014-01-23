@@ -1,7 +1,10 @@
-Arbiter.MediaUploader = function(_schema, _media, _server, _mediaDir, _finishedLayerCount, _totalLayerCount){
-	
+Arbiter.MediaUploader = function(_schema, _mediaToSend, _server, _mediaDir, _finishedLayerCount, _totalLayerCount){
+	console.log("media uploader");
 	this.schema = _schema;
-	this.media = _media;
+	this.mediaToSend = _mediaToSend;
+	this.media = this.mediaToSend[this.schema.getLayerId()];
+	
+	console.log("this.media = " + JSON.stringify(this.media));
 	this.server = _server;
 	this.mediaDir = _mediaDir;
 	this.failedMedia = null;
@@ -27,17 +30,11 @@ Arbiter.MediaUploader = function(_schema, _media, _server, _mediaDir, _finishedL
 	// Start at -1 to account for the first upload
 	this.finishedMediaCount = 0;
 	this.totalMediaCount = 0;
-	
-	this.index = -1;
 };
 
 Arbiter.MediaUploader.prototype.pop = function(){
 	
-	if(++this.index < this.media.length){
-		return this.media[this.index];
-	}
-	
-	return undefined;
+	return this.media.shift();
 };
 
 Arbiter.MediaUploader.prototype.startUpload = function(onSuccess){
@@ -46,6 +43,8 @@ Arbiter.MediaUploader.prototype.startUpload = function(onSuccess){
 	var mediaUploadCounter = new Arbiter.MediaUploadCounter(this.media);
 	
 	this.totalMediaCount = mediaUploadCounter.getCount();
+	
+	console.log("total media upload count = " + this.totalMediaCount);
 	
 	if(this.totalMediaCount === 0){
 		
@@ -63,9 +62,10 @@ Arbiter.MediaUploader.prototype.startUploadingNext = function(){
 	var next = this.pop();
 	
 	if(next !== undefined){
-		
+		console.log("its not undefined!");
 		this.uploadNext(next);
 	}else{
+		console.log("its undefined!");
 		if(Arbiter.Util.funcExists(this.onUploadSuccess)){
 			this.onUploadSuccess(this.failedMedia);
 		}
@@ -89,7 +89,7 @@ Arbiter.MediaUploader.prototype.addToFailedMedia = function(_failed, _error){
 Arbiter.MediaUploader.prototype.updateProgressDialog = function(isMedia){
 	
 	// If there is no more media, then increment the layer count
-	if(!Arbiter.Util.existsAndNotNull(this.media[this.index + 1])){
+	if(this.media.length === 0){
 		this.finishedLayerCount++;
 	}
 	
@@ -105,7 +105,29 @@ Arbiter.MediaUploader.prototype.updateProgressDialog = function(isMedia){
 			this.totalLayerCount);
 };
 
+Arbiter.MediaUploader.prototype.updateMediaToSend = function(onSuccess, onFailure){
+	
+	if(this.media.length === 0){
+		delete this.mediaToSend[this.schema.getLayerId()];
+	}
+	
+	Arbiter.PreferencesHelper.put(Arbiter.MEDIA_TO_SEND,
+			JSON.stringify(this.mediaToSend),
+			this, function(){
+		
+		if(Arbiter.Util.funcExists(onSuccess)){
+			onSuccess();
+		}
+	}, function(e){
+		
+		if(Arbiter.Util.funcExists(onFailure)){
+			onFailure(e);
+		}
+	});
+};
+
 Arbiter.MediaUploader.prototype.uploadNext = function(next){
+	
 	var context = this;
 	
 	var callback = function(){
@@ -127,18 +149,18 @@ Arbiter.MediaUploader.prototype.uploadNext = function(next){
 		var dataType = Arbiter.FailedSyncHelper.DATA_TYPES.MEDIA;
 		var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.UPLOAD;
 		
-		Arbiter.FailedSyncHelper.remove(key, dataType, syncType,
-				context.schema.getLayerId(), function(){
+		context.updateMediaToSend(function(){
 			
 			callback();
+			
 		}, function(e){
-			var msg = "Could not remove " + key 
-				+ " from failed_sync - " + JSON.stringify(e);
+			
+			var msg = "Could not remove update " 
+				+ Arbiter.MEDIA_TO_SEND + " - " 
+				+ JSON.stringify(e);
 			
 			onFailure(msg);
 		});
-		
-		callback();
 	};
 	
 	this.mediaDir.getFile(next, {create: false, exclusive: false}, function(fileEntry) {

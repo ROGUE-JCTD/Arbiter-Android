@@ -16,7 +16,15 @@ Arbiter.StoreMediaFromFeature = function(_feature, _schema, _onSuccess){
 
 Arbiter.StoreMediaFromFeature.prototype.getMediaFromOlFeature = function(olFeature){
 	
-	return JSON.parse(olFeature.attributes[this.schema.getMediaColumn()]);
+	var attributeValue = olFeature.attributes[this.schema.getMediaColumn()];
+	
+	var parsed = null;
+	
+	if(Arbiter.Util.existsAndNotNull(attributeValue)){
+		parsed = JSON.parse(attributeValue);
+	}
+	
+	return parsed;
 };
 
 Arbiter.StoreMediaFromFeature.prototype.storeComplete = function(){

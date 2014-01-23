@@ -141,7 +141,7 @@ Arbiter.MediaSync.prototype.uploadMedia = function(layer){
 	var server = Arbiter.Util.Servers.getServer(serverId);
 	
 	var mediaUploader = new Arbiter.MediaUploader(
-			this.layerSchemas[layerId], mediaForLayer,
+			this.layerSchemas[layerId], this.mediaToSend,
 			server, context.mediaDir,
 			this.finishedLayersUploading, this.totalLayers);
 	

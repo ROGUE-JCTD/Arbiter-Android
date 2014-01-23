@@ -551,18 +551,6 @@ public class ArbiterCordova extends CordovaPlugin{
 		callback.success();
 	}
 	
-	// Clear the mediaToSend property in the Preferences table,
-	// which keeps track of files that need to be synced
-	private void clearMediaToSend(){
-		CommandExecutor.runProcess(new Runnable(){
-			@Override
-			public void run(){
-				MediaSyncHelper helper = new MediaSyncHelper(cordova.getActivity());
-				helper.clearMediaToSend();
-			}
-		});
-	}
-	
 	private void syncCompleted(final CallbackContext callbackContext){
 		final Activity activity = cordova.getActivity();
 		
@@ -582,8 +570,6 @@ public class ArbiterCordova extends CordovaPlugin{
 					tileCachingProgressDialog.dismiss();
 					tileCachingProgressDialog = null;
 				}
-				
-				clearMediaToSend();
 				
 				try{
 					((Map.MapChangeListener) activity)

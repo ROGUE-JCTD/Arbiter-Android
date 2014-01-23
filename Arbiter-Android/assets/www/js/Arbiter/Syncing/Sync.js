@@ -69,8 +69,6 @@ Arbiter.Sync.prototype.onSyncFailed = function(e){
 	}
 };
 
-Arbiter.Sync.prototype.MEDIA_TO_SEND = "mediaToSend";
-
 Arbiter.Sync.prototype.initialize = function(onSuccess, onFailure){
 	var context = this;
 	
@@ -92,7 +90,7 @@ Arbiter.Sync.prototype.initialize = function(onSuccess, onFailure){
 		context.mediaDir = mediaDir;
 		
 		// Get the media to send object from the db
-		Arbiter.PreferencesHelper.get(context.MEDIA_TO_SEND, context, function(mediaToSend){
+		Arbiter.PreferencesHelper.get(Arbiter.MEDIA_TO_SEND, context, function(mediaToSend){
 			
 			var callback = function(){
 				
@@ -138,11 +136,11 @@ Arbiter.Sync.prototype.initialize = function(onSuccess, onFailure){
 				callback();
 			}
 		}, function(e){
-			console.log("Sync.js Error getting " + context.MEDIA_TO_SEND, e);
+			console.log("Sync.js Error getting " + Arbiter.MEDIA_TO_SEND, e);
 			
 			if(Arbiter.Util.funcExists(onFailure)){
 				onFailure("Sync.js Error getting " 
-						+ context.MEDIA_TO_SEND + " - " + e);
+						+ Arbiter.MEDIA_TO_SEND + " - " + e);
 			}
 		});
 	}, function(e){

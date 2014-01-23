@@ -74,6 +74,8 @@ Arbiter.FailedSyncHelper = (function(){
 		
 		insert: function(key, dataType, syncType, onSuccess, onFailure){
 			
+			console.log("inserting key = " + key + " dataType = " + dataType + " syncType = " + syncType);
+			
 			var context = this;
 			
 			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
@@ -106,6 +108,8 @@ Arbiter.FailedSyncHelper = (function(){
 		
 		remove: function(key, dataType, syncType, onSuccess, onFailure){
 			
+			console.log("removing key = " + key + " dataType = " + dataType + " syncType = " + syncType);
+			
 			var context = this;
 			
 			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
@@ -135,6 +139,5 @@ Arbiter.FailedSyncHelper = (function(){
 				}
 			});
 		}
-		
 	};
 })();

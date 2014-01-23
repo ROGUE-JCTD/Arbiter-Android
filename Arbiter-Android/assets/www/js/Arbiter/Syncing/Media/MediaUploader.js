@@ -104,6 +104,25 @@ Arbiter.MediaUploader.prototype.uploadNext = function(next){
         callback();
 	};
 	
+	var onSuccess = function(){
+		
+		var key = next;
+		var dataType = Arbiter.FailedSyncHelper.DATA_TYPES.MEDIA;
+		var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.UPLOAD;
+		
+		Arbiter.FailedSyncHelper.remove(key, dataType, syncType, function(){
+			
+			callback();
+		}, function(e){
+			var msg = "Could not remove " + key 
+				+ " from failed_sync - " + JSON.stringify(e);
+			
+			onFailure(msg);
+		});
+		
+		callback();
+	};
+	
 	this.mediaDir.getFile(next, {create: false, exclusive: false}, function(fileEntry) {
     			
         var options = new FileUploadOptions();
@@ -129,8 +148,6 @@ Arbiter.MediaUploader.prototype.uploadNext = function(next){
         	
         	onFailure("Upload timed out");
         	
-        },function(){
-        	return isFinished;
         });
         
         progressListener.watchProgress();
@@ -142,13 +159,17 @@ Arbiter.MediaUploader.prototype.uploadNext = function(next){
             
             isFinished = true;
             
-            callback();
+            progressListener.stopWatching();
+            
+            onSuccess();
         }, function(error) {
             console.log("upload error source " + error.source);
             console.log("upload error target " + error.target);
             console.log("upload error code" + error.code);
             
             isFinished = true;
+            
+            progressListener.stopWatching();
             
             if(error.code !== FileTransferError.ABORT_ERR){
             	onFailure(error);

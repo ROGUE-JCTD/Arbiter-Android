@@ -12,24 +12,27 @@ Arbiter.Util.LayerSchema = function(){
 	var visibility = null;
 	var serverId = null;
 	var mediaColumn = null;
+	var layerId = null;
 	var color = null;
 	
 	var LayerSchema;
 	
-	if(arguments.length === 7){ // Downloaded from the interwebs...
-		var _url = arguments[0];
-		var _workspace = arguments[1];
-		var _featureType = arguments[2];
-		var _srid = arguments[3];
-		var properties = arguments[4];
-		var _serverId = arguments[5];
-		var _color = arguments[6];
+	if(arguments.length === 8){ // Downloaded from the interwebs...
+		var _layerId = arguments[0];
+		var _url = arguments[1];
+		var _workspace = arguments[2];
+		var _featureType = arguments[3];
+		var _srid = arguments[4];
+		var properties = arguments[5];
+		var _serverId = arguments[6];
+		var _color = arguments[7];
 		
-		LayerSchema = function(_url, _workspace, _featureType, _srid, properties, _serverId, _color){
+		LayerSchema = function(_layerId, _url, _workspace, _featureType, _srid, properties, _serverId, _color){
 			var parsedFeatureType = Arbiter.Util.parseFeatureType(_featureType);
 			featureType = parsedFeatureType.featureType;
 			prefix = parsedFeatureType.prefix;
 			
+			layerId = _layerId;
 			editable = true;
 			url = _url;
 			workspace = _workspace;
@@ -67,28 +70,30 @@ Arbiter.Util.LayerSchema = function(){
 			}
 		};
 		
-		LayerSchema(_url, _workspace, _featureType, _srid, properties, _serverId, _color);
-	}else if(arguments.length === 13){ // Loaded from database
-		var _url = arguments[0];
-		var _workspace = arguments[1];
-		var _prefix = arguments[2];
-		var _featureType = arguments[3];
-		var _srid = arguments[4];
-		var _geometryName = arguments[5];
-		var _geometryType = arguments[6];
-		var _enumeration = arguments[7];
-		var _attributes = arguments[8];
-		var _visibility = arguments[9];
-		var _serverId = arguments[10];
-		var _mediaColumn = arguments[11];
-		var _color = arguments[12];
+		LayerSchema(_layerId, _url, _workspace, _featureType, _srid, properties, _serverId, _color);
+	}else if(arguments.length === 14){ // Loaded from database
+		var _layerId = arguments[0];
+		var _url = arguments[1];
+		var _workspace = arguments[2];
+		var _prefix = arguments[3];
+		var _featureType = arguments[4];
+		var _srid = arguments[5];
+		var _geometryName = arguments[6];
+		var _geometryType = arguments[7];
+		var _enumeration = arguments[8];
+		var _attributes = arguments[9];
+		var _visibility = arguments[10];
+		var _serverId = arguments[11];
+		var _mediaColumn = arguments[12];
+		var _color = arguments[13];
 		
-		LayerSchema = function(_url, _workspace, 
+		LayerSchema = function(_layerId, _url, _workspace, 
 				_prefix, _featureType, _srid, 
 				_geometryName, _geometryType,
 				_enumeration, _attributes, 
 				_visibility, _serverId, _mediaColumn, _color){
 			
+			layerId = _layerId;
 			editable = true;
 			prefix = _prefix;
 			workspace = _workspace;
@@ -105,7 +110,7 @@ Arbiter.Util.LayerSchema = function(){
 			color = _color;
 		};
 		
-		LayerSchema(_url, _workspace, _prefix, _featureType, 
+		LayerSchema(_layerId, _url, _workspace, _prefix, _featureType, 
 				_srid, _geometryName, _geometryType, 
 				_enumeration, _attributes, _visibility, _serverId, _mediaColumn, _color);
 		
@@ -138,6 +143,10 @@ Arbiter.Util.LayerSchema = function(){
 	
 	
 	return {
+		getLayerId: function(){
+			return layerId;
+		},
+		
 		getGeometryName: function(){
 			return geometryName;
 		},

@@ -4,7 +4,9 @@ Arbiter.SchemaDownloaderHelper = function(_layer, _onSuccess, _onFailure){
 	this.onFailure = _onFailure;
 	
 	this.serverId = this.layer[Arbiter.LayersHelper.serverId()];
+	this.layerId = this.layer[Arbiter.LayersHelper.layerId()];
 	
+	console.log("schemaDownloaderHelper layerId = " + this.layerId);
 	var server = Arbiter.Util.Servers.getServer(this.serverId);
 	
 	this.url = server.getUrl();
@@ -64,7 +66,7 @@ Arbiter.SchemaDownloaderHelper.prototype.downloadSchema = function(){
 			}
 			
 			try{
-				context.schema = new Arbiter.Util.LayerSchema(context.url,
+				context.schema = new Arbiter.Util.LayerSchema(context.layerId, context.url,
 						results.targetNamespace, context.featureType, context.srid,
 						results.featureTypes[0].properties, context.serverId, context.color);
 			}catch(e){

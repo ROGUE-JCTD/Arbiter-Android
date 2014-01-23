@@ -94,25 +94,49 @@ Arbiter.Sync.prototype.initialize = function(onSuccess, onFailure){
 		// Get the media to send object from the db
 		Arbiter.PreferencesHelper.get(context.MEDIA_TO_SEND, context, function(mediaToSend){
 			
+			var callback = function(){
+				
+				var storeVectorSync = new Arbiter.StoreVectorToSync(context.map, context.downloadOnly, function(){
+					
+					// Load the layers from the database
+					Arbiter.LayersHelper.loadLayers(context, function(layers){
+						
+						context.layers = layers;
+						
+						context.initialized = true;
+						
+						context.schemas = Arbiter.getLayerSchemas();
+						
+						success();
+					}, function(e){
+						if(Arbiter.Util.funcExists(onFailure)){
+							onFailure("Sync.js Error loading layers - " + e);
+						}
+					});
+				});
+				
+				storeVectorSync.startStore();
+			};
+			
 			if(mediaToSend !== null && mediaToSend !== undefined){
 				context.mediaToSend = JSON.parse(mediaToSend);
+				
+				var storeMediaToUpload = new Arbiter.StoreMediaToUpload(
+						context.mediaToSend, function(failedToUpload){
+					
+					if(Arbiter.Util.existsAndNotNull(failedToUpload)){
+						console.log("Failed to store the following to failed_sync: "
+								+ JSON.stringify(failedToUpload));
+					}
+					
+					callback();
+				});
+				
+				storeMediaToUpload.startStore();
+			}else{
+				
+				callback();
 			}
-				
-			// Load the layers from the database
-			Arbiter.LayersHelper.loadLayers(context, function(layers){
-				
-				context.layers = layers;
-				
-				context.initialized = true;
-				
-				context.schemas = Arbiter.getLayerSchemas();
-				
-				success();
-			}, function(e){
-				if(Arbiter.Util.funcExists(onFailure)){
-					onFailure("Sync.js Error loading layers - " + e);
-				}
-			});
 		}, function(e){
 			console.log("Sync.js Error getting " + context.MEDIA_TO_SEND, e);
 			

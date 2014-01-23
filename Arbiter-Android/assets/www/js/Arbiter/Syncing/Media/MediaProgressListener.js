@@ -1,21 +1,29 @@
-Arbiter.MediaProgressListener = function(_fileTransfer, _notMakingProgress, _isTransferFinished){
+Arbiter.MediaProgressListener = function(_fileTransfer, _notMakingProgress){
 	this.lastChecked = 0;
 	this.progress = 0;
 	this.fileTransfer = _fileTransfer;
 	this.notMakingProgress = _notMakingProgress;
-	this.isTransferFinished = _isTransferFinished;
 	
 	var context = this;
 	
 	this.fileTransfer.onprogress = function(progressEvent){
 		context.progress++;
 	};
+	
+	this.watcher = null;
+};
+
+Arbiter.MediaProgressListener.prototype.stopWatching = function(){
+	if(Arbiter.Util.existsAndNotNull(this.watcher)){
+		window.clearTimeout(this.watcher);
+		this.watcher = null;
+	}
 };
 
 Arbiter.MediaProgressListener.prototype.watchProgress = function(){
 	var context = this;
 	
-	window.setTimeout(function(){
+	this.watcher = window.setTimeout(function(){
 		
 		if(context.isMakingProgress()){
 			context.watchProgress();

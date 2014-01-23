@@ -26,10 +26,6 @@ Arbiter.Cordova.Project = (function(){
 				
 				var specificSchemas = getSchemasFromDbLayers(layers);
 				
-				console.log("prepareSync dbLayers: " + JSON.stringify(layers));
-				
-				console.log("print specific schemas");
-				
 				for(var i = 0; i < specificSchemas.length; i++){
 					console.log("schema featureType = " + specificSchemas[i].getFeatureType());
 				}

@@ -3,7 +3,6 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.cordova.CordovaInterface;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,6 +10,7 @@ import org.json.JSONObject;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
@@ -34,7 +34,7 @@ import android.widget.Button;
 public class FeatureDialogHelper {
 	private FragmentActivity activity;
 	private Map.MapChangeListener mapListener;
-	private CordovaInterface cordovaInterface;
+	private HasThreadPool threadPoolSupplier;
 	
 	private Feature feature;
 	private String layerId;
@@ -59,7 +59,7 @@ public class FeatureDialogHelper {
 		
 		try{
 			this.mapListener = (Map.MapChangeListener) activity;
-			this.cordovaInterface = (CordovaInterface) activity;
+			this.threadPoolSupplier = (HasThreadPool) activity;
 		} catch(ClassCastException e){
 			e.printStackTrace();
 			throw new ClassCastException(activity.toString() 
@@ -412,7 +412,7 @@ public class FeatureDialogHelper {
 	public void cancel(){
 		//mapListener.getMapChangeHelper().cancelEditing();
 		
-		cordovaInterface.getThreadPool().execute(new Runnable(){
+		threadPoolSupplier.getThreadPool().execute(new Runnable(){
 			@Override
 			public void run(){
 				

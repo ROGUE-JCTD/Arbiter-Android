@@ -12,14 +12,12 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
 import com.lmn.Arbiter_Android.Map.Map;
 
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -29,7 +27,9 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-public class AOIActivity extends FragmentActivity implements CordovaInterface, Map.CordovaMap, TileConfirmation{
+public class AOIActivity extends FragmentActivity implements CordovaInterface,
+	Map.CordovaMap, HasThreadPool, TileConfirmation{
+	
 	private static final String TAG = "AOIActivity";
 	
 	// For CORDOVA

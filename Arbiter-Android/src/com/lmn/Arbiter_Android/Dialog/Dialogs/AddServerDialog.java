@@ -1,6 +1,5 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
-import org.apache.cordova.CordovaInterface;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.params.ClientPNames;
@@ -22,6 +21,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
@@ -66,7 +66,7 @@ public class AddServerDialog extends ArbiterDialogFragment{
 			
 			final ProgressDialog progressDialog = ProgressDialog.show(activity, title, message, false);
 			
-			((CordovaInterface) this.getActivity()).getThreadPool().execute(new Runnable(){
+			((HasThreadPool) this.getActivity()).getThreadPool().execute(new Runnable(){
 				@Override
 				public void run(){
 					

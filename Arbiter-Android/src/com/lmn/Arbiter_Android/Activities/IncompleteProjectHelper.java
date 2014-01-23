@@ -1,7 +1,5 @@
 package com.lmn.Arbiter_Android.Activities;
 
-import org.apache.cordova.CordovaInterface;
-
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
@@ -26,7 +24,7 @@ public class IncompleteProjectHelper {
 	
 	private Context context;
 	private Activity activity;
-	private CordovaInterface cordovaListener;
+	private HasThreadPool threadPoolSupplier;
 	
 	public IncompleteProjectHelper(Activity activity){
 		this.context = activity.getApplicationContext();
@@ -35,12 +33,12 @@ public class IncompleteProjectHelper {
 		this.incompleteContainer = (RelativeLayout) activity.findViewById(R.id.incompleteContainer);
 		
 		try{
-			this.cordovaListener = (CordovaInterface) this.activity;
+			this.threadPoolSupplier = (HasThreadPool) this.activity;
 		}catch(ClassCastException e){
 			e.printStackTrace();
 			
 			throw new ClassCastException(activity.toString() 
-					+ " must implement CordovaInterface");
+					+ " must implement HasThreadPool");
 		}
 	}
 	
@@ -91,7 +89,7 @@ public class IncompleteProjectHelper {
 		
 		final ProgressDialog checkAOIProgress = showProgressDialog();
 		
-		cordovaListener.getThreadPool().execute(new Runnable(){
+		threadPoolSupplier.getThreadPool().execute(new Runnable(){
 			@Override
 			public void run(){
 				

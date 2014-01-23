@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.cordova.CordovaInterface;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,6 +23,7 @@ import android.widget.TextView;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
@@ -35,7 +35,7 @@ public class FeatureDialogBuilder {
 	private Activity activity;
 	private FragmentActivity fragActivity;
 	private Context context;
-	private CordovaInterface cordovaInterface;
+	private HasThreadPool threadPoolSupplier;
 	private AttributeHelper attributeHelper;
 	private Feature feature;
 	private LayoutInflater inflater;
@@ -51,7 +51,7 @@ public class FeatureDialogBuilder {
 		this.context = activity.getApplicationContext();
 		
 		try{
-			this.cordovaInterface = (CordovaInterface) activity;
+			this.threadPoolSupplier = (HasThreadPool) activity;
 			this.fragActivity = (FragmentActivity) activity;
 		} catch(ClassCastException e){
 			e.printStackTrace();
@@ -83,7 +83,7 @@ public class FeatureDialogBuilder {
 		final ProgressDialog getEnumerationProgress = 
 				ProgressDialog.show(activity, title, message, true);
 		
-		cordovaInterface.getThreadPool().execute(new Runnable(){
+		threadPoolSupplier.getThreadPool().execute(new Runnable(){
 			@Override
 			public void run(){
 				

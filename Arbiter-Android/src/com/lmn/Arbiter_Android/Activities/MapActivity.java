@@ -40,7 +40,7 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
 public class MapActivity extends FragmentActivity implements CordovaInterface,
-		Map.MapChangeListener, Map.CordovaMap{
+		Map.MapChangeListener, Map.CordovaMap, HasThreadPool{
 	
     private ArbiterDialogs dialogs;
     private String TAG = "MAP_ACTIVITY";

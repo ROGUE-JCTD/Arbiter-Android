@@ -1,15 +1,27 @@
 Arbiter.ReattemptFailedMediaUploads = function(_failedMediaUploads, _onSuccess, _onFailure){
-	
-	Arbiter.ReattemptFailed.call(this, _failedMediaUploads, _onSuccess, _onFailure);
+	this.onSuccess = _onSuccess;
+	this.onFailure = _onFailure;
 	
 	this.dataType = Arbiter.FailedSyncHelper.DATA_TYPES.MEDIA;
 	this.syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.UPLOAD;
+	
 	this.mediaDir = null;
+	
+	this.mediaToSend = _failedMediaUploads;
+	this.layerIds = this.getLayerIds();
+	this.index = -1;
+	
+	this.finishedLayersCount = 0;
+	this.totalLayersCount = this.layerIds.length;
+	this.failedToUpload = null;
 };
 
-Arbiter.ReattemptFailedMediaUploads.prototype = new Arbiter.ReattemptFailed();
-
-Arbiter.ReattemptFailedMediaUploads.constructor = Arbiter.ReattemptFailedMediaUploads;
+Arbiter.ReattemptFailedMediaUploads.prototype.onFinishedAttempts = function(){
+	
+	if(Arbiter.Util.funcExists(this.onSuccess)){
+		this.onSuccess(this.failedToUpload);
+	}
+};
 
 Arbiter.ReattemptFailedMediaUploads.prototype.startAttempts = function(){
 	
@@ -19,121 +31,113 @@ Arbiter.ReattemptFailedMediaUploads.prototype.startAttempts = function(){
 		
 		context.mediaDir = _mediaDir;
 		
-		Arbiter.ReattemptFailed.prototype.startAttempts.call(context);
+		context.attemptNext();
 	}, function(e){
 		
 		context.onFailure("Could not get the media directory - " + JSON.stringify(e));
 	});
 };
 
-Arbiter.ReattemptFailedMediaUploads.prototype.attempt = function(failedItem){
+Arbiter.ReattemptFailedMediaUploads.prototype.pop = function(){
 	
+	if(++this.index < this.layerIds.length){
+		
+		var context = this;
+		var layerId = this.layerIds[++this.index];
+		
+		var mediaForLayer = this.mediaToSend[layerId];
+		
+		return {
+			layerId: layerId,
+			mediaForLayer: mediaForLayer
+		};
+	}
+	
+	return undefined;
+};
+
+Arbiter.ReattemptFailedMediaUploads.prototype.getLayerIds = function(){
+	var layerIds = [];
+	
+	for(var key in this.mediaToSend){
+		layerIds.push(key);
+	}
+	
+	return layerIds;
+};
+
+Arbiter.ReattemptFailedMediaUploads.prototype.attemptNext = function(){
+	
+	var obj = this.pop();
+	
+	if(obj !== undefined){
+		this.upload(obj);
+	}else{
+		this.onFinishedAttempts();
+	}
+};
+
+Arbiter.ReattemptFailedMediaUploads.prototype.addToFailedToUpload = function(layerId, failed){
+	
+	if(Arbiter.Util.existsAndNotNull(layerId) && Arbiter.Util.existsAndNotNull(failed)){
+		
+		if(!Arbiter.Util.existsAndNotNull(this.failedToUpload)){
+			this.failedToUpload = {};
+		}
+		
+		this.failedToUpload[layerId] = failed;
+	}
+};
+
+Arbiter.ReattemptFailedMediaUploads.prototype.upload = function(obj){
 	var context = this;
 	
-	var layerId = failedItem[Arbiter.FailedSyncHelper.LAYER_ID];
+	var mediaForLayer = obj.mediaForLayer;
 	
-	var schema = Arbiter.getLayerSchemas()[layerId];
+	var schema = Arbiter.getLayerSchemas()[obj.layerId];
 	
 	if(!Arbiter.Util.existsAndNotNull(schema)){
-		throw "Schema should not be " + JSON.stringify(schema);
+		throw "Schema must exist and not be null";
+	}
+	
+	if(mediaForLayer === null 
+			|| mediaForLayer === undefined 
+			|| mediaForLayer.length === 0){
+		
+		++this.finishedLayersCount;
+		
+		if(this.finishedLayersCount === this.totalLayersCount){
+			
+			var featureType = schema.getFeatureType();
+			var finishedMediaCount = 0;
+			var totalMediaCount = 0;
+			
+			Arbiter.Cordova.updateMediaUploadingStatus(featureType,
+					finishedMediaCount, totalMediaCount,
+					this.finishedLayersCount, this.totalLayersCount);
+		}
+		
+		this.attemptNext();
+		
+		return;
 	}
 	
 	var server = Arbiter.Util.Servers.getServer(schema.getServerId());
 	
 	if(!Arbiter.Util.existsAndNotNull(server)){
-		throw "Server should not be " + JSON.stringify(server);
+		throw "Server must exist and not be null";
 	}
 	
-	var credentials = Arbiter.Util.getEncodedCredentials(
-			server.getUsername(), server.getPassword());
+	var uploader = new Arbiter.MediaUploader(schema, this.mediaToSend,
+			server, this.mediaDir, this.finishedLayersCount, this.totalLayersCount);
 	
-	var file = failedItem[Arbiter.FailedSyncHelper.KEY];
-	
-	var url = schema.getUrl();
-	
-	this.upload(url, credentials, file, function(){
+	uploader.startUpload(function(failed){
 		
-		Arbiter.FailedSyncHelper.remove(file, context.dataType,
-				context.syncType, layerId, function(){
-			
-			context.attemptNext();
-		}, function(e){
-			
-			console.log("Could not remove key = " + file + ", syncType = "
-					+ syncType + ", layerId = " + layerId + " - " 
-					+ JSON.stringify(e));
-			
-			context.attemptNext();
-		});
-	}, function(e){
+		context.finishedLayersCount++;
 		
-		context.addToFailedAttempts(failedItem);
+		context.addToFailedToUpload(obj.layerId, failed);
 		
 		context.attemptNext();
 	});
-};
-
-Arbiter.ReattemptFailedMediaUploads.prototype.upload = function(url, credentials, 
-		file, onSuccess, onFailure){
 	
-	this.mediaDir.getFile(file, {create: false, exclusive: false}, function(fileEntry) {
-		
-        var options = new FileUploadOptions();
-        options.fileKey="file";
-        options.fileName=fileEntry.name;
-        options.mimeType="image/jpeg";
-        options.headers= {
-        	Authorization: 'Basic ' + credentials	
-    	};
-                                
-        var params = {};
-        
-        options.params = params;
-        
-        var ft = new FileTransfer();
-        
-        var isFinished = false;
-        
-        var progressListener = new Arbiter.MediaProgressListener(ft,
-        		function(){
-        	
-        	if(isFinished === false){
-        		ft.abort();
-        	}
-        	
-        	onFailure("Upload timed out");
-        	
-        });
-        
-        progressListener.watchProgress();
-        
-        ft.upload(fileEntry.fullPath, encodeURI(url), function(response) {
-            console.log("Code = " + response.responseCode);
-            console.log("Response = " + response.response);
-            console.log("Sent = " + response.bytesSent);
-            
-            isFinished = true;
-            
-            progressListener.stopWatching();
-            
-            onSuccess();
-        }, function(error) {
-            console.log("upload error source " + error.source);
-            console.log("upload error target " + error.target);
-            console.log("upload error code" + error.code);
-            
-            isFinished = true;
-            
-            progressListener.stopWatching();
-            
-            if(error.code !== FileTransferError.ABORT_ERR){
-            	onFailure(error);
-            }
-        }, options);
-    }, function(error) {
-        console.log("Unable to transfer " + file 
-        		+ ": File not found locally.", file, error.code);
-        
-        onFailure(error);
-    });
 };

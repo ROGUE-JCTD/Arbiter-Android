@@ -119,20 +119,8 @@ Arbiter.Sync.prototype.initialize = function(onSuccess, onFailure){
 			if(mediaToSend !== null && mediaToSend !== undefined){
 				context.mediaToSend = JSON.parse(mediaToSend);
 				
-				var storeMediaToUpload = new Arbiter.StoreMediaToUpload(
-						context.mediaToSend, function(failedToUpload){
-					
-					if(Arbiter.Util.existsAndNotNull(failedToUpload)){
-						console.log("Failed to store the following to failed_sync: "
-								+ JSON.stringify(failedToUpload));
-					}
-					
-					callback();
-				});
-				
-				storeMediaToUpload.startStore();
+				callback();
 			}else{
-				
 				callback();
 			}
 		}, function(e){

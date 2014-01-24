@@ -101,7 +101,8 @@ public class LayersHelper implements BaseColumns{
 			SERVER_ID, // 2
 			LAYER_TITLE, // 3
 			BOUNDING_BOX, // 4
-			LAYER_VISIBILITY // 5
+			COLOR, //5
+			LAYER_VISIBILITY // 6
 		};
 		
 		String selection = _ID + "=?";
@@ -118,7 +119,7 @@ public class LayersHelper implements BaseColumns{
 			
 			layer = new Layer(cursor.getInt(0),
 					cursor.getString(1), cursor.getInt(2), null, null, cursor.getString(3), 
-					cursor.getString(4), util.convertIntToBoolean(cursor.getInt(5)));
+					cursor.getString(4), cursor.getString(5), util.convertIntToBoolean(cursor.getInt(6)));
 		}
 		
 		cursor.close();
@@ -190,7 +191,7 @@ public class LayersHelper implements BaseColumns{
 			int affected = GeometryColumnsHelper.getHelper().remove(
 					featureDb, featureType);
 			
-			//FailedSync.getHelper().remove(projectDb, layerId);
+			FailedSync.getHelper().remove(projectDb, layer.getLayerId());
 			
 			// If the geometryColumn row was successfully removed,
 			// then remove the layer from the layers table and call

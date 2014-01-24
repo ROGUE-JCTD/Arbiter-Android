@@ -66,7 +66,7 @@ public class FailedSyncHelper {
 							Log.w("FailedSyncHelper", "FailedSyncHelper failedMediaUploadsLength = " + failedMediaUploads.length());
 						}
 						
-						if(failedVectorUploads != null){
+						if(failedVectorDownloads != null){
 							Log.w("FailedSyncHelper", "FailedSyncHelper failedVectorDownloadsLength = " + failedVectorDownloads.length);
 						}
 						

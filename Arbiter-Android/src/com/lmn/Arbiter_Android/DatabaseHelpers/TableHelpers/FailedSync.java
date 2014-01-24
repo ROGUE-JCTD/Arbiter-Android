@@ -2,6 +2,7 @@ package com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers;
 
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
@@ -49,6 +50,32 @@ public class FailedSync implements BaseColumns{
 					LAYER_ID + " INTEGER);";
 		
 		db.execSQL(sql);
+	}
+	
+	public void remove(SQLiteDatabase db, int layerId){
+		
+		db.beginTransaction();
+		
+		try {
+			
+			String whereClause = _ID + "=?";
+			String[] whereArgs = {
+				Long.toString(layerId)
+			};
+			
+			db.delete(TABLE_NAME, whereClause, whereArgs);
+			
+			db.setTransactionSuccessful();
+		} catch (Exception e){
+			e.printStackTrace();
+		} finally {
+			db.endTransaction();
+		}
+	}
+	
+	public void removeFromMediaToSend(Context context, SQLiteDatabase db, int layerId){
+		
+		//PreferencesHelper.getHelper().get(db, context, MediaH);
 	}
 	
 	private String getFeatureType(SQLiteDatabase db, int layerId){

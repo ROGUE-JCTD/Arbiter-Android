@@ -78,7 +78,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 			commitMsg += '}}';
 			console.log(commitMsg);
 			event.object.layer.protocol.options.handle = commitMsg;
-		}
+		};
 		
 		Arbiter.Layers.addLayer(olLayer);
 		

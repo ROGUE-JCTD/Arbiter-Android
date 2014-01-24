@@ -354,6 +354,7 @@ Arbiter.FeatureTableHelper = (function(){
     				var layerId = layer[helper.layerId()];
     				
     				console.log("creating layerschema layerid = " + layerId);
+    				
     				var schema = new Arbiter.Util.LayerSchema(layerId, url, layer[helper.workspace()],
     						layer[helper.featureType()], layer[helper.layerVisibility()], serverId, color);
     				Arbiter.putLayerSchema(layerId, schema);

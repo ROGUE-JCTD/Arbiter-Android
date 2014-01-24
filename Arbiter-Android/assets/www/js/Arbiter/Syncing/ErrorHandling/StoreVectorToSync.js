@@ -1,4 +1,4 @@
-Arbiter.StoreVectorToSync = function(_map, _downloadOnly, _onSuccess){
+Arbiter.StoreVectorToSync = function(_map, _downloadOnly, _specificSchemas, _onSuccess){
 	
 	this.onSuccess = _onSuccess;
 	
@@ -6,11 +6,40 @@ Arbiter.StoreVectorToSync = function(_map, _downloadOnly, _onSuccess){
 	
 	this.downloadOnly = _downloadOnly;
 	
-	this.layers = this.map.getLayersByClass("OpenLayers.Layer.Vector");
+	this.layers = this.getLayers();
 
+	this.specificSchemas = _specificSchemas;
+	
 	this.index = -1;
 	
 	this.failedToStore = null;
+};
+
+Arbiter.StoreVectorToSync.prototype.getLayers = function(){
+	
+	if(this.downloadOnly === true || this.downloadOnly === "true"){
+		
+		var layers = [];
+		
+		if(Arbiter.Util.existsAndNotNull(this.specificSchemas)){
+			for(var i = 0; i < this.specificSchemas.length; i++){
+				
+				this.addVectorLayerById(layers, this.specificSchemas[i].getLayerId());
+			}
+		}
+
+		return layers;
+	}else{
+		return this.map.getLayersByClass("OpenLayers.Layer.Vector");
+	}
+};
+
+Arbiter.StoreVectorToSync.prototype.addVectorLayerById = function(layers, layerId){
+	var layer = Arbiter.Layers.getLayerById(layerId, Arbiter.Layers.type.WFS);
+	
+	if(Arbiter.Util.existsAndNotNull(layer)){
+		layers.push(layer);
+	}
 };
 
 Arbiter.StoreVectorToSync.prototype.pop = function(){

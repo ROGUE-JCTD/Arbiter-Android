@@ -82,6 +82,10 @@ public class FailedSync implements BaseColumns{
 		
 		String mediaToSendStr = PreferencesHelper.getHelper().get(db, context, MediaSyncHelper.MEDIA_TO_SEND);
 		
+		if(mediaToSendStr == null){
+			return;
+		}
+		
 		JSONObject mediaToSend = null;
 		
 		try {

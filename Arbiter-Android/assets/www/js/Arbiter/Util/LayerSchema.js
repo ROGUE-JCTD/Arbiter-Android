@@ -114,18 +114,20 @@ Arbiter.Util.LayerSchema = function(){
 				_srid, _geometryName, _geometryType, 
 				_enumeration, _attributes, _visibility, _serverId, _mediaColumn, _color);
 		
-	}else if(arguments.length === 6){ // LayerGroup
-		var _url = arguments[0];
-		var _workspace = arguments[1];
-		var _featureType = arguments[2];
-		var _visibility = arguments[3];
-		var _serverId = arguments[4];
-		var _color = arguments[5];
+	}else if(arguments.length === 7){ // LayerGroup
+		var _layerId = arguments[0];
+		var _url = arguments[1];
+		var _workspace = arguments[2];
+		var _featureType = arguments[3];
+		var _visibility = arguments[4];
+		var _serverId = arguments[5];
+		var _color = arguments[6];
 		
-		LayerSchema = function(_url, _workspace, 
+		LayerSchema = function(_layerId, _url, _workspace, 
 				_featureType, _visibility, _serverId, _color){
 			var parsedFeatureType = Arbiter.Util.parseFeatureType(_featureType);
 			
+			layerId = _layerId;
 			workspace = _workspace;
 			featureType = parsedFeatureType.featureType;
 			prefix = parsedFeatureType.prefix;
@@ -136,7 +138,9 @@ Arbiter.Util.LayerSchema = function(){
 			color = _color;
 		};
 		
-		LayerSchema(_url, _workspace, _featureType, _visibility, _serverId, _color);
+		LayerSchema(_layerId, _url, _workspace, _featureType,
+				_visibility, _serverId, _color);
+		
 	}else{
 		throw "LayerSchema: Invalid number of arguments - " + arguments.length;
 	}

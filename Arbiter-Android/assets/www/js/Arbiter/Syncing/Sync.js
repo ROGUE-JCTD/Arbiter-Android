@@ -94,7 +94,8 @@ Arbiter.Sync.prototype.initialize = function(onSuccess, onFailure){
 			
 			var callback = function(){
 				
-				var storeVectorSync = new Arbiter.StoreVectorToSync(context.map, context.downloadOnly, function(){
+				var storeVectorSync = new Arbiter.StoreVectorToSync(context.map, context.downloadOnly,
+						context.specificSchemas, function(){
 					
 					// Load the layers from the database
 					Arbiter.LayersHelper.loadLayers(context, function(layers){
@@ -165,7 +166,7 @@ Arbiter.Sync.prototype.storeUploadsAndDownloads = function(){
 	var db = Arbiter.FeatureDbHelper.getFeatureDatabase();
 	
 	var storeMediaToDownload = new Arbiter.StoreMediaToDownload(
-			db, this.layers, this.schemas, function(failedToStore){
+			db, this.layers, schemas, function(failedToStore){
 		
 		console.log("failedToStore: " + JSON.stringify(failedToStore));
 		

@@ -174,7 +174,8 @@ Arbiter.MediaSync.prototype.downloadMedia = function(layer){
 	
 	var layerId = layer[Arbiter.LayersHelper.layerId()];
 	var serverId = layer[Arbiter.LayersHelper.serverId()];
-	
+
+	console.log("download media layerId : " + layerId);
 	var schema = this.layerSchemas[layerId];
 	
 	var server = Arbiter.Util.Servers.getServer(serverId);

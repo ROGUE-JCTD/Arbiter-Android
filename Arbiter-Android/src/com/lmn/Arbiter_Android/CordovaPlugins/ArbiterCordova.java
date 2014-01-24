@@ -21,10 +21,14 @@ import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.Activities.TileConfirmation;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.FailedSyncHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
 import com.lmn.Arbiter_Android.Map.Map;
+import com.lmn.Arbiter_Android.Media.HandleZeroByteFiles;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ArbiterCordova extends CordovaPlugin{
 	private static final String TAG = "ArbiterCordova";
@@ -508,6 +512,31 @@ public class ArbiterCordova extends CordovaPlugin{
 	
 	private void syncCompleted(final CallbackContext callbackContext){
 		final Activity activity = cordova.getActivity();
+		
+		String projectName = arbiterProject.getOpenProject(activity);
+		final String mediaPath = ProjectStructure.getMediaPath(projectName);
+		String projectPath = ProjectStructure.getProjectPath(projectName);
+		
+		FragmentActivity fragActivity = null;
+		
+		try{
+			fragActivity = (FragmentActivity) activity;
+		}catch(ClassCastException e){
+			e.printStackTrace();
+		}
+		FailedSyncHelper failedSyncHelper = new FailedSyncHelper(fragActivity,
+				ProjectDatabaseHelper.getHelper(fragActivity.getApplicationContext(),
+						projectPath, false).getWritableDatabase());
+		
+		failedSyncHelper.checkIncompleteSync();
+		
+		cordova.getThreadPool().execute(new Runnable(){
+			@Override
+			public void run(){
+				HandleZeroByteFiles handler = new HandleZeroByteFiles(mediaPath);
+				handler.deleteZeroByteFiles();
+			}
+		});
 		
 		activity.runOnUiThread(new Runnable(){
 			@Override

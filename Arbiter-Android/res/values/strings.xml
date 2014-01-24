@@ -160,4 +160,16 @@
     <string name="title_activity_aoi">AOIActivity</string>
     <string name="hello_world">Hello world!</string>
 
+    <string name="failed_to_sync">Sync Incomplete</string>
+    <string name="failed_vector_upload">The following vector layers failed to upload:</string>
+    <string name="failed_vector_download">The following vector layers failed to download:</string>
+    <string name="failed_media_upload">The following media items failed to upload:</string>
+    <string name="failed_media_download">The following media items failed to download:</string>
+    <string name="retry_sync">Try again?</string>
+    
+    <string name="vector_upload_errors_label">Vector layers that failed on upload:</string>
+    <string name="vector_download_errors_label">Vector layers that failed to download:</string>
+    <string name="media_upload_errors_label">Media that failed to upload:</string>
+    <string name="media_download_errors_label">Media that failed to download:</string>
+    <string name="retry">Retry</string>
 </resources>

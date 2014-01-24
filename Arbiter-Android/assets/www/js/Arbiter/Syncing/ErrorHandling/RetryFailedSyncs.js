@@ -34,6 +34,8 @@ Arbiter.RetryFailedSyncs.prototype.getFailedVectorUploads = function(){
 	
 	this.getFailed(dataType, syncType, function(arrayOfFailed){
 		
+		console.log("failedVectorUploads: " + JSON.stringify(arrayOfFailed));
+		
 		context.failedVectorUploads = arrayOfFailed;
 		
 		context.getFailedVectorDownloads();
@@ -52,6 +54,8 @@ Arbiter.RetryFailedSyncs.prototype.getFailedVectorDownloads = function(){
 	var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.DOWNLOAD;
 	
 	this.getFailed(dataType, syncType, function(arrayOfFailed){
+		
+		console.log("failedVectorDownloads: " + JSON.stringify(arrayOfFailed));
 		
 		context.failedVectorDownloads = arrayOfFailed;
 		
@@ -74,9 +78,10 @@ Arbiter.RetryFailedSyncs.prototype.getFailedMediaUploads = function(){
 		
 		if(_mediaToSend !== null && _mediaToSend !== undefined){
 			context.failedMediaUploads = JSON.parse(_mediaToSend);
-			
-			context.getFailedMediaDownloads();
 		}
+		
+		console.log("failedMediaUploads: " + JSON.stringify(_mediaToSend));
+		context.getFailedMediaDownloads();
 	}, function(e){
 		
 		console.log("Could not get " + Arbiter.MEDIA_TO_SEND
@@ -96,6 +101,7 @@ Arbiter.RetryFailedSyncs.prototype.getFailedMediaDownloads = function(){
 		
 		context.failedMediaDownloads = arrayOfFailed;
 		
+		console.log("faileMediaDownloads: " + JSON.stringify(arrayOfFailed));
 		
 	}, function(e){
 		
@@ -110,10 +116,10 @@ Arbiter.RetryFailedSyncs.prototype.getFailed = function(dataType, syncType, onHa
 		
 		if(arrayOfFailed.length > 0){
 			context.hasFailed = true;
+		}	
 			
-			if(Arbiter.Util.funcExists(onHasFailed)){
-				onHasFailed(arrayOfFailed);
-			}
+		if(Arbiter.Util.funcExists(onHasFailed)){
+			onHasFailed(arrayOfFailed);
 		}
 		
 	}, function(e){

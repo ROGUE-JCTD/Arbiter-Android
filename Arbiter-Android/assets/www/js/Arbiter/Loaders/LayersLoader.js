@@ -59,21 +59,21 @@ Arbiter.Loaders.LayersLoader = (function(){
 					}
 				}
 			}
-			var commitMsg = '{"' + event.object.layer.protocol.featureType + '":{';
+			var commitMsg = '{&quot;' + event.object.layer.protocol.featureType + '&quot;:{';
 			if (added > 0){
-				commitMsg += '"added":' + added;
+				commitMsg += '&quot;added&quot;:' + added;
 			}
 			if (modified > 0){
 				if (added > 0){
 					commitMsg += ',';
 				}
-				commitMsg += '"modified":' + modified;
+				commitMsg += '&quot;modified&quot;:' + modified;
 			}
 			if (removed > 0){
 				if (added > 0 || modified > 0){
 					commitMsg += ',';
 				}
-				commitMsg += '"removed":' + removed;
+				commitMsg += '&quot;removed&quot;:' + removed;
 			}
 			commitMsg += '}}';
 			console.log(commitMsg);

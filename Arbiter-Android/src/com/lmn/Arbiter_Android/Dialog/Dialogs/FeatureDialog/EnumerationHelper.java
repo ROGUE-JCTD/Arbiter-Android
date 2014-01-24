@@ -61,6 +61,7 @@ public class EnumerationHelper {
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity
 				.getApplicationContext(), R.layout.textview);
 		
+		adapter.add("");
 		for(int i = 0, count = restriction.length(); i < count; i++){
 			adapter.add(restriction.getString(i));
 		}

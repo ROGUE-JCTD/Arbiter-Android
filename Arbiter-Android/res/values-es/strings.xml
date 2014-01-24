@@ -50,7 +50,7 @@
 	<string name="error_syncing">Error</string>
 	<string name="error_syncing_msg">Incapaz de sincronizar</string>
 	<string name="project_incomplete_msg">Proyecto no está disponible sin conexión. \n \nPor favor, seleccione un área de interés.</string>
-	<string name="click_me">( Clic Aqui )</string>
+	<string name="click_me">( Clic Aquí )</string>
 	<string name="media">fotos</string>
 	<string name="take_picture">Tomar la foto</string>
 	<string name="initializing">Inicializar</string>

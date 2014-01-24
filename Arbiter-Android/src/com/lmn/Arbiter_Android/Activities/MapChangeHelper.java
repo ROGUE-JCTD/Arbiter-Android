@@ -48,8 +48,7 @@ public class MapChangeHelper {
 		});
 	}
 	
-	public void onLayersAdded(final ArrayList<Layer> layers, final long[] layerIds,
-			final String includeDefaultLayer, final String defaultLayerVisibility) {
+	public void onLayersAdded(final ArrayList<Layer> layers, final long[] layerIds) {
 		
 		activity.runOnUiThread(new Runnable(){
 			@Override

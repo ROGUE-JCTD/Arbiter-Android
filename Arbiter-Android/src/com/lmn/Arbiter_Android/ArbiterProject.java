@@ -24,8 +24,6 @@ public class ArbiterProject {
 	private static final String OPEN_PROJECT_NAME = "openProjectName";
 	
 	// Keys for preferences table in project db
-	public static final String INCLUDE_DEFAULT_LAYER = "include_default_layer";
-	public static final String DEFAULT_LAYER_VISIBILITY = "default_layer_visibility";
 	public static final String PROJECT_NAME = "project_name";
 	public static final String AOI = "aoi";
 	
@@ -35,9 +33,6 @@ public class ArbiterProject {
 	private String oldProjectName = null;
 	private String openProjectName = null;
 	
-	private String includeDefaultLayer = "true";
-	private String defaultLayerVisibility = "true";
-    
 	private ArbiterProject(){}
 	
 	private static ArbiterProject project = null;
@@ -59,7 +54,6 @@ public class ArbiterProject {
 	 * 
 	 * @param context
 	 * @param projectId
-	 * @param includeDefaultLayer
 	 */
 	public void setOpenProject(Context context, String projectName){
 		
@@ -72,18 +66,6 @@ public class ArbiterProject {
 		
 		// Set the open project
 		this.openProjectName = projectName;
-		
-		ProjectDatabaseHelper helper = ProjectDatabaseHelper.getHelper(context, 
-				ProjectStructure.getProjectPath(projectName), false);
-		
-		String includeDefaultLayer = PreferencesHelper.getHelper().get(
-				helper.getWritableDatabase(), context, INCLUDE_DEFAULT_LAYER);
-		String defaultLayerVisibility = PreferencesHelper.getHelper().get(
-				helper.getWritableDatabase(), context, DEFAULT_LAYER_VISIBILITY);
-		
-		// Set includeDefaultLayer
-		setIncludeDefaultLayer(includeDefaultLayer);
-		setDefaultLayerVisibility(defaultLayerVisibility);
 	}
 	
 	/**
@@ -109,16 +91,6 @@ public class ArbiterProject {
     		if(!openProjectHasBeenInitialized()){
     			ProjectStructure.getProjectStructure().ensureProjectExists(activity);
     			openProjectName = context.getResources().getString(R.string.default_project_name);
-    		}
-    		
-    		// Get whether or not this project includes the default layer
-    		// and if so, is it visible
-    		String includeDefaultLayer = includeDefaultLayer(context, openProjectName);
-    		String defaultLayerVisibility = defaultLayerVisibility(context, openProjectName);
-    		
-    		if(includeDefaultLayer != null && defaultLayerVisibility != null){
-        		setIncludeDefaultLayer(includeDefaultLayer);
-        		setDefaultLayerVisibility(defaultLayerVisibility);
     		}
     		
     		oldProjectName = openProjectName;
@@ -159,7 +131,7 @@ public class ArbiterProject {
 	}
 	
 	public void createNewProject(String name){
-		newProject = new Project(name, null, "true", "true");
+		newProject = new Project(name, null);
 	}
 	
 	public void errorCreatingProject(Activity activity){
@@ -204,51 +176,6 @@ public class ArbiterProject {
 	
 	public Project getNewProject(){
 		return newProject;
-	}
-	
-	public String includeDefaultLayer(){
-		return this.includeDefaultLayer;
-	}
-	
-	public String getDefaultLayerVisibility(){
-		return this.defaultLayerVisibility;
-	}
-	
-	public void setDefaultLayerVisibility(String defaultLayerVisibility){
-		this.defaultLayerVisibility = defaultLayerVisibility;
-	}
-	
-	public void setIncludeDefaultLayer(String includeDefaultLayer){
-		this.includeDefaultLayer = includeDefaultLayer;
-	}
-	
-	public void setIncludeDefaultLayer(final Context context, final String projectName, 
-			final String includeDefaultLayer){
-		ProjectDatabaseHelper helper = ProjectDatabaseHelper.
-				getHelper(context, ProjectStructure
-						.getProjectPath(projectName), false);
-		
-		PreferencesHelper.getHelper().update(
-				helper.getWritableDatabase(), context,
-				INCLUDE_DEFAULT_LAYER, includeDefaultLayer);
-		
-		setIncludeDefaultLayer(includeDefaultLayer);
-	}
-	
-	private String includeDefaultLayer(Context context, String projectName){
-		ProjectDatabaseHelper helper = ProjectDatabaseHelper.getHelper(context,
-				ProjectStructure.getProjectPath(projectName), false);
-		
-		return PreferencesHelper.getHelper().get(
-				helper.getWritableDatabase(), context, INCLUDE_DEFAULT_LAYER);
-	}
-	
-	private String defaultLayerVisibility(Context context, String projectName){
-		ProjectDatabaseHelper helper = ProjectDatabaseHelper.getHelper(context,
-				ProjectStructure.getProjectPath(projectName), false);
-		
-		return PreferencesHelper.getHelper().get(
-				helper.getWritableDatabase(), context, DEFAULT_LAYER_VISIBILITY);
 	}
 	
 	public void resetDefaultProject(boolean reset){

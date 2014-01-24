@@ -152,7 +152,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 		});
 	};
 	
-	var loadLayers = function(includeDefaultLayer, defaultLayerVisibility, onSuccess){
+	var loadLayers = function(onSuccess){
 		
 		reset();
 		
@@ -162,9 +162,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 		
 		var layer;
 		
-		if (includeDefaultLayer === "true") {
-			Arbiter.Layers.addDefaultLayer(defaultLayerVisibility);
-		}
+		Arbiter.Layers.addDefaultLayer(true);
 		
 		if(layerSchemas === undefined 
 				|| layerSchemas === null 
@@ -214,18 +212,6 @@ Arbiter.Loaders.LayersLoader = (function(){
 		}
 	};
 	
-	var loadDefaultLayerInfo = function(context, onSuccess, onFailure){
-		Arbiter.PreferencesHelper.get(Arbiter.INCLUDE_DEFAULT_LAYER, Arbiter.Loaders.LayersLoader, function(includeDefaultLayer){
-			
-			Arbiter.PreferencesHelper.get(Arbiter.DEFAULT_LAYER_VISIBILITY, Arbiter.Loaders.LayersLoader, function(defaultLayerVisibility){
-				
-				if(Arbiter.Util.funcExists(onSuccess)){
-					onSuccess.call(context, includeDefaultLayer, defaultLayerVisibility);
-				}
-			}, onFailure);
-		}, onFailure);
-	};
-	
 	/**
 	 * redraw the wfsLayers
 	 */
@@ -255,12 +241,9 @@ Arbiter.Loaders.LayersLoader = (function(){
 					
 					// Load the layer schemas with layer data loaded from the db
 					Arbiter.FeatureTableHelper.loadLayerSchemas(layers, function(){
-						
-						// Load the default layer info
-						loadDefaultLayerInfo(this, function(includeDefaultLayer, defaultLayerVisibility){
 							
 							// Load the layers onto the map
-							loadLayers(includeDefaultLayer, defaultLayerVisibility, function(){
+							loadLayers(function(){
 								
 								var controlPanelHelper = new Arbiter.ControlPanelHelper();
 								controlPanelHelper.getActiveControl(function(activeControl){
@@ -284,7 +267,6 @@ Arbiter.Loaders.LayersLoader = (function(){
 								}, onFailure);
 								
 							});
-						}, onFailure);
 					}, onFailure);
 				}, onFailure);
 			}, onFailure);

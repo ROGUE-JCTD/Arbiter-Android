@@ -6,37 +6,22 @@ public class Project {
 	private String projectName;
 	private ArrayList<Layer> layers;
 	private String aoi;
-	private String includeDefaultLayer;
-	private String defaultLayerVisibility;
 	
-	public Project(String projectName, String aoi, 
-			String includeDefaultLayer, String defaultLayerVisibility){
+	public Project(String projectName, String aoi){
 		this.projectName = projectName;
 		this.layers = new ArrayList<Layer>();
 		this.aoi = aoi;
-		this.includeDefaultLayer = includeDefaultLayer;
-		this.defaultLayerVisibility = defaultLayerVisibility;
 	}
 	
 	public Project(Project project){
 		this.projectName = project.getProjectName();
 		this.aoi = project.getAOI();
-		this.includeDefaultLayer = project.includeDefaultLayer();
-		this.defaultLayerVisibility = project.getDefaultLayerVisibility();
 		
 		this.layers = new ArrayList<Layer>();
 		ArrayList<Layer> pLayers = project.getLayers();
 		for(int i = 0; i < pLayers.size(); i++){
 			this.layers.add(new Layer(pLayers.get(i)));
 		}
-	}
-	
-	public void setDefaultLayerVisibility(String visibility){
-		this.defaultLayerVisibility = visibility;
-	}
-	
-	public String getDefaultLayerVisibility(){
-		return this.defaultLayerVisibility;
 	}
 	
 	public String getAOI(){
@@ -53,14 +38,6 @@ public class Project {
 	
 	public void addLayer(Layer layer){
 		layers.add(layer);
-	}
-	
-	public String includeDefaultLayer(){
-		return includeDefaultLayer;
-	}
-	
-	public void includeDefaultLayer(String includeDefaultLayer){
-		this.includeDefaultLayer = includeDefaultLayer;
 	}
 	
 	/**

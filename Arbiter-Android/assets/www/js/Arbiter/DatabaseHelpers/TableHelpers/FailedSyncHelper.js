@@ -59,6 +59,7 @@ Arbiter.FailedSyncHelper = (function(){
 					var arrayOfFailed = getArrayOfFailed(res);
 					
 					if(Arbiter.Util.funcExists(onSuccess)){
+						console.log("getFailedToSync: " + JSON.stringify(arrayOfFailed));
 						onSuccess(arrayOfFailed);
 					}
 				}, function(tx, e){
@@ -89,9 +90,10 @@ Arbiter.FailedSyncHelper = (function(){
 				var sql = "INSERT INTO " + TABLE_NAME 
 					+ "(" + context.KEY + "," 
 					+ context.DATA_TYPE + ","
-					+ context.SYNC_TYPE + ") VALUES (?,?,?);"
+					+ context.SYNC_TYPE + "," 
+					+ context.LAYER_ID + ") VALUES (?,?,?,?);"
 				
-				tx.executeSql(sql, [key, dataType, syncType], function(tx, res){
+				tx.executeSql(sql, [key, dataType, syncType, layerId], function(tx, res){
 					
 					if(Arbiter.Util.funcExists(onSuccess)){
 						onSuccess();
@@ -124,9 +126,10 @@ Arbiter.FailedSyncHelper = (function(){
 				var sql = "DELETE from " + TABLE_NAME + " WHERE "
 					+ context.KEY + "=? AND " 
 					+ context.DATA_TYPE + "=? AND " 
-					+ context.SYNC_TYPE + "=?;";
+					+ context.SYNC_TYPE + "=? AND "
+					+ context.LAYER_ID + "=?;";
 				
-				tx.executeSql(sql, [key, dataType, syncType], function(tx, res){
+				tx.executeSql(sql, [key, dataType, syncType, layerId], function(tx, res){
 					
 					if(Arbiter.Util.funcExists(onSuccess)){
 						onSuccess();

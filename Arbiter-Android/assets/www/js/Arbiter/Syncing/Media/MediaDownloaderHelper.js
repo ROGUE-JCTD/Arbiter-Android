@@ -10,6 +10,8 @@ Arbiter.MediaDownloaderHelper = function(feature,
 	
 	this.failedMedia = null;
 	this.schema = _schema;
+	
+	console.log("mediaDownloaderHelper layerID = " + this.schema.getLayerId());
 	var mediaAttribute = feature[this.schema.getMediaColumn()];
 	
 	this.featureMedia = [];
@@ -106,6 +108,8 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
 	
 	var onFailure = function(error){
 		
+		context.updateProgressDialog(true);
+		
 		context.addToFailedMedia(media, error);
 		
 		context.startDownloadingNext();
@@ -124,6 +128,7 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
 		Arbiter.FailedSyncHelper.remove(key, dataType, syncType,
 				context.schema.getLayerId(), function(){
 			
+			console.log("removed it from the thing");
 			context.startDownloadingNext();
 			
 		}, function(e){

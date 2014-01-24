@@ -88,6 +88,41 @@ public class LayersHelper implements BaseColumns{
 		return layers;
 	}
 	
+	public Layer get(SQLiteDatabase db, int layerId){
+		Layer layer = null;
+		
+		// Projection - columns to get back
+		String[] columns = {
+			LAYERS_TABLE_NAME + "." + _ID, // 0
+			FEATURE_TYPE, // 1
+			SERVER_ID, // 2
+			LAYER_TITLE, // 3
+			BOUNDING_BOX, // 4
+			LAYER_VISIBILITY // 5
+		};
+		
+		String selection = _ID + "=?";
+		
+		String[] selectionArgs = {
+			Integer.toString(layerId)
+		};
+		
+		Cursor cursor = db.query(LAYERS_TABLE_NAME, columns, selection, selectionArgs, null, null, null);
+			
+		if(cursor.moveToFirst()){
+			
+			Util util = new Util();
+			
+			layer = new Layer(cursor.getInt(0),
+					cursor.getString(1), cursor.getInt(2), null, null, cursor.getString(3), 
+					cursor.getString(4), util.convertIntToBoolean(cursor.getInt(5)));
+		}
+		
+		cursor.close();
+		
+		return layer;
+	}
+	
 	public long[] insert(SQLiteDatabase db, Context context, ArrayList<Layer> newLayers){
 		db.beginTransaction();
 		
@@ -150,6 +185,8 @@ public class LayersHelper implements BaseColumns{
 			// and drop the schema table for the feature type
 			int affected = GeometryColumnsHelper.getHelper().remove(
 					featureDb, featureType);
+			
+			//FailedSync.getHelper().remove(projectDb, layerId);
 			
 			// If the geometryColumn row was successfully removed,
 			// then remove the layer from the layers table and call

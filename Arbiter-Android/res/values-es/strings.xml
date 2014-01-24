@@ -160,4 +160,17 @@
     <string name="title_activity_aoi">AOIActivity</string>
     <string name="hello_world">¡Hola, mundo!</string>
 
+    <string name="failed_to_sync">Sincroniza Incompleto</string>
+    <string name="failed_vector_upload">Las siguientes capas vectoriales no se han cargado:</string>
+    <string name="failed_vector_download">Las siguientes capas vectoriales no pudieron descargarse:</string>
+    <string name="failed_media_upload">Las siguientes fotos no se han cargado:</string>
+    <string name="failed_media_download">Las siguientes fotos no pudieron descargarse:</string>
+    <string name="retry_sync">Inténtelo de nuevo?</string>
+    
+    <string name="vector_upload_errors_label">Capas vectoriales que fallaron en la carga:</string>
+    <string name="vector_download_errors_label">Capas vectoriales que fallaron para descargar:</string>
+    <string name="media_upload_errors_label">Fotos que no se pudieron cargar:</string>
+    <string name="media_download_errors_label">Fotos que no pudieron descargar:</string>
+    <string name="retry">Reintente</string>
+
 </resources>

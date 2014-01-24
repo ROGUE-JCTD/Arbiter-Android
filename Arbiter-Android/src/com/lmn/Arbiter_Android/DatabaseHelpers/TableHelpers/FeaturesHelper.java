@@ -108,8 +108,7 @@ public class FeaturesHelper{
 		
 		try {
 			geometryColumn = getGeometryColumn(db, featureType);
-			Log.w("FeaturesHelper", "FeaturesHelper - featureType = "
-					+ featureType + ", geometryColum = " + geometryColumn);
+			
 		} catch (FeatureHelperException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

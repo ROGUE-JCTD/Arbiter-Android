@@ -7,8 +7,6 @@ import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -20,7 +18,6 @@ import android.widget.TextView;
 public class AddLayersListAdapter extends BaseAdapter implements ArbiterAdapter<ArrayList<Layer>>{
 	private ArrayList<Layer> items;
 	private ArrayList<Layer> checkedLayers;
-	private String includeDefaultLayer;
 	
 	private LayoutInflater inflater;
 	private int itemLayout;
@@ -32,7 +29,6 @@ public class AddLayersListAdapter extends BaseAdapter implements ArbiterAdapter<
 		this.items = new ArrayList<Layer>();
 		this.checkedLayers = new ArrayList<Layer>();
 		this.itemLayout = itemLayout;
-		this.includeDefaultLayer = "false";
 	}
 	
 	public void setData(ArrayList<Layer> items){
@@ -45,7 +41,7 @@ public class AddLayersListAdapter extends BaseAdapter implements ArbiterAdapter<
 	
 	private void setCheckedLayers(){
 		if(items != null && !items.isEmpty()
-				&& (!checkedLayers.isEmpty() || includeDefaultLayer.equals("true"))){
+				&& !checkedLayers.isEmpty()){
 			
 			// key: server_id:featuretype
 			// value: Boolean
@@ -70,23 +66,15 @@ public class AddLayersListAdapter extends BaseAdapter implements ArbiterAdapter<
 			for(i = 0; i < items.size(); i++){
 				currentLayer = items.get(i);
 				
-				// If the current layer being checked is,
-				// the default layer, set checked to
-				// includeDefaultLayer, which should be
-				// true if the layer was checked
-				if(currentLayer.isDefaultLayer()){
-					currentLayer.setChecked(includeDefaultLayer.equals("true") ? true : false);
-				}else{
-					key = Layer.buildLayerKey(currentLayer);
+				key = Layer.buildLayerKey(currentLayer);
+				
+				if(layersAlreadyChecked.containsKey(key)){
+					currentLayer.setChecked(true);
 					
-					if(layersAlreadyChecked.containsKey(key)){
-						currentLayer.setChecked(true);
-						
-						// Replace the Layer in the checkedLayers list
-						// with the Layer from the new list, for
-						// unchecking to work properly
-						replaceCheckedLayer(layersAlreadyChecked, key, currentLayer);
-					}
+					// Replace the Layer in the checkedLayers list
+					// with the Layer from the new list, for
+					// unchecking to work properly
+					replaceCheckedLayer(layersAlreadyChecked, key, currentLayer);
 				}
 			}
 		}
@@ -154,17 +142,9 @@ public class AddLayersListAdapter extends BaseAdapter implements ArbiterAdapter<
 						listItem.setChecked(checked);
 						
 						if(checked){
-							if(listItem.isDefaultLayer()){
-								includeDefaultLayer = "true";
-							}else{
-								checkedLayers.add(listItem);
-							}
+							checkedLayers.add(listItem);
 						}else{
-							if(listItem.isDefaultLayer()){
-								includeDefaultLayer = "false";
-							}else{
-								checkedLayers.remove(listItem);
-							}
+							checkedLayers.remove(listItem);
 						}
 					}
 				});
@@ -195,9 +175,5 @@ public class AddLayersListAdapter extends BaseAdapter implements ArbiterAdapter<
 	
 	public ArrayList<Layer> getCheckedLayers(){
 		return this.checkedLayers;
-	}
-	
-	public String includeDefaultLayer(){
-		return this.includeDefaultLayer;
 	}
 }

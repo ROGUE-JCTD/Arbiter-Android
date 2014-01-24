@@ -8,22 +8,17 @@ import java.util.Map;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
-import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
-import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -82,24 +77,8 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 		}
 	}
 	
-	private void addDefaultLayer(ArrayList<Layer> layers){
-		if(layers != null){
-			if(ArbiterProject.getArbiterProject().includeDefaultLayer().equals("true")){
-				String visibility = ArbiterProject.getArbiterProject().getDefaultLayerVisibility();
-				
-				layers.add(new Layer(Layer.DEFAULT_FLAG, null, Server.DEFAULT_FLAG, null, null,
-						Layer.DEFAULT_LAYER_NAME, null, null,
-						(visibility.equals("true") ? true : false)));
-				
-				layers.get(layers.size() - 1).setIsDefaultLayer(true);
-			}
-		}
-	}
-	
 	public void setData(ArrayList<Layer> data){
 		items = data;
-		
-		addDefaultLayer(items);
 
 		notifyDataSetChanged();
 	}
@@ -125,14 +104,12 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
             ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteLayer);
             ToggleButton layerVisibility = (ToggleButton) view.findViewById(R.id.layerVisibility);
             
-            final boolean isDefaultLayer = listItem.isDefaultLayer();
-            
             if(layerNameView != null){
             	layerNameView.setText(listItem.getLayerTitle());
             }
             
             if(serverNameView != null){
-            	serverNameView.setText((isDefaultLayer) ? Server.DEFAULT_SERVER_NAME : listItem.getServerName());
+            	serverNameView.setText(listItem.getServerName());
             }
             
             if(deleteButton != null){
@@ -140,11 +117,7 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 
 					@Override
 					public void onClick(View v) {
-						if(!isDefaultLayer){
-							deleteLayer(new Layer(listItem));
-						}else{
-							deleteDefaultLayer();
-						}
+						deleteLayer(new Layer(listItem));
 					}
             		
             	});
@@ -159,36 +132,14 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 					@Override
 					public void onClick(View v) {
 						listItem.setChecked(!listItem.isChecked());
-						if(isDefaultLayer){
-							updateDefaultLayerVisibility(listItem.getLayerId(), listItem.isChecked());
-						}else{
-							updateLayerVisibility(listItem.getLayerId(), listItem.isChecked()); 
-						}
+						
+						updateLayerVisibility(listItem.getLayerId(), listItem.isChecked()); 
 					}
 				});
             }
 		}
 		
 		return view;
-	}
-	
-	private void updateDefaultLayerVisibility(final long layerId, final boolean visibility){
-		final String projectName = arbiterProject.getOpenProject(activity);
-		
-		CommandExecutor.runProcess(new Runnable(){
-			@Override
-			public void run(){
-				ProjectDatabaseHelper helper = 
-						ProjectDatabaseHelper.getHelper(context, 
-								ProjectStructure.getProjectPath(projectName), false);
-				
-				PreferencesHelper.getHelper().update(
-						helper.getWritableDatabase(), context,
-						ArbiterProject.DEFAULT_LAYER_VISIBILITY, Boolean.toString(visibility));
-				
-				mapChangeListener.getMapChangeHelper().onLayerVisibilityChanged(layerId);
-			}
-		});
 	}
 	
 	private void updateLayerVisibility(final long layerId, final boolean visibility){
@@ -209,28 +160,6 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 					public void run(){
 						mapChangeListener.getMapChangeHelper()
 							.onLayerVisibilityChanged(layerId);
-					}
-				});
-			}
-		});
-	}
-	
-	private void deleteDefaultLayer(){
-		final String projectName = arbiterProject.getOpenProject(activity);
-		
-		CommandExecutor.runProcess(new Runnable(){
-			@Override
-			public void run(){
-				arbiterProject.setIncludeDefaultLayer(context, projectName, "false");
-				
-				activity.runOnUiThread(new Runnable(){
-					@Override
-					public void run(){
-						mapChangeListener.getMapChangeHelper()
-							.onLayerDeleted(Layer.DEFAULT_FLAG);
-						
-						LocalBroadcastManager.getInstance(context).
-							sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
 					}
 				});
 			}

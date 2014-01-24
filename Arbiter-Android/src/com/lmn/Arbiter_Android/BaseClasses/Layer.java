@@ -1,8 +1,6 @@
 package com.lmn.Arbiter_Android.BaseClasses;
 
 public class Layer {
-	public static final int DEFAULT_FLAG = -1;
-	public static final String DEFAULT_LAYER_NAME = "OpenStreetMap";
 	
 	/**
 	 * Create a key for the methods requiring a key (removeDuplicates, setCheckedLayers..)
@@ -33,8 +31,6 @@ public class Layer {
 	// and for the layers visibility
 	private boolean checked;
 	
-	private boolean isDefaultLayer;
-	
 	public Layer(int layerId, String featureType, int serverId, String serverName, String serverUrl,
 			String title, String boundingBox, String color, boolean checked){
 		this.layerId = layerId;
@@ -46,7 +42,6 @@ public class Layer {
 		this.srs = null;
 		this.serverId = serverId;
 		this.serverUrl = serverUrl;
-		this.isDefaultLayer = false;
 		this.workspace = null;
 		
 		setChecked(checked);
@@ -72,16 +67,7 @@ public class Layer {
 		this.srs = item.getSRS();
 		this.serverId = item.getServerId();
 		this.serverUrl = item.getServerUrl();
-		this.isDefaultLayer = item.isDefaultLayer();
 		this.workspace = item.getWorkspace();
-	}
-	
-	public boolean isDefaultLayer(){
-		return this.isDefaultLayer;
-	}
-	
-	public void setIsDefaultLayer(boolean isDefaultLayer){
-		this.isDefaultLayer = isDefaultLayer;
 	}
 	
 	public int getLayerId(){

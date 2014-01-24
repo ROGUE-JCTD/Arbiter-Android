@@ -19,8 +19,10 @@ import com.lmn.Arbiter_Android.ConnectivityListeners.SyncConnectivityListener;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.FailedSyncHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.InsertFeatureDialog;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
@@ -29,6 +31,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -64,6 +67,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     // when another application (activity) is started.
     protected boolean keepRunning = true;
     
+    private FailedSyncHelper failedSyncHelper;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,13 +88,30 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         mapChangeHelper = new MapChangeHelper(this, 
         		cordovaWebView, incompleteProjectHelper);
     }
-
+    
+    private String getProjectPath(){
+		String projectName = ArbiterProject.getArbiterProject()
+				.getOpenProject(this);
+		
+		return ProjectStructure.getProjectPath(projectName);
+	}
+	
+	private SQLiteDatabase getProjectDatabase(){
+		return ProjectDatabaseHelper.getHelper(getApplicationContext(),
+				getProjectPath(), false).getWritableDatabase();
+	}
+	
     private void Init(Bundle savedInstanceState){
     	getProjectStructure();
     	InitApplicationDatabase();
         InitArbiterProject();
         setListeners();
         clearControlPanelKVP();
+        
+        this.failedSyncHelper = 
+        		new FailedSyncHelper(this, getProjectDatabase());
+        
+        this.failedSyncHelper.checkIncompleteSync();
     }
     
     private void clearControlPanelKVP(){
@@ -405,6 +427,10 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	if(this.cordovaWebView != null){
     		cordovaWebView.handleDestroy();
     	}
+    	
+    	if(this.failedSyncHelper != null){
+			this.failedSyncHelper.dismiss();
+		}
     }
     
     @Override

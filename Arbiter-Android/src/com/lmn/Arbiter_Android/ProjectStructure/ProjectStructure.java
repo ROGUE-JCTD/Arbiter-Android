@@ -19,8 +19,6 @@ public class ProjectStructure {
 	public static final String PROJECTS_PATH = "Projects";
 	public static final String MEDIA_PATH = "Media";
 	private static final String DEFAULT_PROJECT_AOI = "";
-	private static final String DEFAULT_INCLUDE_DEFAULT_LAYER = "true";
-	private static final String DEFAULT_DEFAULT_LAYER_VISIBILITY = "true";
 	
 	private ProjectStructure(){
 		alerts = new ProjectAlerts();
@@ -72,12 +70,6 @@ public class ProjectStructure {
 		
 		PreferencesHelper.getHelper().insert(helper.getWritableDatabase(), 
 				context, ArbiterProject.AOI, DEFAULT_PROJECT_AOI);
-		
-		PreferencesHelper.getHelper().insert(helper.getWritableDatabase(), 
-				context, ArbiterProject.INCLUDE_DEFAULT_LAYER, DEFAULT_INCLUDE_DEFAULT_LAYER);
-		
-		PreferencesHelper.getHelper().insert(helper.getWritableDatabase(), 
-				context, ArbiterProject.DEFAULT_LAYER_VISIBILITY, DEFAULT_DEFAULT_LAYER_VISIBILITY);
 		
 		PreferencesHelper.getHelper().insert(helper.getWritableDatabase(),
 				context, ArbiterProject.PROJECT_NAME, defaultProjectName);
@@ -240,7 +232,7 @@ public class ProjectStructure {
 		Project[] projects = new Project[list.length];
 		
 		for(int i = 0; i < list.length; i++){
-			projects[i] = new Project(list[i], null, null, null);
+			projects[i] = new Project(list[i], null);
 		}
 		
 		return projects;

@@ -1,7 +1,6 @@
 package com.lmn.Arbiter_Android.BaseClasses;
 
 public class Server {
-	public static final int DEFAULT_FLAG = -1;
 	public static final String DEFAULT_SERVER_NAME = "OpenStreetMap";
 	
 	private int id;
@@ -61,10 +60,6 @@ public class Server {
 	
 	public int getId(){
 		return id;
-	}
-	
-	public static boolean isDefaultServer(int serverId){
-		return (serverId == DEFAULT_FLAG) ? true : false;
 	}
 	
 	@Override

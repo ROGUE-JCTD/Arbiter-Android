@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+      
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="20dp">
+        
+        <RelativeLayout 
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            
+		    <TextView 
+		        android:id="@+id/vector_upload_errors_label"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="20dp"
+		        android:layout_marginLeft="20dp"
+		        android:text="@string/vector_upload_errors_label"/>
+		    
+		    <TextView 
+		        android:id="@+id/vector_upload_errors"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="20dp"
+		        android:layout_marginLeft="20dp"
+		        android:layout_below="@id/vector_upload_errors_label"/>
+		    
+		    <TextView 
+		        android:id="@+id/vector_download_errors_label"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="20dp"
+		        android:layout_marginLeft="20dp"
+		        android:layout_below="@id/vector_upload_errors"
+		        android:text="@string/vector_download_errors_label"/>
+		    
+		    <TextView 
+		        android:id="@+id/vector_download_errors"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="20dp"
+		        android:layout_marginLeft="20dp"
+		        android:layout_below="@id/vector_download_errors_label"/>
+		    
+		    <TextView 
+		        android:id="@+id/media_upload_errors_label"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="20dp"
+		        android:layout_marginLeft="20dp"
+		        android:layout_below="@id/vector_download_errors"
+		        android:text="@string/media_upload_errors_label"/>
+		    
+		    <TextView 
+		        android:id="@+id/media_upload_errors"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="20dp"
+		        android:layout_marginLeft="20dp"
+		        android:layout_below="@id/media_upload_errors_label"/>
+		    
+		    <TextView 
+		        android:id="@+id/media_download_errors_label"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="20dp"
+		        android:layout_marginLeft="20dp"
+		        android:text="@string/media_download_errors_label"
+		        android:layout_below="@id/media_upload_errors"/>
+		    
+		    <TextView 
+		        android:id="@+id/media_download_errors"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="20dp"
+		        android:layout_marginLeft="20dp"
+		        android:layout_below="@id/media_download_errors_label"/>
+		    
+		    <TextView 
+		        android:id="@+id/try_again"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="20dp"
+		        android:layout_marginLeft="20dp"
+		        android:layout_below="@id/media_download_errors"
+		        android:text="@string/retry_sync"
+		        android:layout_marginBottom="20dp"/>
+    
+        </RelativeLayout>
+    </ScrollView>
+    
+</RelativeLayout>

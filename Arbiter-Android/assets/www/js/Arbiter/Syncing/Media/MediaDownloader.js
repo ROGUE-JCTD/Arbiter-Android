@@ -1,7 +1,9 @@
-Arbiter.MediaDownloader = function(_featureDb, _schema, _server, _mediaDir){
+Arbiter.MediaDownloader = function(_featureDb, _schema, _server,
+		_mediaDir, _finishedLayers, _totalLayers){
 	
 	this.db = _featureDb;
 	this.schema = _schema;
+	
 	this.server = _server;
 	this.mediaDir = _mediaDir;
 	
@@ -26,10 +28,14 @@ Arbiter.MediaDownloader = function(_featureDb, _schema, _server, _mediaDir){
 	
 	this.features = [];
 	this.index = -1;
-	this.queuedCount = 0;
 	
-	// Start at -1 to account for the first download
-	this.finishedDownloading = 0;
+	this.finishedMediaCount = 0;
+	this.totalMediaCount = 0;
+	
+	this.finishedFeatures = 0;
+	this.totalFeatures = 0;
+	this.finishedLayers = _finishedLayers;
+	this.totalLayers = _totalLayers;
 };
 
 Arbiter.MediaDownloader.prototype.pop = function(){
@@ -51,9 +57,18 @@ Arbiter.MediaDownloader.prototype.startDownload = function(onSuccess){
 		var mediaDownloadCounter = new Arbiter.MediaDownloadCounter(
 				context.schema, context.features);
 		
-		context.queuedCount = mediaDownloadCounter.getCount();
+		context.totalFeatures = context.features.length;
 		
-		if(context.queuedCount === 0){
+		context.totalMediaCount = mediaDownloadCounter.getCount();
+		
+		if(context.totalMediaCount === 0){
+			var finishedMediaCount = 0;
+			
+			if(++context.finishedLayers === context.totalLayers){
+				Arbiter.Cordova.updateMediaDownloadingStatus(context.schema.getFeatureType(),
+						finishedMediaCount, context.totalMediaCount,
+						context.finishedLayers, context.totalLayers)
+			}
 			
 			if(Arbiter.Util.funcExists(context.onDownloadComplete)){
 				context.onDownloadComplete(context.failedOnDownload);
@@ -122,19 +137,21 @@ Arbiter.MediaDownloader.prototype.startDownloadingNext = function(){
 	if(feature !== undefined){
 		
 		var mediaDownloaderHelper = new Arbiter.MediaDownloaderHelper(feature, 
-				this.schema, this.header, this.url, this.mediaDir);
+				this.schema, this.header, this.url, this.mediaDir,
+				this.finishedMediaCount, this.totalMediaCount,
+				this.finishedFeatures, this.totalFeatures,
+				this.finishedLayers, this.totalLayers);
 		
-		mediaDownloaderHelper.startDownload(function(failedMedia){
+		mediaDownloaderHelper.startDownload(function(_finishedMediaCount, _failedMedia){
 			
-			Arbiter.Cordova.updateMediaDownloadingStatus(
-					context.schema.getFeatureType(), 
-					++context.finishedDownloading,
-					context.queuedCount);
+			++context.finishedFeatures;
+			
+			context.finishedMediaCount = _finishedMediaCount;
 			
 			var key = feature[Arbiter.FeatureTableHelper.ID];
 			
-			if(failedMedia !== null && failedMedia !== undefined){
-				context.putDownloadFailure(key, failedMedia)
+			if(_failedMedia !== null && _failedMedia !== undefined){
+				context.putDownloadFailure(key, _failedMedia)
 			}
 			
 			context.startDownloadingNext();

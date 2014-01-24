@@ -16,6 +16,14 @@ Arbiter.Sync = function(_map, _cacheTiles, _bounds,
 	// Object[layerId]
 	this.failedMediaUploads = null;
 	this.failedMediaDownloads = null;
+	
+	this.mediaDir = null;
+	this.mediaToSend = null;
+	
+	this.initialized = false;
+	
+	this.layers = null;
+	this.schemas = null;
 };
 
 // ol layers
@@ -61,7 +69,114 @@ Arbiter.Sync.prototype.onSyncFailed = function(e){
 	}
 };
 
+Arbiter.Sync.prototype.initialize = function(onSuccess, onFailure){
+	var context = this;
+	
+	var success = function(){
+		if(Arbiter.Util.funcExists(onSuccess)){
+			onSuccess();
+		}
+	};
+	
+	if(this.initialized === true){
+		success();
+		
+		return;
+	}
+	
+	// Make sure the media directory exists
+	Arbiter.FileSystem.ensureMediaDirectoryExists(function(mediaDir){
+		
+		context.mediaDir = mediaDir;
+		
+		// Get the media to send object from the db
+		Arbiter.PreferencesHelper.get(Arbiter.MEDIA_TO_SEND, context, function(mediaToSend){
+			
+			var callback = function(){
+				
+				var storeVectorSync = new Arbiter.StoreVectorToSync(context.map, context.downloadOnly,
+						context.specificSchemas, function(){
+					
+					// Load the layers from the database
+					Arbiter.LayersHelper.loadLayers(context, function(layers){
+						
+						context.layers = layers;
+						
+						context.initialized = true;
+						
+						context.schemas = Arbiter.getLayerSchemas();
+						
+						success();
+					}, function(e){
+						if(Arbiter.Util.funcExists(onFailure)){
+							onFailure("Sync.js Error loading layers - " + e);
+						}
+					});
+				});
+				
+				storeVectorSync.startStore();
+			};
+			
+			if(mediaToSend !== null && mediaToSend !== undefined){
+				context.mediaToSend = JSON.parse(mediaToSend);
+				
+				callback();
+			}else{
+				callback();
+			}
+		}, function(e){
+			console.log("Sync.js Error getting " + Arbiter.MEDIA_TO_SEND, e);
+			
+			if(Arbiter.Util.funcExists(onFailure)){
+				onFailure("Sync.js Error getting " 
+						+ Arbiter.MEDIA_TO_SEND + " - " + e);
+			}
+		});
+	}, function(e){
+		console.log("Sync.js Error getting media directory", e);
+		
+		if(Arbiter.Util.funcExists(onFailure)){
+			onFailure("Sync.js Error getting media directory - " + e);
+		}
+	});
+};
 Arbiter.Sync.prototype.sync = function(){
+	
+	var context = this;
+	
+	this.initialize(function(){
+		
+		context.storeUploadsAndDownloads();
+	}, function(e){
+		
+		context.onSyncFailed(e);
+	});
+};
+
+Arbiter.Sync.prototype.storeUploadsAndDownloads = function(){
+	
+	var context = this;
+	
+	var schemas = this.schemas;
+	
+	if(this.downloadOnly === true && Arbiter.Util.existsAndNotNull(this.specificSchemas)){
+		schemas = this.specificSchemas;
+	}
+	
+	var db = Arbiter.FeatureDbHelper.getFeatureDatabase();
+	
+	var storeMediaToDownload = new Arbiter.StoreMediaToDownload(
+			db, this.layers, schemas, function(failedToStore){
+		
+		console.log("failedToStore: " + JSON.stringify(failedToStore));
+		
+		context.startVectorSync();
+	});
+	
+	storeMediaToDownload.startStoring();
+};
+
+Arbiter.Sync.prototype.startVectorSync = function(){
 	var context = this;
 	
 	var vectorSync = new Arbiter.VectorSync(this.map, this.bounds,
@@ -90,6 +205,7 @@ Arbiter.Sync.prototype.sync = function(){
 		console.log("vector sync download only");
 		vectorSync.startDownload();
 	}else{
+		console.log("vector sync upload and download");
 		vectorSync.startUpload();
 	}
 };
@@ -97,7 +213,8 @@ Arbiter.Sync.prototype.sync = function(){
 Arbiter.Sync.prototype.startMediaSync = function(){
 	var context = this;
 	
-	var mediaSync = new Arbiter.MediaSync(Arbiter.getLayerSchemas());
+	var mediaSync = new Arbiter.MediaSync(this.layers, 
+			this.schemas, this.mediaDir, this.mediaToSend);
 	
 	mediaSync.startSync(function(failedUploads, failedDownloads){
 		

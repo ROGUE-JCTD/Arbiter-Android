@@ -150,8 +150,6 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 			layers.add(layer);
 		}
 		
-		final String includeDefaultLayer = this.addLayersAdapter.includeDefaultLayer();
-		
 		if(!creatingProject){
 			
 			final String projectName = arbiterProject.getOpenProject(getActivity());
@@ -167,12 +165,8 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 					long[] layerIds = LayersHelper.getLayersHelper().
 								insert(helper.getWritableDatabase(), context, layers);
 					
-					if(includeDefaultLayer.equals("true")){
-						setDefaultLayerInfo(projectName, includeDefaultLayer);
-					}
-					
 					mapChangeListener.getMapChangeHelper().onLayersAdded(layers, 
-							layerIds, includeDefaultLayer, includeDefaultLayer);
+							layerIds);
 				}
 				
 			});
@@ -181,29 +175,10 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 			// Add the layers to the ProjectListItem
 			Project newProject = ArbiterProject.getArbiterProject().getNewProject();
 			newProject.addLayers(layers);
-			newProject.includeDefaultLayer(includeDefaultLayer);
-			newProject.setDefaultLayerVisibility(includeDefaultLayer);
 			
 			Intent projectsIntent = new Intent(getActivity(), AOIActivity.class);
     		this.startActivity(projectsIntent);
 		}
-	}
-	
-	private void setDefaultLayerInfo(final String projectName, final String includeDefaultLayer){
-		final Context context = getActivity().getApplicationContext();
-		
-		ProjectDatabaseHelper helper = 
-				ProjectDatabaseHelper.getHelper(context, 
-						ProjectStructure.getProjectPath(projectName), false);
-		
-		PreferencesHelper.getHelper().update(helper.getWritableDatabase(),
-				context, ArbiterProject.INCLUDE_DEFAULT_LAYER, includeDefaultLayer);
-		
-		PreferencesHelper.getHelper().update(helper.getWritableDatabase(),
-				context, ArbiterProject.DEFAULT_LAYER_VISIBILITY, includeDefaultLayer);
-		
-		LocalBroadcastManager.getInstance(context).
-			sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
 	}
 	
 	@Override

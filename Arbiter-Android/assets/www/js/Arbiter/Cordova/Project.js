@@ -3,6 +3,11 @@ Arbiter.Cordova.Project = (function(){
 	
 	var currentPositionZoomLevel = 14;
 	
+	var getSchemaHelper = function(specificSchemas, layerId){
+		
+		specificSchemas.push(Arbiter.getLayerSchemas()[layerId]);
+	};
+	
 	var getSchemasFromDbLayers = function(dbLayers){
 		var specificSchemas = [];
 		
@@ -12,7 +17,7 @@ Arbiter.Cordova.Project = (function(){
 		for(var i = 0; i < dbLayers.length; i++){
 			layerId = dbLayers[i][Arbiter.LayersHelper.layerId()];
 			
-			specificSchemas.push(arbiterSchemas[layerId]);
+			getSchemaHelper(specificSchemas, layerId);
 		}
 		
 		return specificSchemas;
@@ -25,10 +30,6 @@ Arbiter.Cordova.Project = (function(){
 			if(bounds !== "" && bounds !== null && bounds !== undefined){
 				
 				var specificSchemas = getSchemasFromDbLayers(layers);
-				
-				console.log("prepareSync dbLayers: " + JSON.stringify(layers));
-				
-				console.log("print specific schemas");
 				
 				for(var i = 0; i < specificSchemas.length; i++){
 					console.log("schema featureType = " + specificSchemas[i].getFeatureType());

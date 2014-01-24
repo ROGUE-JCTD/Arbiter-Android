@@ -114,26 +114,12 @@ public class InsertProjectHelper {
 	}
 	
 	private void insertProjectInfo(ProjectDatabaseHelper helper, Context context, Project newProject){
-		String includeDefaultLayer = newProject.includeDefaultLayer();
 		
 		Log.w("InsertProjectHelper", "InsertProjectHelper: aoi = " + newProject.getAOI());
 		PreferencesHelper.getHelper().insert(helper.getWritableDatabase(), 
 				context, ArbiterProject.AOI, newProject.getAOI());
 		
-		Log.w("InsertProjectHelper", "InsertProjectHelper: includeDefaultLayer = " + includeDefaultLayer);
-		PreferencesHelper.getHelper().insert(helper.getWritableDatabase(), 
-				context, ArbiterProject.INCLUDE_DEFAULT_LAYER, includeDefaultLayer);
-		
-		PreferencesHelper.getHelper().insert(helper.getWritableDatabase(), 
-				context, ArbiterProject.DEFAULT_LAYER_VISIBILITY, includeDefaultLayer);
-		
 		PreferencesHelper.getHelper().insert(helper.getWritableDatabase(),
 				context, ArbiterProject.PROJECT_NAME, newProject.getProjectName());
-		
-		// ArbiterProject's setOpenProject usually loads this info
-		// from the project's projectDb, but since this was ran
-		// before we set this info, we need to set it manually.
-		arbiterProject.setIncludeDefaultLayer(includeDefaultLayer);
-		arbiterProject.setDefaultLayerVisibility(includeDefaultLayer);
 	}
 }

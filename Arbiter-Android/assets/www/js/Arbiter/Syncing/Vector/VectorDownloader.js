@@ -4,17 +4,12 @@ Arbiter.VectorDownloader = function(_schema, _bounds, _onSuccess, _onFailure){
 	this.onSuccess = _onSuccess;
 	this.onFailure = _onFailure;
 	
-	console.log("VectorDownloader initializing");
 	var serverId = this.schema.getServerId();
-	
-	console.log("vectorDownloader serverId: " + serverId);
 	
 	var server = Arbiter.Util.Servers.getServer(serverId);
 	
 	this.credentials = Arbiter.Util.getEncodedCredentials(
 			server.getUsername(), server.getPassword());
-	
-	console.log("vectorDownloader credentials: " + this.credentials);
 };
 
 Arbiter.VectorDownloader.prototype.onDownloadFailure = function(){
@@ -32,8 +27,6 @@ Arbiter.VectorDownloader.prototype.onDownloadComplete = function(){
 };
 
 Arbiter.VectorDownloader.prototype.download = function(){
-	
-	console.log("vector downloader download");
 	
 	var context = this;
 	
@@ -60,16 +53,26 @@ Arbiter.VectorDownloader.prototype.onDownloadSuccess = function(features){
 	// On successful download, delete the layers feature table
 	Arbiter.FeatureTableHelper.clearFeatureTable(this.schema, function(){
 		
-		console.log("clearFeatureTable success");
-		
 		var isDownload = true;
 		
 		Arbiter.FeatureTableHelper.insertFeatures(context.schema,
 				context.schema.getSRID(), features,
 				isDownload, function(){
 			
-			console.log("insertFeatures success");
-			context.onSuccess();
+			var storeMediaForSchema = new Arbiter.StoreFeaturesMediaToDownload(
+					context.schema, features, function(failedToStore){
+						
+				context.onSuccess();
+				
+			}, function(e){
+				
+				//TODO: handle error
+				console.log("VectorDownloader download error - " + JSON.stringify(e));
+				
+				context.onSuccess();
+			});
+			
+			storeMediaForSchema.startStoring();
 			
 		}, function(e){
 			

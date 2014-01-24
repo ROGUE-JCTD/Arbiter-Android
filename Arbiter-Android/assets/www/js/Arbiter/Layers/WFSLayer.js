@@ -56,7 +56,7 @@ Arbiter.Layers.WFSLayer = (function(){
 		});
 		
 		saveStrategy.events.register("fail", this, function(event){
-			console.log("save failed", event);
+			console.log("save failed - ", event);
 			
 			var layer = saveStrategy.layer;
 			
@@ -68,7 +68,7 @@ Arbiter.Layers.WFSLayer = (function(){
 					
 					var onSaveFailure = metadata["onSaveFailure"];
 					
-					onSaveFailure();
+					onSaveFailure(event);
 				}
 			}
 		});

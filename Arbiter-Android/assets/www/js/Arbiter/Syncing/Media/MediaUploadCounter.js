@@ -1,8 +1,9 @@
-Arbiter.MediaUploadCounter = function(_media){
-	this.media = _media;
+Arbiter.MediaUploadCounter = function(_mediaToSend){
+	this.mediaToSend = _mediaToSend;
 };
 
 Arbiter.MediaUploadCounter.prototype.getCount = function(){
+	var count = 0;
 	
-	return this.media.length;
+	return this.mediaToSend.length;
 };

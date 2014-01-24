@@ -35,8 +35,6 @@ Arbiter.VectorUploader.prototype.onSaveFailure = function(layer){
 
 Arbiter.VectorUploader.prototype.upload = function(){
 	
-	console.log("vectorUploader upload", this.layer);
-	
 	if(this.layer.metadata === null || this.layer.metadata === undefined){
 		this.layer.metadata = {};
 	}
@@ -46,12 +44,16 @@ Arbiter.VectorUploader.prototype.upload = function(){
 	var context = this;
 	
 	metadata["onSaveSuccess"] = function(){
+		console.log("my onSaveSuccess");
 		context.onSaveSuccess(context.layer);
 	};
 	
 	metadata["onSaveFailure"] = function(){
+		console.log("my onSaveFailure");
 		context.onSaveFailure(context.layer);
 	};
+	
+	console.log("calling save for " + Arbiter.Util.getLayerId(this.layer));
 	
 	this.layer.strategies[0].save();
 };

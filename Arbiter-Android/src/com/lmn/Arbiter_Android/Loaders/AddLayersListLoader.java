@@ -35,25 +35,8 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 			
 		_layers = getCapabilities.getLayers(server,
 				dialog.getLayersInProject());
-			
-		_layers = addDefaultLayer(_layers, server);
 		
 		return _layers;
-	}
-	
-	private ArrayList<Layer> addDefaultLayer(ArrayList<Layer> layers, Server server){
-		if(layers == null){
-			layers = new ArrayList<Layer>();
-		}
-		
-		if((server != null) && 
-				Server.isDefaultServer(server.getId())){
-			layers.add(new Layer(Layer.DEFAULT_FLAG, null, Server.DEFAULT_FLAG, Server.DEFAULT_SERVER_NAME, null,
-					Layer.DEFAULT_LAYER_NAME, null, null, false));
-			layers.get(layers.size() - 1).setIsDefaultLayer(true);
-		}
-		
-		return layers;
 	}
 	
 	/**

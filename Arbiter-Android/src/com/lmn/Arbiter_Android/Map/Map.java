@@ -138,14 +138,8 @@ public class Map{
 	
 	public void toggleLayerVisibility(CordovaWebView webview, long layerId){
 		String url = "javascript:app.waitForArbiterInit(new Function('";
-		if(layerId == Layer.DEFAULT_FLAG){
-			//webview.loadUrl("javascript:Arbiter.Layers.toggleDefaultLayerVisibility()");
-			url += "Arbiter.Layers.toggleDefaultLayerVisibility()";
-		}else{
-		//	webview.loadUrl("javascript:Arbiter.Layers.toggleLayerVisibilityById(" 
-			//		+ Long.toString(layerId) + ")");
-			url += "Arbiter.Layers.toggleLayerVisibilityById(" + Long.toString(layerId) + ")";
-		}	
+			
+		url += "Arbiter.Layers.toggleLayerVisibilityById(" + Long.toString(layerId) + ")";
 		
 		url += "'))";
 		

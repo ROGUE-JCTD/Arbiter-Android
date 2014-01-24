@@ -1,7 +1,5 @@
 package com.lmn.Arbiter_Android.ListAdapters;
 
-import com.lmn.Arbiter_Android.ArbiterProject;
-import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
@@ -60,23 +58,8 @@ public class ServerListAdapter extends BaseAdapter implements ArbiterAdapter<Spa
 			this.activity = activity;
 	}
 	
-	private void addDefaultServer(SparseArray<Server> servers){
-		if(servers != null){
-			ArbiterProject arbiterProject = ArbiterProject.getArbiterProject();
-			
-			if(((arbiterProject.includeDefaultLayer() != null) && 
-					!arbiterProject.includeDefaultLayer().equals("true")) 
-					|| (ArbiterState.getArbiterState().isCreatingProject())){
-				servers.put(Server.DEFAULT_FLAG, new Server(Server.DEFAULT_SERVER_NAME, null, 
-						null, null, Server.DEFAULT_FLAG));
-			}
-		}
-	}
-	
 	public void setData(SparseArray<Server> data){
 		items = data;
-		
-		addDefaultServer(items);
 		
 		notifyDataSetChanged();
 	}
@@ -114,19 +97,15 @@ public class ServerListAdapter extends BaseAdapter implements ArbiterAdapter<Spa
 			ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteServer);
 			
 			if(deleteButton != null){
-				if(Server.isDefaultServer(server.getId())){
-					deleteButton.setEnabled(false);
-				}else{
-					deleteButton.setEnabled(true);
-					deleteButton.setOnClickListener(new OnClickListener(){
+				deleteButton.setEnabled(true);
+				deleteButton.setOnClickListener(new OnClickListener(){
 
-						@Override
-						public void onClick(View v) {
-							displayDeletionAlert(server);
-						}
-	            		
-	            	});
-				}
+					@Override
+					public void onClick(View v) {
+						displayDeletionAlert(server);
+					}
+            		
+            	});
             }
 		}
 		

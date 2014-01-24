@@ -1,13 +1,17 @@
-Arbiter.MediaDownloaderHelper = function(feature, schema,
-		_header, _url, _mediaDir){
+Arbiter.MediaDownloaderHelper = function(feature,
+		_schema, _header, _url, _mediaDir, 
+		_finishedMediaCount, _totalMediaCount,
+		_finishedFeatures, _totalFeatures,
+		_finishedLayers, _totalLayers){
 	
 	this.mediaDir = _mediaDir;
 	this.header = _header;
 	this.url = _url;
 	
 	this.failedMedia = null;
+	this.schema = _schema;
 	
-	var mediaAttribute = feature[schema.getMediaColumn()];
+	var mediaAttribute = feature[this.schema.getMediaColumn()];
 	
 	this.featureMedia = [];
 	this.index = -1;
@@ -15,6 +19,13 @@ Arbiter.MediaDownloaderHelper = function(feature, schema,
         this.featureMedia = JSON.parse(mediaAttribute);
     }
     
+    this.finishedMediaCount = _finishedMediaCount;
+    this.totalMediaCount = _totalMediaCount;
+    this.finishedFeatures = _finishedFeatures;
+    this.totalFeatures = _totalFeatures;
+    this.finishedLayers = _finishedLayers;
+    this.totalLayers = _totalLayers;
+    this.finishedMedia = 0;
     this.onDownloadComplete = null;
 };
 
@@ -30,6 +41,10 @@ Arbiter.MediaDownloaderHelper.prototype.pop = function(){
 Arbiter.MediaDownloaderHelper.prototype.startDownload = function(onSuccess){
 	
 	this.onDownloadComplete = onSuccess;
+	
+	if(this.featureMedia.length === 0){
+		this.updateProgressDialog(false);
+	}
 	
 	this.startDownloadingNext();
 };
@@ -59,9 +74,32 @@ Arbiter.MediaDownloaderHelper.prototype.startDownloadingNext = function(){
 	}else{
 		
 		if(Arbiter.Util.funcExists(this.onDownloadComplete)){
-			this.onDownloadComplete(this.failedMedia);
+			this.onDownloadComplete(this.finishedMediaCount, this.failedMedia);
 		}
 	}
+};
+
+Arbiter.MediaDownloaderHelper.prototype.updateProgressDialog = function(isMedia){
+	
+	// check if this is the last media file for the feature and increment the feature count if it is
+	if(!Arbiter.Util.existsAndNotNull(this.featureMedia[this.index + 1])){
+		this.finishedFeatures++;
+	}
+	
+	// check if this is the last feature and increment the layer count if it is
+	
+	if(this.finishedFeatures === this.totalFeatures){
+		this.finishedLayers++;
+	}
+	
+	if(isMedia === true){
+		this.finishedMediaCount++;
+	}
+	
+	Arbiter.Cordova.updateMediaDownloadingStatus(
+			this.schema.getFeatureType(), 
+			this.finishedMediaCount, this.totalMediaCount,
+			this.finishedLayers, this.totalLayers);
 };
 
 Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
@@ -69,16 +107,42 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
 	
 	var onFailure = function(error){
 		
+		context.updateProgressDialog(true);
+		
 		context.addToFailedMedia(media, error);
 		
 		context.startDownloadingNext();
+	};
+	
+	var onSuccess = function(){
+		
+		var key = media;
+		
+		var dataType = Arbiter.FailedSyncHelper.DATA_TYPES.MEDIA;
+		
+		var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.DOWNLOAD;
+		
+		context.updateProgressDialog(true);
+		
+		Arbiter.FailedSyncHelper.remove(key, dataType, syncType,
+				context.schema.getLayerId(), function(){
+			
+			context.startDownloadingNext();
+			
+		}, function(e){
+			
+			var msg = "Unable to remove " + key 
+				+ " from failed_sync - " + JSON.stringify(e);
+			
+			onFailure(msg);
+		});
 	};
 	
     //only download if we don't have it
     this.mediaDir.getFile(media, {create: false, exclusive: false},
         function(fileEntry) {
     		
-    		context.startDownloadingNext();
+    		onSuccess();
         }, function(error) {
         	if(error.code === FileError.NOT_FOUND_ERR){
         		
@@ -95,8 +159,6 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
                 	
                 	onFailure("Download timed out");
                 	
-                },function(){
-                	return isFinished;
                 });
                 
                 progressListener.watchProgress();
@@ -107,7 +169,9 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
                         
                         isFinished = true;
                         
-                        context.startDownloadingNext();
+                        progressListener.stopWatching();
+                        
+                        onSuccess();
                         
                     }, function(transferError) {
                         console.log("download error source " + transferError.source);
@@ -115,6 +179,8 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
                         console.log("download error code" + transferError.code);
                         
                         isFinished = true;
+                        
+                        progressListener.stopWatching();
                         
                         if(transferError.code !== FileTransferError.ABORT_ERR){
                         	onFailure(transferError);

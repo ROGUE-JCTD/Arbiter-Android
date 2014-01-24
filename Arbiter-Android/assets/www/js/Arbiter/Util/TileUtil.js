@@ -37,6 +37,7 @@ Arbiter.Util.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
 	
 	registerOnLayerAdded();
 	
+	this.maxCachingZoom = 19,
 	this.debug = false,
 	this.debugProgress = false,
 	this.cacheTilesTest1Couter = 0,
@@ -583,7 +584,14 @@ Arbiter.Util.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
 		var currentZoom = map.zoom;
 		
 		var count = 0;
-		for (var i=0; i < map.baseLayer.numZoomLevels; i++) {
+		
+		var zoom = map.baseLayer.numZoomLevels;
+		
+		if(zoom > this.maxCachingZoom){
+			zoom = this.maxCachingZoom;
+		}
+		
+		for (var i=0; i < zoom; i++) {
 			count += TileUtil.queueCacheRequestsForZoom(map.baseLayer, bounds, i, onlyCountTile);
 		}
 	

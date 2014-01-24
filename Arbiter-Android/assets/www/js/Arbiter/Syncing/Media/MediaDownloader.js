@@ -4,7 +4,6 @@ Arbiter.MediaDownloader = function(_featureDb, _schema, _server,
 	this.db = _featureDb;
 	this.schema = _schema;
 	
-	console.log("media downloader layerId = " + this.schema.getLayerId());
 	this.server = _server;
 	this.mediaDir = _mediaDir;
 	

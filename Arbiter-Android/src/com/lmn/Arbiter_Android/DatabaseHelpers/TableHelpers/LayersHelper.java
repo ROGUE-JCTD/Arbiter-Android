@@ -193,6 +193,8 @@ public class LayersHelper implements BaseColumns{
 			
 			FailedSync.getHelper().remove(projectDb, layer.getLayerId());
 			
+			FailedSync.getHelper().removeFromMediaToSend(context, projectDb, layer.getLayerId());
+			
 			// If the geometryColumn row was successfully removed,
 			// then remove the layer from the layers table and call
 			// the onLayerDeleted method of the mapChangeListener

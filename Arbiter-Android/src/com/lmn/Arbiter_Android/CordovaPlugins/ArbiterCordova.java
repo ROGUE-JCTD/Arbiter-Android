@@ -146,7 +146,7 @@ public class ArbiterCordova extends CordovaPlugin{
 			
 			return true;
 		}else if("updateMediaUploadingStatus".equals(action)){
-			Log.w("TAG","updateMediaUploadingStatus");
+			
 			String featureType = args.getString(0);
 			int finishedMediaCount = args.getInt(1);
 			int totalMediaCount = args.getInt(2);
@@ -158,7 +158,6 @@ public class ArbiterCordova extends CordovaPlugin{
 			
 			return true;
 		}else if("updateMediaDownloadingStatus".equals(action)){
-			Log.w("TAG",TAG + "- updateMediaDownloadingStatus");
 			
 			try{
 				String featureType = args.getString(0);
@@ -365,12 +364,6 @@ public class ArbiterCordova extends CordovaPlugin{
 			int totalMediaCount, int finishedLayersCount, int totalLayersCount){
 		
 		boolean shouldBeDismissed = false;
-		
-		Log.w(TAG, TAG + "shouldBeDismissed - finishedMediaCount = " 
-				+ finishedMediaCount + ", totalMediaCount = " 
-				+ totalMediaCount + ", finishedLayersCount = "
-				+ finishedLayersCount + ", totalLayersCount = "
-				+ totalLayersCount);
 		
 		if(finishedMediaCount == totalMediaCount 
 				&& finishedLayersCount == totalLayersCount){

@@ -51,13 +51,11 @@ Arbiter.VectorSync.prototype.setSpecificSchemas = function(_schemas){
 };
 
 Arbiter.VectorSync.prototype.onUploadComplete = function(){
-	console.log("Vector data has finished uploading");
 	
 	this.startDownload();
 };
 
 Arbiter.VectorSync.prototype.onDownloadComplete = function(){
-	console.log("Vector data has finished downloading");
 	
 	if(Arbiter.Util.funcExists(this.onSuccess)){
 		this.onSuccess(this.failedToUpload,
@@ -198,8 +196,6 @@ Arbiter.VectorSync.prototype.startNextDownload = function(){
 				callback();
 			});
 		}, function(featureType){
-			
-			console.log("vectorDownloader failure");
 			
 			context.putFailedDownload(featureType)
 			callback();

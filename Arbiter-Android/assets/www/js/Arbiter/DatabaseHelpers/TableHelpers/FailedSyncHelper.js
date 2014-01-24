@@ -87,7 +87,7 @@ Arbiter.FailedSyncHelper = (function(){
 			
 			db.transaction(function(tx){
 				
-				var sql = "INSERT INTO " + TABLE_NAME 
+				var sql = "INSERT OR REPLACE INTO " + TABLE_NAME 
 					+ "(" + context.KEY + "," 
 					+ context.DATA_TYPE + ","
 					+ context.SYNC_TYPE + "," 

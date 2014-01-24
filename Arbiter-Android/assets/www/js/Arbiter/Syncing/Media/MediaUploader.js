@@ -1,10 +1,9 @@
 Arbiter.MediaUploader = function(_schema, _mediaToSend, _server, _mediaDir, _finishedLayerCount, _totalLayerCount){
-	console.log("media uploader");
+	
 	this.schema = _schema;
 	this.mediaToSend = _mediaToSend;
 	this.media = this.mediaToSend[this.schema.getLayerId()];
 	
-	console.log("this.media = " + JSON.stringify(this.media));
 	this.server = _server;
 	this.mediaDir = _mediaDir;
 	this.failedMedia = null;
@@ -44,8 +43,6 @@ Arbiter.MediaUploader.prototype.startUpload = function(onSuccess){
 	
 	this.totalMediaCount = mediaUploadCounter.getCount();
 	
-	console.log("total media upload count = " + this.totalMediaCount);
-	
 	if(this.totalMediaCount === 0){
 		
 		if(Arbiter.Util.funcExists(this.onUploadSuccess)){
@@ -62,10 +59,10 @@ Arbiter.MediaUploader.prototype.startUploadingNext = function(){
 	var next = this.pop();
 	
 	if(next !== undefined){
-		console.log("its not undefined!");
+		
 		this.uploadNext(next);
 	}else{
-		console.log("its undefined!");
+		
 		if(Arbiter.Util.funcExists(this.onUploadSuccess)){
 			this.onUploadSuccess(this.failedMedia);
 		}

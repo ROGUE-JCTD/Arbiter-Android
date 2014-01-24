@@ -130,7 +130,7 @@ public class FailedSyncDialog extends DialogFragment {
 		TextView errorsMediaDownload = (TextView) view.findViewById(R.id.media_download_errors);
 		TextView errorsMediaDownloadLabel = (TextView) view.findViewById(R.id.media_download_errors_label);
 	
-		if(this.failedVectorUploads != null && this.failedVectorUploads.length > 0){
+		if(this.isFailed(this.failedVectorUploads)){
 			
 			failed = buildErrorString(failedVectorUploads);
 			
@@ -140,7 +140,7 @@ public class FailedSyncDialog extends DialogFragment {
 			errorsVectorUploadLabel.setVisibility(View.GONE);
 		}
 		
-		if(this.failedVectorDownloads != null && this.failedVectorDownloads.length > 0){
+		if(this.isFailed(this.failedVectorDownloads)){
 			failed = buildErrorString(failedVectorDownloads);
 			
 			errorsVectorDownload.setText(failed);
@@ -149,7 +149,7 @@ public class FailedSyncDialog extends DialogFragment {
 			errorsVectorDownloadLabel.setVisibility(View.GONE);
 		}
 		
-		if(this.failedMediaUploads != null && this.failedMediaUploads.length() > 0){
+		if(this.isFailedMediaUploads(this.failedMediaUploads)){
 			failed = buildErrorString(failedMediaUploads);
 			
 			errorsMediaUpload.setText(failed);
@@ -158,7 +158,7 @@ public class FailedSyncDialog extends DialogFragment {
 			errorsMediaUploadLabel.setVisibility(View.GONE);
 		}
 
-		if(this.failedMediaDownloads != null && this.failedMediaDownloads.length > 0){
+		if(this.isFailed(this.failedMediaDownloads)){
 			failed = buildErrorString(failedMediaDownloads);
 			
 			errorsMediaDownload.setText(failed);
@@ -209,5 +209,44 @@ public class FailedSyncDialog extends DialogFragment {
 		}
 		
 		return results;
+	}
+	
+	public boolean isFailedMediaUploads(JSONObject failed){
+		
+		if(failed == null){
+			return false;
+		}
+		
+		Iterator<?> keys = failed.keys();
+		
+		JSONArray jsonArray = null;
+		
+		String key = null;
+		
+		try{
+			
+			while(keys.hasNext()){
+				
+				key = (String) keys.next();
+				
+				jsonArray = failed.getJSONArray(key);
+				
+				if(jsonArray.length() > 0){
+					return true;
+				}
+			}
+		}catch(JSONException e){
+			e.printStackTrace();
+		}
+		
+		return false;
+	}
+	
+	public boolean isFailed(String[] failed){
+		if(failed != null && failed.length > 0){
+			return true;
+		}
+		
+		return false;
 	}
 }

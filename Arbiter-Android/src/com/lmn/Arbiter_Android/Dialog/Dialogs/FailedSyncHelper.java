@@ -1,6 +1,9 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
+import java.util.Iterator;
+
 import org.apache.cordova.CordovaInterface;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -54,37 +57,22 @@ public class FailedSyncHelper {
 				
 				final String[] failedMediaDownloads = getFailedMediaDownloads();
 				
+				final FailedSyncDialog dialog = FailedSyncDialog.newInstance(failedVectorUploads, failedVectorDownloads,
+						failedMediaUploads, failedMediaDownloads);
+				
+				final boolean isFailedVectorUploads = dialog.isFailed(failedVectorUploads);
+				final boolean isFailedVectorDownloads = dialog.isFailed(failedVectorDownloads);
+				final boolean isFailedMediaUploads = dialog.isFailedMediaUploads(failedMediaUploads);
+				final boolean isFailedMediaDownloads = dialog.isFailed(failedMediaDownloads);
+				
 				activity.runOnUiThread(new Runnable(){
 					@Override
 					public void run(){
 						
-						if(failedVectorUploads != null){
-							Log.w("FailedSyncHelper", "FailedSyncHelper failedVectorUploadsLength = " + failedVectorUploads.length);
-						}
-						
-						if(failedMediaUploads != null){
-							Log.w("FailedSyncHelper", "FailedSyncHelper failedMediaUploadsLength = " + failedMediaUploads.length());
-						}
-						
-						if(failedVectorDownloads != null){
-							Log.w("FailedSyncHelper", "FailedSyncHelper failedVectorDownloadsLength = " + failedVectorDownloads.length);
-						}
-						
-						if(failedMediaDownloads != null){
-							
-							Log.w("FailedSyncHelper", "FailedSyncHelper failedMediaDownloadsLength = " + failedMediaDownloads.length);
-						}
-						
-						if(isFailed(failedVectorUploads) || isFailed(failedVectorDownloads)
-								|| isFailed(failedMediaUploads) || isFailed(failedMediaDownloads)){
-							
-							Log.w("FailedSyncHelper", "there some failed data!");
-							FailedSyncDialog dialog = FailedSyncDialog.newInstance(failedVectorUploads, failedVectorDownloads,
-									failedMediaUploads, failedMediaDownloads);
+						if(isFailedVectorUploads || isFailedVectorDownloads
+								|| isFailedMediaUploads || isFailedMediaDownloads){
 							
 							dialog.show(activity.getSupportFragmentManager(), FailedSyncDialog.TAG);
-						}else{
-							Log.w("FailedSyncHelper", "no failed sync data");
 						}
 						
 						dismiss();
@@ -99,23 +87,6 @@ public class FailedSyncHelper {
 			checkForFailedSync.dismiss();
 			checkForFailedSync = null;
 		}
-	}
-	
-	private boolean isFailed(String[] failed){
-		if(failed != null && failed.length > 0){
-			return true;
-		}
-		
-		return false;
-	}
-	
-	private boolean isFailed(JSONObject failed){
-		
-		if(failed != null && failed.length() > 0){
-			return true;
-		}
-		
-		return false;
 	}
 	
 	private String[] getFailedVectorUploads(){

@@ -1,12 +1,15 @@
 package com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.MediaSyncHelper;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
-import android.util.Log;
 
 public class FailedSync implements BaseColumns{
 	public static final String TABLE_NAME = "failed_sync";
@@ -47,7 +50,9 @@ public class FailedSync implements BaseColumns{
 					KEY + " TEXT, " +
 					DATA_TYPE + " INTEGER, " +
 					SYNC_TYPE + " INTEGER, " + 
-					LAYER_ID + " INTEGER);";
+					LAYER_ID + " INTEGER, " + 
+					"UNIQUE(" + KEY + "," + DATA_TYPE 
+					+ "," + SYNC_TYPE + "," + LAYER_ID + "));";
 		
 		db.execSQL(sql);
 	}
@@ -75,12 +80,31 @@ public class FailedSync implements BaseColumns{
 	
 	public void removeFromMediaToSend(Context context, SQLiteDatabase db, int layerId){
 		
-		//PreferencesHelper.getHelper().get(db, context, MediaH);
+		String mediaToSendStr = PreferencesHelper.getHelper().get(db, context, MediaSyncHelper.MEDIA_TO_SEND);
+		
+		JSONObject mediaToSend = null;
+		
+		try {
+			mediaToSend = new JSONObject(mediaToSendStr);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(mediaToSend == null){
+			return;
+		}
+		
+		mediaToSend.remove(Integer.toString(layerId));
+		
+		mediaToSendStr = mediaToSend.toString();
+		
+		PreferencesHelper.getHelper().put(db, context,
+				MediaSyncHelper.MEDIA_TO_SEND, mediaToSendStr);
 	}
 	
 	private String getFeatureType(SQLiteDatabase db, int layerId){
 		
-		Log.w("FailedSync", "FailedSync layerId = " + layerId);
 		Layer layer = LayersHelper.getLayersHelper().get(db, layerId);
 		String featureType = null;
 		

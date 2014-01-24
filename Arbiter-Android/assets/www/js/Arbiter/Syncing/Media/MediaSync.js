@@ -36,7 +36,6 @@ Arbiter.MediaSync.prototype.startSync = function(onSuccess, onFailure, downloadO
 		
 	if(downloadOnly === true || downloadOnly === "true"){
 		
-		console.log("media sync download only");
 		context.startDownloadForNext();
 	}else{
 		
@@ -67,8 +66,6 @@ Arbiter.MediaSync.prototype.onDownloadComplete = function(){
 
 Arbiter.MediaSync.prototype.startUploadForNext = function(){
 	var context = this;
-	
-	console.log("getting next to upload");
 	
 	var layer = this.pop();
 	
@@ -175,7 +172,6 @@ Arbiter.MediaSync.prototype.downloadMedia = function(layer){
 	var layerId = layer[Arbiter.LayersHelper.layerId()];
 	var serverId = layer[Arbiter.LayersHelper.serverId()];
 
-	console.log("download media layerId : " + layerId);
 	var schema = this.layerSchemas[layerId];
 	
 	var server = Arbiter.Util.Servers.getServer(serverId);

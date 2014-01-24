@@ -37,7 +37,7 @@
 	<string name="update_feature_msg">Actualizar este elemento?</string>
 	<string name="updating">Actualización</string>
 	<string name="updating_msg">Actualización en curso&#8230;</string>
-	<string name="insert_feature_title">Seleccionar capa para insertar en.</string>
+	<string name="insert_feature_title">Seleccionar capa para insertar.</string>
 	<string name="insert_layer_title">Inserción en:</string>
 	<string name="insert_layer_text">Capa</string>
 	<string name="insert_feature_warning">Insertar el elemento</string>
@@ -50,7 +50,7 @@
 	<string name="error_syncing">Error</string>
 	<string name="error_syncing_msg">Incapaz de sincronizar</string>
 	<string name="project_incomplete_msg">Proyecto no está disponible sin conexión. \n \nPor favor, seleccione un área de interés.</string>
-	<string name="click_me">( Me clic )</string>
+	<string name="click_me">( Clic Aqui )</string>
 	<string name="media">fotos</string>
 	<string name="take_picture">Tomar la foto</string>
 	<string name="initializing">Inicializar</string>
@@ -104,8 +104,8 @@
     <string name="layers_dialog_title">Capas</string>
     <string name="add_layers_button">Añadir capas</string>
     <string name="action_add_layers">Añadir capas</string>
-    <string name="layer_visibility_off">Apagado</string>
-    <string name="layer_visibility_on">encender</string>
+    <string name="layer_visibility_off">Off</string>
+    <string name="layer_visibility_on">On</string>
     <string name="remove_layer">Eliminar la capa</string>
 
     <!-- LAYER INFO DIALOG STRINGS -->

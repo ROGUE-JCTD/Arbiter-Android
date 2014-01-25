@@ -137,8 +137,19 @@ Arbiter.MediaSync.prototype.uploadMedia = function(layer){
 	
 	var server = Arbiter.Util.Servers.getServer(serverId);
 	
+	var schema = this.layerSchemas[layerId];
+	
+	if(schema.isEditable() === false){
+	
+		++this.finishedLayersUploading;
+		
+		this.startUploadForNext();
+		
+		return;
+	}
+	
 	var mediaUploader = new Arbiter.MediaUploader(
-			this.layerSchemas[layerId], this.mediaToSend,
+			schema, this.mediaToSend,
 			server, context.mediaDir,
 			this.finishedLayersUploading, this.totalLayers);
 	
@@ -177,6 +188,15 @@ Arbiter.MediaSync.prototype.downloadMedia = function(layer){
 	var server = Arbiter.Util.Servers.getServer(serverId);
 	
 	var featureDb = Arbiter.FeatureDbHelper.getFeatureDatabase();
+	
+	if(schema.isEditable() === false){
+		
+		++this.finishedLayersDownloading;
+		
+		this.startDownloadForNext();
+		
+		return;
+	}
 	
 	var mediaDownloader = new Arbiter.MediaDownloader(featureDb,
 			schema, server, this.mediaDir,

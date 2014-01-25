@@ -35,6 +35,15 @@ Arbiter.VectorUploader.prototype.onSaveFailure = function(layer){
 
 Arbiter.VectorUploader.prototype.upload = function(){
 	
+	if(this.schema.isEditable() === false){
+		
+		if(Arbiter.Util.funcExists(this.onSuccess)){
+			this.onSuccess();
+		}
+		
+		return;
+	}
+	
 	if(this.layer.metadata === null || this.layer.metadata === undefined){
 		this.layer.metadata = {};
 	}

@@ -352,11 +352,12 @@ Arbiter.FeatureTableHelper = (function(){
     				var color = layer[helper.color()];
     				
     				var layerId = layer[helper.layerId()];
+    				var featureType = layer[helper.featureType()];
     				
-    				console.log("creating layerschema layerid = " + layerId);
+    				console.log("creating layerschema layerid = " + layerId + " featureType = " + featureType);
     				
     				var schema = new Arbiter.Util.LayerSchema(layerId, url, layer[helper.workspace()],
-    						layer[helper.featureType()], layer[helper.layerVisibility()], serverId, color);
+    						featureType, layer[helper.layerVisibility()], serverId, color);
     				Arbiter.putLayerSchema(layerId, schema);
     				
     				incrementLoadedCount();

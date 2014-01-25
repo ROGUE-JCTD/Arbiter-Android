@@ -2,6 +2,8 @@ Arbiter.Layers.WMSLayer = (function(){
 	
 	return {
 		create: function(key, schema){
+			
+			console.log("create wmsLayer for: " + schema.getPrefix() + ":" + schema.getFeatureType());
 			var layer = new OpenLayers.Layer.WMS(Arbiter.Layers.getLayerName(
 					key, Arbiter.Layers.type.WMS),
 					schema.getUrl() + "/wms", {

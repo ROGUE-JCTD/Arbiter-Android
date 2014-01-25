@@ -30,6 +30,15 @@ Arbiter.VectorDownloader.prototype.download = function(){
 	
 	var context = this;
 	
+	if(this.schema.isEditable() === false){
+		
+		if(Arbiter.Util.funcExists(context.onSuccess)){
+			this.onSuccess();
+		}
+		
+		return;
+	}
+	
 	// Download the latest given the project aoi
 	Arbiter.Util.Feature.downloadFeatures(this.schema, this.bounds,
 			this.credentials, function(schema, features){
@@ -61,15 +70,19 @@ Arbiter.VectorDownloader.prototype.onDownloadSuccess = function(features){
 			
 			var storeMediaForSchema = new Arbiter.StoreFeaturesMediaToDownload(
 					context.schema, features, function(failedToStore){
-						
-				context.onSuccess();
+					
+				if(Arbiter.Util.funcExists(context.onSuccess)){
+					context.onSuccess();
+				}
 				
 			}, function(e){
 				
 				//TODO: handle error
 				console.log("VectorDownloader download error - " + JSON.stringify(e));
 				
-				context.onSuccess();
+				if(Arbiter.Util.funcExists(context.onSuccess)){
+					context.onSuccess();
+				}
 			});
 			
 			storeMediaForSchema.startStoring();

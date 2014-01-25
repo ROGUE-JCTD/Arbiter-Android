@@ -198,7 +198,7 @@ public class LayersHelper implements BaseColumns{
 			// If the geometryColumn row was successfully removed,
 			// then remove the layer from the layers table and call
 			// the onLayerDeleted method of the mapChangeListener
-			if(affected != 0){
+		//	if(affected != 0){
 				String whereClause = _ID + "=?";
 				String[] whereArgs = {
 					Long.toString(layer.getLayerId())
@@ -209,7 +209,7 @@ public class LayersHelper implements BaseColumns{
 				projectDb.setTransactionSuccessful();
 				
 				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
-			}
+		//	}
 		} catch (Exception e){
 			e.printStackTrace();
 		} finally {

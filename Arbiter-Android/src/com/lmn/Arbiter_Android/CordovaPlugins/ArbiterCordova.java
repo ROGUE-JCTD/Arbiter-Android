@@ -188,15 +188,6 @@ public class ArbiterCordova extends CordovaPlugin{
 		}else if("dismissDownloadingSchemasProgress".equals(action)){
 			
 			return true;
-		}else if("showErrorsSyncing".equals(action)){
-			JSONArray failedVectorUploads = args.getJSONArray(0);
-			JSONArray failedVectorDownloads = args.getJSONArray(1);
-			JSONObject failedMediaUploads = args.getJSONObject(2);
-			JSONObject failedMediaDownloads = args.getJSONObject(3);
-			
-		//	showErrorsSyncing(failedVectorUploads);
-			
-			return true;
 		}
 		
 		// Returning false results in a "MethodNotFound" error.

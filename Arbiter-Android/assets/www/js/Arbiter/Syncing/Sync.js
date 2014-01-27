@@ -24,6 +24,8 @@ Arbiter.Sync = function(_map, _cacheTiles, _bounds,
 	
 	this.layers = null;
 	this.schemas = null;
+	
+	this.syncInProgress = false;
 };
 
 // ol layers
@@ -42,18 +44,7 @@ Arbiter.Sync.prototype.onSyncCompleted = function(){
 	
 	console.log("Arbiter.Sync completed");
 	
-	if(Arbiter.Util.existsAndNotNull(this.failedVectorUploads)
-			&& Arbiter.Util.existsAndNotNull(this.failedVectorDownloads) 
-			&& Arbiter.Util.existsAndNotNull(this.failedMediaUploads) 
-			&& Arbiter.Util.existsAndNotNull(this.failedMediaDownloads)){
-	
-		Arbiter.Cordova.showSyncingErrors(
-			this.failedVectorUploads,
-			this.failedVectorDownloads,
-			this.failedMediaUploads,
-			this.failedMediaDownloads
-		);
-	}
+	this.syncInProgress = false;
 	
 	if(Arbiter.Util.funcExists(this.onSuccess)){
 		this.onSuccess();
@@ -141,6 +132,15 @@ Arbiter.Sync.prototype.initialize = function(onSuccess, onFailure){
 	});
 };
 Arbiter.Sync.prototype.sync = function(){
+	
+	if(this.syncInProgress === true){
+		
+		console.log("Sync is already underway!");
+		
+		return;
+	}
+	
+	this.syncInProgress = true;
 	
 	var context = this;
 	

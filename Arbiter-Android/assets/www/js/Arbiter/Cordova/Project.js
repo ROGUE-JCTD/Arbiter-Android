@@ -1,6 +1,8 @@
 Arbiter.Cordova.Project = (function(){
 	var describeFeatureTypeReader = new OpenLayers.Format.WFSDescribeFeatureType();
 	
+	var syncInProgress = false;
+	
 	var minimumFindMeZoom = 18;
 	
 	var getSchemaHelper = function(specificSchemas, layerId){
@@ -264,6 +266,14 @@ Arbiter.Cordova.Project = (function(){
 		
 		sync: function(_cacheTiles, _downloadOnly, _specificSchemas, onSuccess, onFailure){
 			console.log("sync");
+			
+			if(syncInProgress === true){
+				
+				console.log("sync is already in progress!");
+				
+				return;
+			}
+			
 			var map = Arbiter.Map.getMap();
 			var cacheTiles = _cacheTiles;
 			var downloadOnly = _downloadOnly;
@@ -295,6 +305,8 @@ Arbiter.Cordova.Project = (function(){
 						var syncHelper = new Arbiter.Sync(map, cacheTiles,
 								bounds, downloadOnly, function(){
 							
+							syncInProgress = false;
+							
 							if(Arbiter.Util.funcExists(onSuccess)){
 								onSuccess();
 							}else{
@@ -303,6 +315,8 @@ Arbiter.Cordova.Project = (function(){
 						}, function(e){
 							
 							console.log("sync failed", e);
+							
+							syncInProgress = false;
 							
 							if(Arbiter.Util.funcExists(onFailure)){
 								onFailure(e);
@@ -315,6 +329,8 @@ Arbiter.Cordova.Project = (function(){
 							
 							syncHelper.setSpecificSchemas(specificSchemas);
 						}
+						
+						syncInProgress = true;
 						
 						syncHelper.sync();
 					}

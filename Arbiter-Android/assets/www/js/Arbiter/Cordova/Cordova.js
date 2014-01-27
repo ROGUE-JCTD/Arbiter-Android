@@ -223,6 +223,7 @@ Arbiter.Cordova = (function() {
 		syncCompleted: function(){
 			console.log("syncCompleted");
 			cordova.exec(function(){
+				
 				Arbiter.Cordova.resetWebApp();
 				
 				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.NEUTRAL);
@@ -291,20 +292,6 @@ Arbiter.Cordova = (function() {
 			
 			cordova.exec(null, null, "ArbiterCordova",
 					"dismissDownloadingSchemasProgress", []);
-		},
-		
-		showErrorsSyncing: function(failedVectorUploads, failedVectorDownloads,
-				failedMediaUploads, failedMediaDownloads){
-			
-			console.log(
-					"\nshowErrosSyncing: failedVectorUploads = " + JSON.stringify(failedVectorUploads) 
-					+ "\n, failedVectorDownloads = " + JSON.stringify(failedVectorDownloads) 
-					+ "\n, failedMediaUploads = " + JSON.stringify(failedMediaUploads)
-					+ "\n, failedMediaDownloads = " + JSON.stringify(failedMediaDownloads) + "\n\n"
-			);
-			
-			cordova.exec(null, null, "ArbiterCordova",
-					"showErrorsSyncing", arguments);
 		}
 	};
 })();

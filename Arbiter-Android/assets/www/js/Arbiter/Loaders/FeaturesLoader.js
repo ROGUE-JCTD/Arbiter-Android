@@ -36,10 +36,9 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 			attributeType = attributes[i].getType();
 			attributeValue = dbFeature[attributeName];
 			
-			if(attributeType !== "string" && 
-					(attributeValue === "" 
+			if(attributeValue === "" 
 						|| attributeValue === null 
-						|| attributeValue === undefined)){
+						|| attributeValue === undefined){
 				
 				olFeature[attributeName] = null;
 			}else{

@@ -9,7 +9,6 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -26,6 +25,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FailedSyncHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
+import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.Media.HandleZeroByteFiles;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
@@ -36,28 +36,9 @@ public class ArbiterCordova extends CordovaPlugin{
 	public static final String mainUrl = "file:///android_asset/www/main.html";
 	public static final String aoiUrl = "file:///android_asset/www/aoi.html";
 	
-	private ProgressDialog mediaUploadProgressDialog;
-	private ProgressDialog mediaDownloadProgressDialog;
-	
-	private ProgressDialog vectorUploadProgressDialog;
-	private ProgressDialog vectorDownloadProgressDialog;
-	
-	private ProgressDialog downloadingSchemasProgressDialog;
-	
-	private ProgressDialog tileCachingProgressDialog;
-	
 	public ArbiterCordova(){
 		super();
 		this.arbiterProject = ArbiterProject.getArbiterProject();
-		this.mediaUploadProgressDialog = null;
-		this.mediaDownloadProgressDialog = null;
-		
-		this.vectorUploadProgressDialog = null;
-		this.vectorDownloadProgressDialog = null;
-		
-		this.downloadingSchemasProgressDialog = null;
-		
-		this.tileCachingProgressDialog = null;
 	}
 	
 	public class MediaSyncingTypes {
@@ -206,8 +187,6 @@ public class ArbiterCordova extends CordovaPlugin{
 			return true;
 		}else if("dismissDownloadingSchemasProgress".equals(action)){
 			
-			dismissDownloadingSchemasProgress();
-			
 			return true;
 		}else if("showErrorsSyncing".equals(action)){
 			JSONArray failedVectorUploads = args.getJSONArray(0);
@@ -225,55 +204,20 @@ public class ArbiterCordova extends CordovaPlugin{
 	}
 	
 	private void showDownloadingSchemasProgress(final String count){
+		final Activity activity = cordova.getActivity();
+		String title = activity.getResources().getString(R.string.downloading_schemas);
+		String message = activity.getResources().getString(R.string.downloaded);
+		message += "\t0\t/\t" + count;
 		
-		if(downloadingSchemasProgressDialog == null){
-			final Activity activity = cordova.getActivity();
-			
-			activity.runOnUiThread(new Runnable(){
-				@Override
-				public void run(){
-					String title = activity.getResources().getString(R.string.downloading_schemas);
-					String message = activity.getResources().getString(R.string.downloaded);
-					
-					message += "\t0\t/\t" + count;
-					
-					downloadingSchemasProgressDialog = ProgressDialog.show(cordova.getActivity(), title, message, true);
-				}
-			});
-		}
+		SyncProgressDialog.setTitleAndMessage(activity, title, message);
 	}
 	
 	private void updateDownloadingSchemasProgress(final String finished, final String total){
+		final Activity activity = cordova.getActivity();
+		String message = activity.getResources().getString(R.string.downloaded);	
+		message += "\t" + finished + "\t/\t" + total;
 		
-		if(downloadingSchemasProgressDialog != null){
-			final Activity activity = cordova.getActivity();
-			
-			activity.runOnUiThread(new Runnable(){
-				@Override
-				public void run(){
-					String message = activity.getResources().getString(R.string.downloaded);
-					
-					message += "\t" + finished + "\t/\t" + total;
-					
-					downloadingSchemasProgressDialog.setMessage(message);
-				}
-			});
-		}
-	}
-
-	private void dismissDownloadingSchemasProgress(){
-		if(downloadingSchemasProgressDialog != null){
-			final Activity activity = cordova.getActivity();
-			
-			activity.runOnUiThread(new Runnable(){
-				@Override
-				public void run(){
-					
-					downloadingSchemasProgressDialog.dismiss();
-					downloadingSchemasProgressDialog = null;
-				}
-			});
-		}
+		SyncProgressDialog.setMessage(activity, message);
 	}
 	
 	private boolean dismissVectorProgress(int finishedCount, int totalCount){
@@ -281,82 +225,38 @@ public class ArbiterCordova extends CordovaPlugin{
 	}
 	
 	private void updateUploadingVectorDataProgress(final int finished, final int total){
+		final Activity activity = cordova.getActivity();
 		
-		if(vectorUploadProgressDialog != null){
-			final Activity activity = cordova.getActivity();
+		final boolean shouldDismissProgress = dismissVectorProgress(finished, total);
+				
+		if(!shouldDismissProgress){
 			
-			final boolean shouldDismissProgress = dismissVectorProgress(finished, total);
+			String title = activity.getResources().
+					getString(R.string.syncing_vector_data);
 			
-			activity.runOnUiThread(new Runnable(){
-				@Override
-				public void run(){
-					
-					if(shouldDismissProgress){
-						
-						if(vectorUploadProgressDialog != null){
-							vectorUploadProgressDialog.dismiss();
-							vectorUploadProgressDialog = null;
-						}
-					}else{
-						
-						String title = activity.getResources().
-								getString(R.string.syncing_vector_data);
-						
-						String message = activity.getResources().getString(R.string.uploaded);
-						
-						message += "\t" + finished + "\t/\t" + total;
-						
-						if(vectorUploadProgressDialog != null){
-							
-							vectorUploadProgressDialog.setMessage(message);
-						}else{
-							
-							vectorUploadProgressDialog = ProgressDialog
-									.show(activity, title, message, true);
-						}
-					}
-				}
-			});
+			String message = activity.getResources().getString(R.string.uploaded);
+			
+			message += "\t" + finished + "\t/\t" + total;
+			
+			SyncProgressDialog.setTitleAndMessage(activity, title, message);
 		}
 	}
 	
 	private void updateDownloadingVectorDataProgress(final int finished, final int total){
+		final Activity activity = cordova.getActivity();
 		
-		if(vectorDownloadProgressDialog != null){
-			final Activity activity = cordova.getActivity();
+		final boolean shouldDismissProgress = dismissVectorProgress(finished, total);
+
+		if(!shouldDismissProgress){
 			
-			final boolean shouldDismissProgress = dismissVectorProgress(finished, total);
+			String title = activity.getResources().
+					getString(R.string.syncing_vector_data);
 			
-			activity.runOnUiThread(new Runnable(){
-				@Override
-				public void run(){
-					
-					if(shouldDismissProgress){
-						
-						if(vectorDownloadProgressDialog != null){
-							vectorDownloadProgressDialog.dismiss();
-							vectorDownloadProgressDialog = null;
-						}
-					}else{
-						
-						String title = activity.getResources().
-								getString(R.string.syncing_vector_data);
-						
-						String message = activity.getResources().getString(R.string.downloaded);
-						
-						message += "\t" + finished + "\t/\t" + total;
-						
-						if(vectorDownloadProgressDialog != null){
-							
-							vectorDownloadProgressDialog.setMessage(message);
-						}else{
-							
-							vectorDownloadProgressDialog = ProgressDialog
-									.show(activity, title, message, true);
-						}
-					}
-				}
-			});
+			String message = activity.getResources().getString(R.string.downloaded);
+			
+			message += "\t" + finished + "\t/\t" + total;
+			
+			SyncProgressDialog.setTitleAndMessage(activity, title, message);
 		}
 	}
 	
@@ -367,7 +267,6 @@ public class ArbiterCordova extends CordovaPlugin{
 		
 		if(finishedMediaCount == totalMediaCount 
 				&& finishedLayersCount == totalLayersCount){
-			
 			shouldBeDismissed = true;
 		}
 		
@@ -384,34 +283,17 @@ public class ArbiterCordova extends CordovaPlugin{
 				finishedMediaCount, totalMediaCount,
 				finishedLayersUploading, totalLayers);
 		
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				
-				if(shouldBeDismissed){
-					
-					if(mediaUploadProgressDialog != null){
-						mediaUploadProgressDialog.dismiss();
-						mediaUploadProgressDialog = null;
-					}
-				}else{
-				
-					String title = activity.getResources().getString(R.string.syncing_media_title);
-					
-					String message = featureType + "\n\n\t";
-					
-					message += activity.getResources().getString(R.string.uploaded);
-					
-					message += "\t" + finishedMediaCount + "\t/\t" + totalMediaCount;
-					
-					if(mediaUploadProgressDialog != null){
-						mediaUploadProgressDialog.setMessage(message);
-					}else{
-						mediaUploadProgressDialog = ProgressDialog.show(activity, title, message, true);
-					}
-				}
-			}
-		});
+		if(!shouldBeDismissed){
+			String title = activity.getResources().getString(R.string.syncing_media_title);
+			
+			String message = featureType + "\n\n\t";
+			
+			message += activity.getResources().getString(R.string.uploaded);
+			
+			message += "\t" + finishedMediaCount + "\t/\t" + totalMediaCount;
+			
+			SyncProgressDialog.setTitleAndMessage(activity, title, message);
+		}
 	}
 	
 	
@@ -425,34 +307,17 @@ public class ArbiterCordova extends CordovaPlugin{
 				finishedMediaCount, totalMediaCount,
 				finishedLayersUploading, totalLayers);
 		
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				
-				if(shouldBeDismissed){
-					
-					if(mediaDownloadProgressDialog != null){
-						mediaDownloadProgressDialog.dismiss();
-						mediaDownloadProgressDialog = null;
-					}
-				}else{
-				
-					String title = activity.getResources().getString(R.string.syncing_media_title);
-					
-					String message = featureType + "\n\n\t";
-					
-					message += activity.getResources().getString(R.string.downloaded);
-					
-					message += "\t" + finishedMediaCount + "\t/\t" + totalMediaCount;
-					
-					if(mediaDownloadProgressDialog != null){
-						mediaDownloadProgressDialog.setMessage(message);
-					}else{
-						mediaDownloadProgressDialog = ProgressDialog.show(activity, title, message, true);
-					}
-				}
-			}
-		});
+		if(!shouldBeDismissed){
+			String title = activity.getResources().getString(R.string.syncing_media_title);
+			
+			String message = featureType + "\n\n\t";
+			
+			message += activity.getResources().getString(R.string.downloaded);
+			
+			message += "\t" + finishedMediaCount + "\t/\t" + totalMediaCount;
+			
+			SyncProgressDialog.setTitleAndMessage(activity, title, message);
+		}
 	}
 	
 	private void addMediaToFeature(String key, String media, String newMedia){
@@ -468,25 +333,13 @@ public class ArbiterCordova extends CordovaPlugin{
 		final Activity activity = cordova.getActivity();
 		
 		final String title = activity.getResources().getString(R.string.downloading_tiles);
+				
+		String message = activity.getResources()
+				.getString(R.string.downloaded);
 		
-		cordova.getActivity().runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				
-				String message = activity.getResources()
-						.getString(R.string.downloaded);
-				
-				message += "\t" + percentComplete + "\t/\t" + "100%";
-				
-				if(tileCachingProgressDialog != null){
-					
-					tileCachingProgressDialog.setMessage(message);
-				}else{
-					
-					tileCachingProgressDialog = ProgressDialog.show(activity, title, message, true);
-				}
-			}
-		});
+		message += "\t" + percentComplete + "\t/\t" + "100%";
+		
+		SyncProgressDialog.setTitleAndMessage(activity, title, message);
 	}
 	
 	private void errorUpdatingAOI(final String error, final CallbackContext callback){
@@ -543,10 +396,7 @@ public class ArbiterCordova extends CordovaPlugin{
 							activity.getApplicationContext());
 				}
 				
-				if(tileCachingProgressDialog != null){
-					tileCachingProgressDialog.dismiss();
-					tileCachingProgressDialog = null;
-				}
+				SyncProgressDialog.dismiss(activity);
 				
 				try{
 					((Map.MapChangeListener) activity)
@@ -711,7 +561,6 @@ public class ArbiterCordova extends CordovaPlugin{
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				
 				ArbiterState.getArbiterState().setNewAOI(aoi);
 				
 				activity.finish();

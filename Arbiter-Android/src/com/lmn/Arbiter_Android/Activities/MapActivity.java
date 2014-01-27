@@ -24,6 +24,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FailedSyncHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.InsertFeatureDialog;
+import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
@@ -162,7 +163,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	syncButton.setOnClickListener(new OnClickListener(){
     		@Override
     		public void onClick(View v){
-    			
+    			SyncProgressDialog.show(activity);
     			Map.getMap().sync(cordovaWebView);
     		}
     	});
@@ -379,12 +380,14 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
 				    					getResources().getString(R.string.create_project_msg)
 				    			);*/
 				    			
+				    			SyncProgressDialog.show(activity);
 				    			insertHelper = new InsertProjectHelper(activity);
 				    			insertHelper.insert();
 				    		}
 				    		// Setting the aoi
 				    		else if(ArbiterState.getArbiterState().isSettingAOI()){
 				    			Log.w(TAG, TAG + ".onResume() setting aoi");
+								SyncProgressDialog.show(activity);
 				    			updateProjectAOI();
 				    		}else{
 				    			// Project changed

@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.Map.Map;
 
 public class MapChangeHelper {
@@ -53,6 +54,7 @@ public class MapChangeHelper {
 		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
+				SyncProgressDialog.show(activity);
 				Map.getMap().addLayers(cordovaWebView, layers, layerIds);
 			}
 		});

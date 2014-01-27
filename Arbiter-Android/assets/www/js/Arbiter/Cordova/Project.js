@@ -1,7 +1,7 @@
 Arbiter.Cordova.Project = (function(){
 	var describeFeatureTypeReader = new OpenLayers.Format.WFSDescribeFeatureType();
 	
-	var currentPositionZoomLevel = 14;
+	var minimumFindMeZoom = 18;
 	
 	var getSchemaHelper = function(specificSchemas, layerId){
 		
@@ -246,11 +246,16 @@ Arbiter.Cordova.Project = (function(){
 							.longitude, position.coords.latitude);
 					
 					var map = Arbiter.Map.getMap();
+					var currentZoom = map.getZoom();
+					
+					if(currentZoom <= minimumFindMeZoom){
+						currentZoom = minimumFindMeZoom;
+					}
 					
 					lonlat.transform(new OpenLayers.Projection("EPSG:4326"),
 							new OpenLayers.Projection(map.getProjection()));
 					
-					map.setCenter(lonlat, currentPositionZoomLevel);
+					map.setCenter(lonlat, currentZoom);
 				});
 			}catch(e){
 				console.log(e);

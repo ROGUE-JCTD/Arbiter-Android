@@ -448,6 +448,9 @@ public class FeatureDialogHelper {
 			FeaturesHelper.getHelper().delete(db,
 					feature.getFeatureType(), feature.getId());
 		}
+		
+		ControlPanelHelper cpHelper = new ControlPanelHelper(activity);
+		cpHelper.clearControlPanel();
 	}
 	
 	private void displayDeleteAlert(){

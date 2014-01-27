@@ -14,11 +14,24 @@ Arbiter.VectorUploader.prototype.clearSaveCallbacks = function(layer){
 Arbiter.VectorUploader.prototype.onSaveSuccess = function(layer){
 	console.log("Arbiter.VectorUploader.onSaveSuccess");
 	
-	this.clearSaveCallbacks(layer);
+	this.updateSyncStatus(layer);
+};
+
+Arbiter.VectorUploader.prototype.updateSyncStatus = function(layer){
+	var context = this;
 	
-	if(Arbiter.Util.funcExists(this.onSuccess)){
-		this.onSuccess();
-	}
+	Arbiter.FeatureTableHelper.updateFeaturesSyncStatus(this.schema.getFeatureType(), function(){
+		
+		context.clearSaveCallbacks(layer);
+		
+		if(Arbiter.Util.funcExists(context.onSuccess)){
+			context.onSuccess();
+		}
+	}, function(e){
+		console.log("Could not update sync status for: " + context.schema.getFeatureType());
+		
+		context.onSaveFailure(layer);
+	});
 };
 
 Arbiter.VectorUploader.prototype.onSaveFailure = function(layer){
@@ -26,10 +39,8 @@ Arbiter.VectorUploader.prototype.onSaveFailure = function(layer){
 	
 	this.clearSaveCallbacks(layer);
 	
-	var schema = Arbiter.Util.getSchemaFromOlLayer(layer);
-	
 	if(Arbiter.Util.funcExists(this.onFailure)){
-		this.onFailure(schema.getFeatureType());
+		this.onFailure(this.schema.getFeatureType());
 	}
 };
 

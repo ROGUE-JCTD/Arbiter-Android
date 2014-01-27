@@ -229,6 +229,38 @@ Arbiter.FeatureTableHelper = (function(){
     		});
     	},
     	
+    	updateFeaturesSyncStatus: function(featureType, onSuccess, onFailure){
+    		var db = Arbiter.FeatureDbHelper.getFeatureDatabase();
+    		var context = this;
+    		
+    		db.transaction(function(tx){
+    			
+    			var sql = "UPDATE " + featureType + " SET " 
+    				+ context.SYNC_STATE + "=? WHERE " 
+    				+ context.SYNC_STATE + "=?";
+    			
+    			var values = [context.SYNC_STATES.SYNCED, context.SYNC_STATES.NOT_SYNCED];
+    			
+    			tx.executeSql(sql, values, function(tx, res){
+    				
+    				if(Arbiter.Util.funcExists(onSuccess)){
+        				onSuccess();
+        			}
+    			}, function(tx, e){
+    				
+    				if(Arbiter.Util.funcExists(onFailure)){
+        				onFailure(e);
+        			}
+    			});
+    			
+    		}, function(e){
+    			
+    			if(Arbiter.Util.funcExists(onFailure)){
+    				onFailure(e);
+    			}
+    		});
+    	},
+    	
     	clearFeatureTable: function(schema, onSuccess, onFailure){
     		var db = Arbiter.FeatureDbHelper.getFeatureDatabase();
     		

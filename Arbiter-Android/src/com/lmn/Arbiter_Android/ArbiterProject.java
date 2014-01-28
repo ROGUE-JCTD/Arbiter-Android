@@ -111,7 +111,7 @@ public class ArbiterProject {
 	}
 	
 	public boolean isSameProject(Context context){
-		boolean isSameProject = oldProjectName == openProjectName;
+		boolean isSameProject = (oldProjectName != null ? oldProjectName.equals(openProjectName) : openProjectName == null);
 		
 		if(isSameProject && 
 				// it is the default project and the default

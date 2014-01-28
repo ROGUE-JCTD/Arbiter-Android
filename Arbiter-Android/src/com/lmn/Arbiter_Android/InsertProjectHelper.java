@@ -41,6 +41,7 @@ public class InsertProjectHelper {
 				activity.runOnUiThread(new Runnable(){
 					@Override
 					public void run(){
+						arbiterProject.makeSameProject();
 						//Map.getMap().resetWebApp(cordovaMap.getWebView());
 						performFeatureDbWork(layerIds);
 					}

@@ -119,6 +119,8 @@ Arbiter.Cordova.Project = (function(){
 		addLayers: function(layers){
 			var context = this;
 			
+			Arbiter.Cordova.setState(Arbiter.Cordova.STATES.UPDATING);
+			
 			var onSuccess = function(){
 				Arbiter.Cordova.syncCompleted();
 			};

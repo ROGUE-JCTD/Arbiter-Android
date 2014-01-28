@@ -131,6 +131,7 @@ Arbiter.Sync.prototype.initialize = function(onSuccess, onFailure){
 		}
 	});
 };
+
 Arbiter.Sync.prototype.sync = function(){
 	
 	if(this.syncInProgress === true){

@@ -54,7 +54,10 @@ public class MapChangeHelper {
 		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
-				SyncProgressDialog.show(activity);
+				if(layers.size() > 0){
+					SyncProgressDialog.show(activity);
+				}
+				
 				Map.getMap().addLayers(cordovaWebView, layers, layerIds);
 			}
 		});

@@ -288,7 +288,7 @@ Arbiter.Cordova.Project = (function(){
 			}
 			
 			if(Arbiter.getLayerSchemasLength() > 0 ||
-					((downloadOnly === true || downloadOnly === true)
+					((downloadOnly === true || downloadOnly === "true")
 							&& specificSchemas.length > 0) || cacheTiles){
 				
 				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.UPDATING);
@@ -340,6 +340,12 @@ Arbiter.Cordova.Project = (function(){
 						onFailure(e);
 					}
 				});
+			}else{
+				if(Arbiter.Util.funcExists(onSuccess)){
+					onSuccess();
+				}else{
+					Arbiter.Cordova.syncCompleted();
+				}
 			}
 		}
 	};

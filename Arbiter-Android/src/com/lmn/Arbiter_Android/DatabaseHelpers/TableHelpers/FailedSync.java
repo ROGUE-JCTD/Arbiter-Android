@@ -1,5 +1,8 @@
 package com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -63,7 +66,7 @@ public class FailedSync implements BaseColumns{
 		
 		try {
 			
-			String whereClause = _ID + "=?";
+			String whereClause = LAYER_ID + "=?";
 			String[] whereArgs = {
 				Long.toString(layerId)
 			};
@@ -114,6 +117,9 @@ public class FailedSync implements BaseColumns{
 		
 		if(layer != null){
 			featureType = layer.getFeatureTypeNoPrefix();	
+		} else {
+			// Layer no longer exists, remove them from the table.
+			remove(db, layerId);
 		}
 		
 		
@@ -136,27 +142,27 @@ public class FailedSync implements BaseColumns{
 		Cursor cursor = db.query(TABLE_NAME, columns, selection,
 				selectionArgs, null, null, null);
 		
-		String[] results = null;
+		List<String> results = new LinkedList<String>();
 		
 		int count = cursor.getCount();
 		
 		if(count > 0){
-			results = new String[cursor.getCount()];
-			
-			int i = 0;
 			
 			int layerId = -1;
 			
 			for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 				layerId = cursor.getInt(0);
 				
-				results[i++] = getFeatureType(db, layerId);
+				String featureType = getFeatureType(db, layerId);
+				if(featureType != null) {
+					results.add(featureType);
+				}
 			}
 		}
 		
 		cursor.close();
 		
-		return results;
+		return results.size() > 0 ? results.toArray(new String[results.size()]) : null;
 	}
 	
 	public String[] getFailedVectorDownloads(SQLiteDatabase db){
@@ -175,27 +181,26 @@ public class FailedSync implements BaseColumns{
 		Cursor cursor = db.query(TABLE_NAME, columns, selection,
 				selectionArgs, null, null, null);
 		
-		String[] results = null;
+		List<String> results = new LinkedList<String>();
 		
 		int count = cursor.getCount();
 		
 		if(count > 0){
-			results = new String[cursor.getCount()];
-			
-			int i = 0;
-			
 			int layerId = -1;
 			
 			for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 				layerId = cursor.getInt(0);
 				
-				results[i++] = getFeatureType(db, layerId);
+				String featureType = getFeatureType(db, layerId);
+				if(featureType != null) {
+					results.add(featureType);
+				}
 			}
 		}
 		
 		cursor.close();
 		
-		return results;
+		return results.size() > 0 ? results.toArray(new String[results.size()]) : null;
 	}
 
 	public String[] getFailedMediaDownloads(SQLiteDatabase db){

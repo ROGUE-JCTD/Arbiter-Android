@@ -82,7 +82,7 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 				
 				Arbiter.Controls.ControlPanel.setSelectedFeature(olFeature);
 				
-				//Arbiter.Controls.ControlPanel.select(olFeature);
+				Arbiter.Controls.ControlPanel.select(olFeature);
 			}else if(activeControl === controlPanelHelper.CONTROLS.MODIFY){
 				
 				Arbiter.Controls.ControlPanel.setSelectedFeature(olFeature);

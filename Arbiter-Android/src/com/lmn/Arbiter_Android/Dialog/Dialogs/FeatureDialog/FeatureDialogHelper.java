@@ -256,22 +256,21 @@ public class FeatureDialogHelper {
 		// Update the feature from the EditText fields
 		builder.updateFeature();
 		
+		String featureId = null;
+		
 		if(feature.isNew()){
 			feature.setSyncState(FeaturesHelper.SYNC_STATES.NOT_SYNCED);
 			feature.setModifiedState(FeaturesHelper.MODIFIED_STATES.INSERTED);
 			
-			String id = FeaturesHelper.getHelper().insert(db,
+			featureId = FeaturesHelper.getHelper().insert(db,
 					feature.getFeatureType(), feature);
 			
-			if(id.equals("-1")){
+			if(featureId.equals("-1")){
 				throw new Exception("An error occurred"
 						+ " while inserting the feature.");
 			}
 			
-			feature.setId(id);
-			
-			ControlPanelHelper controlPanelHelper = new ControlPanelHelper(activity);
-			controlPanelHelper.setFeatureId(id);
+			feature.setId(featureId);
 			
 			insertedNewFeature = true;
 		}else{
@@ -282,7 +281,14 @@ public class FeatureDialogHelper {
 			FeaturesHelper.getHelper().update(db, 
 					feature.getFeatureType(), 
 					feature.getId(), feature);
+			
+			featureId = feature.getId();
 		}
+		
+		ControlPanelHelper controlPanelHelper = new ControlPanelHelper(activity);
+		controlPanelHelper.set(featureId, layerId,
+				ControlPanelHelper.CONTROLS.SELECT,
+				feature.getGeometry());
 		
 		// Update the mediaToSend property so that
 		// we know which files need to be synced.
@@ -361,6 +367,8 @@ public class FeatureDialogHelper {
 						} finally {
 							ArbiterState.getArbiterState().doneEditingFeature();
 							progressDialog.dismiss();
+							
+							dismiss();
 						}	
 					}
 				});

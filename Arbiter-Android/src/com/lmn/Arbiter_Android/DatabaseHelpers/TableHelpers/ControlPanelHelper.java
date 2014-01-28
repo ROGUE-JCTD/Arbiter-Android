@@ -58,4 +58,17 @@ public class ControlPanelHelper {
 		
 		PreferencesHelper.getHelper().put(projectDb, context, FEATURE_ID, featureId);
 	}
+	
+	public void set(String featureId, String layerId, String control, String geometry){
+		
+		SQLiteDatabase projectDb = getProjectDb();
+		
+		PreferencesHelper.getHelper().put(projectDb, context, ACTIVE_CONTROL, control);
+		
+		PreferencesHelper.getHelper().put(projectDb, context, LAYER_ID, layerId);
+		
+		PreferencesHelper.getHelper().put(projectDb, context, FEATURE_ID, featureId);
+		
+		PreferencesHelper.getHelper().put(projectDb, context, GEOMETRY, geometry);
+	}
 }

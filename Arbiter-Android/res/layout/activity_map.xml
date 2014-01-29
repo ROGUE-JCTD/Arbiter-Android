@@ -172,6 +172,8 @@
 	        android:layout_alignParentLeft="true"
 	        android:layout_alignParentTop="true"
 	        android:layout_marginTop="24dp"
+	        android:background="#FFFFFF"
+	        android:alpha="0.9"
 	        android:padding="0dp"/>
 	    
 	    <ImageButton
@@ -184,6 +186,8 @@
 	        android:layout_marginLeft="20dp"
 	        android:layout_marginTop="24dp"
 	        android:layout_alignParentTop="true"
+	        android:background="#FFFFFF"
+	        android:alpha="0.9"
 	        android:padding="8dp"/>
     </RelativeLayout>
     

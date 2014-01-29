@@ -58,6 +58,14 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 	};
 	
 	var setState = function(olFeature){
+		
+		var syncState = olFeature.metadata[Arbiter.FeatureTableHelper.SYNC_STATE];
+		
+		// If the feature is already synced, don't mark the feature for uploading
+		if(syncState === Arbiter.FeatureTableHelper.SYNC_STATES.SYNCED){
+			return;
+		}
+		
 		var state = olFeature.metadata[Arbiter.FeatureTableHelper.MODIFIED_STATE];
 		
 		if(state === Arbiter.FeatureTableHelper.MODIFIED_STATES.DELETED){

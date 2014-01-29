@@ -275,6 +275,7 @@ public class FeatureDialogHelper {
 			insertedNewFeature = true;
 		}else{
 			if(feature.getSyncState().equals(FeaturesHelper.SYNC_STATES.SYNCED)){
+				feature.setSyncState(FeaturesHelper.SYNC_STATES.NOT_SYNCED);
 				feature.setModifiedState(FeaturesHelper.MODIFIED_STATES.MODIFIED);
 			}
 			

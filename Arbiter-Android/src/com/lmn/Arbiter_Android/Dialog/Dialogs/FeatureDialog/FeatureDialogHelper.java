@@ -7,18 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.lmn.Arbiter_Android.ArbiterProject;
-import com.lmn.Arbiter_Android.ArbiterState;
-import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.Activities.HasThreadPool;
-import com.lmn.Arbiter_Android.BaseClasses.Feature;
-import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
-import com.lmn.Arbiter_Android.Map.Map;
-import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
-
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -30,6 +18,18 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.Button;
+
+import com.lmn.Arbiter_Android.ArbiterProject;
+import com.lmn.Arbiter_Android.ArbiterState;
+import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Activities.HasThreadPool;
+import com.lmn.Arbiter_Android.BaseClasses.Feature;
+import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
+import com.lmn.Arbiter_Android.Map.Map;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class FeatureDialogHelper {
 	private FragmentActivity activity;
@@ -314,44 +314,54 @@ public class FeatureDialogHelper {
 				resources.getString(R.string.deleting_msg), true);
 	}
 	
-	private void areYouSure(final Button editButton, 
+	private void saveFeature(final Button editButton, 
 			final Button editOnMapButton, final Button cancelButton,
 			final Button deleteButton){
 		
-		Resources resources = activity.getResources();
+		final ProgressDialog progressDialog = startUpdateProgress();
 		
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-		
-		String title = null;
-		String msg = null;
-		
-		if(feature.isNew()){
-			title = resources.getString(R.string.insert_feature_warning);
-			msg = resources.getString(R.string.insert_feature_warning_msg);
-		}else{
-			title = resources.getString(R.string.update_feature_title);
-			msg = resources.getString(R.string.update_feature_msg);
-		}
-		
-		builder.setTitle(title);
-		builder.setIcon(resources.getDrawable(R.drawable.icon));
-		builder.setMessage(msg);
-		builder.setPositiveButton(android.R.string.yes, new OnClickListener(){
-			
+		CommandExecutor.runProcess(new Runnable(){
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				
-				final ProgressDialog progressDialog = startUpdateProgress();
-				
-				CommandExecutor.runProcess(new Runnable(){
-					@Override
-					public void run(){
-						try{
-							final boolean insertedNewFeature = save();
+			public void run(){
+				try{
+					final boolean insertedNewFeature = save();
+					
+					activity.runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Resources resources = activity.getResources();
 							
-							activity.runOnUiThread(new Runnable(){
+							AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+							
+							String title = null;
+							String msg = null;
+
+							title = resources.getString(R.string.feature_saved);
+							msg = resources.getString(R.string.feature_saved_msg);
+							
+							builder.setTitle(title);
+							builder.setIcon(resources.getDrawable(R.drawable.icon));
+							builder.setMessage(msg);
+							builder.setNegativeButton(R.string.return_to_map, new OnClickListener(){
 								@Override
-								public void run(){
+								public void onClick(DialogInterface dialog, int which) {
+									ArbiterState.getArbiterState().doneEditingFeature();
+									toggleEditMode(false, editButton, editOnMapButton,
+											cancelButton, deleteButton);
+									
+									if(insertedNewFeature){
+										mapListener.getMapChangeHelper()
+											.endInsertMode();
+									}else{
+										mapListener.getMapChangeHelper().reloadMap();
+									}
+									dismiss();
+								}
+							});
+							
+							builder.setPositiveButton(R.string.review_feature, new OnClickListener(){
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
 									toggleEditMode(false, editButton, editOnMapButton,
 											cancelButton, deleteButton);
 									
@@ -363,22 +373,19 @@ public class FeatureDialogHelper {
 									}
 								}
 							});
-						} catch (Exception e){
-							e.printStackTrace();
-						} finally {
-							ArbiterState.getArbiterState().doneEditingFeature();
-							progressDialog.dismiss();
 							
-							dismiss();
-						}	
-					}
-				});
+							builder.create().show();
+
+							progressDialog.dismiss();
+						}
+					});
+					
+				} catch (Exception e){
+					e.printStackTrace();
+					progressDialog.dismiss();
+				}	
 			}
 		});
-		
-		builder.setNegativeButton(android.R.string.no, null);
-		
-		builder.create().show();
 	}
 	
 	public boolean isEditing(){
@@ -393,7 +400,7 @@ public class FeatureDialogHelper {
 			Button cancelButton, Button deleteButton){
 		
 		if(builder.checkFormValidity()){
-			areYouSure(editButton, editOnMapButton,
+			saveFeature(editButton, editOnMapButton,
 					cancelButton, deleteButton);
 		}else{
 			AlertDialog.Builder errorBuilder = new AlertDialog.Builder(activity);

@@ -29,7 +29,7 @@
 	<string name="example_latitude">ex. </string>
 	<string name="back">Back</string>
 	<string name="edit_attributes">Edit</string>
-	<string name="done_editing">Done</string>
+	<string name="done_editing">Save</string>
 	<string name="delete_feature">Delete</string>
 	<string name="edit_feature">Map</string>
 	<string name="cancel_editing">Cancel</string>
@@ -40,6 +40,10 @@
 	<string name="insert_feature_title">Select layer to insert into.</string>
 	<string name="insert_layer_title">Inserting into:</string>
 	<string name="insert_layer_text">Layer</string>
+	<string name="feature_saved">Feature saved</string>
+	<string name="feature_saved_msg">The feature has been saved.</string>
+	<string name="return_to_map">Return to Map</string>
+	<string name="review_feature">Review Feature</string>
 	<string name="insert_feature_warning">Insert feature</string>
 	<string name="insert_feature_warning_msg">Insert the feature?</string>
 	<string name="delete_feature_warning">Delete feature</string>

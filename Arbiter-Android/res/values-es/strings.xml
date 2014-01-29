@@ -29,7 +29,7 @@
 	<string name="example_latitude">ex. </string>
 	<string name="back">Atrás</string>
 	<string name="edit_attributes">Editar</string>
-	<string name="done_editing">Terminado</string>
+	<string name="done_editing">Guardar</string>
 	<string name="delete_feature">Borrar</string>
 	<string name="edit_feature">Mapa</string>
 	<string name="cancel_editing">Cancelar</string>
@@ -40,6 +40,10 @@
 	<string name="insert_feature_title">Seleccionar capa para insertar.</string>
 	<string name="insert_layer_title">Inserción en:</string>
 	<string name="insert_layer_text">Capa</string>
+	<string name="feature_saved">Elemento guardado</string>
+	<string name="feature_saved_msg">El elemento se ha guardado.</string>
+	<string name="return_to_map">Volver al Mapa</string>
+	<string name="review_feature">Revise Elemento</string>
 	<string name="insert_feature_warning">Insertar el elemento</string>
 	<string name="insert_feature_warning_msg">Inserte el Elemento?</string>
 	<string name="delete_feature_warning">Eliminar elemento</string>

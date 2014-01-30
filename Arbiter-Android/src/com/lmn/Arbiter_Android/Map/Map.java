@@ -218,4 +218,18 @@ public class Map{
 		
 		webview.loadUrl(url);
 	}
+	
+	public void zoomIn(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Map.getMap().zoomIn()'))";
+		
+		webview.loadUrl(url);
+	}
+	
+	public void zoomOut(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Map.getMap().zoomOut()'))";
+		
+		webview.loadUrl(url);
+	}
 }

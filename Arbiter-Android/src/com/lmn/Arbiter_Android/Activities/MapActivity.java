@@ -236,6 +236,24 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     		}
     	});
     	
+    	ImageButton zoomInButton = (ImageButton) findViewById(R.id.zoomInButton);
+    	
+    	zoomInButton.setOnClickListener(new OnClickListener(){
+    		@Override
+    		public void onClick(View v){
+    			Map.getMap().zoomIn(cordovaWebView);
+    		}
+    	});
+    	
+    	ImageButton zoomOutButton = (ImageButton) findViewById(R.id.zoomOutButton);
+    	
+    	zoomOutButton.setOnClickListener(new OnClickListener(){
+    		@Override
+    		public void onClick(View v){
+    			Map.getMap().zoomOut(cordovaWebView);
+    		}
+    	});
+    	
     	RelativeLayout incompleteBar = (RelativeLayout) findViewById(R.id.incompleteProjectBar);
     	
     	incompleteBar.setOnClickListener(new OnClickListener(){

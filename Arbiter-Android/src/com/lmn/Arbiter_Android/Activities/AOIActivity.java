@@ -8,24 +8,23 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 
-import com.lmn.Arbiter_Android.ArbiterProject;
-import com.lmn.Arbiter_Android.ArbiterState;
-import com.lmn.Arbiter_Android.OOMWorkaround;
-import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
-import com.lmn.Arbiter_Android.Map.Map;
-
-import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+
+import com.lmn.Arbiter_Android.ArbiterProject;
+import com.lmn.Arbiter_Android.ArbiterState;
+import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
+import com.lmn.Arbiter_Android.Map.Map;
 
 public class AOIActivity extends FragmentActivity implements CordovaInterface,
 	Map.CordovaMap, HasThreadPool, TileConfirmation{
@@ -98,18 +97,11 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface,
     }
     
 	private void resetSavedBounds(){
-		final boolean isCreatingProject = ArbiterState.getArbiterState()
-    			.isCreatingProject();
-    	
 		final AOIActivity activity = this;
     	
     	getThreadPool().execute(new Runnable(){
     		@Override
-    		public void run(){
-    			
-    			OOMWorkaround oom = new OOMWorkaround(activity);
-    			oom.resetSavedBounds(isCreatingProject);
-    			
+    		public void run(){	
     			activity.runOnUiThread(new Runnable(){
     				@Override
     				public void run(){

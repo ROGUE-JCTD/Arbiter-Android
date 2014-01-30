@@ -5,7 +5,6 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -23,6 +22,7 @@ import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
+import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FailedSyncHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
@@ -73,6 +73,34 @@ public class ArbiterCordova extends CordovaPlugin{
 			String aoi = args.getString(0);
 			
 			setNewProjectsAOI(aoi, callbackContext);
+			
+			return true;
+		}else if("createNewProject".equals(action)){
+			final String extent = args.getString(0);
+            final String zoomLevel = args.getString(1);
+            
+    		final Activity activity = this.cordova.getActivity();
+    		
+    		CommandExecutor.runProcess(new Runnable(){
+    			@Override
+    			public void run(){
+    				OOMWorkaround oom = new OOMWorkaround(activity);
+    				oom.resetSavedBounds(false);
+    				oom.setSavedBounds(extent, zoomLevel, false);
+    				
+    				activity.runOnUiThread(new Runnable(){
+    					@Override
+    					public void run(){
+    						FragmentActivity activity = getFragmentActivity();
+    						ArbiterDialogs dialogs = new ArbiterDialogs(activity.getApplicationContext(),
+    								activity.getResources(),
+    								activity.getSupportFragmentManager());
+    						
+    						dialogs.showProjectNameDialog();
+    					}
+    				});
+    			}
+    		});
 			
 			return true;
 		}else if("errorCreatingProject".equals(action)){

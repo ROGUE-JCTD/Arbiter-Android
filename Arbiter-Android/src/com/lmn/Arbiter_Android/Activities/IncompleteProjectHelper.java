@@ -1,11 +1,5 @@
 package com.lmn.Arbiter_Android.Activities;
 
-import com.lmn.Arbiter_Android.ArbiterProject;
-import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
-import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
-import com.lmn.Arbiter_Android.R;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -13,12 +7,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
+
+import com.lmn.Arbiter_Android.ArbiterProject;
+import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class IncompleteProjectHelper {
-	private RelativeLayout incompleteContainer;
 	private MenuItem insertButton;
 	private ImageButton syncButton;
 	
@@ -30,8 +27,6 @@ public class IncompleteProjectHelper {
 		this.context = activity.getApplicationContext();
 		this.activity = activity;
 		
-		this.incompleteContainer = (RelativeLayout) activity.findViewById(R.id.incompleteContainer);
-		
 		try{
 			this.threadPoolSupplier = (HasThreadPool) this.activity;
 		}catch(ClassCastException e){
@@ -42,14 +37,7 @@ public class IncompleteProjectHelper {
 		}
 	}
 	
-	public void toggleComplete(boolean complete){
-    	if(complete){
-    		// Make the incompleteBar gone
-    		this.incompleteContainer.setVisibility(View.GONE);	
-    	}else{
-    		this.incompleteContainer.setVisibility(View.VISIBLE);	
-    	}
-    	
+	public void toggleComplete(boolean complete){    	
     	insertButton.setEnabled(complete);
     		
     	syncButton.setEnabled(complete);
@@ -81,8 +69,7 @@ public class IncompleteProjectHelper {
 	}
 	
 	public void checkForAOI(){
-		if(insertButton == null || incompleteContainer == null 
-				|| syncButton == null){
+		if(insertButton == null || syncButton == null){
 			
 			return;
 		}

@@ -30,6 +30,7 @@ import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
@@ -154,7 +155,15 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	layersButton.setOnClickListener(new OnClickListener(){
     		@Override
     		public void onClick(View v){
-    			dialogs.showLayersDialog();
+    			if(arbiterProject != null) {
+	    			String openProject = arbiterProject.getOpenProject(activity);
+	            	if(openProject.equals(activity.getResources().getString(R.string.default_project_name))) {
+	            		// create new project
+	            		Map.getMap().createNewProject(cordovaWebView);
+	            	} else {
+	        			dialogs.showLayersDialog();
+	            	}
+    			}
     		}
     	});
     	
@@ -254,15 +263,6 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     		}
     	});
     	
-    	RelativeLayout incompleteBar = (RelativeLayout) findViewById(R.id.incompleteProjectBar);
-    	
-    	incompleteBar.setOnClickListener(new OnClickListener(){
-    		@Override
-    		public void onClick(View v){
-    			startAOIActivity();
-    		}
-    	});	
-    	
     	initIncompleteProjectHelper();
     	
     	incompleteProjectHelper.setSyncButton(syncButton);
@@ -333,7 +333,26 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         		return true;
         	
         	case R.id.action_aoi:
-        		startAOIActivity();
+        		if(arbiterProject != null) {
+	        		String openProject = arbiterProject.getOpenProject(this);
+	            	if(openProject.equals(this.getResources().getString(R.string.default_project_name))) {
+	            		final Activity context = this;
+						this.runOnUiThread(new Runnable(){
+							@Override
+							public void run(){
+			            		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+								builder.setTitle(context.getResources().getString(R.string.error));
+								builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
+								builder.setMessage(context.getResources().getString(R.string.error_aoi_create_project));
+								
+								builder.create().show();
+							}
+						});
+	            	} else {
+	            		startAOIActivity();
+	            	}
+	        		
+        		}
         		
         		return true;
     		

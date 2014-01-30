@@ -4,7 +4,7 @@
 	<string name="error">Error</string>
     <string name="app_name">Arbiter-Android</string>
     <string name="action_findme">Find me</string>
-    <string name="default_project_name">MyProject</string>
+    <string name="default_project_name">_ARBITER_DEFAULT_PROJECT_</string>
 	<string name="delete">Delete</string>
 	<string name="update">Update</string>
 	<string name="default_layer_name">OpenStreetMap</string>
@@ -14,6 +14,7 @@
 	<string name="project_creation_failed_message">Could not create project.  Check to see if you are out of disk space.</string>
 	<string name="create_project_progress">Creating project.</string>
 	<string name="create_project_msg">Project being created&#8230;</string>
+	<string name="error_aoi_create_project">You must create a project before selecting an area of interest.</string>
 	<string name="error_creating_project">Error</string>
 	<string name="error_creating_project_msg">Could not create project!</string>
 	<string name="error_loading_features">Error</string>

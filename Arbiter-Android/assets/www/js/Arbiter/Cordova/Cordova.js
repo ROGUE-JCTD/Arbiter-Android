@@ -95,6 +95,14 @@ Arbiter.Cordova = (function() {
 					"setNewProjectsAOI", [bbox]);
 		},
 		
+		createNewProject: function(){
+			var bbox = Arbiter.Map.getCurrentExtent().toBBOX();
+			
+            var zoom = Arbiter.Map.getZoom();
+			cordova.exec(null, null, "ArbiterCordova",
+					"createNewProject", [bbox, zoom]);
+		},
+		
 		errorCreatingProject: function(e){
 			
 			console.log("errorCreatingProject", e);

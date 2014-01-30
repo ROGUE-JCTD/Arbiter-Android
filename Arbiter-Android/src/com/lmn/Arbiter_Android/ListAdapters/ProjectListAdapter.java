@@ -1,5 +1,8 @@
 package com.lmn.Arbiter_Android.ListAdapters;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Activities.ProjectsActivity;
@@ -33,7 +36,17 @@ public class ProjectListAdapter extends BaseAdapter implements ArbiterAdapter<Pr
 	}
 	
 	public void setData(Project[] data){
-		items = data;
+		if(data == null) {
+			items = null;
+		} else {
+			List<Project> projectList = new LinkedList<Project>();
+			for (int i = 0; i < data.length; i++) {
+				if(!data[i].getProjectName().equals(activity.getResources().getString(R.string.default_project_name))) {
+					projectList.add(data[i]);
+				}
+			}
+			items = projectList.toArray(new Project[projectList.size()]);
+		}
 		
 		notifyDataSetChanged();
 	}

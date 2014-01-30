@@ -1,12 +1,15 @@
 package com.lmn.Arbiter_Android.ConnectivityListeners;
 
-import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
+import org.apache.cordova.CordovaWebView;
 
 import android.app.AlertDialog;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
+import com.lmn.Arbiter_Android.Map.Map;
 
 public class CreateProjectConnectivityListener extends ConnectivityListener {
 	private FragmentActivity activity;
@@ -45,7 +48,8 @@ public class CreateProjectConnectivityListener extends ConnectivityListener {
 				public boolean onMenuItemClick(MenuItem item) {
 					if(item.getItemId() == R.id.action_new_project){
 						
-						dialogs.showProjectNameDialog();
+						CordovaWebView cordovaWebView = (CordovaWebView) activity.findViewById(R.id.webView1);
+						Map.getMap().createNewProject(cordovaWebView);
 						
 						return true;
 					}

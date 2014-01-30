@@ -47,9 +47,7 @@ public class CreateProjectConnectivityListener extends ConnectivityListener {
 				@Override
 				public boolean onMenuItemClick(MenuItem item) {
 					if(item.getItemId() == R.id.action_new_project){
-						
-						CordovaWebView cordovaWebView = (CordovaWebView) activity.findViewById(R.id.webView1);
-						Map.getMap().createNewProject(cordovaWebView);
+						dialogs.showProjectNameDialog();
 						
 						return true;
 					}

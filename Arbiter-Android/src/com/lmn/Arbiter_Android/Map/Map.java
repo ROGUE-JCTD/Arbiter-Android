@@ -35,6 +35,11 @@ public class Map{
 		return map;
 	}
 	
+	public void goToProjects(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.goToProjects()'));";
+		webview.loadUrl(url);
+	}
+	
 	public void createNewProject(CordovaWebView webview){
 		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.createNewProject()'));";
 		webview.loadUrl(url);

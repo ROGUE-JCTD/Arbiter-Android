@@ -327,8 +327,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         		return true;
         		
         	case R.id.action_projects:
-        		Intent projectsIntent = new Intent(this, ProjectsActivity.class);
-        		this.startActivity(projectsIntent);
+				Map.getMap().goToProjects(cordovaWebView);	
         		
         		return true;
         	

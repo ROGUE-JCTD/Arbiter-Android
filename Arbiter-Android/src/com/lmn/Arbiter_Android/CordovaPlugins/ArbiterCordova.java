@@ -9,6 +9,7 @@ import org.json.JSONException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
@@ -17,6 +18,7 @@ import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
+import com.lmn.Arbiter_Android.Activities.ProjectsActivity;
 import com.lmn.Arbiter_Android.Activities.TileConfirmation;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
@@ -75,6 +77,28 @@ public class ArbiterCordova extends CordovaPlugin{
 			setNewProjectsAOI(aoi, callbackContext);
 			
 			return true;
+		}else if("goToProjects".equals(action)){
+			final String extent = args.getString(0);
+            final String zoomLevel = args.getString(1);
+            
+    		final Activity activity = this.cordova.getActivity();
+    		
+    		CommandExecutor.runProcess(new Runnable(){
+    			@Override
+    			public void run(){
+    				OOMWorkaround oom = new OOMWorkaround(activity);
+    				oom.resetSavedBounds(false);
+    				oom.setSavedBounds(extent, zoomLevel, false);
+    				
+    				activity.runOnUiThread(new Runnable(){
+    					@Override
+    					public void run(){
+    		        		Intent projectsIntent = new Intent(activity, ProjectsActivity.class);
+    		        		activity.startActivity(projectsIntent);
+    					}
+    				});
+    			}
+    		});
 		}else if("createNewProject".equals(action)){
 			final String extent = args.getString(0);
             final String zoomLevel = args.getString(1);

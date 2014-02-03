@@ -59,23 +59,32 @@ Arbiter.Loaders.LayersLoader = (function(){
 					}
 				}
 			}
-			var commitMsg = '{&quot;' + event.object.layer.protocol.featureType + '&quot;:{';
+			var getFeatureString = function(count) {
+				if(count === 1){
+					return Arbiter.Localization.localize('feature');
+				}
+				return Arbiter.Localization.localize('features');
+			}
+			var commitMsg = '';
 			if (added > 0){
-				commitMsg += '&quot;added&quot;:' + added;
+				commitMsg += Arbiter.Localization.localize('added') + ' ' + added + ' ' +
+					getFeatureString(added);
 			}
 			if (modified > 0){
 				if (added > 0){
-					commitMsg += ',';
+					commitMsg += ', ';
 				}
-				commitMsg += '&quot;modified&quot;:' + modified;
+				commitMsg += Arbiter.Localization.localize('modified') + ' ' + modified + ' ' +
+					getFeatureString(modified);
 			}
 			if (removed > 0){
 				if (added > 0 || modified > 0){
-					commitMsg += ',';
+					commitMsg += ', ';
 				}
-				commitMsg += '&quot;removed&quot;:' + removed;
+				commitMsg += Arbiter.Localization.localize('removed') + ' ' + removed + ' ' +
+					getFeatureString(removed);
 			}
-			commitMsg += '}}';
+			commitMsg += ' ' + Arbiter.Localization.localize('viaArbiter') + '.';
 			console.log(commitMsg);
 			event.object.layer.protocol.options.handle = commitMsg;
 		};

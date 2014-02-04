@@ -29,6 +29,9 @@
     <feature name="Camera">
         <param name="android-package" value="org.apache.cordova.camera.CameraLauncher" />
     </feature>
+    <feature name="Globalization">
+        <param name="android-package" value="org.apache.cordova.globalization.Globalization" />
+    </feature>
     <feature name="ArbiterCordova">
         <param name="android-package" value="com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova" />
     </feature>

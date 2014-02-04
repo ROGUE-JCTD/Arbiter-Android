@@ -454,15 +454,27 @@ public class FeatureDialogHelper {
 		
 		if(feature.getSyncState().equals(FeaturesHelper.SYNC_STATES.SYNCED)){
 			feature.setModifiedState(FeaturesHelper.MODIFIED_STATES.DELETED);
+			feature.setSyncState(FeaturesHelper.SYNC_STATES.NOT_SYNCED);
 			
 			FeaturesHelper.getHelper().update(db, 
 					feature.getFeatureType(), feature.getId(),
 					feature);
 		}else{ 
-			// If the feature isn't synced, then we don't
-			// need to keep track of it anymore.
-			FeaturesHelper.getHelper().delete(db,
-					feature.getFeatureType(), feature.getId());
+			
+			feature.setModifiedState(FeaturesHelper.MODIFIED_STATES.DELETED);
+			
+			String fid = feature.getFID();
+			
+			if(fid != null && !fid.equals("")){
+				FeaturesHelper.getHelper().update(db, 
+						feature.getFeatureType(), feature.getId(),
+						feature);
+			}else{
+				// If the feature isn't synced and it's not on the server, 
+				// then we don't need to keep track of it anymore.
+				FeaturesHelper.getHelper().delete(db,
+						feature.getFeatureType(), feature.getId());
+			}
 		}
 		
 		ControlPanelHelper cpHelper = new ControlPanelHelper(activity);

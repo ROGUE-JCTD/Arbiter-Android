@@ -85,6 +85,10 @@ public class Feature {
 		return attributes.get(FeaturesHelper.SYNC_STATE);
 	}
 	
+	public String getFID(){
+		return attributes.get(FeaturesHelper.FID);
+	}
+	
 	public void setSyncState(String state){
 		attributes.put(FeaturesHelper.SYNC_STATE, state);;
 	}

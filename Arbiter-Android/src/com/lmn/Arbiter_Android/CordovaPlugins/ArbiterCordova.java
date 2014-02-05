@@ -240,10 +240,33 @@ public class ArbiterCordova extends CordovaPlugin{
 		}else if("dismissDownloadingSchemasProgress".equals(action)){
 			
 			return true;
+		}else if("alertGeolocationError".equals(action)){
+			
+			alertGeolocationError(args.getString(0));
+			
+			return true;
 		}
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
+	}
+	
+	private void alertGeolocationError(String msg){
+		final Activity activity = cordova.getActivity();
+		
+		final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		
+		builder.setIcon(R.drawable.icon);
+		builder.setTitle(R.string.geolocation_error);
+		builder.setMessage(msg);
+		builder.setPositiveButton(android.R.string.ok, null);
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				builder.create().show();
+			}
+		});
 	}
 	
 	private void showDownloadingSchemasProgress(final String count){

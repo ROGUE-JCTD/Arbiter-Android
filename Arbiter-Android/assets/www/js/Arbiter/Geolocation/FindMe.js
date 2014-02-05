@@ -1,7 +1,12 @@
-Arbiter.FindMe = function(olMap, olLayer){
+Arbiter.FindMe = function(olMap, olLayer, includeOOM){
 	this.olMap = olMap;
 	this.gotHighAccuracy = false;
 	this.olLayer = olLayer;
+	
+	if(includeOOM){
+		this.oom = new Arbiter.FindMe_OOM();
+	}
+	
 	this.minimumFindMeZoom = 18;
 	this.point = null;
 	
@@ -29,6 +34,16 @@ Arbiter.FindMe = function(olMap, olLayer){
 		externalGraphic: this.smallBallHighAccuracy,
 		pointRadius: this.smallRadius
 	};
+	
+	var context = this;
+	
+	this.geolocation = new Arbiter.Geolocation(this, this.lowAccuracyCallback,
+			this.highAccuracyCallback, function(e){
+		
+		if(Arbiter.Util.funcExists(context.onFailure)){
+			context.onFailure(e);
+		}
+	});
 };
 
 Arbiter.FindMe.prototype.zoom = function(position){
@@ -70,14 +85,20 @@ Arbiter.FindMe.prototype.addPoint = function(position, style){
 	var context = this;
 	
 	this.removePointTimeoutId = window.setTimeout(function(){
-		console.log("remove point timeout");
 		
 		context.removePoint();
+		
+		if(Arbiter.Util.existsAndNotNull(context.oom)){
+			
+			context.oom.clearSavedPoint(function(){
+				console.log("FindMe removed saved point");
+			}, function(e){
+				console.log("FindMe could not removed saved point: " + JSON.stringify(e));
+			});
+		}
 	}, this.removePointTimeout);
 	
 	this.styleChangeIntervalId = window.setInterval(function(){
-			
-		console.log("change style interval");
 		
 		var ball = style.externalGraphic; 
 		var radius = style.pointRadius;
@@ -132,6 +153,19 @@ Arbiter.FindMe.prototype.removePoint = function(){
 	this.point = null;
 };
 
+Arbiter.FindMe.prototype.savePosition = function(position){
+	var context = this;
+	
+	this.oom.savePoint(this.gotHighAccuracy,
+			position, function(){
+		
+		context.zoom(position);
+	}, function(e){
+		
+		context.zoom(position);
+	});
+};
+
 Arbiter.FindMe.prototype.lowAccuracyCallback = function(position){
 	
 	if(this.gotHighAccuracy){
@@ -139,8 +173,14 @@ Arbiter.FindMe.prototype.lowAccuracyCallback = function(position){
 	}
 	
 	this.addPoint(position, this.lowAccuracyPointStyle);
-	
-	this.zoom(position);
+	 
+	if(Arbiter.Util.existsAndNotNull(this.oom)){
+		
+		this.savePosition(position);
+	}else{
+		
+		this.zoom(position);
+	}
 };
 
 Arbiter.FindMe.prototype.highAccuracyCallback = function(position){
@@ -149,24 +189,54 @@ Arbiter.FindMe.prototype.highAccuracyCallback = function(position){
 	
 	this.addPoint(position, this.highAccuracyPointStyle);
 	
-	this.zoom(position);
+	if(Arbiter.Util.existsAndNotNull(this.oom)){
+		
+		this.savePosition(position);
+	}else{
+		
+		this.zoom(position);
+	}
 };
 
 Arbiter.FindMe.prototype.onFailure = function(e){
 	
-	console.log("FindMe could not get location");
+	var msg = "FindMe could not get location: " + JSON.stringify(e);
+	
+	console.log(msg);
+	
+	Arbiter.Cordova.alertGeolocationError(msg);
 };
 
 Arbiter.FindMe.prototype.findMe = function(){
+	this.geolocation.getLocation();
+};
+
+Arbiter.FindMe.prototype.resume = function(){
+	
+	if(!Arbiter.Util.existsAndNotNull(this.oom)){
+		return;
+	}
+	
 	var context = this;
 	
-	var geolocation = new Arbiter.Geolocation(this, this.lowAccuracyCallback,
-			this.highAccuracyCallback, function(e){
+	this.oom.getPoint(function(findme){
 		
-		if(Arbiter.Util.funcExists(context.onFailure)){
-			context.onFailure(e);
+		if(Arbiter.Util.existsAndNotNull(findme) 
+				&& Arbiter.Util.existsAndNotNull(findme.gotHighAccuracy) 
+				&& Arbiter.Util.existsAndNotNull(findme.position)){
+			
+			
+			if(!findme.gotHighAccuracy){
+				
+				context.addPoint(findme.position, context.lowAccuracyPointStyle);
+				
+				context.geolocation.getCurrentLocationHighAccuracy();
+			}else{
+				
+				context.addPoint(findme.position, context.highAccuracyPointStyle);
+			}
 		}
+	}, function(e){
+		console.log("FindMe error loading saved position: " + JSON.stringify(e));
 	});
-	
-	geolocation.getLocation();
 };

@@ -1,6 +1,8 @@
 Arbiter.Cordova.Project = (function(){
 	var describeFeatureTypeReader = new OpenLayers.Format.WFSDescribeFeatureType();
 	
+	var includeOOMWorkaround = true;
+	
 	var syncInProgress = false;
 	
 	var getSchemaHelper = function(specificSchemas, layerId){
@@ -239,7 +241,7 @@ Arbiter.Cordova.Project = (function(){
 					throw "AOI layer does not exist";
 				}
 				
-				var findMe = new Arbiter.FindMe(map, aoiLayer);
+				var findMe = new Arbiter.FindMe(map, aoiLayer, includeOOMWorkaround);
 				
 				findMe.findMe();
 			}catch(e){

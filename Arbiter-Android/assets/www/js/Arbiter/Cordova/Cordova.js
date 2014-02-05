@@ -308,6 +308,12 @@ Arbiter.Cordova = (function() {
 			
 			cordova.exec(null, null, "ArbiterCordova",
 					"dismissDownloadingSchemasProgress", []);
+		},
+		
+		alertGeolocationError: function(msg){
+			
+			cordova.exec(null, null, "ArbiterCordova",
+					"alertGeolocationError", [msg]);
 		}
 	};
 })();

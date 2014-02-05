@@ -3,6 +3,22 @@ var app = (function() {
 	var waitFuncs = [];
 	var ArbiterInitialized = false;
 
+	var findMeOOM = function(){
+		
+		var map = Arbiter.Map.getMap();
+		
+		var aoiLayer = map.getLayersByName(Arbiter.AOI)[0];
+		
+		if(Arbiter.Util.existsAndNotNull(aoiLayer)){
+			
+			var findme = new Arbiter.FindMe(map, aoiLayer, true);
+			
+			findme.resume();
+		}else{
+			console.log("There is no aoi layer!");
+		}
+	};
+	
 	/**
 	 * On device ready
 	 */
@@ -78,7 +94,12 @@ var app = (function() {
 								
 								Arbiter.Loaders.LayersLoader.addEventTypes();
 								
-								Arbiter.Loaders.LayersLoader.load();
+								Arbiter.Loaders.LayersLoader.load(function(){
+									
+									findMeOOM();
+								}, function(e){
+									console.log("Could not load layers during initialization: " + JSON.stringify(e));
+								});
 								
 								for ( var i = 0; i < waitFuncs.length; i++) {
 									waitFuncs[i].call();

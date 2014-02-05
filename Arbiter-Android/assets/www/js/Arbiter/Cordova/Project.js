@@ -3,8 +3,6 @@ Arbiter.Cordova.Project = (function(){
 	
 	var syncInProgress = false;
 	
-	var minimumFindMeZoom = 18;
-	
 	var getSchemaHelper = function(specificSchemas, layerId){
 		
 		specificSchemas.push(Arbiter.getLayerSchemas()[layerId]);
@@ -231,36 +229,19 @@ Arbiter.Cordova.Project = (function(){
 			zoomToExtent(Arbiter.DEFAULT_ZOOM_EXTENT);
 		},
 		
-		getCurrentPosition: function(onSuccess, onFailure){
-			navigator.geolocation.getCurrentPosition(function(position){
-				if(Arbiter.Util.funcExists(onSuccess)){
-					onSuccess(position);
-				}
-			}, function(e){
-				if(Arbiter.Util.funcExists(onFailure)){
-					onFailure(e);
-				}
-			});
-		},
-		
 		zoomToCurrentPosition: function(onSuccess, onFailure){
 			try{
-				this.getCurrentPosition(function(position){
-					var lonlat = new OpenLayers.LonLat(position.coords
-							.longitude, position.coords.latitude);
-					
-					var map = Arbiter.Map.getMap();
-					var currentZoom = map.getZoom();
-					
-					if(currentZoom <= minimumFindMeZoom){
-						currentZoom = minimumFindMeZoom;
-					}
-					
-					lonlat.transform(new OpenLayers.Projection("EPSG:4326"),
-							new OpenLayers.Projection(map.getProjection()));
-					
-					map.setCenter(lonlat, currentZoom);
-				});
+				var map = Arbiter.Map.getMap();
+				
+				var aoiLayer = map.getLayersByName(Arbiter.AOI)[0];
+				
+				if(!Arbiter.Util.funcExists(aoiLayer)){
+					throw "AOI layer does not exist";
+				}
+				
+				var findMe = new Arbiter.FindMe(map, aoiLayer);
+				
+				findMe.findMe();
 			}catch(e){
 				console.log(e);
 			}

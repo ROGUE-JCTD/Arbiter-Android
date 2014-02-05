@@ -33,6 +33,8 @@ public class SwitchProjectDialog extends ArbiterDialogFragment{
 		
 		LocalBroadcastManager.getInstance(getActivity().getApplicationContext())
 			.sendBroadcast(new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));
+		
+		this.getActivity().finish();
 	}
 
 	@Override

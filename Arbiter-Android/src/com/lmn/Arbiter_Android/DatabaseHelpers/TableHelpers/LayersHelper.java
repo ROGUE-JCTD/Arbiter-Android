@@ -29,6 +29,8 @@ public class LayersHelper implements BaseColumns{
 	public static final String COLOR = "color";
 	public static final String LAYER_VISIBILITY = "visibility";
 	public static final String WORKSPACE = "workspace";
+	public static final String LAYER_ORDER = "layerOrder";
+	
 	private LayersHelper(){}
 	
 	private static LayersHelper helper = null;
@@ -51,9 +53,25 @@ public class LayersHelper implements BaseColumns{
 					COLOR + " TEXT, " +
 					LAYER_VISIBILITY + " TEXT, " +
 					WORKSPACE + " TEXT, " +
-					SERVER_ID + " INTEGER);";
+					SERVER_ID + " INTEGER, " + 
+					LAYER_ORDER + " INTEGER);";
 		
 		db.execSQL(sql);
+		
+		createAutoIncrementLayerOrderTrigger(db);
+	}
+	
+	private void createAutoIncrementLayerOrderTrigger(SQLiteDatabase db){
+		
+		String createTriggerSql = "CREATE TRIGGER addLayerOrder "
+				+ "AFTER INSERT ON " + LAYERS_TABLE_NAME + " "
+				+ "BEGIN "
+					+ "UPDATE " + LAYERS_TABLE_NAME + " SET " + LAYER_ORDER + "="
+					+ "(SELECT IFNULL(MAX(" + LAYER_ORDER + "),0) + 1 FROM "
+					+ LAYERS_TABLE_NAME + ") WHERE " + _ID + "= NEW." + _ID + "; "
+				+ "END;";
+		
+		db.execSQL(createTriggerSql);
 	}
 	
 	public ArrayList<Layer> getAll(SQLiteDatabase db){
@@ -67,12 +85,13 @@ public class LayersHelper implements BaseColumns{
 			LAYER_TITLE, // 3
 			BOUNDING_BOX, // 4
 			COLOR, // 5
-			LAYER_VISIBILITY // 6
+			LAYER_ORDER, // 6
+			LAYER_VISIBILITY // 7
 		};
 		
 		// get all of the layers and 
 		// How to sort the results
-		String orderBy = LAYER_TITLE + " COLLATE NOCASE";
+		String orderBy = LAYER_ORDER + " DESC";
 		
 		Cursor cursor = db.query(LAYERS_TABLE_NAME, columns, null, null, null, null, orderBy);
 		
@@ -83,7 +102,8 @@ public class LayersHelper implements BaseColumns{
 		for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 			layers.add(new Layer(cursor.getInt(0),
 					cursor.getString(1), cursor.getInt(2), null, null, cursor.getString(3), 
-					cursor.getString(4), cursor.getString(5), util.convertIntToBoolean(cursor.getInt(6))));
+					cursor.getString(4), cursor.getString(5), cursor.getInt(6),
+					util.convertIntToBoolean(cursor.getInt(7))));
 		}
 		
 		cursor.close();
@@ -101,8 +121,10 @@ public class LayersHelper implements BaseColumns{
 			SERVER_ID, // 2
 			LAYER_TITLE, // 3
 			BOUNDING_BOX, // 4
-			COLOR, //5
-			LAYER_VISIBILITY // 6
+			COLOR, //5,
+			LAYER_ORDER, // 6
+			LAYER_VISIBILITY // 7
+			
 		};
 		
 		String selection = _ID + "=?";
@@ -119,7 +141,8 @@ public class LayersHelper implements BaseColumns{
 			
 			layer = new Layer(cursor.getInt(0),
 					cursor.getString(1), cursor.getInt(2), null, null, cursor.getString(3), 
-					cursor.getString(4), cursor.getString(5), util.convertIntToBoolean(cursor.getInt(6)));
+					cursor.getString(4), cursor.getString(5), cursor.getInt(6),
+					util.convertIntToBoolean(cursor.getInt(7)));
 		}
 		
 		cursor.close();
@@ -241,7 +264,7 @@ public class LayersHelper implements BaseColumns{
 			for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 				delete(projectDb, featureDb, context, new Layer(cursor.getInt(0),
 						cursor.getString(1), cursor.getInt(2), null, null, null, 
-						null, null, false));
+						null, null, -1, false));
 			}
 			
 			cursor.close();
@@ -251,6 +274,46 @@ public class LayersHelper implements BaseColumns{
 			e.printStackTrace();
 		} finally {
 			projectDb.endTransaction();
+		}
+	}
+	
+	private ContentValues getValuesFromLayer(Layer layer){
+		
+		ContentValues values = new ContentValues();
+		
+		values.put(LAYER_TITLE, layer.getLayerTitle());
+		values.put(FEATURE_TYPE, layer.getFeatureType());
+		values.put(BOUNDING_BOX, layer.getLayerBBOX());
+		values.put(COLOR, layer.getColor());
+		values.put(LAYER_VISIBILITY, layer.isChecked());
+		values.put(WORKSPACE, layer.getWorkspace());
+		values.put(SERVER_ID, layer.getServerId());
+		values.put(LAYER_ORDER, layer.getLayerOrder());
+		
+		return values;
+	}
+	
+	public void updateLayers(SQLiteDatabase db, Context context, ArrayList<Layer> layers){
+		db.beginTransaction();
+		
+		try {
+			
+			Layer layer = null;
+			
+			for(int i = 0, count = layers.size(); i < count; i++){
+				layer = layers.get(i);
+				
+				updateAttributeValues(db, context, layer.getLayerId(),
+						getValuesFromLayer(layer), null);
+			}
+			
+			db.setTransactionSuccessful();
+				
+			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
+		} catch (Exception e){
+			e.printStackTrace();
+		} finally {
+			db.endTransaction();
 		}
 	}
 	

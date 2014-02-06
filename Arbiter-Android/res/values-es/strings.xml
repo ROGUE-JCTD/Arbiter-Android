@@ -178,4 +178,7 @@
     <string name="media_download_errors_label">Fotos que no pudieron descargar:</string>
     <string name="retry">Reintente</string>
 	<string name="geolocation_error">Error de geolocalización</string>
+	<string name="layer_order">Orden de las capas</string>
+	<string name="move_down">Mueve hacia abajo</string>
+    <string name="move_up">Mueve hacia arriba</string>
 </resources>

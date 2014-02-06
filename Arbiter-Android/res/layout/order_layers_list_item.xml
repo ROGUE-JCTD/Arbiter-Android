@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+	<RelativeLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="56dip"
+	    android:background="@drawable/list_selector"
+	    android:clickable="true" >
+   		
+	    <!--  ListRow Left sied ToggleButton -->
+	    <LinearLayout android:id="@+id/moveLayerDownContainer"
+	        android:layout_width="76dp"
+	        android:layout_height="wrap_content"
+	        android:padding="3dip"
+	        android:layout_alignParentLeft="true"
+	        android:layout_marginRight="5dip">
+
+	        <ImageButton
+		        android:id="@+id/moveLayerDown"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:padding="10dip"
+		        android:src="@drawable/arrow_down"
+		        android:contentDescription="@string/move_down"/>
+	 
+	    </LinearLayout>
+	
+		<!-- Layer name-->
+	    <TextView
+	        android:id="@+id/layerName"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignTop="@+id/moveLayerDownContainer"
+	        android:layout_marginTop="10dip"
+	        android:layout_toRightOf="@+id/moveLayerDownContainer"
+	        android:text="@string/projects_activity_name"
+	        android:textColor="#040404"
+	        android:typeface="sans"
+	        android:textSize="14sp"
+	        android:textStyle="bold"/>
+	    
+	    <!-- Server name -->
+	    <TextView
+	        android:id="@+id/serverName"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/layerName"
+	        android:textColor="#343434"
+	        android:textSize="12sp"
+	        android:layout_marginTop="1dip"
+	        android:layout_toRightOf="@+id/moveLayerDownContainer"
+	        android:text="@string/server_name_hint" />
+	    
+	</RelativeLayout>
+    
+    
+    <!--  ListRow Left sied ToggleButton -->
+    <LinearLayout android:id="@+id/moveLayerUpContainer"
+        android:layout_width="56dip"
+        android:layout_height="55dip"
+        android:layout_alignParentRight="true"
+        android:gravity="center"
+        android:clickable="true">
+        
+	    <ImageButton
+		        android:id="@+id/moveLayerUp"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:padding="10dip"
+		        android:src="@drawable/arrow_up"
+		        android:contentDescription="@string/move_up"/>
+	    
+    </LinearLayout>
+    
+</RelativeLayout>

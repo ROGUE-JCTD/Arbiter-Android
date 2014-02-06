@@ -26,13 +26,15 @@ public class Layer {
 	private String color = null;
 	
 	private int serverId;
+	private int layerOrder;
 	
 	// Recycled for whether the layer is checked in the AddLayers List
 	// and for the layers visibility
 	private boolean checked;
 	
+	
 	public Layer(int layerId, String featureType, int serverId, String serverName, String serverUrl,
-			String title, String boundingBox, String color, boolean checked){
+			String title, String boundingBox, String color, int layerOrder, boolean checked){
 		this.layerId = layerId;
 		this.featureType = featureType;
 		this.serverName = serverName;
@@ -43,14 +45,15 @@ public class Layer {
 		this.serverId = serverId;
 		this.serverUrl = serverUrl;
 		this.workspace = null;
+		this.layerOrder = layerOrder;
 		
 		setChecked(checked);
 	}
 	
 	public Layer(int layerId, String featureType, int serverId, String serverName, String serverUrl,
-			String title, String srs, String boundingBox, String color, boolean checked){
+			String title, String srs, String boundingBox, String color, int layerOrder, boolean checked){
 		this(layerId, featureType, serverId, serverName, serverUrl,
-				title, boundingBox, color, checked);
+				title, boundingBox, color, layerOrder, checked);
 		
 		this.srs = srs;
 	}
@@ -68,6 +71,7 @@ public class Layer {
 		this.serverId = item.getServerId();
 		this.serverUrl = item.getServerUrl();
 		this.workspace = item.getWorkspace();
+		this.layerOrder = item.getLayerOrder();
 	}
 	
 	public int getLayerId(){
@@ -138,15 +142,11 @@ public class Layer {
 		return this.workspace;
 	}
 	
-	@Override
-	public String toString(){
-		return  "\t layerId: " + layerId +
-				"\n\t featureType: " + featureType + 
-				"\n\t serverName: " + serverName +
-				"\n\t serverId: " + serverId +
-				"\n\t title: " + title + 
-				"\n\t boundingBox: " + boundingBox +
-				"\n\t color: " + color;
+	public int getLayerOrder(){
+		return this.layerOrder;
 	}
 	
+	public void setLayerOrder(int layerOrder){
+		this.layerOrder = layerOrder;
+	}
 }

@@ -4,10 +4,8 @@ import java.util.ArrayList;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,7 +23,7 @@ import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.ListAdapters.LayerListAdapter;
 import com.lmn.Arbiter_Android.LoaderCallbacks.LayerLoaderCallbacks;
-import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
+import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import com.lmn.Arbiter_Android.OrderLayers.OrderLayersViewController;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
@@ -39,6 +37,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 	@SuppressWarnings("unused")
 	private AddLayersConnectivityListener connectivityListener;
 	
+	private MapChangeListener mapChangeListener;
 	private ImageButton addLayersBtn;
 	private ImageButton orderLayersBtn;
 	private ImageButton cancelOrderLayersBtn;
@@ -62,6 +61,13 @@ public class LayersDialog extends ArbiterDialogFragment{
 		super.onCreate(savedInstanceState);
 		
 		setRetainInstance(true);
+		
+		try {
+			this.mapChangeListener = (MapChangeListener) this.getActivity();
+		} catch (ClassCastException e){
+			throw new ClassCastException(this.getActivity().toString() 
+					+ " must implement MapChangeListener");
+		}
 	}
 	
 	@Override
@@ -169,6 +175,8 @@ public class LayersDialog extends ArbiterDialogFragment{
 					@Override
 					public void run(){
 						orderLayersController.endOrderLayersMode();
+						
+						mapChangeListener.getMapChangeHelper().onLayerOrderChanged();
 					}
 				});
 			}

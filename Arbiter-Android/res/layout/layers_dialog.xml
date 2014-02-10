@@ -42,7 +42,7 @@
 	        android:layout_height="wrap_content"
 	        android:layout_marginLeft="30dp"
 	        android:contentDescription="@string/add_layers_button"
-	        android:src="@drawable/content_new" />
+	        android:src="@drawable/content_new_black" />
    		
     </LinearLayout>
     

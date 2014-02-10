@@ -81,12 +81,13 @@ public class LayersHelper implements BaseColumns{
 		String[] columns = {
 			LAYERS_TABLE_NAME + "." + _ID, // 0
 			FEATURE_TYPE, // 1
-			SERVER_ID, // 2
-			LAYER_TITLE, // 3
-			BOUNDING_BOX, // 4
-			COLOR, // 5
-			LAYER_ORDER, // 6
-			LAYER_VISIBILITY // 7
+			WORKSPACE, // 2
+			SERVER_ID, // 3
+			LAYER_TITLE, // 4
+			BOUNDING_BOX, // 5
+			COLOR, // 6
+			LAYER_ORDER, // 7
+			LAYER_VISIBILITY // 8
 		};
 		
 		// get all of the layers and 
@@ -101,9 +102,9 @@ public class LayersHelper implements BaseColumns{
 		//Traverse the cursors to populate the projects array
 		for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 			layers.add(new Layer(cursor.getInt(0),
-					cursor.getString(1), cursor.getInt(2), null, null, cursor.getString(3), 
-					cursor.getString(4), cursor.getString(5), cursor.getInt(6),
-					util.convertIntToBoolean(cursor.getInt(7))));
+					cursor.getString(1), cursor.getString(2), cursor.getInt(3), null, null, cursor.getString(4), 
+					cursor.getString(5), cursor.getString(6), cursor.getInt(7),
+					util.convertIntToBoolean(cursor.getInt(8))));
 		}
 		
 		cursor.close();
@@ -118,12 +119,13 @@ public class LayersHelper implements BaseColumns{
 		String[] columns = {
 			LAYERS_TABLE_NAME + "." + _ID, // 0
 			FEATURE_TYPE, // 1
-			SERVER_ID, // 2
-			LAYER_TITLE, // 3
-			BOUNDING_BOX, // 4
-			COLOR, //5,
-			LAYER_ORDER, // 6
-			LAYER_VISIBILITY // 7
+			WORKSPACE, // 2
+			SERVER_ID, // 3
+			LAYER_TITLE, // 4
+			BOUNDING_BOX, // 5
+			COLOR, // 6
+			LAYER_ORDER, // 7
+			LAYER_VISIBILITY // 8
 			
 		};
 		
@@ -140,9 +142,9 @@ public class LayersHelper implements BaseColumns{
 			Util util = new Util();
 			
 			layer = new Layer(cursor.getInt(0),
-					cursor.getString(1), cursor.getInt(2), null, null, cursor.getString(3), 
-					cursor.getString(4), cursor.getString(5), cursor.getInt(6),
-					util.convertIntToBoolean(cursor.getInt(7)));
+					cursor.getString(1), cursor.getString(2), cursor.getInt(3), null, null, cursor.getString(4), 
+					cursor.getString(5), cursor.getString(6), cursor.getInt(7),
+					util.convertIntToBoolean(cursor.getInt(8)));
 		}
 		
 		cursor.close();
@@ -263,7 +265,7 @@ public class LayersHelper implements BaseColumns{
 			//Traverse the cursors to populate the projects array
 			for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 				delete(projectDb, featureDb, context, new Layer(cursor.getInt(0),
-						cursor.getString(1), cursor.getInt(2), null, null, null, 
+						cursor.getString(1), null, cursor.getInt(2), null, null, null, 
 						null, null, -1, false));
 			}
 			

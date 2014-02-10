@@ -6,6 +6,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.lmn.Arbiter_Android.DatabaseHelpers.Migrations.DatabaseVersionException;
+import com.lmn.Arbiter_Android.DatabaseHelpers.Migrations.UpgradeToVersionTwo;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FailedSync;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
@@ -13,7 +15,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TileIdsHelper;
 
 public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "arbiter_project.db";
-	private static int DATABASE_VERSION = 1;
+	private static int DATABASE_VERSION = 2;
 	
 	private String currentPath;
 	
@@ -47,16 +49,17 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// TODO: Migrate the tables
-		db.execSQL("DROP TABLE IF EXISTS " + LayersHelper.LAYERS_TABLE_NAME);
-		db.execSQL("DROP TABLE IF EXISTS " + PreferencesHelper.TABLE_NAME);
-		db.execSQL("DROP TABLE IF EXISTS " + TileIdsHelper.TABLE_NAME);
-		db.execSQL("DROP TABLE IF EXISTS " + FailedSync.TABLE_NAME);
 		
-		LayersHelper.getLayersHelper().createTable(db);
-		PreferencesHelper.getHelper().createTable(db);
-		TileIdsHelper.getHelper().createTable(db);
-		FailedSync.getHelper().createTable(db);
+		if(oldVersion == 1 && newVersion == 2){
+			try {
+				UpgradeToVersionTwo upgradeHelper = new UpgradeToVersionTwo(db, oldVersion, newVersion);
+				
+				upgradeHelper.upgrade();
+			} catch (DatabaseVersionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	@Override

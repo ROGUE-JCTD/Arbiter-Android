@@ -161,7 +161,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 		});
 	};
 	
-	var loadLayers = function(onSuccess){
+	var loadLayers = function(dbLayers, onSuccess){
 		
 		reset();
 		
@@ -192,16 +192,20 @@ Arbiter.Loaders.LayersLoader = (function(){
 		var key;
 		var editableLayers = 0;
 		
-		for(key in layerSchemas){
+		for(var i = 0; i < dbLayers.length; i++){
+			key = dbLayers[i][Arbiter.LayersHelper.layerId()];
+			
 			schema = layerSchemas[key];
 			
-			// Load the wms layer
 			loadWMSLayer(key, schema);
 			
 			layersToLoad++;
 		}
 		
-		for(key in layerSchemas){
+		for(var i = 0; i < dbLayers.length; i++){
+			
+			key = dbLayers[i][Arbiter.LayersHelper.layerId()];
+			
 			schema = layerSchemas[key];
 			
 			if(schema.isEditable()){
@@ -252,7 +256,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 					Arbiter.FeatureTableHelper.loadLayerSchemas(layers, function(){
 							
 							// Load the layers onto the map
-							loadLayers(function(){
+							loadLayers(layers, function(){
 								
 								var controlPanelHelper = new Arbiter.ControlPanelHelper();
 								controlPanelHelper.getActiveControl(function(activeControl){

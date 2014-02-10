@@ -9,6 +9,7 @@ Arbiter.LayersHelper = (function(){
 	var BOUNDING_BOX = "bbox";
 	var COLOR = "color";
 	var LAYER_VISIBILITY = "visibility";
+	var LAYER_ORDER = "layerOrder";
 	
 	var getLayersArray = function(res){
 		var layers = [];
@@ -52,7 +53,8 @@ Arbiter.LayersHelper = (function(){
 		},
 		
 		getLayers: function(tx, context, onSuccess, onFailure){
-			var sql = "select * from " + LAYERS_TABLE_NAME + ";";
+			var sql = "select * from " + LAYERS_TABLE_NAME 
+				+ " ORDER BY " + LAYER_ORDER + ";";
 			
 			tx.executeSql(sql, [], function(tx, res){
 				

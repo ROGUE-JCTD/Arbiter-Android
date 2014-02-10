@@ -40,6 +40,10 @@ public class MapChangeHelper {
 		reloadMap();
 	}
 	
+	public void onLayerOrderChanged(){
+		reloadMap();
+	}
+	
 	public void onSyncCompleted(){
 		activity.runOnUiThread(new Runnable(){
 			@Override

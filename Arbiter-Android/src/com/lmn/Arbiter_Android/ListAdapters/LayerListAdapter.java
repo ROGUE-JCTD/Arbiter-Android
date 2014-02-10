@@ -13,6 +13,8 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
+import com.lmn.Arbiter_Android.OrderLayers.OrderLayersModel;
+import com.lmn.Arbiter_Android.OrderLayers.OrderLayersModelException;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 import android.content.ContentValues;
@@ -29,7 +31,8 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<ArrayList<Layer>>{
-
+	public static final String TAG = "LayerListAdapter";
+	
 	private MapChangeListener mapChangeListener;
 	
 	private ArrayList<Layer> items;
@@ -38,6 +41,8 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 	private final FragmentActivity activity;
 	private final Context context;
 	private final ArbiterProject arbiterProject;
+	private boolean orderLayersMode;
+	private OrderLayersModel orderLayersModel;
 	
 	private static final Map<String, String> COLOR_MAP;
     static {
@@ -68,6 +73,13 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 		this.itemLayout = itemLayout;
 		this.activity = activity;
 		this.arbiterProject = ArbiterProject.getArbiterProject();
+		this.orderLayersMode = false;
+		try {
+			this.orderLayersModel = new OrderLayersModel(this);
+		} catch (OrderLayersModelException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		try {
 			mapChangeListener = (MapChangeListener) activity;
@@ -77,18 +89,20 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 		}
 	}
 	
-	public void setData(ArrayList<Layer> data){
-		items = data;
+	public void setData(ArrayList<Layer> layers){
+		items = layers;
 
+		this.orderLayersModel.setLayers(layers);
+		
 		notifyDataSetChanged();
 	}
 	
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent){
+	public View getView(final int position, View convertView, ViewGroup parent){
 		View view = convertView;
 		
 		// Inflate the layout
-		if(view == null){
+		if(!viewIsValid(view)){
 			view = inflater.inflate(itemLayout, null);
 		}
 		
@@ -97,12 +111,17 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 		if(listItem != null){
 			if(listItem.getColor() != null) {
 				View layerColorView = view.findViewById(R.id.layerColor);
-				layerColorView.setBackgroundColor(Color.parseColor(COLOR_MAP.get(listItem.getColor())));
+				
+				if(layerColorView != null){
+					layerColorView.setBackgroundColor(Color.parseColor(COLOR_MAP.get(listItem.getColor())));
+				}
 			}
             TextView layerNameView = (TextView) view.findViewById(R.id.layerName);
             TextView serverNameView = (TextView) view.findViewById(R.id.serverName);
             ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteLayer);
             ToggleButton layerVisibility = (ToggleButton) view.findViewById(R.id.layerVisibility);
+            ImageButton moveLayerUp = (ImageButton) view.findViewById(R.id.moveLayerUp);
+            ImageButton moveLayerDown = (ImageButton) view.findViewById(R.id.moveLayerDown);
             
             if(layerNameView != null){
             	layerNameView.setText(listItem.getLayerTitle());
@@ -136,6 +155,38 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 						updateLayerVisibility(listItem.getLayerId(), listItem.isChecked()); 
 					}
 				});
+            }
+            
+            if(moveLayerUp != null){
+            	
+            	if(position == 0){
+            		moveLayerUp.setVisibility(View.GONE);
+            	}else{
+            		moveLayerUp.setVisibility(View.VISIBLE);
+            	}
+            	
+            	moveLayerUp.setOnClickListener(new OnClickListener(){
+            		@Override
+            		public void onClick(View v){
+            			orderLayersModel.moveLayerUp(position);
+            		}
+            	});
+            }
+            
+            if(moveLayerDown != null){
+            	
+            	if(position == (getCount() - 1)){
+            		moveLayerDown.setVisibility(View.GONE);
+            	}else{
+            		moveLayerDown.setVisibility(View.VISIBLE);
+            	}
+            	
+            	moveLayerDown.setOnClickListener(new OnClickListener(){
+            		@Override
+            		public void onClick(View v){
+            			orderLayersModel.moveLayerDown(position);
+            		}
+            	});
             }
 		}
 		
@@ -194,6 +245,31 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 		});
 	}
 	
+	private boolean viewIsValid(View view){
+		
+		if(view == null){
+			return false;
+		}
+		
+		boolean valid = true;
+		
+		ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteLayer);
+		
+		if(this.orderLayersMode){
+			
+			if(deleteButton != null){
+				valid = false;
+			}
+		}else{
+			
+			if(deleteButton == null){
+				valid = false;
+			}
+		}
+		
+		return valid;
+	}
+	
 	@Override
 	public int getCount() {
 		if(items == null){
@@ -215,5 +291,14 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 
 	public ArrayList<Layer> getLayers(){
 		return items;
+	}
+	
+	public void setItemLayout(int itemLayout, boolean orderLayersMode){
+		this.itemLayout = itemLayout;
+		this.orderLayersMode = orderLayersMode;
+	}
+	
+	public OrderLayersModel getOrderLayersModel(){
+		return this.orderLayersModel;
 	}
 }

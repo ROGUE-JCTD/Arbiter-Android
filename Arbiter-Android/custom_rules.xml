@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="custom_rules">
+    
+    <available file="../.git" type="dir" property="git.present"/>
+
+    <target name="git.revision" description="Store git revision in ${repository.version}" if="git.present">
+        <exec executable="git" outputproperty="git.revision" failifexecutionfails="false" errorproperty="">
+            <arg value="describe"/>
+            <arg value="--tags"/>
+             <arg value="--always"/>
+            <arg value="HEAD"/>
+        </exec>
+        <condition property="repository.version" value="${git.revision}" else="unknown">
+            <and>
+                <isset property="git.revision"/>
+                <length string="${git.revision}" trim="yes" length="0" when="greater"/>
+            </and>
+        </condition>
+    </target>
+    
+    <target name="git.commitDate" description="Store date of most recent commit in ${repository.date}" if="git.present">
+        <exec executable="git" outputproperty="git.commitDate" failifexecutionfails="false" errorproperty="">
+            <arg value="log"/>
+            <arg value="-1"/>
+            <arg value="--format=%cd"/>
+            <arg value="--date=iso"/>
+        </exec>
+        <condition property="repository.date" value="${git.commitDate}" else="unknown">
+            <isset property="git.commitDate"/>
+        </condition>
+    </target> 
+    
+    <target name="update-version" depends="git.revision,git.commitDate">
+	<property name="match.end" value='"' />
+        
+        <property name="matchVersionName.start" value='android:versionName=\"' />
+        <replaceregexp file="AndroidManifest.xml" match='${matchVersionName.start}[^"]*${match.end}' replace="${matchVersionName.start}${repository.version} - ${repository.date}${match.end}" />
+    </target>
+
+    <target name="-pre-build" depends="update-version,git.revision,git.commitDate">
+		<echo>Updating version for commit: ${repository.version} - ${repository.date}</echo>
+    </target>
+
+    <target name="custom-post-build-debug" if="${build.is.packaging.debug}" depends="git.revision">
+   		<echo>Build in debug mode off of commit: ${repository.version}</echo>
+        <move quiet="true" failonerror="false" file="bin/Arbiter-debug.apk" tofile="bin/Arbiter-${repository.version}.apk" />
+    </target>
+    
+    <target name="custom-post-build-release" unless="${build.is.packaging.debug}" depends="git.revision">
+        <echo>Build in release mode off of commit: ${repository.version}</echo>
+        <move quiet="true" failonerror="false" file="bin/Arbiter-release.apk" tofile="bin/Arbiter-${repository.version}.apk" />
+    </target>
+    
+    <target name="-post-build" depends="custom-post-build-debug,custom-post-build-release">
+        <echo>Debug mode = ${build.is.packaging.debug}</echo>
+    </target>
+</project>

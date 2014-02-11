@@ -14,6 +14,7 @@ import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.InsertProjectHelper;
 import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.About.About;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.ConnectivityListeners.SyncConnectivityListener;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
@@ -42,7 +43,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 
 public class MapActivity extends FragmentActivity implements CordovaInterface,
 		Map.MapChangeListener, Map.CordovaMap, HasThreadPool{
@@ -355,6 +355,12 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         		
         		return true;
     		
+        	case R.id.action_about:
+        		
+        		new About(this).displayAboutDialog();;
+        		
+        		return true;
+        		
     		default:
     			return super.onOptionsItemSelected(item);
     	}

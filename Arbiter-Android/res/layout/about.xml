@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="15dp" >
+
+    <RelativeLayout 
+        android:id="@+id/commit_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp">
+        
+        <TextView
+        	android:id="@+id/version_label"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/version" />
+    
+    	<TextView
+        	android:id="@+id/version"
+        	android:layout_toRightOf="@id/version_label"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:layout_marginLeft="20dp"
+        	android:text="@string/version" />
+    	
+    </RelativeLayout>
+    
+    <RelativeLayout 
+        android:id="@+id/commit_date_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp">
+        
+        <TextView
+        	android:id="@+id/commit_date_label"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/commit_date" />
+    
+    	<TextView
+        	android:id="@+id/commit_date"
+        	android:layout_toRightOf="@id/commit_date_label"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:layout_marginLeft="20dp"
+        	android:text="@string/commit_date" />
+    	
+    </RelativeLayout>
+    
+	<RelativeLayout 
+	    android:id="@+id/build_date_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp">
+        
+        
+    	<TextView
+        	android:id="@+id/build_date_label"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/build_date" />
+    
+    	<TextView
+        	android:id="@+id/build_date"
+        	android:layout_marginLeft="20dp"
+        	android:layout_toRightOf="@id/build_date_label"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/build_date" />
+    	
+    </RelativeLayout>
+    
+</LinearLayout>

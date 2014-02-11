@@ -181,4 +181,8 @@
 	<string name="layer_order">Orden de las capas</string>
 	<string name="move_down">Mueve hacia abajo</string>
     <string name="move_up">Mueve hacia arriba</string>
+    <string name="about">Sobre</string>
+    <string name="version">Destino:</string>
+    <string name="commit_date">Tiempo de Destino:</string>
+    <string name="build_date">Fecha de construcción:</string>
 </resources>

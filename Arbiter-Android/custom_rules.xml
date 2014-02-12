@@ -5,10 +5,9 @@
 
     <target name="git.revision" description="Store git revision in ${repository.version}" if="git.present">
         <exec executable="git" outputproperty="git.revision" failifexecutionfails="false" errorproperty="">
-            <arg value="describe"/>
-            <arg value="--tags"/>
-             <arg value="--always"/>
-            <arg value="HEAD"/>
+            <arg value="log"/>
+            <arg value="-1"/>
+            <arg value="--format=%h"/>
         </exec>
         <condition property="repository.version" value="${git.revision}" else="unknown">
             <and>

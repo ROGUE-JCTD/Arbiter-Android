@@ -18,9 +18,9 @@
     </target>
     
     <target name="prepare-apk-for-archive" depends="git.revision">
-        <delete quiet="true" dir="apks" />
-        <mkdir dir="apks" />
-        <copy file="bin/Arbiter-${repository.version}.apk" tofile="apks/Arbiter-${repository.version}.apk" />
-	<symlink link="apks/Arbiter.apk" resource="apks/Arbiter-${repository.version}.apk" />
+        <delete quiet="true">
+            <fileset dir="../" includes="Arbiter*.apk" />
+        </delete>
+        <copy file="bin/Arbiter-${repository.version}.apk" tofile="../Arbiter-${repository.version}.apk" />
     </target>
 </project>

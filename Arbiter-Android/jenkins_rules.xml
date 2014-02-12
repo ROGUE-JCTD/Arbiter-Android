@@ -21,6 +21,6 @@
         <delete quiet="true">
             <fileset dir="../" includes="Arbiter*.apk" />
         </delete>
-        <copy file="bin/Arbiter-${repository.version}.apk" tofile="../Arbiter-${repository.version}.apk" />
+        <copy file="bin/Arbiter-${repository.version}.apk" tofile="../Arbiter.apk" />
     </target>
 </project>

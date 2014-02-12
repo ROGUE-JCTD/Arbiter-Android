@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="jenkins_rules">
+    
+    <available file="../.git" type="dir" property="git.present"/>
+
+    <target name="git.revision" description="Store git revision in ${repository.version}" if="git.present">
+        <exec executable="git" outputproperty="git.revision" failifexecutionfails="false" errorproperty="">
+            <arg value="log"/>
+            <arg value="-1"/>
+            <arg value="--format=%h"/>
+        </exec>
+        <condition property="repository.version" value="${git.revision}" else="unknown">
+            <and>
+                <isset property="git.revision"/>
+                <length string="${git.revision}" trim="yes" length="0" when="greater"/>
+            </and>
+        </condition>
+    </target>
+    
+    <target name="prepare-apk-for-archive" depends="git.revision">
+        <delete quiet="true" dir="apks" />
+        <mkdir dir="apks" />
+        <copy file="bin/Arbiter-${repository.version}.apk" tofile="apks/Arbiter-${repository.version}.apk" />
+	<symlink link="apks/Arbiter.apk" resource="apks/Arbiter-${repository.version}.apk" />
+    </target>
+</project>

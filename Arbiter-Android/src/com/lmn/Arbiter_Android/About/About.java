@@ -56,16 +56,33 @@ public class About {
 	private void setVersionInfo(View view){
 		
 		TextView buildDate = (TextView) view.findViewById(R.id.build_date);
+		TextView version = (TextView) view.findViewById(R.id.version);
+		TextView commitDate = (TextView) view.findViewById(R.id.commit_date);
 		
 		buildDate.setText(getBuildDate());
 		
 		String appVersion = getAppVersion();
 		
-		TextView version = (TextView) view.findViewById(R.id.version);
+		int appVersionLength = appVersion.length();
+		
+		String unknown = activity.getResources().getString(R.string.unknown);
+		
+		if(appVersionLength < 7){
+			
+			version.setText(unknown);
+			commitDate.setText(unknown);
+			
+			return;
+		}
 		
 		version.setText(appVersion.substring(0, 7));
 		
-		TextView commitDate = (TextView) view.findViewById(R.id.commit_date);
+		if(appVersionLength < 35){
+			
+			commitDate.setText(unknown);
+			
+			return;
+		}
 		
 		try {
 			commitDate.setText(formatDate(appVersion.substring(10)));

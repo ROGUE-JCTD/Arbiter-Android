@@ -185,4 +185,5 @@
     <string name="version">Destino:</string>
     <string name="commit_date">Tiempo de Destino:</string>
     <string name="build_date">Fecha de construcción:</string>
+    <string name="unknown">Ignoto</string>
 </resources>

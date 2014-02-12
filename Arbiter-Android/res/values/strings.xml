@@ -185,4 +185,5 @@
     <string name="version">Commit:</string>
     <string name="commit_date">Commit date:</string>
     <string name="build_date">Build date:</string>
+    <string name="unknown">Unknown</string>
 </resources>

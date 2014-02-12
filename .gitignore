@@ -20,6 +20,9 @@ Arbiter-Android/gen/
 Arbiter-Android/local.properties
 Arbiter-Android/ant.properties
 
+# Release key store
+*.keystore
+
 # Eclipse project files
 Arbiter-Android/.classpath
 Arbiter-Android/.project

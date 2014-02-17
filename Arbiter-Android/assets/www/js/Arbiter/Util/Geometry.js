@@ -19,10 +19,14 @@ Arbiter.Util.Geometry.type = {
  * Get the geometry type of a layer given the layer id
  * @param {Number} layerId The id of the layer
  */
-Arbiter.Util.Geometry.getGeometryType = function(layerId){
+Arbiter.Util.Geometry.getGeometryType = function(layerId, geometryType){
 	var schemas = Arbiter.getLayerSchemas();
 	
-	var type = schemas[layerId].getGeometryType();
+	var type = geometryType;
+		
+	if(!Arbiter.Util.existsAndNotNull(type)){
+		type = schemas[layerId].getGeometryType();
+	}
 	
 	if(type === "Point"){
 		return Arbiter.Util.Geometry.type.POINT;

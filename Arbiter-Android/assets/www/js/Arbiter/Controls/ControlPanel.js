@@ -28,14 +28,14 @@ Arbiter.Controls.ControlPanel = (function(){
 		}
 	};
 	
-	var _startInsertMode = function(layerId){
+	var _startInsertMode = function(layerId, _geometryType){
 		
 		selectControl.deactivate();
 		
 		var olLayer = Arbiter.Layers.getLayerById(
 				layerId, Arbiter.Layers.type.WFS);
 		
-		var geometryType = Arbiter.Util.Geometry.getGeometryType(layerId);
+		var geometryType = Arbiter.Util.Geometry.getGeometryType(layerId, _geometryType);
 			
 		var context = Arbiter.Controls.ControlPanel;
 		
@@ -315,8 +315,9 @@ Arbiter.Controls.ControlPanel = (function(){
 			return selectedFeature;
 		},
 		
-		startInsertMode: function(layerId){
-			_startInsertMode(layerId);
+		startInsertMode: function(layerId, geometryType){
+			
+			_startInsertMode(layerId, geometryType);
 		},
 		
 		getInsertControl: function(){

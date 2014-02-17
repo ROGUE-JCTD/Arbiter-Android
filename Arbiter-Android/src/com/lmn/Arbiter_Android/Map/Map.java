@@ -203,7 +203,7 @@ public class Map{
 		
 		String url = "javascript:app.waitForArbiterInit(new Function('"
 				+ "Arbiter.Controls.ControlPanel.startInsertMode("
-				+ Long.toString(layerId) + ", " + geometryType + ")'))";
+				+ Long.toString(layerId) + ", \"" + geometryType + "\")'))";
 		
 		webview.loadUrl(url);
 	}

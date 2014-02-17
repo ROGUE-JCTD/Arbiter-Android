@@ -44,7 +44,15 @@ Arbiter.Util.Geometry.getGeometryType = function(layerId){
 		return Arbiter.Util.Geometry.type.MULTILINE;
 	}
 
+	if(type === "MultiCurve"){
+		return Arbiter.Util.Geometry.type.MULTILINE;
+	}
+	
 	if(type === "MultiPolygon"){
+		return Arbiter.Util.Geometry.type.MULTIPOLYGON;
+	}
+	
+	if(type === "MultiSurface"){
 		return Arbiter.Util.Geometry.type.MULTIPOLYGON;
 	}
 	

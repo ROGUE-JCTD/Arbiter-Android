@@ -223,7 +223,11 @@ Arbiter.Cordova = (function() {
 			
 			if(cancel === false){
 				
-				wktGeometry = checkForGeometryCollection(layerId, featureId, schema.getSRID());
+				if(!Arbiter.Util.existsAndNotNull(featureId)){
+					wktGeometry = getNativeWKT(feature, schema.getSRID());
+				}else{
+					wktGeometry = checkForGeometryCollection(layerId, featureId, schema.getSRID());
+				}
 			}
 			
 			Arbiter.Controls.ControlPanel.exitModifyMode();

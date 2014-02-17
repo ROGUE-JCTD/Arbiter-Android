@@ -186,4 +186,11 @@
     <string name="commit_date">Commit date:</string>
     <string name="build_date">Build date:</string>
     <string name="unknown">Unknown</string>
+    <string name="point">Point</string>
+    <string name="line">Line</string>
+    <string name="polygon">Polygon</string>
+    <string name="multipoint">Multi point</string>
+    <string name="multiline">Multi line</string>
+    <string name="multipolygon">Multi polygon</string>
+    <string name="choose_geometry_type">Geometry type</string>
 </resources>

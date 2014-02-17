@@ -199,11 +199,11 @@ public class Map{
 		webview.loadUrl(url);
 	}
 	
-	public void startInsertMode(CordovaWebView webview, long layerId){
+	public void startInsertMode(CordovaWebView webview, long layerId, String geometryType){
 		
 		String url = "javascript:app.waitForArbiterInit(new Function('"
 				+ "Arbiter.Controls.ControlPanel.startInsertMode("
-				+ Long.toString(layerId) + ")'))";
+				+ Long.toString(layerId) + ", " + geometryType + ")'))";
 		
 		webview.loadUrl(url);
 	}

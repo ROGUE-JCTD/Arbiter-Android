@@ -186,4 +186,11 @@
     <string name="commit_date">Tiempo de Destino:</string>
     <string name="build_date">Fecha de construcción:</string>
     <string name="unknown">Ignoto</string>
+    <string name="point">Punto</string>
+    <string name="line">Línea</string>
+    <string name="polygon">Polígono</string>
+    <string name="multipoint">Puntos múltiple</string>
+    <string name="multiline">Línea múltiple</string>
+    <string name="multipolygon">Polígono múltiple</string>
+    <string name="choose_geometry_type">Tipo de geometría</string>
 </resources>

@@ -133,11 +133,11 @@ public class MapChangeHelper {
 		}
 	}
 	
-	public void startInsertMode(final String featureType, final long layerId){
+	public void startInsertMode(final String featureType, final long layerId, final String geometryType){
 		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
-				Map.getMap().startInsertMode(cordovaWebView, layerId);
+				Map.getMap().startInsertMode(cordovaWebView, layerId, geometryType);
 				
 				setInsertFeatureText(featureType);
 				

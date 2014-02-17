@@ -85,17 +85,17 @@ Arbiter.Layers.WFSLayer = (function(){
         var selectStyleTable = OpenLayers.Util.applyDefaults({},
         		OpenLayers.Feature.Vector.style["select"]);
 		
-		if(geometryType === "Point" || 
+	/*	if(geometryType === "Point" || 
 				geometryType === "MultiPoint" ||
 				geometryType === "Geometry" ||
 				geometryType === "MultiGeometry"){
-			
+			*/
 			defaultStyleTable.pointRadius = 18;
             selectStyleTable.pointRadius = 18;
-		}else{
+		/*}else{
 			defaultStyleTable.pointRadius = 1;
             selectStyleTable.pointRadius = 1;
-		}
+		}*/
 		
 		return new OpenLayers.StyleMap({
             'default': new OpenLayers.Style(defaultStyleTable),

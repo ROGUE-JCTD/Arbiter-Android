@@ -7,7 +7,12 @@ Arbiter.Util.Geometry = function(){
 Arbiter.Util.Geometry.type = {
 	POINT: 0,
 	LINE: 1,
-	POLYGON: 2
+	POLYGON: 2,
+	MULTIPOINT: 3,
+	MULTILINE: 4,
+	MULTIPOLYGON: 5,
+	GEOMETRY: 6,
+	MULTIGEOMETRY: 7
 };
 
 /**
@@ -29,6 +34,26 @@ Arbiter.Util.Geometry.getGeometryType = function(layerId){
 	
 	if(type === "Polygon"){
 		return Arbiter.Util.Geometry.type.POLYGON;
+	}
+	
+	if(type === "MultiPoint"){
+		return Arbiter.Util.Geometry.type.MULTIPOINT;
+	}
+	
+	if(type === "MultiLineString"){
+		return Arbiter.Util.Geometry.type.MULTILINE;
+	}
+
+	if(type === "MultiPolygon"){
+		return Arbiter.Util.Geometry.type.MULTIPOLYGON;
+	}
+	
+	if(type === "Geometry"){
+		return Arbiter.Util.Geometry.type.GEOMETRY;
+	}
+	
+	if(type === "MultiGeometry"){
+		return Arbiter.Util.Geometry.type.MULTIGEOMETRY;
 	}
 	
 	throw "Arbiter.Util.Geometry.getGeometryType - "

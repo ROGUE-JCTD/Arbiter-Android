@@ -15,6 +15,8 @@ Arbiter.Controls.ControlPanel = (function(){
 	
 	var cancel = false;
 	
+	var oomCleared = true;
+	
 	var _endInsertMode = function(){
 		
 		if(insertControl !== null && insertControl !== undefined){
@@ -217,6 +219,9 @@ Arbiter.Controls.ControlPanel = (function(){
 			var layerId = Arbiter.Util.getLayerId(feature.layer);
 			
 			controlPanelHelper.set(featureId, layerId, controlPanelHelper.CONTROLS.SELECT, 0, function(){
+				
+				oomCleared = false;
+				
 				Arbiter.Cordova.displayFeatureDialog(
 						feature.layer.protocol.featureType,
 						featureId,
@@ -232,13 +237,27 @@ Arbiter.Controls.ControlPanel = (function(){
 		}
 	}, function(feature){
 		
+		// Unselect all features (added for multigeometries)
+		selectControl.unselect();
+		
 		// If the modifyControl is null,
 		// make sure selectedFeature is
 		// cleared out.
 		if(modifyControl === null){
 			selectedFeature = null;
 			
-			controlPanelHelper.clear();
+			if(!oomCleared){
+				// Starting to clear out so flag
+				// it for already cleared
+				oomCleared = true;
+				
+				controlPanelHelper.clear(function(){
+					console.log("control panel cleared successfully");
+				}, function(e){
+					console.log("Couldn't clear the control panel...", e);
+					oomCleared = false;
+				});
+			}
 		}
 	});
 	

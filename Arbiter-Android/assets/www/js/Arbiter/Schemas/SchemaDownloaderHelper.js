@@ -48,7 +48,7 @@ Arbiter.SchemaDownloaderHelper.prototype.downloadSchema = function(){
 	var gotRequestBack = false;
 	
 	var request = new OpenLayers.Request.GET({
-		url: context.url + "/wfs?service=wfs&version=1.0.0&request=DescribeFeatureType&typeName=" + context.featureType,
+		url: context.url + "/wfs?service=wfs&version=2.0.0&request=DescribeFeatureType&typeName=" + context.featureType,
 		headers: {
 			Authorization: 'Basic ' + context.credentials
 		},

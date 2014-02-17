@@ -87,6 +87,27 @@ Arbiter.Util = (function(){
 			}
 			
 			return false;
+		},
+		
+		getFeaturesById: function(layerId, arbiterId){
+			var olLayer = Arbiter.Layers.getLayerById(layerId, Arbiter.Layers.type.WFS);
+			
+			var olFeatures = olLayer.features;
+			
+			var features = [];
+			
+			var olFeature = null;
+			
+			for(var i = 0; i < olFeatures.length; i++){
+				
+				olFeature = olFeatures[i];
+				
+				if(olFeature.metadata[Arbiter.FeatureTableHelper.ID] === arbiterId){
+					features.push(olFeature);
+				}
+			}
+			
+			return features;
 		}
 	};
 })();

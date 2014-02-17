@@ -107,28 +107,38 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 	var processFeature = function(schema, dbFeature, olLayer,
 			activeControl, layerId, featureId, geometry){
 		
-		var olFeature = wktFormatter.
-			read(dbFeature[schema.getGeometryName()]);
+		var features = wktFormatter.read(dbFeature[schema.getGeometryName()]);
+		var olFeature = null;
+		var srid = null;
 		
-		// make sure the geometry is in EPSG:900913
-		var srid = schema.getSRID();
-		
-		if(srid !== WGS84_Google_Mercator){
-			olFeature.geometry.transform
-				(new OpenLayers.Projection(schema.getSRID()), 
-					new OpenLayers.Projection(WGS84_Google_Mercator));
+		if(features.constructor != Array){
+			features = [features];
 		}
 		
-		addAttributes(schema, dbFeature, olFeature);
-		
-		addMetadata(dbFeature, olFeature);
-		
-		setState(olFeature);
-		
-		olLayer.addFeatures([olFeature]);
-		
-		setSelectedState(olFeature, activeControl,
-				layerId, featureId, geometry);
+		for(var i = 0; i < features.length; i++){
+			
+			olFeature = features[i];
+			
+			// make sure the geometry is in EPSG:900913
+			srid = schema.getSRID();
+			
+			if(srid !== WGS84_Google_Mercator){
+				olFeature.geometry.transform
+					(new OpenLayers.Projection(schema.getSRID()), 
+						new OpenLayers.Projection(WGS84_Google_Mercator));
+			}
+			
+			addAttributes(schema, dbFeature, olFeature);
+			
+			addMetadata(dbFeature, olFeature);
+			
+			setState(olFeature);
+			
+			olLayer.addFeatures([olFeature]);
+			
+			setSelectedState(olFeature, activeControl,
+					layerId, featureId, geometry);
+		}
 	};
 	
 	var getControlPanelMode = function(onSuccess, onFailure){

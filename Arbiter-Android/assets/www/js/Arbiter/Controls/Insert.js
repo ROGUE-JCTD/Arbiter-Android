@@ -74,27 +74,65 @@ Arbiter.Controls.Insert = function(_olLayer, _geometryType, insertCallback){
 		
 		var type = Arbiter.Util.Geometry.type;
 		
+		var options = {};
+		
 		switch(geometryType){
 			case type.POINT:
+				
 				handler = OpenLayers.Handler.Point;
 				
 				break;
 				
 			case type.LINE:
+				
 				handler = OpenLayers.Handler.Path;
 				
 				break;
 				
 			case type.POLYGON:
-				handler = OpenLayers.Handler.Point;
+				
+				handler = OpenLayers.Handler.Polygon;
 				
 				break;
 			
+			case type.MULTIPOINT:
+				
+				handler = OpenLayers.Handler.Point;
+				
+				options = {
+					multi: true
+				};
+				
+				break;
+				
+			case type.MULTILINE:
+				
+				handler = OpenLayers.Handler.Path;
+				
+				break;
+			case type.MULTIPOLYGON:
+				
+				handler = OpenLayers.Handler.Polygon;
+				
+				break;
+				
+			case type.GEOMETRY:
+				
+				handler = OpenLayers.Handler.Point;
+				
+				break;
+				
+			case type.MULTIGEOMETRY:
+				
+				handler = OpenLayers.Handler.Point;
+				
+				break;
+				
 			default:
 				
 		}
 		
-		controller = new OpenLayers.Control.DrawFeature(olLayer, handler);
+		controller = new OpenLayers.Control.DrawFeature(olLayer, handler, options);
 		
 		_attachToMap();
 	};

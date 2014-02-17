@@ -31,6 +31,45 @@ Arbiter.Cordova = (function() {
 		}
 	};
 	
+	var getNativeWKT = function(feature, nativeSRID){
+		
+		var srid = Arbiter.Map.getMap().projection.projCode;
+		
+		return wktFormatter.write(Arbiter.Util.getFeatureInNativeProjection(srid, nativeSRID, feature));
+	};
+	
+	var checkForGeometryCollection = function(layerId, arbiterId, nativeSRID){
+		
+		var wktGeometry = null;
+		
+		var features = Arbiter.Util.getFeaturesById(layerId, arbiterId);
+		
+		// Geometry collection
+		if(features.length > 1){
+			
+			var srid = Arbiter.Map.getMap().projection.projCode;
+			
+			var geometryCollection = [];
+			
+			var featureInNativeProj = null;
+			
+			for(var i = 0; i < features.length; i++){
+				featureInNativeProj = Arbiter.Util.getFeatureInNativeProjection(srid, nativeSRID, features[i]);
+				
+				geometryCollection.push(featureInNativeProj);
+			}
+			
+			wktGeometry = wktFormatter.write(geometryCollection);
+			
+		// Single feature
+		}else if(features.length === 1){
+			
+			wktGeometry = getNativeWKT(features[0], nativeSRID);
+		}
+		
+		return wktGeometry;
+	};
+	
 	return {
 
 		STATES : {
@@ -180,14 +219,11 @@ Arbiter.Cordova = (function() {
 			
 			var schema = schemas[layerId];
 			
-			var srid = Arbiter.Map.getMap().projection.projCode;
-			
 			var wktGeometry = null;
 			
 			if(cancel === false){
-				wktGeometry = wktFormatter.write(
-						Arbiter.Util.getFeatureInNativeProjection(srid,
-								schema.getSRID(), feature));
+				
+				wktGeometry = checkForGeometryCollection(layerId, featureId, schema.getSRID());
 			}
 			
 			Arbiter.Controls.ControlPanel.exitModifyMode();

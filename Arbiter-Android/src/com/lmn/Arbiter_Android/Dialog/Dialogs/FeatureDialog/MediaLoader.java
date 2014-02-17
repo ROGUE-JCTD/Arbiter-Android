@@ -6,7 +6,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;

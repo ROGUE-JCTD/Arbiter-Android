@@ -186,4 +186,6 @@
     <string name="commit_date">Commit date:</string>
     <string name="build_date">Build date:</string>
     <string name="unknown">Unknown</string>
+    <string name="delete_media">Delete media</string>
+    <string name="delete_media_confirmation">Are you sure you want to delete this photo?</string>
 </resources>

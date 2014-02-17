@@ -7,7 +7,6 @@ import org.apache.cordova.CordovaWebView;
 import org.json.JSONException;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.provider.MediaStore;
 import android.view.View;

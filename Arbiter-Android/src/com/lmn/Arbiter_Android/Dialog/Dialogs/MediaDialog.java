@@ -3,8 +3,11 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Media.MediaHelper;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -12,7 +15,9 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 public class MediaDialog extends DialogFragment {
@@ -72,7 +77,19 @@ public class MediaDialog extends DialogFragment {
 	public Dialog onCreateDialog(Bundle savedInstanceState){
 		
 		LayoutInflater inflater = getActivity().getLayoutInflater();
+		
 		View view = inflater.inflate(layout, null);
+		
+		ImageButton deleteMediaBtn = (ImageButton) view.findViewById(R.id.deleteButton);
+		
+		deleteMediaBtn.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View arg0) {
+				
+				deleteMedia();
+			}
+		});
 		
 		setMediaResource(view);
 		
@@ -82,5 +99,47 @@ public class MediaDialog extends DialogFragment {
 		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		
 		return dialog;
+	}
+	
+	private void displayConfirmationDialog(Activity activity, final Runnable deleteMedia){
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		
+		builder.setIcon(R.drawable.icon);
+		
+		builder.setTitle(R.string.delete_media);
+		
+		builder.setMessage(R.string.delete_media_confirmation);
+		
+		builder.setNegativeButton(android.R.string.no, null);
+		
+		builder.setPositiveButton(android.R.string.yes, new android.content.DialogInterface.OnClickListener(){
+
+			@Override
+			public void onClick(DialogInterface arg0, int arg1) {
+				if(deleteMedia != null){
+					deleteMedia.run();
+				}
+			}
+		});
+		
+		builder.create().show();
+	}
+	
+	private void deleteMedia(){
+		final Activity activity = getActivity();
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				
+				displayConfirmationDialog(activity, new Runnable(){
+					@Override
+					public void run(){
+						
+					}
+				});
+			}
+		});
 	}
 }

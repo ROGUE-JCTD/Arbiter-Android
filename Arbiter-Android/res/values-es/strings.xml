@@ -186,4 +186,6 @@
     <string name="commit_date">Tiempo de Destino:</string>
     <string name="build_date">Fecha de construcción:</string>
     <string name="unknown">Ignoto</string>
+    <string name="delete_media">Borra la foto</string>
+    <string name="delete_media_confirmation">¿Está seguro que quiere borrar la foto?</string>
 </resources>

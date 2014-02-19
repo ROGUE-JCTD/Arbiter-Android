@@ -102,7 +102,8 @@ Arbiter.Util = (function(){
 				
 				olFeature = olFeatures[i];
 				
-				if(olFeature.metadata[Arbiter.FeatureTableHelper.ID] === arbiterId){
+				if(Arbiter.Util.existsAndNotNull(olFeature.metadata) 
+						&& olFeature.metadata[Arbiter.FeatureTableHelper.ID] === arbiterId){
 					features.push(olFeature);
 				}
 			}

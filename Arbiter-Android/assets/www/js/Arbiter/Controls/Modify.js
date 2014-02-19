@@ -49,6 +49,7 @@ Arbiter.Controls.Modify = function(_olLayer, _selectedFeature, onFeatureModified
 	
 	var initModifyController = function(){
 		modifyController = new OpenLayers.Control.ModifyFeature(olLayer, {
+			vertexRenderIntent: "select",
 			standalone: true,
 			toggle: false,
 			clickout: false

@@ -40,7 +40,7 @@
 	<string name="updating_msg">Update in progress&#8230;</string>
 	<string name="insert_feature_title">Select layer to insert into.</string>
 	<string name="insert_layer_title">Inserting into:</string>
-	<string name="insert_layer_text">Layer</string>
+	<string name="insert_layer_text">Mode: Insert</string>
 	<string name="feature_saved">Feature saved</string>
 	<string name="feature_saved_msg">The feature has been saved.</string>
 	<string name="return_to_map">Return to Map</string>

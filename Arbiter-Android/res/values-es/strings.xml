@@ -40,7 +40,7 @@
 	<string name="updating_msg">Actualización en curso&#8230;</string>
 	<string name="insert_feature_title">Seleccionar capa para insertar.</string>
 	<string name="insert_layer_title">Inserción en:</string>
-	<string name="insert_layer_text">Capa</string>
+	<string name="insert_layer_text">Moda: Inserción</string>
 	<string name="feature_saved">Elemento guardado</string>
 	<string name="feature_saved_msg">El elemento se ha guardado.</string>
 	<string name="return_to_map">Volver al Mapa</string>

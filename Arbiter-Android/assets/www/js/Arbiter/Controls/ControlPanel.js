@@ -35,8 +35,10 @@ Arbiter.Controls.ControlPanel = (function(){
 		var olLayer = Arbiter.Layers.getLayerById(
 				layerId, Arbiter.Layers.type.WFS);
 		
-		var geometryType = Arbiter.Util.Geometry.getGeometryType(layerId, _geometryType);
+		var geometryType = Arbiter.Geometry.getGeometryType(layerId, _geometryType);
 			
+		console.log("_startInsertMode getGeometryType");
+		
 		var context = Arbiter.Controls.ControlPanel;
 		
 		var schema = Arbiter.getLayerSchemas()[layerId];
@@ -51,6 +53,17 @@ Arbiter.Controls.ControlPanel = (function(){
 			insertControl = new Arbiter.Controls.Insert(olLayer,
 					geometryType, function(feature){
 				
+				if(geometryType === Arbiter.Geometry.type.MULTIPOINT 
+						|| geometryType === Arbiter.Geometry.type.MULTILINE
+						|| geometryType === Arbiter.Geometry.type.MULTIPOLYGON){
+					
+					if(!Arbiter.Util.existsAndNotNull(feature.metadata)){
+						feature.metadata = {};
+					}
+					
+					feature.metadata[Arbiter.FeatureTableHelper.PART_OF_MULTI] = true; 
+				}
+					
 				_endInsertMode();
 				
 				mode = Arbiter.ControlPanelHelper.prototype.CONTROLS.INSERT;
@@ -60,20 +73,6 @@ Arbiter.Controls.ControlPanel = (function(){
 		}, function(e){
 			console.log("start insert mode error");
 		});
-	};
-	
-	var getNativeGeometry = function(feature, layerId){
-		var schemas = Arbiter.getLayerSchemas();
-		
-		var schema = schemas[layerId];
-		
-		var srid = Arbiter.Map.getMap().projection.projCode;
-		
-		var wktGeometry = wktFormatter.write(
-				Arbiter.Util.getFeatureInNativeProjection(srid,
-						schema.getSRID(), feature));
-		
-		return wktGeometry;
 	};
 	
 	var startModifyMode = function(feature){
@@ -86,12 +85,12 @@ Arbiter.Controls.ControlPanel = (function(){
 		
 		var layerId = Arbiter.Util.getLayerId(feature.layer);
 		
-		var wktGeometry = getNativeGeometry(feature, layerId);
+		var wktGeometry = Arbiter.Geometry.getNativeWKT(feature, layerId);
 		
 		modifyControl = new Arbiter.Controls.Modify(
 				feature.layer, feature, function(feature){
 		
-			var wktGeometry = getNativeGeometry(feature, layerId);
+			var wktGeometry = Arbiter.Geometry.getNativeWKT(feature, layerId);
 			
 			controlPanelHelper.set(featureId, layerId, 
 					controlPanelHelper.CONTROLS.MODIFY, 
@@ -318,6 +317,14 @@ Arbiter.Controls.ControlPanel = (function(){
 		startInsertMode: function(layerId, geometryType){
 			
 			_startInsertMode(layerId, geometryType);
+		},
+		
+		finishGeometry: function(){
+			console.log("finishGeometry");
+			
+			if(Arbiter.Util.existsAndNotNull(insertControl)){
+				insertControl.finishGeometry();
+			}
 		},
 		
 		getInsertControl: function(){

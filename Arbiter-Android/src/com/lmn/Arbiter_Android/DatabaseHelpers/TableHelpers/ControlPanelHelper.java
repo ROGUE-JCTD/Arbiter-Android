@@ -45,11 +45,13 @@ public class ControlPanelHelper {
 	public void clearControlPanel(){
 		SQLiteDatabase projectDb = getProjectDb();
 		
-		PreferencesHelper.getHelper().put(projectDb, context, ACTIVE_CONTROL,
+		PreferencesHelper helper = PreferencesHelper.getHelper();
+		
+		helper.put(projectDb, context, ACTIVE_CONTROL,
 				ControlPanelHelper.CONTROLS.NONE);
-		PreferencesHelper.getHelper().put(projectDb, context, LAYER_ID, "0");
-		PreferencesHelper.getHelper().put(projectDb, context, FEATURE_ID, "0");
-		PreferencesHelper.getHelper().put(projectDb, context, GEOMETRY, "0");
+		helper.put(projectDb, context, LAYER_ID, "0");
+		helper.put(projectDb, context, FEATURE_ID, "0");
+		helper.put(projectDb, context, GEOMETRY, "0");
 	}
 	
 	public void setFeatureId(String featureId){

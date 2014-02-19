@@ -1,5 +1,4 @@
 Arbiter.Cordova = (function() {
-	var wktFormatter = new OpenLayers.Format.WKT();
 	
 	var state = 0;
 	
@@ -29,45 +28,6 @@ Arbiter.Cordova = (function() {
 		
 			func();
 		}
-	};
-	
-	var getNativeWKT = function(feature, nativeSRID){
-		
-		var srid = Arbiter.Map.getMap().projection.projCode;
-		
-		return wktFormatter.write(Arbiter.Util.getFeatureInNativeProjection(srid, nativeSRID, feature));
-	};
-	
-	var checkForGeometryCollection = function(layerId, arbiterId, nativeSRID){
-		
-		var wktGeometry = null;
-		
-		var features = Arbiter.Util.getFeaturesById(layerId, arbiterId);
-		
-		// Geometry collection
-		if(features.length > 1){
-			
-			var srid = Arbiter.Map.getMap().projection.projCode;
-			
-			var geometryCollection = [];
-			
-			var featureInNativeProj = null;
-			
-			for(var i = 0; i < features.length; i++){
-				featureInNativeProj = Arbiter.Util.getFeatureInNativeProjection(srid, nativeSRID, features[i]);
-				
-				geometryCollection.push(featureInNativeProj);
-			}
-			
-			wktGeometry = wktFormatter.write(geometryCollection);
-			
-		// Single feature
-		}else if(features.length === 1){
-			
-			wktGeometry = getNativeWKT(features[0], nativeSRID);
-		}
-		
-		return wktGeometry;
 	};
 	
 	return {
@@ -224,9 +184,9 @@ Arbiter.Cordova = (function() {
 			if(cancel === false){
 				
 				if(!Arbiter.Util.existsAndNotNull(featureId)){
-					wktGeometry = getNativeWKT(feature, schema.getSRID());
+					wktGeometry = Arbiter.Geometry.getNativeWKT(feature, layerId);
 				}else{
-					wktGeometry = checkForGeometryCollection(layerId, featureId, schema.getSRID());
+					wktGeometry = Arbiter.Geometry.checkForGeometryCollection(layerId, featureId, schema.getSRID());
 				}
 			}
 			

@@ -117,10 +117,10 @@ public class MapChangeHelper {
 	}
 	
 	private void setInsertFeatureText(String featureType){
-		TextView insertLayerText = (TextView)
-				activity.findViewById(R.id.insertLayerText);
+		TextView insertLayerTitle = (TextView)
+				activity.findViewById(R.id.insertLayerTitle);
 		
-		insertLayerText.setText(featureType);
+		insertLayerTitle.setText(featureType);
 	}
 	
 	private void toggleInsertFeatureBar(boolean makeVisible){

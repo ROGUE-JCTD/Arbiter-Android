@@ -242,4 +242,12 @@ public class Map{
 		
 		webview.loadUrl(url);
 	}
+	
+	public void finishGeometry(CordovaWebView webview){
+		
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Controls.ControlPanel.finishGeometry()'))";
+		
+		webview.loadUrl(url);
+	}
 }

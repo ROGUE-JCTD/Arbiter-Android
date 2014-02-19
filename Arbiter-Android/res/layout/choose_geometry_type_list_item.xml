@@ -10,12 +10,12 @@
         android:id="@+id/geometryType"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dip"
-        android:layout_marginLeft="20dip"
+        android:layout_centerInParent="true"
         android:text="@string/point"
         android:textColor="#040404"
         android:typeface="sans"
-        android:textSize="14sp"
+        android:textSize="18sp"
+        android:padding="10dp"
         android:textStyle="bold"/>
 	    
 </RelativeLayout>

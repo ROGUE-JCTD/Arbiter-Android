@@ -45,6 +45,9 @@ Arbiter.VectorDownloader.prototype.download = function(){
 		
 		console.log("downloadFeatures success", features);
 		
+		for(var i = 0; i < features.length; i++){
+			console.log("downloaded feature geometry = " + features[i].geometry.CLASS_NAME);
+		}
 		// Call the onDownloadSuccess method
 		context.onDownloadSuccess(features);
 		

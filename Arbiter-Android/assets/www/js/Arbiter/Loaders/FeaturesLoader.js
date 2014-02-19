@@ -5,7 +5,7 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 	
 	var controlPanelHelper = new Arbiter.ControlPanelHelper();
 	
-	var addMetadata = function(dbFeature, olFeature){
+	var addMetadata = function(dbFeature, olFeature, partOfMulti){
 		if(olFeature.metadata === null 
 				|| olFeature.metadata === undefined){
 			
@@ -20,6 +20,8 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 		
 		olFeature.metadata[Arbiter.FeatureTableHelper.SYNC_STATE] =
 			dbFeature[Arbiter.FeatureTableHelper.SYNC_STATE];
+		
+		olFeature.metadata[Arbiter.FeatureTableHelper.PART_OF_MULTI] = partOfMulti;
 	};
 	
 	var addAttributes = function(schema, dbFeature, olFeature){
@@ -104,41 +106,93 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 		}
 	};
 	
-	var processFeature = function(schema, dbFeature, olLayer,
-			activeControl, layerId, featureId, geometry){
+	var addComponents = function(collection, features, geometryType, srid){
 		
-		var features = wktFormatter.read(dbFeature[schema.getGeometryName()]);
+		var mapProj = Arbiter.Map.getMap().projection.projCode;
+		
+		var add = null;
 		var olFeature = null;
-		var srid = null;
 		
-		if(features.constructor != Array){
-			features = [features];
+		if(geometryType === Arbiter.Geometry.type.MULTIPOINT){
+			add = function(collection, feature){
+				collection.addPoint(feature.geometry);
+			};
+		}else{
+			add = function(collection, feature){
+				collection.addComponents(feature.geometry);
+			};
 		}
 		
 		for(var i = 0; i < features.length; i++){
-			
 			olFeature = features[i];
 			
-			// make sure the geometry is in EPSG:900913
-			srid = schema.getSRID();
-			
-			if(srid !== WGS84_Google_Mercator){
+			if(srid !== mapProj){
 				olFeature.geometry.transform
-					(new OpenLayers.Projection(schema.getSRID()), 
-						new OpenLayers.Projection(WGS84_Google_Mercator));
+					(new OpenLayers.Projection(srid), 
+							new OpenLayers.Projection(mapProj));
 			}
 			
-			addAttributes(schema, dbFeature, olFeature);
-			
-			addMetadata(dbFeature, olFeature);
-			
-			setState(olFeature);
-			
-			olLayer.addFeatures([olFeature]);
-			
-			setSelectedState(olFeature, activeControl,
-					layerId, featureId, geometry);
+			console.log("olFeature.geometry transformed", olFeature.geometry);
+			add(collection, olFeature);
 		}
+		
+		return collection;
+	};
+	
+	var processFeature = function(schema, dbFeature, olLayer,
+			activeControl, layerId, featureId, geometry){
+		
+		var wkt = dbFeature[schema.getGeometryName()];
+		
+		var partOfMulti = false;
+		
+		if(wkt.substring(0, 5).indexOf("Multi") >= 0){
+			partOfMulti = true;
+		}
+		
+		var feature = wktFormatter.read(wkt);
+		
+		console.log("processFeature wkt = " + wkt, feature);
+		
+		var geometryType = Arbiter.Geometry.getGeometryType(layerId, schema.getGeometryType());
+		
+		var srid = schema.getSRID();
+		
+		if(geometryType === Arbiter.Geometry.type.MULTIGEOMETRY){
+			
+			var collection = new OpenLayers.Geometry.Collection();
+			
+			if(feature.constructor != Array){
+				feature = [feature];
+			}
+			
+			collection = addComponents(collection, feature, geometryType, srid);
+			
+			feature = feature[0];
+			
+			feature.geometry = collection;
+		}else{
+			
+			var mapProj = Arbiter.Map.getMap().projection.projCode;
+			
+			console.log("feature: ", feature);
+			if(srid !== mapProj){
+				feature.geometry.transform
+					(new OpenLayers.Projection(srid), 
+						new OpenLayers.Projection(mapProj));
+			}
+		}
+		
+		addAttributes(schema, dbFeature, feature);
+		
+		addMetadata(dbFeature, feature, partOfMulti);
+		
+		setState(feature);
+		
+		olLayer.addFeatures([feature]);
+		
+		setSelectedState(feature, activeControl,
+				layerId, featureId, geometry);
 	};
 	
 	var getControlPanelMode = function(onSuccess, onFailure){

@@ -19,10 +19,10 @@ public class ChooseGeometryTypeAdapter extends BaseAdapter{
 	
 	private String[] geometryTypes = {
 		"Point",
-		"Line",
+		"LineString",
 		"Polygon",
 		"MultiPoint",
-		"MultiLine",
+		"MultiLineString",
 		"MultiPolygon"
 	};
 	

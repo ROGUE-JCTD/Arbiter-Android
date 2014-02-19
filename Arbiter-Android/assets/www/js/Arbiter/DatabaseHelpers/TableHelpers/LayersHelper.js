@@ -45,7 +45,7 @@ Arbiter.LayersHelper = (function(){
 			db.transaction(function(tx){
 				context.getLayers(tx, _context, onSuccess, onFailure);
 			}, function(e){
-				console.log("ERROR: Arbiter.LayersHelper", e);
+				console.log("ERROR: Arbiter.LayersHelper", e.stack);
 				if(Arbiter.Util.funcExists(onFailure)){
 					onFailure.call(_context, e);
 				}

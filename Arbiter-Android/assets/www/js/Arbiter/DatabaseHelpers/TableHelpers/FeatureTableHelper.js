@@ -37,6 +37,7 @@ Arbiter.FeatureTableHelper = (function(){
 		FID : "fid",
 		SYNC_STATE: "sync_state",
 		MODIFIED_STATE: "modified_state",
+		PART_OF_MULTI: "partOfMulti",
 		
 		MODIFIED_STATES: {
 			NONE: 0,
@@ -116,6 +117,12 @@ Arbiter.FeatureTableHelper = (function(){
     	insertFeatures: function(schema, srid, features,
     			isDownload, onSuccess, onFailure){
     		
+    		console.log("inserting " + features.length + " features");
+    		
+    		for(var j = 0; j < features.length; j++){
+    			console.log("geometry class = " + features[j].geometry.CLASS_NAME);
+    		}
+    		
     		var insertCount = 0;
     		var featureCount = features.length;
     		
@@ -177,9 +184,21 @@ Arbiter.FeatureTableHelper = (function(){
     		var values = [];
     		var attributeName = null;
     		
+    		console.log("mapFeature geometry = " + feature.geometry.CLASS_NAME);
+    		
     		// Push the geometry
-    		values.push(wktFormatter.write(Arbiter.Util.getFeatureInNativeProjection(srid, 
-    				schema.getSRID(), feature)));
+    		var nativeFeature = Arbiter.Util.getFeatureInNativeProjection(srid, 
+    				schema.getSRID(), feature);
+    		
+    		console.log("nativeFeature geometry = " + nativeFeature.geometry.CLASS_NAME);
+    		
+    		if(nativeFeature.geometry.components && nativeFeature.geometry.CLASS_NAME === "OpenLayers.Geometry.Collection"){
+    			console.log("nativeFeature geometry length = " + nativeFeature.geometry.components.length);
+    		}
+    		
+    		var wkt = wktFormatter.write(nativeFeature);
+    		
+    		values.push(wkt);
     		
     		// Push the modified state
     		if(isDownload){

@@ -1,7 +1,11 @@
 Arbiter.Util.Feature = (function(){
-    var gmlReader = new OpenLayers.Format.GML({
+    var gmlReader = new OpenLayers.Format.GML.v2({
             extractAttributes: true
     });
+    
+    gmlReader.geometryTypes["OpenLayers.Geometry.Collection"] = "MultiGeometry";
+    
+    gmlReader.readers.gml["MultiGeometry"] = gmlReader.readers.gml["GeometryCollection"];
     
     return {
     	transformBounds: function(srid, bounds){

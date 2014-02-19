@@ -36,8 +36,6 @@ Arbiter.Controls.ControlPanel = (function(){
 				layerId, Arbiter.Layers.type.WFS);
 		
 		var geometryType = Arbiter.Geometry.getGeometryType(layerId, _geometryType);
-			
-		console.log("_startInsertMode getGeometryType");
 		
 		var context = Arbiter.Controls.ControlPanel;
 		

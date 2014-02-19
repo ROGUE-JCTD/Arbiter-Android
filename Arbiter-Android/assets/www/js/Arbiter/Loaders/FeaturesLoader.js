@@ -132,7 +132,6 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 							new OpenLayers.Projection(mapProj));
 			}
 			
-			console.log("olFeature.geometry transformed", olFeature.geometry);
 			add(collection, olFeature);
 		}
 		
@@ -151,8 +150,6 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 		}
 		
 		var feature = wktFormatter.read(wkt);
-		
-		console.log("processFeature wkt = " + wkt, feature);
 		
 		var geometryType = Arbiter.Geometry.getGeometryType(layerId, schema.getGeometryType());
 		
@@ -175,7 +172,6 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 			
 			var mapProj = Arbiter.Map.getMap().projection.projCode;
 			
-			console.log("feature: ", feature);
 			if(srid !== mapProj){
 				feature.geometry.transform
 					(new OpenLayers.Projection(srid), 

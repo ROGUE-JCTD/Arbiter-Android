@@ -170,12 +170,10 @@ Arbiter.Geometry = (function(){
 		},
 		
 		isGeometryCollection: function(layerId){
-			console.log("isGeometryCollection");
+			
 			var schema = Arbiter.getLayerSchemas()[layerId];
 			
 			var geometryType = this.getGeometryType(layerId, schema.getGeometryType());
-			
-			console.log("isGeometryCollection end");
 			
 			return geometryType === this.type.MULTIGEOMETRY;
 		},
@@ -195,17 +193,13 @@ Arbiter.Geometry = (function(){
 				wkt = this.convertToMulti(wkt);
 			}
 			
-			if(this.isGeometryCollection(layerId)){
-				wkt = "GEOMETRYCOLLECTION(" + wkt + ")";
-			}
-			
 			console.log("getNativeWKT end: " + wkt);
 			
 			return wkt;
 		},
 		
 		checkForGeometryCollection: function(layerId, arbiterId, nativeSRID){
-			console.log("checkForGeometryCollection");
+			
 			var wktGeometry = null;
 			
 			var features = Arbiter.Util.getFeaturesById(layerId, arbiterId);
@@ -215,7 +209,7 @@ Arbiter.Geometry = (function(){
 			var geometryType = this.getGeometryType(layerId, schema.getGeometryType());
 			
 			// Geometry collection
-			if(features.length > 1 || this.isGeometryCollection(layerId)){
+			if(features.length > 1 && this.isGeometryCollection(layerId)){
 				
 				var srid = Arbiter.Map.getMap().projection.projCode;
 				
@@ -238,66 +232,6 @@ Arbiter.Geometry = (function(){
 			}
 			
 			return wktGeometry;
-		},
-		
-		createCollection: function(geometryType, features){
-			
-			console.log("createCollection geometryType: " + geometryType);
-			
-			var collection = null;
-			
-			switch(geometryType){
-				case this.type.MULTIPOINT:
-					
-					collection = new OpenLayers.Geometry.MultiPoint();
-					
-					for(var i = 0; i < features.length; i++){
-						
-						collection.addPoint(features[i].geometry);
-					}
-					
-					break;
-					
-				case this.type.MULTILINESTRING:
-					
-					collection = new OpenLayers.Geometry.MultiLineString();
-					
-					for(var i = 0; i < features.length; i++){
-						
-						collection.addComponents([features[i].geometry]);
-					}
-					
-					break;
-					
-				case this.type.MULTIPOLYGON:
-					
-					collection = new OpenLayers.Geometry.MultiPolygon();
-					
-					for(var i = 0; i < features.length; i++){
-						
-						collection.addComponents([features[i].geometry]);
-					}
-
-					break;
-					
-				case this.type.MULTIGEOMETRY:
-					
-					collection = new OpenLayers.Geometry.Collection();
-					
-					for(var i = 0; i < features.length; i++){
-						
-						collection.addComponents([features[i].geometry]);
-					}
-
-					break;
-					
-				default:
-					
-			}
-			
-			console.log("createCollection: ", collection);
-			
-			return collection;
 		}
 	};
 })();

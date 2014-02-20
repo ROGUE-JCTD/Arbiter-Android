@@ -193,6 +193,9 @@ Arbiter.Geometry = (function(){
 				wkt = this.convertToMulti(wkt);
 			}
 			
+			if(this.isGeometryCollection(layerId) && wkt.substring(0, 18) !== "GEOMETRYCOLLECTION"){
+				wkt = "GEOMETRYCOLLECTION(" + wkt + ")";
+			}
 			console.log("getNativeWKT end: " + wkt);
 			
 			return wkt;

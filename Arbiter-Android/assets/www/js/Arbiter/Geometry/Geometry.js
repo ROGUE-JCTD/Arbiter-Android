@@ -198,6 +198,30 @@ Arbiter.Geometry = (function(){
 			return wkt;
 		},
 		
+		/**
+		 * WKT returns a single feature for point, line, polygon, multipoint, multiline, multipolygon, but
+		 * multiple features for a geometry collection, so if it's multiple features, return a single feature with a
+		 * geometry collection
+		 */
+		readWKT: function(wkt){
+			
+			var features = wktFormatter.read(wkt);
+			
+			if(features.constructor != Array){
+				return features;
+			}
+			
+			var collection = new OpenLayers.Geometry.Collection();
+			
+			for(var i = 0; i < features.length; i++){
+				collection.addComponents([features[i].geometry]);
+			}
+			
+			features[0].geometry = collection;
+			
+			return features[0]; 
+		},
+		
 		checkForGeometryCollection: function(layerId, arbiterId, nativeSRID){
 			
 			var wktGeometry = null;

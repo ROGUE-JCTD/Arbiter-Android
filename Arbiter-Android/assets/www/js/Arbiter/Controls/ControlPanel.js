@@ -167,20 +167,23 @@ Arbiter.Controls.ControlPanel = (function(){
 			+ " geometry because selectedFeature is " + selectedFeature;
 		}
 		
-		var geomFeature = wktFormatter.read(wktGeometry);
-		
-		// Get the center of the geometry
-		var centroid = geomFeature.geometry.getCentroid();
+		var geomFeature = Arbiter.Geometry.readWKT(wktGeometry);
 		
 		var layerId = Arbiter.Util.getLayerId(selectedFeature.layer);
 		
 		var schema = Arbiter.getLayerSchemas()[layerId];
 		var srid = Arbiter.Map.getMap().projection.projCode;
 		
-		centroid.transform(new OpenLayers.Projection(schema.getSRID()),
+		geomFeature.geometry.transform(new OpenLayers.Projection(schema.getSRID()),
 				new OpenLayers.Projection(srid));
 		
-		selectedFeature.move(new OpenLayers.LonLat(centroid.x, centroid.y));
+		var layer = Arbiter.Layers.getLayerById(layerId, Arbiter.Layers.type.WFS);
+		
+		layer.removeFeatures([selectedFeature]);
+		
+		selectedFeature.geometry = geomFeature.geometry;
+		
+		layer.addFeatures([selectedFeature]);
 	};
 	
 	var removeFeature = function(feature){

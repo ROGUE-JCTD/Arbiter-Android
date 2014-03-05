@@ -5,6 +5,8 @@ Arbiter.Cordova.Project = (function(){
 	
 	var syncInProgress = false;
 	
+	var syncHelper = null;
+	
 	var getSchemaHelper = function(specificSchemas, layerId){
 		
 		specificSchemas.push(Arbiter.getLayerSchemas()[layerId]);
@@ -249,6 +251,10 @@ Arbiter.Cordova.Project = (function(){
 			}
 		},
 		
+		confirmSyncCancel: function(){ 
+		    syncHelper.syncAborted = true;
+		},
+		
 		sync: function(_cacheTiles, _downloadOnly, _specificSchemas, onSuccess, onFailure){
 			console.log("sync");
 			
@@ -287,7 +293,7 @@ Arbiter.Cordova.Project = (function(){
 						
 						var bounds = new Arbiter.Util.Bounds(aoi[0], aoi[1], aoi[2], aoi[3]);
 						
-						var syncHelper = new Arbiter.Sync(map, cacheTiles,
+						syncHelper = new Arbiter.Sync(map, cacheTiles,
 								bounds, downloadOnly, function(){
 							
 							syncInProgress = false;

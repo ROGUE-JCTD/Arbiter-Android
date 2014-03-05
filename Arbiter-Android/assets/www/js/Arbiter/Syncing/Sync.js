@@ -26,6 +26,7 @@ Arbiter.Sync = function(_map, _cacheTiles, _bounds,
 	this.schemas = null;
 	
 	this.syncInProgress = false;
+	this.syncAborted = false;
 };
 
 // ol layers
@@ -180,9 +181,8 @@ Arbiter.Sync.prototype.storeUploadsAndDownloads = function(){
 Arbiter.Sync.prototype.startVectorSync = function(){
 	var context = this;
 	
-	var vectorSync = new Arbiter.VectorSync(this.map, this.bounds,
-			function(failedUploads, failedDownloads){
-		
+	var vectorSync = new Arbiter.VectorSync(this,
+			function(failedUploads, failedDownloads, timedOut){
 		context.failedVectorUploads = failedUploads;
 		context.failedVectorDownloads = failedDownloads;
 		
@@ -190,8 +190,14 @@ Arbiter.Sync.prototype.startVectorSync = function(){
 				+ JSON.stringify(failedUploads) 
 				+ ", failedDownloads = " 
 				+ JSON.stringify(failedDownloads));
-			
-		context.startMediaSync();
+		
+		//context.syncAborted = timedOut;
+		
+		if(!timedOut) {
+	        context.startMediaSync();
+		} else {
+		    Arbiter.Cordova.dismissSyncProgressDialog();
+		}
 		
 	}, function(e){
 		context.onSyncFailed(e);
@@ -208,6 +214,7 @@ Arbiter.Sync.prototype.startVectorSync = function(){
 	}else{
 		console.log("vector sync upload and download");
 		vectorSync.startUpload();
+        //vectorSync.startDownload();
 	}
 };
 

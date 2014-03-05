@@ -380,6 +380,16 @@ Arbiter.Cordova = (function() {
 		
 		hidePartButtons: function(){
 			cordova.exec(null, null, "ArbiterCordova", "hidePartButtons", []);
-		}
+		},
+        
+        dismissSyncProgressDialog: function(){
+            cordova.exec(null, null, "ArbiterCordova",
+                    "dismissSyncProgressDialog", []);
+        },
+        
+        showSyncTimeOutDialog: function(callback){
+            cordova.exec(callback, null, "ArbiterCordova",
+                    "showSyncTimeOutDialog", []);
+        }
 	};
 })();

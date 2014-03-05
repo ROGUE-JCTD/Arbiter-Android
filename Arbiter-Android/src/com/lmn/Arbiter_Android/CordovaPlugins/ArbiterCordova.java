@@ -245,7 +245,12 @@ public class ArbiterCordova extends CordovaPlugin{
 		}else if("alertGeolocationError".equals(action)){
 			
 			alertGeolocationError(args.getString(0));
-			
+			return true;
+		} else if("dismissSyncProgressDialog".equals(action)) {
+			dismissSyncProgressDialog(this.cordova.getActivity());
+			return true;
+		} else if("showSyncTimeOutDialog".equals(action)) {
+			showSyncTimeOutDialog(callbackContext);
 			return true;
 		}else if("enableDoneEditingBtn".equals(action)){
 			
@@ -489,6 +494,10 @@ public class ArbiterCordova extends CordovaPlugin{
 		SyncProgressDialog.setMessage(activity, message);
 	}
 	
+	private void dismissSyncProgressDialog(final Activity activity) {
+		SyncProgressDialog.dismiss(activity);
+	}
+	
 	private boolean dismissVectorProgress(int finishedCount, int totalCount){
 		return finishedCount == totalCount;
 	}
@@ -694,6 +703,15 @@ public class ArbiterCordova extends CordovaPlugin{
 		});
 		
 		callback.success();
+	}
+	
+	private void showSyncTimeOutDialog(final CallbackContext callback){
+		FragmentActivity activity = getFragmentActivity();
+		ArbiterDialogs dialogs = new ArbiterDialogs(activity.getApplicationContext(),
+				activity.getResources(),
+				activity.getSupportFragmentManager());
+		
+		dialogs.showSyncTimeOutDialog(callback);
 	}
 	
 	/**

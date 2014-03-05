@@ -3,6 +3,10 @@ Arbiter.VectorUploader = function(_layer, _onSuccess, _onFailure){
 	this.schema = Arbiter.Util.getSchemaFromOlLayer(_layer);
 	this.onSuccess = _onSuccess;
 	this.onFailure = _onFailure;
+	this.gotResponse = false;
+	
+	this.timedOut = false;
+	this.succeeded = false;
 };
 
 Arbiter.VectorUploader.prototype.clearSaveCallbacks = function(layer){
@@ -13,7 +17,8 @@ Arbiter.VectorUploader.prototype.clearSaveCallbacks = function(layer){
 
 Arbiter.VectorUploader.prototype.onSaveSuccess = function(layer){
 	console.log("Arbiter.VectorUploader.onSaveSuccess");
-	
+	this.gotResponse = true;
+    this.succeeded = true;
 	this.updateSyncStatus(layer);
 };
 
@@ -24,7 +29,7 @@ Arbiter.VectorUploader.prototype.updateSyncStatus = function(layer){
 		
 		context.clearSaveCallbacks(layer);
 		
-		if(Arbiter.Util.funcExists(context.onSuccess)){
+		if(Arbiter.Util.funcExists(context.onSuccess) && !context.timedOut){
 			context.onSuccess();
 		}
 	}, function(e){
@@ -36,10 +41,11 @@ Arbiter.VectorUploader.prototype.updateSyncStatus = function(layer){
 
 Arbiter.VectorUploader.prototype.onSaveFailure = function(layer){
 	console.log("Arbiter.VectorUploader.onSaveFailure");
-	
+
+	this.gotResponse = true;
 	this.clearSaveCallbacks(layer);
 	
-	if(Arbiter.Util.funcExists(this.onFailure)){
+	if(Arbiter.Util.funcExists(this.onFailure) && !this.timedOut){
 		this.onFailure(this.schema.getFeatureType());
 	}
 };
@@ -68,12 +74,34 @@ Arbiter.VectorUploader.prototype.upload = function(){
 		context.onSaveSuccess(context.layer);
 	};
 	
-	metadata["onSaveFailure"] = function(){
-		console.log("my onSaveFailure");
+	metadata["onSaveFailure"] = function(event){
+		console.log("my onSaveFailure", event);
 		context.onSaveFailure(context.layer);
 	};
 	
 	console.log("calling save for " + Arbiter.Util.getLayerId(this.layer));
 	
 	this.layer.strategies[0].save();
+	
+	window.setTimeout(function(){
+	    //prompt user to abort sync or wait
+        if(!context.gotResponse) {
+            context.timedOut = true;
+            Arbiter.Cordova.showSyncTimeOutDialog(function() {
+                if(context.gotResponse) {
+                    if(context.succeeded){
+                        if(Arbiter.Util.funcExists(context.onSuccess)) {
+                            context.onSuccess();
+                        }
+                    } else {
+                        if(Arbiter.Util.funcExists(context.onFailure)) {
+                            context.onFailure(context.schema.getFeatureType());
+                        }
+                    }
+                } else {
+                    context.timedOut = false;
+                }
+            });
+        }
+    }, 30000);
 };

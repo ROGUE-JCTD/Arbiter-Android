@@ -2,6 +2,7 @@ package com.lmn.Arbiter_Android.Dialog;
 
 import java.util.ArrayList;
 
+import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaWebView;
 
 import android.content.Context;
@@ -26,6 +27,7 @@ import com.lmn.Arbiter_Android.Dialog.Dialogs.LayersDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ProjectNameDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ServersDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.WelcomeDialog;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.SyncTimeOutDialog;
 
 public class ArbiterDialogs {
 	private Resources resources;
@@ -159,5 +161,15 @@ public class ArbiterDialogs {
 		
 		DialogFragment dialog = LayerInfoDialog.newInstance(title, ok, cancel, layout);
 		dialog.show(fragManager, "layerInfoDialog");
+	}
+
+	public void showSyncTimeOutDialog(CallbackContext callback){
+		String title = resources.getString(R.string.sync_time_out_title);
+		String ok = resources.getString(R.string.sync_time_out_wait);
+		String cancel = resources.getString(R.string.sync_time_out_cancel);
+		int layout = R.layout.sync_time_out_dialog;
+		
+		DialogFragment dialog = SyncTimeOutDialog.newInstance(title, ok, cancel, layout, callback);
+		dialog.show(fragManager, "SyncTimeOutDialog");
 	}
 }

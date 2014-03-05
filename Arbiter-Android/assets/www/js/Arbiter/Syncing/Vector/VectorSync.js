@@ -1,8 +1,10 @@
-Arbiter.VectorSync = function(_map, _bounds, _onSuccess, _onFailure){
+Arbiter.VectorSync = function(_syncObject, _onSuccess, _onFailure){
 
-	this.map = _map;
+	this.map = _syncObject.map;
 	
-	this.bounds = _bounds;
+	this.bounds = _syncObject.bounds;
+	
+	this.syncObject = _syncObject;
 	
 	this.layers = this.map.getLayersByClass("OpenLayers.Layer.Vector");
 	
@@ -12,6 +14,9 @@ Arbiter.VectorSync = function(_map, _bounds, _onSuccess, _onFailure){
 	
 	this.failedToUpload = null;
 	this.failedToDownload = null;
+	
+    //this will be set to true if a request times out and will cancel the rest of the sync
+    this.syncTimedOut = false;
 	
 	this.onSuccess = _onSuccess;
 	this.onFailure = _onFailure;
@@ -51,21 +56,36 @@ Arbiter.VectorSync.prototype.setSpecificSchemas = function(_schemas){
 };
 
 Arbiter.VectorSync.prototype.onUploadComplete = function(){
-	
-	this.startDownload();
+    if(this.syncObject.syncAborted) {
+        this.index = -1;
+        var layer = this.pop();
+            
+        while(layer !== null & layer !== undefined){
+            this.putFailedDownload(Arbiter.Util.getSchemaFromOlLayer(layer).getFeatureType());
+                
+            layer = this.pop();
+        }
+        if(Arbiter.Util.funcExists(this.onFailure)){
+            this.onFailure('Connection timed out');
+        }
+     } else {
+         this.startDownload();
+     }
 };
 
 Arbiter.VectorSync.prototype.onDownloadComplete = function(){
-	
+
+    if(this.syncObject.syncAborted && Arbiter.Util.funcExists(this.onFailure)){
+        this.onFailure('Connection timed out');
+    }
 	if(Arbiter.Util.funcExists(this.onSuccess)){
 		this.onSuccess(this.failedToUpload,
-				this.failedToDownload);
+				this.failedToDownload, this.syncTimedOut);
 	}
 };
 
 Arbiter.VectorSync.prototype.pop = function(){
 	var layer = this.layers[++this.index];
-	
 	// Skip the aoi layer
 	if((this.usingSpecificSchemas !== true 
 			&& this.usingSpecificSchemas !== "true" )
@@ -100,13 +120,21 @@ Arbiter.VectorSync.prototype.startNextUpload = function(){
 	var layer = this.pop();
 	
 	if(layer !== null && layer !== undefined){
-		
 		var callback = function(){
-			Arbiter.Cordova.updateUploadingVectorDataProgress(
+		    console.log("vector upload callback");
+			if(!context.syncObject.syncAborted) {
+			    Arbiter.Cordova.updateUploadingVectorDataProgress(
 					++context.finishedLayoutUploadCount,
 					context.totalLayerCount);
-			
-			context.startNextUpload();
+			    context.startNextUpload();
+			} else {
+			    layer = context.pop();
+			    while(layer !== null && layer !== undefined) {
+	                context.putFailedUpload(Arbiter.Util.getSchemaFromOlLayer(layer).getFeatureType());
+	                layer = context.pop();
+			    }
+			    context.onUploadComplete();
+			}
 		};
 		
 		var key = Arbiter.Util.getLayerId(layer);
@@ -173,11 +201,20 @@ Arbiter.VectorSync.prototype.startNextDownload = function(){
 		}
 		
 		var callback = function(){
-			Arbiter.Cordova.updateDownloadingVectorDataProgress(
-					++context.finishedLayerDownloadCount,
-					context.totalLayerCount);
-			
-			context.startNextDownload();
+            if(!context.syncObject.syncAborted) {
+                Arbiter.Cordova.updateDownloadingVectorDataProgress(
+                        ++context.finishedLayerDownloadCount,
+                        context.totalLayerCount);
+                
+                context.startNextDownload();
+            } else {
+                layer = context.pop();
+                while(layer !== null && layer !== undefined) {
+                    context.putFailedDownload(Arbiter.Util.getSchemaFromOlLayer(layer).getFeatureType());
+                    layer = context.pop();
+                }
+                context.onDownloadComplete();
+            }
 		};
 		
 		var key = schema.getLayerId();

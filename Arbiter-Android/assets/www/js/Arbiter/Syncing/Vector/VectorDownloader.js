@@ -3,6 +3,10 @@ Arbiter.VectorDownloader = function(_schema, _bounds, _onSuccess, _onFailure){
 	this.bounds = _bounds;
 	this.onSuccess = _onSuccess;
 	this.onFailure = _onFailure;
+	this.gotResponse = false;
+	
+    this.timedOut = false;
+	this.succeded = false;
 	
 	var serverId = this.schema.getServerId();
 	
@@ -13,14 +17,15 @@ Arbiter.VectorDownloader = function(_schema, _bounds, _onSuccess, _onFailure){
 };
 
 Arbiter.VectorDownloader.prototype.onDownloadFailure = function(){
-	
-	if(Arbiter.Util.funcExists(this.onFailure)){
+    this.gotResponse = true;
+    this.succeeded = false;
+	//alert("download failed");
+	if(Arbiter.Util.funcExists(this.onFailure) && !this.timedOut){
 		this.onFailure(this.schema.getFeatureType());
 	}
 };
 
 Arbiter.VectorDownloader.prototype.onDownloadComplete = function(){
-	
 	if(Arbiter.Util.funcExists(this.onSuccess)){
 		this.onSuccess();
 	}
@@ -52,11 +57,34 @@ Arbiter.VectorDownloader.prototype.download = function(){
 		
 		context.onDownloadFailure();
 	});
+    window.setTimeout(function(){
+        if(!context.gotResponse) {
+            context.timedOut = true;
+            Arbiter.Cordova.showSyncTimeOutDialog(function() {
+                if(context.gotResponse) {
+                    if(context.succeeded){
+                        if(Arbiter.Util.funcExists(context.onSuccess)) {
+                            context.onSuccess();
+                        }
+                    } else {
+                        if(Arbiter.Util.funcExists(context.onFailure)) {
+                            context.onFailure(context.schema.getFeatureType());
+                        }
+                    }
+                } else {
+                    context.timedOut = false;
+                }
+            });
+        }
+    }, 20000);
 };
 
 Arbiter.VectorDownloader.prototype.onDownloadSuccess = function(features){
 	var context = this;
 	
+    this.gotResponse = true;
+    this.succeeded = true;
+	//alert("download success");
 	// On successful download, delete the layers feature table
 	Arbiter.FeatureTableHelper.clearFeatureTable(this.schema, function(){
 		
@@ -69,7 +97,7 @@ Arbiter.VectorDownloader.prototype.onDownloadSuccess = function(features){
 			var storeMediaForSchema = new Arbiter.StoreFeaturesMediaToDownload(
 					context.schema, features, function(failedToStore){
 					
-				if(Arbiter.Util.funcExists(context.onSuccess)){
+				if(Arbiter.Util.funcExists(context.onSuccess) && !context.timedOut){
 					context.onSuccess();
 				}
 				
@@ -78,7 +106,7 @@ Arbiter.VectorDownloader.prototype.onDownloadSuccess = function(features){
 				//TODO: handle error
 				console.log("VectorDownloader download error - " + JSON.stringify(e));
 				
-				if(Arbiter.Util.funcExists(context.onSuccess)){
+				if(Arbiter.Util.funcExists(context.onSuccess) && !context.timedOut){
 					context.onSuccess();
 				}
 			});
@@ -89,14 +117,14 @@ Arbiter.VectorDownloader.prototype.onDownloadSuccess = function(features){
 			
 			console.log("Failed to insert features into " 
 					+ context.schema.getFeatureType(), e);
-			
+
 			context.onDownloadFailure();
 		});
 	}, function(e){
 		
 		console.log("Failed to clear old features from " 
 				+ context.schema.getFeatureType(), e);
-		
+
 		context.onDownloadFailure();
 	});
 };

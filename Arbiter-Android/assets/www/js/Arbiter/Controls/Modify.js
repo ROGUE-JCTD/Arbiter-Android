@@ -17,6 +17,8 @@ Arbiter.Controls.Modify = function(_olLayer, _selectedFeature, _schema, onFeatur
 	
 	var geometryPart = null;
 	
+	var geometryExpander = null;
+	
 	var featureModified =  function(event){
 		console.log("onFeatureModified", event);
 		if(Arbiter.Util.funcExists(onFeatureModified)){
@@ -40,11 +42,13 @@ Arbiter.Controls.Modify = function(_olLayer, _selectedFeature, _schema, onFeatur
 		
 		var type = Arbiter.Geometry.getGeometryType(schema.getLayerId(), schema.getGeometryType());
 		
-		if(geomClsName === "OpenLayers.Geometry.Collection" 
-			|| geomClsName === "OpenLayers.Geometry.MultiPoint"
-			|| geomClsName === "OpenLayers.Geometry.MultiLineString"
-			|| geomClsName === "OpenLayers.Geometry.MultiPolygon"){
-			
+		var feature = event.feature;
+		
+		if(Arbiter.Util.existsAndNotNull(feature.metadata) 
+				&& Arbiter.Util.existsAndNotNull(feature.metadata.parent) 
+				&& (feature.metadata.parent.type === "OpenLayers.Geometry.MultiPoint" 
+					|| feature.metadata.parent.type === "OpenLayers.Geometry.MultiLineString")
+					|| feature.metadata.parent.type === "OpenLayers.Geometry.MultiPolygon"){
 			enable = true;
 		}
 		
@@ -84,26 +88,9 @@ Arbiter.Controls.Modify = function(_olLayer, _selectedFeature, _schema, onFeatur
 			
 			modifyLayer.removeAllFeatures();
 			
-			var geometry = null;
+			var geometry = geometryExpander.compress();
 			
-			var components = [];
-			
-			for(var i = 0; i < features.length; i++){
-				components.push(features[i].geometry);
-			}
-			
-			if(olGeometryClass === "OpenLayers.Geometry.Collection"){
-				
-				geometry = new OpenLayers.Geometry.Collection(components);
-			}else if(olGeometryClass === "OpenLayers.Geometry.MultiPoint"){
-				geometry = new OpenLayers.Geometry.MultiPoint(components);
-			}else if(olGeometryClass === "OpenLayers.Geometry.MultiLineString"){
-				geometry = new OpenLayers.Geometry.MultiLineString(components);
-			}else if(olGeometryClass === "OpenLayers.Geometry.MultiPolygon"){
-				geometry = new OpenLayers.Geometry.MultiPolygon(components);
-			}else{
-				geometry = features[0].geometry;
-			}
+			console.log("geometryExpander.compress geometry = ", geometry);
 			
 			selectedFeature.geometry = geometry;
 			
@@ -127,37 +114,17 @@ Arbiter.Controls.Modify = function(_olLayer, _selectedFeature, _schema, onFeatur
 		
 		olLayer.removeFeatures([selectedFeature]);
 		
-		var features = [];
+		geometryExpander = new Arbiter.GeometryExpander();
 		
-		olGeometryClass = selectedFeature.geometry.CLASS_NAME;
+		geometryExpander.expand(selectedFeature.geometry);
 		
-		if(olGeometryClass === "OpenLayers.Geometry.Collection" 
-			|| olGeometryClass === "OpenLayers.Geometry.MultiPoint"
-			|| olGeometryClass === "OpenLayers.Geometry.MultiPolygon"
-			|| olGeometryClass === "OpenLayers.Geometry.MultiLineString"){
-			
-			var components = selectedFeature.geometry.components;
-			
-			var feature = null;
-			
-			var component = null;
-			
-			for(var i = 0; i < components.length; i++){
-				
-				
-				feature = new OpenLayers.Feature.Vector(components[i]);
-				
-				feature.renderIntent = "select";
-				
-				features.push(feature);
-			}
-		}else{
-			selectedFeature.renderIntent = "select";
-			
-			features.push(selectedFeature);
+		console.log("geometryExpander.features", geometryExpander.features);
+		
+		for(var i = 0; i < geometryExpander.features; i++){
+			geometryExpander.features[i].renderIntent = "select";
 		}
 		
-		modifyLayer.addFeatures(features);
+		modifyLayer.addFeatures(geometryExpander.features);
 		
 		map.addLayers([modifyLayer]);
 		

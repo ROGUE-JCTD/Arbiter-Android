@@ -23,7 +23,6 @@ Arbiter.Layers.WFSLayer = (function(){
                 this.writeNode("geometryMember", geometry.components[i], node);
             }
             return node;
-
 		};
 		
 		return protocol;

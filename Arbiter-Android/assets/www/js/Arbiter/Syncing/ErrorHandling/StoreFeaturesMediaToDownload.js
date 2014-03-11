@@ -58,7 +58,7 @@ Arbiter.StoreFeaturesMediaToDownload.prototype.store = function(feature){
 	
 	var storeMedia = new Arbiter.StoreMediaFromFeature(feature, this.schema, function(id, failed){
 		
-		console.log("store media from feature success: " + id + ", " + JSON.stringify(failed));
+		console.log("store media from feature success: " + id + ", " + failed);
 		context.addToFailedToStore(id, failed);
 		
 		context.storeNext();

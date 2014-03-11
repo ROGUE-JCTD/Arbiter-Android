@@ -56,6 +56,27 @@ Arbiter.Util = (function(){
 			return false;
 		},
 		
+		isArbiterWMSLayer: function(olLayer){
+			
+			if(this.existsAndNotNull(olLayer) && this.existsAndNotNull(olLayer.name) 
+					&& (olLayer.name.indexOf(Arbiter.Layers.type.WMS) != -1)){
+				return true;
+			}
+			
+			return false;
+		},
+		
+		isArbiterWFSLayer: function(olLayer){
+			
+			if(this.existsAndNotNull(olLayer) && this.existsAndNotNull(olLayer.name) 
+					&& this.layerIsEditable(olLayer) 
+					&& (olLayer.name.indexOf(Arbiter.Layers.type.WFS) != -1)){
+				return true;
+			}
+			
+			return false;
+		},
+		
 		layerIsEditable: function(olLayer){
 			if((olLayer instanceof OpenLayers.Layer.Vector)
 					&& !(olLayer instanceof OpenLayers.Layer.Vector.RootContainer)){

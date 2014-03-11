@@ -16,6 +16,7 @@ import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -28,6 +29,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
+import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
@@ -42,20 +44,17 @@ public class FeatureDialogHelper {
 	private FeatureDialogBuilder builder;
 	private boolean editing;
 	
-	// To prevent the user from doing something broken for now...
-	// TODO: Fix the ControlPanel.js logic...
-	private boolean keepEditOnMapDisabled;
-	
 	public FeatureDialogHelper(FragmentActivity activity, View view, 
 			Feature feature, boolean startInEditMode,
-			Button editButton, Button editOnMapButton,
-			Button cancelButton, Button deleteButton, String layerId){
+			Button editButton, Button cancelButton, 
+			Button deleteButton, String layerId){
 		
 		this.activity = activity;
 		this.feature = feature;
 		this.editing = startInEditMode;
 		this.layerId = layerId;
-		this.keepEditOnMapDisabled = false;
+		
+		Log.w("FeatureDialogHelper", "FeatureDialogHelper layerID = " + layerId);
 		
 		try{
 			this.mapListener = (Map.MapChangeListener) activity;
@@ -71,11 +70,9 @@ public class FeatureDialogHelper {
 		
 		builder.build(startInEditMode);
 		
-		if(startInEditMode && editButton != null
-				&& editOnMapButton != null){
+		if(startInEditMode && editButton != null){
 			
-			startEditMode(editButton, editOnMapButton,
-					cancelButton, deleteButton);
+			startEditMode(editButton, cancelButton, deleteButton);
 		}
 	}
 	
@@ -100,7 +97,7 @@ public class FeatureDialogHelper {
 		}
 	}
 	
-	private void toggleEditOnMapButton(boolean editMode, Button editButton){
+	/*private void toggleEditOnMapButton(boolean editMode, Button editButton){
 		if(editMode){
 			editButton.setVisibility(View.VISIBLE);
 			
@@ -113,7 +110,7 @@ public class FeatureDialogHelper {
 		}else{
 			editButton.setVisibility(View.GONE);
 		}
-	}
+	}*/
 	
 	private void toggleEditButtonText(boolean editMode, Button editButton){
 		String text;
@@ -128,12 +125,10 @@ public class FeatureDialogHelper {
 		editButton.setText(text);
 	}
 	
-	private void toggleButtons(boolean editMode, Button editButton, 
-			Button editOnMapButton, Button cancelButton, Button deleteButton){
+	private void toggleButtons(boolean editMode, Button editButton,
+			Button cancelButton, Button deleteButton){
 		
 		toggleEditButtonText(editMode, editButton);
-		
-		toggleEditOnMapButton(editMode, editOnMapButton);
 		
 		toggleCancelButton(editMode, cancelButton);
 		
@@ -143,24 +138,23 @@ public class FeatureDialogHelper {
 	/**
 	 * Toggle the view and return whether or not it's in edit mode.
 	 * @param editButton
-	 * @param editOnMapButton
 	 * @return
 	 */
-	private boolean toggleEditMode(boolean editMode, Button editButton, Button editOnMapButton,
+	private boolean toggleEditMode(boolean editMode, Button editButton,
 			Button cancelButton, Button deleteButton){
 		
 		this.editing = builder.setEditMode(editMode);
 		
-		toggleButtons(editMode, editButton, editOnMapButton,
+		toggleButtons(editMode, editButton,
 				cancelButton, deleteButton);
 		
 		return editing;
 	}
 	
-	public void startEditMode(Button editButton, Button editOnMapButton,
+	public void startEditMode(Button editButton,
 			Button cancelButton, Button deleteButton){
 		
-		toggleEditMode(true, editButton, editOnMapButton,
+		toggleEditMode(true, editButton,
 				cancelButton, deleteButton);
 	}
 	
@@ -181,7 +175,7 @@ public class FeatureDialogHelper {
 		
 		ArbiterState.getArbiterState().editingFeature(feature, layerId);
 		
-		mapListener.getMapChangeHelper().onEditFeature(feature);
+		//mapListener.getMapChangeHelper().onEditFeature(feature);
 		
 		dismiss();
 	}
@@ -245,7 +239,7 @@ public class FeatureDialogHelper {
 			mediaPanel.clearMediaToSend();
 		}
 		
-		helper.updateMediaToSend(newMedia.toString(), insert);
+		helper.updateMediaToSend(newMedia.toString());
 	}
 	
 	private boolean save() throws Exception{
@@ -315,8 +309,7 @@ public class FeatureDialogHelper {
 	}
 	
 	private void saveFeature(final Button editButton, 
-			final Button editOnMapButton, final Button cancelButton,
-			final Button deleteButton){
+			final Button cancelButton, final Button deleteButton){
 		
 		final ProgressDialog progressDialog = startUpdateProgress();
 		
@@ -346,13 +339,13 @@ public class FeatureDialogHelper {
 								@Override
 								public void onClick(DialogInterface dialog, int which) {
 									ArbiterState.getArbiterState().doneEditingFeature();
-									toggleEditMode(false, editButton, editOnMapButton,
+									toggleEditMode(false, editButton,
 											cancelButton, deleteButton);
 									
-									if(insertedNewFeature){
+									/*if(insertedNewFeature){
 										mapListener.getMapChangeHelper()
 											.endInsertMode();
-									}else{
+									}else*/{
 										mapListener.getMapChangeHelper().reloadMap();
 									}
 									dismiss();
@@ -362,13 +355,13 @@ public class FeatureDialogHelper {
 							builder.setPositiveButton(R.string.review_feature, new OnClickListener(){
 								@Override
 								public void onClick(DialogInterface dialog, int which) {
-									toggleEditMode(false, editButton, editOnMapButton,
+									toggleEditMode(false, editButton,
 											cancelButton, deleteButton);
 									
-									if(insertedNewFeature){
+									/*if(insertedNewFeature){
 										mapListener.getMapChangeHelper()
 											.endInsertMode();
-									}else{
+									}else*/{
 										mapListener.getMapChangeHelper().reloadMap();
 									}
 								}
@@ -396,12 +389,11 @@ public class FeatureDialogHelper {
 	 * Done in edit mode.
 	 * @param save
 	 */
-	public void endEditMode(Button editButton, Button editOnMapButton,
+	public void endEditMode(Button editButton,
 			Button cancelButton, Button deleteButton){
 		
 		if(builder.checkFormValidity()){
-			saveFeature(editButton, editOnMapButton,
-					cancelButton, deleteButton);
+			saveFeature(editButton, cancelButton, deleteButton);
 		}else{
 			AlertDialog.Builder errorBuilder = new AlertDialog.Builder(activity);
 			
@@ -427,6 +419,7 @@ public class FeatureDialogHelper {
 	
 	public void cancel(){
 		//mapListener.getMapChangeHelper().cancelEditing();
+		Log.w("FeatureDialogHelper", "FeatureDialogHelper cancel");
 		
 		threadPoolSupplier.getThreadPool().execute(new Runnable(){
 			@Override
@@ -440,7 +433,12 @@ public class FeatureDialogHelper {
 				activity.runOnUiThread(new Runnable(){
 					@Override
 					public void run(){
-						mapListener.getMapChangeHelper().reloadMap();
+						Log.w("FeatureDialogHelper", "FeatureDialogHelper reloadMap");
+						
+						if(feature.isNew()){
+							mapListener.getMapChangeHelper().reloadMap();
+							mapListener.getMapChangeHelper().setEditMode(GeometryEditor.Mode.OFF);
+						}
 						
 						dismiss();
 					}
@@ -510,6 +508,8 @@ public class FeatureDialogHelper {
 							public void run(){
 								
 								mapListener.getMapChangeHelper().reloadMap();
+								
+								mapListener.getMapChangeHelper().setEditMode(GeometryEditor.Mode.OFF);
 								
 								dismiss();
 								

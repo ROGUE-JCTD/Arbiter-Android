@@ -27,7 +27,7 @@ Arbiter.MediaDownloadCounter.prototype.getMediaCount = function(feature){
 	
 	var featureMedia = null;
 	
-	if(mediaAttribute !== null && mediaAttribute !== undefined){
+	if(Arbiter.Util.existsAndNotNull(mediaAttribute) && mediaAttribute !== ""){
 		featureMedia = JSON.parse(mediaAttribute);
 		
 		console.log(mediaAttribute);

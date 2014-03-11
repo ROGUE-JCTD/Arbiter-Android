@@ -1,7 +1,6 @@
 package com.lmn.Arbiter_Android.CordovaPlugins.Helpers;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -12,7 +11,6 @@ import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
@@ -30,7 +28,7 @@ public class FeatureHelper {
 	}
 	
 	public void displayFeatureDialog(String featureType, String featureId,
-			String layerId, String wktGeometry, String mode){
+			String layerId, String wktGeometry){
 		
 		Feature feature = null;
 		boolean startInEditMode = false;
@@ -50,13 +48,11 @@ public class FeatureHelper {
 			
 			feature = getFeature(db, featureType, featureId);
 			
-			feature.backupGeometry();
+			//feature.backupGeometry();
 		}
 			
-		Log.w("FeatureHelper", "FeatureHelper displayFeatureDialog mode = " + mode);
 		// Update the features geometry
-		if(mode.equals(ControlPanelHelper.CONTROLS.INSERT) 
-				|| mode.equals(ControlPanelHelper.CONTROLS.MODIFY)){
+		if(feature.isNew()){
 			
 			if(!wktGeometry.equals("null")){
 				feature.getAttributes().put(feature
@@ -64,6 +60,8 @@ public class FeatureHelper {
 			}
 			
 			startInEditMode = true;
+		}else{
+			Log.w("FeatureHelper", "FeatureHelper.displayFeatureDialog featureId = " + featureId);
 		}
 		
 		displayDialog(feature, layerId, startInEditMode);

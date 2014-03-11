@@ -108,7 +108,7 @@ Arbiter.Sync.prototype.initialize = function(onSuccess, onFailure){
 				storeVectorSync.startStore();
 			};
 			
-			if(mediaToSend !== null && mediaToSend !== undefined){
+			if(Arbiter.Util.existsAndNotNull(mediaToSend) && mediaToSend !== ""){
 				context.mediaToSend = JSON.parse(mediaToSend);
 				
 				callback();

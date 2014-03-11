@@ -9,8 +9,6 @@ Arbiter.Controls.ControlPanel = (function(){
 	
 	var controlPanelHelper = new Arbiter.ControlPanelHelper();
 	
-	var wktFormatter = new OpenLayers.Format.WKT();
-	
 	var mode = Arbiter.ControlPanelHelper.prototype.CONTROLS.SELECT;
 	
 	var cancel = false;
@@ -23,14 +21,10 @@ Arbiter.Controls.ControlPanel = (function(){
 			insertControl.deactivate();
 			
 			insertControl = null;
-			
-			selectControl.activate();
 		}
 	};
 	
 	var _startInsertMode = function(layerId, _geometryType){
-		
-		selectControl.deactivate();
 		
 		var olLayer = Arbiter.Layers.getLayerById(
 				layerId, Arbiter.Layers.type.WFS);
@@ -48,7 +42,9 @@ Arbiter.Controls.ControlPanel = (function(){
 		
 		controlPanelHelper.set(0, layerId, controlPanelHelper.CONTROLS.INSERT, 0, function(){
 			
-			insertControl = new Arbiter.Controls.Insert(olLayer,
+			var map = Arbiter.Map.getMap();
+			
+			insertControl = new Arbiter.Controls.Insert(olLayer, map,
 					geometryType, function(feature){
 				
 				if(geometryType === Arbiter.Geometry.type.MULTIPOINT 
@@ -60,16 +56,20 @@ Arbiter.Controls.ControlPanel = (function(){
 					}
 					
 					feature.metadata[Arbiter.FeatureTableHelper.PART_OF_MULTI] = true; 
+				}else{
+					_endInsertMode();
 				}
-					
-				_endInsertMode();
 				
 				mode = Arbiter.ControlPanelHelper.prototype.CONTROLS.INSERT;
 				
 				selectControl.select(feature);
+				
+				selectedFeature = feature;
+				
+				Arbiter.Cordova.getUpdatedGeometry();
 			});
 		}, function(e){
-			console.log("start insert mode error");
+			console.log("start insert mode error", e.stack);
 		});
 	};
 	
@@ -85,8 +85,10 @@ Arbiter.Controls.ControlPanel = (function(){
 		
 		var wktGeometry = Arbiter.Geometry.getNativeWKT(feature, layerId);
 		
+		var schema = Arbiter.getLayerSchemas()[layerId];
+		
 		modifyControl = new Arbiter.Controls.Modify(
-				feature.layer, feature, function(feature){
+				feature.layer, feature, schema, function(feature){
 		
 			var wktGeometry = Arbiter.Geometry.getNativeWKT(feature, layerId);
 			
@@ -114,94 +116,24 @@ Arbiter.Controls.ControlPanel = (function(){
 		});
 	};
 	
-	var endModifyMode = function(_cancel){
-		cancel = _cancel;
-		
-		if(_cancel === null || _cancel === undefined){
-			cancel = false;
-		}
-		
-		if(selectedFeature === null 
-				|| selectedFeature === undefined){
-			console.log("Arbiter.Controls.ControlPanel.exitModifyMode()"
-				+ " selectedFeature should not be ", selectedFeature);
-			
-			return;
-		}
-		
-		if(modifyControl === null || modifyControl === undefined){
-			console.log("Arbiter.Controls.ControlPanel.exitModifyMode()"
-					+ " modifyControl is " + modifyControl);
-			
-			return;
-		}
-		
-		controlPanelHelper.clear(function(){
-			
-			if(modifyControl){
-				// Deactivate the modifyControl
-				modifyControl.deactivate();
-				
-				modifyControl = null;
-			}
-			
-			// Reactivate the selectControl
-			selectControl.activate();
-			
-			// Reselect the selectedFeature
-			selectControl.select(selectedFeature);
-		}, function(e){
-			console.log("endModifyMode error",e);
-		});
-	};
-	
-	var _restoreGeometry = function(wktGeometry){
-		
-		if(wktGeometry === null || wktGeometry === undefined){
-			throw "Arbiter.Controls.ControlPanel - couldn't restore original"
-			+ " geometry because wktGeometry is " + wktGeometry;
-		} 
-		
-		if(selectedFeature === null || selectedFeature === undefined){
-			throw "Arbiter.Controls.Select - couldn't restore original"
-			+ " geometry because selectedFeature is " + selectedFeature;
-		}
-		
-		var geomFeature = Arbiter.Geometry.readWKT(wktGeometry);
-		
-		var layerId = Arbiter.Util.getLayerId(selectedFeature.layer);
-		
-		var schema = Arbiter.getLayerSchemas()[layerId];
-		var srid = Arbiter.Map.getMap().projection.projCode;
-		
-		geomFeature.geometry.transform(new OpenLayers.Projection(schema.getSRID()),
-				new OpenLayers.Projection(srid));
-		
-		var layer = Arbiter.Layers.getLayerById(layerId, Arbiter.Layers.type.WFS);
-		
-		layer.removeFeatures([selectedFeature]);
-		
-		selectedFeature.geometry = geomFeature.geometry;
-		
-		layer.addFeatures([selectedFeature]);
-	};
-	
 	var removeFeature = function(feature){
 		var layer = feature.layer;
 		
 		layer.removeFeatures([feature]);
 	};
 	
-	selectControl = new Arbiter.Controls.Select(function(feature){
-		console.log("feature selected and selectedFeature = " + selectedFeature);
-		// If the selectedFeature hasn't been
-		// cleared out yet, then it means this was
-		// the reselect of the feature in
-		// endModifyMode()
-		if(selectedFeature === null 
-				|| selectedFeature === undefined){
-			
-			selectedFeature = feature;
+	var onSelect = function(feature){
+		console.log("feature selected and selectedFeature = ", selectedFeature, feature);
+		
+		console.log("controlPanel onSelect modifyControl is", modifyControl);
+		
+		selectedFeature = feature;
+		
+		if(Arbiter.Util.existsAndNotNull(feature.layer) 
+				// Account for the layers created by the draw feature control/handler
+				&& (feature.layer.name.indexOf("OpenLayers") === -1)
+				&& Arbiter.Util.existsAndNotNull(feature.metadata) 
+				&& Arbiter.Util.existsAndNotNull(feature.metadata[Arbiter.FeatureTableHelper.ID])){
 			
 			var _mode = mode;
 			var _cancel = cancel;
@@ -222,21 +154,23 @@ Arbiter.Controls.ControlPanel = (function(){
 				
 				oomCleared = false;
 				
-				Arbiter.Cordova.displayFeatureDialog(
+				Arbiter.Cordova.featureSelected(
 						feature.layer.protocol.featureType,
 						featureId,
 						layerId,
 						feature,
 						_mode,
 						_cancel
-						
 				);
 			}, function(e){
 				console.log("Error saving select mode", e);
 			});
 		}
-	}, function(feature){
+	};
+	
+	var onUnselect = function(feature){
 		
+		console.log("feature unselected: ", feature);
 		// Unselect all features (added for multigeometries)
 		selectControl.unselect();
 		
@@ -253,13 +187,16 @@ Arbiter.Controls.ControlPanel = (function(){
 				
 				controlPanelHelper.clear(function(){
 					console.log("control panel cleared successfully");
+					Arbiter.Cordova.featureUnselected();
 				}, function(e){
 					console.log("Couldn't clear the control panel...", e);
 					oomCleared = false;
 				});
 			}
 		}
-	});
+	};
+	
+	selectControl = new Arbiter.Controls.Select(onSelect, onUnselect);
 	
 	return {
 		registerMapListeners: function(){
@@ -284,9 +221,35 @@ Arbiter.Controls.ControlPanel = (function(){
 			}
 		},
 		
-		exitModifyMode: function(_cancel){
+		exitModifyMode: function(onExitModify){
 			
-			endModifyMode(_cancel);
+			if(!Arbiter.Util.existsAndNotNull(modifyControl)){
+				
+				if(Arbiter.Util.existsAndNotNull(onExitModify)){
+					onExitModify();
+				}
+				
+				return;
+			}
+			
+			modifyControl.endModifyMode(function(){
+				
+				modifyControl = null;
+				
+				selectControl.activate();
+				
+				if(Arbiter.Util.existsAndNotNull(selectedFeature)){
+					selectControl.select(selectedFeature);
+				}
+				
+				try{
+					if(Arbiter.Util.existsAndNotNull(onExitModify)){
+						onExitModify();
+					}
+				}catch(e){
+					console.log(e.stack);
+				}
+			});
 		},
 		
 		unselect: function(){
@@ -305,10 +268,21 @@ Arbiter.Controls.ControlPanel = (function(){
 		 * and exit modify mode.
 		 */
 		cancelEdit: function(wktGeometry){
+			console.log("ControlPanel.cancelEdit wktGeometry = " + wktGeometry);
 			
-			_restoreGeometry(wktGeometry);
-			
-			this.exitModifyMode(true);
+			modifyControl.cancel(wktGeometry, function(){
+				modifyControl.deactivate();
+				
+				modifyControl = null;
+				
+				// Reactivate the selectControl
+				selectControl.activate();
+				
+				//console.log("selectControl active: " + selectControl.isActive());
+				
+				// Reselect the selectedFeature
+				selectControl.select(selectedFeature);
+			});
 		},
 		
 		getSelectedFeature: function(){
@@ -328,14 +302,39 @@ Arbiter.Controls.ControlPanel = (function(){
 			}
 		},
 		
+		finishInserting: function(){
+			insertControl.finishInserting();
+		},
+		
 		getInsertControl: function(){
 			return insertControl;
 		},
 		
-		restoreGeometry: function(wktGeometry){
-			_restoreGeometry(wktGeometry);
+		moveSelectedFeature: function(wktGeometry){
+			
+			if(wktGeometry === null || wktGeometry === undefined){
+				throw "Arbiter.Controls.ControlPanel - couldn't restore original"
+				+ " geometry because wktGeometry is " + wktGeometry;
+			} 
+			
+			if(selectedFeature === null || selectedFeature === undefined){
+				throw "Arbiter.Controls.Select - couldn't restore original"
+				+ " geometry because selectedFeature is " + selectedFeature;
+			}
+			
+			var geomFeature = Arbiter.Geometry.readWKT(wktGeometry);
+			
+			var srid = Arbiter.Map.getMap().projection.projCode;
+			
+			geomFeature.geometry.transform(new OpenLayers.Projection(schema.getSRID()),
+					new OpenLayers.Projection(srid));
+			
+			olLayer.removeFeatures([selectedFeature]);
+			
+			selectedFeature.geometry = geomFeature.geometry;
+			
+			olLayer.addFeatures([selectedFeature]);
 		},
-		
 		/**
 		 * @param { OpenLayers.Feature.Vector } feature The feature to select.
 		 */
@@ -357,6 +356,27 @@ Arbiter.Controls.ControlPanel = (function(){
 		
 		getCancel: function(){
 			return cancel;
+		},
+		
+		addPart: function(){
+			console.log("ControlPanel.addPart");
+			
+		},
+		
+		removePart: function(){
+			console.log("ControlPanel.removePart");
+			
+			modifyControl.removePart();
+		},
+		
+		addGeometry: function(geometryType){
+			console.log("ControlPanel.addGeometry: " + geometryType);
+		},
+		
+		removeGeometry: function(){
+			console.log("ControlPanel.removeGeometry");
+			
+			modifyControl.removeGeometry();
 		}
 	};
 })();

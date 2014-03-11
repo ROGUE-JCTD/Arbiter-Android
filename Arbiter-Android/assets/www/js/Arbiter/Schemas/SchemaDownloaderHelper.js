@@ -1,4 +1,5 @@
-Arbiter.SchemaDownloaderHelper = function(_layer, _onSuccess, _onFailure){
+Arbiter.SchemaDownloaderHelper = function(_layer, _wfsVersion, _onSuccess, _onFailure){
+	this.wfsVersion = _wfsVersion;
 	this.layer = _layer;
 	this.onSuccess = _onSuccess;
 	this.onFailure = _onFailure;
@@ -48,7 +49,7 @@ Arbiter.SchemaDownloaderHelper.prototype.downloadSchema = function(){
 	var gotRequestBack = false;
 	
 	var request = new OpenLayers.Request.GET({
-		url: context.url + "/wfs?service=wfs&version=2.0.0&request=DescribeFeatureType&typeName=" + context.featureType,
+		url: context.url + "/wfs?service=wfs&version=" + context.wfsVersion + "&request=DescribeFeatureType&typeName=" + context.featureType,
 		headers: {
 			Authorization: 'Basic ' + context.credentials
 		},

@@ -21,7 +21,7 @@
 <script src="js/Arbiter/Util/Util.js" type="text/javascript"></script>
 <script src="js/Arbiter/Localization/Localization.js" type="text/javascript"></script>
 <script src="js/Arbiter/Util/FileSystem.js" type="text/javascript"></script>
-<script src="js/Arbiter/Util/Geometry.js" type="text/javascript"></script>
+<script src="js/Arbiter/Geometry/Geometry.js" type="text/javascript"></script>
 <script src="js/Arbiter/Util/Server.js" type="text/javascript"></script>
 <script src="js/Arbiter/Util/Servers.js" type="text/javascript"></script>
 <script src="js/Arbiter/Util/Attribute.js" type="text/javascript"></script>
@@ -40,13 +40,14 @@
 <script src="js/Arbiter/DatabaseHelpers/TableHelpers/GeometryColumnsHelper.js" type="text/javascript"></script>
 <script src="js/Arbiter/DatabaseHelpers/TableHelpers/FeatureTableHelper.js" type="text/javascript"></script>
 <script src="js/Arbiter/DatabaseHelpers/TableHelpers/PreferencesHelper.js" type="text/javascript"></script>
+<script src="js/Arbiter/DatabaseHelpers/TableHelpers/FailedSyncHelper.js" type="text/javascript"></script>
 <script src="js/Arbiter/Util/MediaHelper.js" type="text/javascript"></script>
 <script src="js/Arbiter/Map.js" type="text/javascript"></script>
 <script src="js/Arbiter/Controls/Controls.js" type="text/javascript"></script>
 <script src="js/Arbiter/Controls/Delete.js" type="text/javascript"></script>
 <script src="js/Arbiter/Controls/Modify.js" type="text/javascript"></script>
 <script src="js/Arbiter/Controls/Insert.js" type="text/javascript"></script>
-<script src="js/Arbiter/Controls/Select/Select.js" type="text/javascript"></script>
+<script src="js/Arbiter/Controls/Select.js" type="text/javascript"></script>
 <script src="js/Arbiter/Controls/ControlPanelHelper.js"></script>
 <script src="js/Arbiter/Controls/ControlPanel.js" type="text/javascript"></script>
 <script src="js/Arbiter/Layers/Layers.js" type="text/javascript"></script>
@@ -56,9 +57,21 @@
 <script src="js/Arbiter/Loaders/Loaders.js" type="text/javascript"></script>
 <script src="js/Arbiter/Loaders/FeaturesLoader.js" type="text/javascript"></script>
 <script src="js/Arbiter/Loaders/LayersLoader.js" type="text/javascript"></script>
+<script src="js/Arbiter/Syncing/ErrorHandling/StoreVectorToSync.js" type="text/javascript"></script>
+<script src="js/Arbiter/Syncing/ErrorHandling/StoreMediaFromFeature.js" type="text/javascript"></script>
+<script src="js/Arbiter/Syncing/ErrorHandling/StoreFeaturesMediaToDownload.js" type="text/javascript"></script>
+<script src="js/Arbiter/Syncing/ErrorHandling/StoreMediaToDownload.js" type="text/javascript"></script>
+<script src="js/Arbiter/Syncing/ErrorHandling/ReattemptFailed.js" type="text/javascript"></script>
+<script src="js/Arbiter/Syncing/ErrorHandling/ReattemptFailedMediaDownloads.js" type="text/javascript"></script>
+<script src="js/Arbiter/Syncing/ErrorHandling/ReattemptFailedMediaUploads.js" type="text/javascript"></script>
+<script src="js/Arbiter/Syncing/ErrorHandling/ReattemptFailedVectorDownloads.js" type="text/javascript"></script>
+<script src="js/Arbiter/Syncing/ErrorHandling/ReattemptFailedVectorUploads.js" type="text/javascript"></script>
+<script src="js/Arbiter/Syncing/ErrorHandling/ReattemptSync.js" type="text/javascript"></script>
+<script src="js/Arbiter/Syncing/ErrorHandling/RetryFailedSyncs.js" type="text/javascript"></script>
 <script src="js/Arbiter/Syncing/Vector/VectorDownloader.js" type="text/javascript"></script>
 <script src="js/Arbiter/Syncing/Vector/VectorUploader.js" type="text/javascript"></script>
 <script src="js/Arbiter/Syncing/Vector/VectorSync.js" type="text/javascript"></script>
+<script src="js/Arbiter/Syncing/Media/MediaProgressListener.js" type="text/javascript"></script>
 <script src="js/Arbiter/Syncing/Media/MediaDownloadCounter.js" type="text/javascript"></script>
 <script src="js/Arbiter/Syncing/Media/MediaUploadCounter.js" type="text/javascript"></script>
 <script src="js/Arbiter/Syncing/Media/MediaDownloaderHelper.js" type="text/javascript"></script>
@@ -68,6 +81,11 @@
 <script src="js/Arbiter/Syncing/Sync.js" type="text/javascript"></script>
 <script src="js/Arbiter/Cordova/Cordova.js" type="text/javascript"></script>
 <script src="js/Arbiter/Cordova/OOM_Workaround.js" type="text/javascript"></script>
+<script src="js/Arbiter/Schemas/SchemaDownloaderHelper.js" type="text/javascript"></script>
+<script src="js/Arbiter/Schemas/SchemaDownloader.js" type="text/javascript"></script>
+<script src="js/Arbiter/Geolocation/Geolocation.js" type="text/javascript"></script>
+<script src="js/Arbiter/Geolocation/FindMe_OOM.js" type="text/javascript"></script>
+<script src="js/Arbiter/Geolocation/FindMe.js" type="text/javascript"></script>
 <script src="js/Arbiter/Cordova/Project.js" type="text/javascript"></script>
 <script src="js/Arbiter/index/aoi.js" type="text/javascript"></script>
 </body>

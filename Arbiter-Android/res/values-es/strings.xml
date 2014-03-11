@@ -193,4 +193,7 @@
     <string name="multiline">Línea múltiple</string>
     <string name="multipolygon">Polígono múltiple</string>
     <string name="choose_geometry_type">Tipo de geometría</string>
+    <string name="done">Terminado</string>
+    <string name="inspect">Inspeccionar</string>
+    <string name="finish">Termina</string>
 </resources>

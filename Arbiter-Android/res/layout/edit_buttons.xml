@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerHorizontal="true"
+    android:layout_marginTop="24dp">
+
+    <Button
+      android:id="@+id/cancelButton1"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@android:string/cancel" 
+      android:background="@android:drawable/btn_default"
+      android:visibility="gone"/>
+    
+ 	<Button
+      android:id="@+id/doneButton1"
+      android:layout_toRightOf="@id/cancelButton1"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/done" 
+      android:background="@android:drawable/btn_default"
+      android:visibility="gone"/> 
+     
+</RelativeLayout>

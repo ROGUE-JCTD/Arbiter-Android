@@ -16,6 +16,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -88,7 +89,8 @@ public class InsertFeaturesListAdapter extends BaseAdapter implements ArbiterAda
 				String cancel = context.getResources().getString(android.R.string.cancel);
 				
 				ChooseGeometryTypeDialog chooseGeometryTypeDialog = 
-						ChooseGeometryTypeDialog.newInstance(title, cancel, featureType, layerId);
+						ChooseGeometryTypeDialog.newInstance(title, cancel,
+								featureType, layerId, ChooseGeometryTypeAdapter.Mode.INSERT);
 				
 				chooseGeometryTypeDialog.show(dialog.getActivity()
 						.getSupportFragmentManager(), ChooseGeometryTypeDialog.TAG);
@@ -131,7 +133,9 @@ public class InsertFeaturesListAdapter extends BaseAdapter implements ArbiterAda
 				String geometryType = GeometryColumnsHelper.getHelper()
 						.getGeometryType(getFeatureDb(), featureType);
 				
-				if(geometryType.contains("Geometry")){
+				Log.w("InsertFeaturesListAdapter", "InsertFeaturesListAdapter geometryType = " + geometryType);
+				
+				if(geometryType.contains("MultiCurve")){
 					showGeometryTypeChooser(featureType, layerId, geometryType);
 				}else{
 					startInsertMode(featureType, layerId, geometryType);

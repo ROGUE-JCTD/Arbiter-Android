@@ -117,15 +117,9 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     }
     
     private void clearControlPanelKVP(){
-    	//final MapActivity activity = this;
-        //getThreadPool().execute(new Runnable(){
-        //	@Override
-        //	public void run(){
-				ControlPanelHelper helper = new ControlPanelHelper(this);
+		ControlPanelHelper helper = new ControlPanelHelper(this);
     				
-    			helper.clearControlPanel();
-        //	}
-    //    });
+    	helper.clearControlPanel();
     }
     
     private void InitApplicationDatabase(){
@@ -185,64 +179,6 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     		@Override
     		public void onClick(View v){
     			Map.getMap().zoomToAOI(cordovaWebView);
-    		}
-    	});
-    	
-    	ImageButton cancelEditing = (ImageButton) findViewById(R.id.cancelButton);
-    	
-    	cancelEditing.setOnClickListener(new OnClickListener(){
-    		@Override
-    		public void onClick(View v){
-    			// Toggle the cancel and done buttons
-    			mapChangeHelper.toggleEditButtons(false);
-    			
-    			// Open up the feature dialog for the selectedFeature
-    			Feature selectedFeature = ArbiterState.getArbiterState().isEditingFeature();
-    			
-    			// Exit modify mode
-    			Map.getMap().cancelEdit(cordovaWebView,
-    					selectedFeature.getOriginalGeometry());
-    			
-    			selectedFeature.restoreGeometry();
-    			
-    			FeatureHelper helper = new FeatureHelper(activity);
-    			
-    			helper.displayFeatureDialog(selectedFeature.getFeatureType(),
-    					selectedFeature.getId(), ArbiterState.getArbiterState()
-    					.getLayerBeingEdited(), selectedFeature.getOriginalGeometry(),
-    					ControlPanelHelper.CONTROLS.MODIFY);
-    		}
-    	});
-    	
-    	ImageButton doneEditing = (ImageButton) findViewById(R.id.doneButton);
-    	
-    	doneEditing.setOnClickListener(new OnClickListener(){
-    		@Override
-    		public void onClick(View v){
-    			
-    			Map.getMap().getUpdatedGeometry(cordovaWebView);
-    		}
-    	});
-    	
-    	ImageButton cancelInsert = (ImageButton) findViewById(R.id.cancelInsertButton);
-    	
-    	cancelInsert.setOnClickListener(new OnClickListener(){
-    		@Override
-    		public void onClick(View v){
-    			
-    			clearControlPanelKVP();
-    			
-    			mapChangeHelper.endInsertMode();
-    		}
-    	});
-    	
-    	ImageButton doneInsertingBtn = (ImageButton) findViewById(R.id.doneInsertingButton);
-    	
-    	doneInsertingBtn.setOnClickListener(new OnClickListener(){
-    		@Override
-    		public void onClick(View v){
-    			
-    			Map.getMap().finishGeometry(cordovaWebView);
     		}
     	});
     	

@@ -116,7 +116,12 @@ Arbiter.Geometry = (function(){
 			}
 
 			if(type === "MultiCurve"){
-				return this.type.MULTILINE;
+				if(Arbiter.WFS_DFT_VERSION === "1.1.0"){
+					return this.type.MULTIGEOMETRY;
+				}
+				
+				// wfsVersion 2.0.0
+				return this.type.MULTILINE;	
 			}
 			
 			if(type === "MultiPolygon"){
@@ -179,7 +184,7 @@ Arbiter.Geometry = (function(){
 		},
 		
 		getNativeWKT: function(feature, layerId){
-			console.log("getNativeWKT");
+			console.log("getNativeWKT", feature, layerId);
 			var srid = Arbiter.Map.getMap().projection.projCode;
 			
 			var schema = Arbiter.getLayerSchemas()[layerId];
@@ -207,6 +212,8 @@ Arbiter.Geometry = (function(){
 		 * geometry collection
 		 */
 		readWKT: function(wkt){
+			
+			console.log("readWKT wkt = '" + wkt + "'");
 			
 			var features = wktFormatter.read(wkt);
 			

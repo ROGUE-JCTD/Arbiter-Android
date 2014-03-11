@@ -15,8 +15,11 @@ public class ChooseGeometryTypeDialog extends ArbiterDialogFragment{
 	private ChooseGeometryTypeAdapter layersAdapter;
 	private String featureType;
 	private long layerId;
+	private int mode;
 	
-	public static ChooseGeometryTypeDialog newInstance(String title, String cancel, String featureType, long layerId){
+	public static ChooseGeometryTypeDialog newInstance(String title, String cancel,
+			String featureType, long layerId, int mode){
+		
 		ChooseGeometryTypeDialog frag = new ChooseGeometryTypeDialog();
 		
 		frag.setLayout(R.layout.choose_geometry_type);
@@ -24,6 +27,7 @@ public class ChooseGeometryTypeDialog extends ArbiterDialogFragment{
 		frag.setCancel(cancel);
 		frag.featureType = featureType;
 		frag.layerId = layerId;
+		frag.mode = mode;
 		
 		return frag;
 	}
@@ -58,7 +62,7 @@ public class ChooseGeometryTypeDialog extends ArbiterDialogFragment{
 		this.listView = (ListView) view.findViewById(R.id.geometryTypeChooser);
 		this.layersAdapter = new ChooseGeometryTypeAdapter(
 				this, R.layout.choose_geometry_type_list_item,
-				featureType, layerId);
+				featureType, layerId, mode);
 		
 		this.listView.setAdapter(this.layersAdapter);
 	}

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.apache.cordova.CordovaWebView;
 
 import android.support.v4.app.FragmentActivity;
-
+import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -14,17 +14,20 @@ import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
+import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Map.Map;
 
 public class MapChangeHelper {
 	private FragmentActivity activity;
 	private CordovaWebView cordovaWebView;
 	private IncompleteProjectHelper incompleteProjectHelper;
+	private GeometryEditor editor;
 	
 	public MapChangeHelper(FragmentActivity activity, CordovaWebView cordovaWebView,
 			IncompleteProjectHelper incompleteProjectHelper){
 		
 		this.activity = activity;
+		this.editor = new GeometryEditor(activity);
 		this.cordovaWebView = cordovaWebView;
 		this.incompleteProjectHelper = incompleteProjectHelper;
 	}
@@ -87,13 +90,35 @@ public class MapChangeHelper {
 		});
 	}
 	
-	public void onEditFeature(final Feature feature){
+	public void onUnselectFeature(){
 		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
-				toggleEditButtons(true);
+				Log.w("MapChangeHelper", "MapChangeHelper onUnselectFeature");
 				
-				Map.getMap().enterModifyMode(cordovaWebView);
+				if(editor.getEditMode() != GeometryEditor.Mode.INSERT){
+					editor.setEditMode(GeometryEditor.Mode.OFF);
+				}
+			}
+		});
+	}
+	
+	public void onSelectFeature(final String featureType, final String featureId,
+			final String layerId, final String wktGeometry, final String mode){
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				editor.setFeatureInfo(featureType, featureId, layerId, wktGeometry, new Runnable(){
+					@Override
+					public void run(){
+						if(featureId != null && featureId != "null"){
+							editor.setEditMode(GeometryEditor.Mode.SELECT);
+						}else{
+							editor.setEditMode(GeometryEditor.Mode.INSERT);
+						}
+					}
+				});
 			}
 		});
 	}
@@ -116,32 +141,24 @@ public class MapChangeHelper {
 		});
 	}
 	
-	private void setInsertFeatureText(String featureType){
-		TextView insertLayerTitle = (TextView)
-				activity.findViewById(R.id.insertLayerTitle);
-		
-		insertLayerTitle.setText(featureType);
-	}
-	
-	private void toggleInsertFeatureBar(boolean makeVisible){
-		View insertFeatureBar = activity.findViewById(R.id.insertFeatureBar);
-		
-		if(makeVisible){
-			insertFeatureBar.setVisibility(View.VISIBLE);
-		}else{
-			insertFeatureBar.setVisibility(View.GONE);
-		}
-	}
-	
 	public void startInsertMode(final String featureType, final long layerId, final String geometryType){
 		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
 				Map.getMap().startInsertMode(cordovaWebView, layerId, geometryType);
 				
-				setInsertFeatureText(featureType);
+				editor.setEditMode(GeometryEditor.Mode.INSERT);
+			}
+		});
+	}
+	
+	public void startAddPartMode(final String geometryType){
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				Map.getMap().addGeometry(cordovaWebView, geometryType);
 				
-				toggleInsertFeatureBar(true);
+				editor.setEditMode(GeometryEditor.Mode.INSERT);
 			}
 		});
 	}
@@ -152,7 +169,9 @@ public class MapChangeHelper {
 			public void run(){
 				Map.getMap().resetWebApp(cordovaWebView);
 				
-				toggleInsertFeatureBar(false);	
+				//toggleInsertFeatureBar(false);
+				
+				editor.setEditMode(GeometryEditor.Mode.OFF);
 			}
 		});
 	}
@@ -162,7 +181,9 @@ public class MapChangeHelper {
 			@Override
 			public void run(){
 				
-				toggleInsertFeatureBar(false);
+				//toggleInsertFeatureBar(false);
+				
+				editor.setEditMode(GeometryEditor.Mode.OFF);
 			}
 		});
 	}
@@ -174,5 +195,41 @@ public class MapChangeHelper {
 				Map.getMap().resetWebApp(cordovaWebView);
 			}
 		});
+	}
+	
+	public void enableDoneEditingButton(){
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				
+				editor.enableDoneButton();
+			}
+		});
+	}
+	
+	public void enableMultiPartBtns(final boolean enable, final boolean enableCollection){
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				
+				editor.enableMultiPartBtns(enable, enableCollection);
+			}
+		});
+	}
+	
+	public void setEditMode(final int mode){
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				
+				editor.setEditMode(mode);;
+			}
+		});
+	}
+	
+	public void saveUpdatedGeometry(String featureType, String featureId, String layerId, String wktGeometry){
+		editor.saveUpdatedGeometry(featureType, featureId, layerId, wktGeometry);
 	}
 }

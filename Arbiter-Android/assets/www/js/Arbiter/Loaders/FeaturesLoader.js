@@ -92,12 +92,13 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 				
 				Arbiter.Controls.ControlPanel.setSelectedFeature(olFeature);
 				
+				console.log("setSelectedState: reselecting feature");
 				Arbiter.Controls.ControlPanel.select(olFeature);
 			}else if(activeControl === controlPanelHelper.CONTROLS.MODIFY){
 				
 				Arbiter.Controls.ControlPanel.setSelectedFeature(olFeature);
 				
-				Arbiter.Controls.ControlPanel.restoreGeometry(geometry);
+				Arbiter.Controls.ControlPanel.moveSelectedFeature(geometry);
 				
 				Arbiter.Controls.ControlPanel.enterModifyMode(olFeature);
 			}else if(activeControl === controlPanelHelper.CONTROLS.INSERT){

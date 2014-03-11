@@ -1,5 +1,7 @@
-Arbiter.SchemaDownloader = function(_layers, _onSuccess, _onFailure){
+Arbiter.SchemaDownloader = function(_layers, _wfsVersion, _onSuccess, _onFailure){
 	this.layers = _layers;
+	this.wfsVersion = _wfsVersion;
+	
 	this.onSuccess = _onSuccess;
 	this.onFailure = _onFailure;
 	this.index = -1;
@@ -58,7 +60,7 @@ Arbiter.SchemaDownloader.prototype.download = function(layer){
 		context.startNextDownload();
 	};
 	
-	var downloaderHelper = new Arbiter.SchemaDownloaderHelper(layer, function(){
+	var downloaderHelper = new Arbiter.SchemaDownloaderHelper(layer, this.wfsVersion, function(){
 		
 		callback();
 	}, function(featureType){

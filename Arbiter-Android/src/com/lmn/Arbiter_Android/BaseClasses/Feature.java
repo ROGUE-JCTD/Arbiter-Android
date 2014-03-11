@@ -21,6 +21,7 @@ public class Feature {
 		this.featureType = featureType;
 		this.geometryName = geometryName;
 		this.attributes = attributes;
+		this.originalGeometry = attributes.get(geometryName);
 		
 		if(getSyncState() == null){
 			try {
@@ -50,7 +51,7 @@ public class Feature {
 	}
 	
 	public boolean isNew(){
-		return this.id == null;
+		return this.id == null || this.id.equals("null");
 	}
 	
 	public String getId(){

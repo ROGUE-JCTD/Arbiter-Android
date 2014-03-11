@@ -93,6 +93,13 @@
 	    android:background="#CCCCCC"
 	    android:alpha="0.9"/>
     
+    <include layout="@layout/edit_buttons" />
+    <include layout="@layout/geometry_parts_buttons"
+        android:layout_width="wrap_content"
+    	android:layout_height="wrap_content" 
+    	android:layout_below="@id/layersButton"
+    	android:layout_marginLeft="15dp"/>
+    
     <RelativeLayout
         android:id="@+id/insertFeatureBar"
         android:layout_width="wrap_content"

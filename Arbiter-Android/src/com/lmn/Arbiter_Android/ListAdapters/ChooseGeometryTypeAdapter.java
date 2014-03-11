@@ -17,6 +17,11 @@ public class ChooseGeometryTypeAdapter extends BaseAdapter{
 
 	private MapChangeListener mapChangeListener;
 	
+	public static class Mode{
+		public static final int INSERT = 0;
+		public static final int ADD_PART = 1;
+	}
+	
 	private String[] geometryTypes = {
 		"Point",
 		"LineString",
@@ -32,9 +37,10 @@ public class ChooseGeometryTypeAdapter extends BaseAdapter{
 	private DialogFragment dialog;
 	private String featureType;
 	private long layerId;
+	private int mode;
 	
 	public ChooseGeometryTypeAdapter(DialogFragment dialog,
-			int itemLayout, String featureType, long layerId){
+			int itemLayout, String featureType, long layerId, int mode){
 		
 		this.context = dialog.getActivity().getApplicationContext();
 		this.inflater = LayoutInflater.from(this.context);
@@ -44,6 +50,7 @@ public class ChooseGeometryTypeAdapter extends BaseAdapter{
 		
 		this.featureType = featureType;
 		this.layerId = layerId;
+		this.mode = mode;
 		
 		try {
 			mapChangeListener = (MapChangeListener) dialog.getActivity();
@@ -51,12 +58,6 @@ public class ChooseGeometryTypeAdapter extends BaseAdapter{
 			throw new ClassCastException(dialog.getActivity().toString() 
 					+ " must implement MapChangeListener");
 		}
-	}
-	
-	private void startInsertMode(String featureType, long layerId, final String geometryType){
-		mapChangeListener.getMapChangeHelper().startInsertMode(featureType, layerId, geometryType);
-		
-		dialog.dismiss();
 	}
 	
 	private String getLocalizedGeometryType(int position){
@@ -123,7 +124,14 @@ public class ChooseGeometryTypeAdapter extends BaseAdapter{
 			@Override
 			public void onClick(View v){
 				
-				startInsertMode(featureType, layerId, geometryType);
+				if(mode == Mode.INSERT){
+					mapChangeListener.getMapChangeHelper()
+						.startInsertMode(featureType, layerId, geometryType);
+				}else if(mode == Mode.ADD_PART){
+					mapChangeListener.getMapChangeHelper().startAddPartMode(geometryType);
+				}
+				
+				dialog.dismiss();
 			}
 		});
 		

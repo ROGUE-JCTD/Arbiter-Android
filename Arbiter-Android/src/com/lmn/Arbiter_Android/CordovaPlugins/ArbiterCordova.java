@@ -245,10 +245,73 @@ public class ArbiterCordova extends CordovaPlugin{
 			alertGeolocationError(args.getString(0));
 			
 			return true;
+		}else if("enableDoneEditingBtn".equals(action)){
+			
+			Map.MapChangeListener mapListener;
+			
+			try{
+				
+				mapListener = (Map.MapChangeListener) cordova.getActivity();
+				mapListener.getMapChangeHelper().enableDoneEditingButton();
+				
+			}catch(ClassCastException e){
+				e.printStackTrace();
+			}
+			
+			return true;
+		}else if("featureUnselected".equals(action)){
+			
+			featureUnselected();
+			
+			return true;
+		}else if("saveUpdatedGeometry".equals(action)){
+			
+			String featureType = args.getString(0);
+			String featureId = args.getString(1);
+			String layerId = args.getString(2);
+			String wktGeometry = args.getString(3);
+			
+			saveUpdatedGeometry(featureType, featureId, layerId, wktGeometry);
+			
+			return true;
+		}else if("setMultiPartBtnsEnabled".equals(action)){
+			
+			boolean enable = args.getBoolean(0);
+			boolean enableCollection = args.getBoolean(1);
+			
+			setMultiPartBtnsEnabled(enable, enableCollection);
+			
+			return true;
 		}
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
+	}
+	
+	private void setMultiPartBtnsEnabled(boolean enable, boolean enableCollection){
+		
+		try{
+			
+			((Map.MapChangeListener) cordova.getActivity())
+				.getMapChangeHelper().enableMultiPartBtns(enable, enableCollection);
+		}catch(ClassCastException e){
+			e.printStackTrace();
+		}
+	}
+	
+	private void saveUpdatedGeometry(String featureType,
+			String featureId, String layerId, String wktGeometry){
+		
+		Log.w("ArbiterCordova", "ArbiterCordova featureType: " + featureType 
+				+ ", featureId = " + featureId + ", wktGeometry = " + wktGeometry);
+		
+		try{
+			((Map.MapChangeListener) cordova.getActivity())
+				.getMapChangeHelper().saveUpdatedGeometry(
+						featureType, featureId, layerId, wktGeometry);
+		}catch(ClassCastException e){
+			e.printStackTrace();
+		}
 	}
 	
 	private void alertGeolocationError(String msg){
@@ -511,13 +574,23 @@ public class ArbiterCordova extends CordovaPlugin{
 		return activity;
 	}
 	
+	private void featureUnselected(){
+		
+		try{
+			((Map.MapChangeListener) cordova.getActivity())
+				.getMapChangeHelper().onUnselectFeature();
+		}catch(ClassCastException e){
+			e.printStackTrace();
+		}
+	}
+	
 	private void featureSelected(final String featureType, final String featureId,
 			final String layerId, final String wktGeometry, final String mode){
 		
 		cordova.getActivity().runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
-				FeatureHelper helper = new FeatureHelper(getFragmentActivity());
+				/*FeatureHelper helper = new FeatureHelper(getFragmentActivity());
 				helper.displayFeatureDialog(featureType, featureId,
 						layerId, wktGeometry, mode);
 				
@@ -532,7 +605,16 @@ public class ArbiterCordova extends CordovaPlugin{
 					}
 				}
 				
-				notifyDoneEditingFeature();
+				notifyDoneEditingFeature();*/
+				
+				try{
+					Log.w(TAG, TAG + ".featureSelected");
+					((Map.MapChangeListener) cordova.getActivity())
+						.getMapChangeHelper().onSelectFeature(featureType,
+								featureId, layerId, wktGeometry, mode);
+				}catch(ClassCastException e){
+					e.printStackTrace();
+				}
 			}
 		});
 	}

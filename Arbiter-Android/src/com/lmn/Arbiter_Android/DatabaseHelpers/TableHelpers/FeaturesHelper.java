@@ -117,6 +117,8 @@ public class FeaturesHelper{
 		LinkedHashMap<String, String> attributes = getEmptyAttributesWithGeometry(db, 
 				featureType, geometryColumn, wktGeometry);
 		
+		Log.w("FeaturesHelper", "FeaturesHelper getEmptyAttributesWithGeometry featureType " + featureType + ", wktGeometry = " + wktGeometry);
+		
 		return new Feature(featureType, geometryColumn, attributes);
 	}
 	

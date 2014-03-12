@@ -51,6 +51,7 @@ Arbiter.GeometryExpander.prototype.compress = function(){
 	var geometry = null;
 	
 	try{
+		this.print();
 		geometry = this.getChildComponents(this.record);
 		console.log("compress: ", geometry);
 	}catch(e){
@@ -119,6 +120,20 @@ Arbiter.GeometryExpander.prototype.getChildComponents = function(next){
 	console.log("geometry", geometry);
 	
 	return geometry;
+};
+
+Arbiter.GeometryExpander.prototype.print = function(next){
+	
+	if(!Arbiter.Util.existsAndNotNull(next)){
+		next = this.record;
+		console.log("printing GeometryExpander.record");
+	}else{
+		console.log("type: " + next.type + ", length = " + next.length);
+	}
+	
+	for(var key in next.children){
+		this.print(next.children[key]);
+	}
 };
 
 

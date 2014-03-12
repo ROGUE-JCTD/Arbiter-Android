@@ -20,7 +20,8 @@ Arbiter.GeometryExpansionPart.prototype.remove = function(removeFeatureHandler){
 	
 	if(this.isLeaf()){
 		
-		if(Arbiter.Util.existsAndNotNull(removeFeatureHandler)){
+		if(Arbiter.Util.existsAndNotNull(removeFeatureHandler)
+				&& Arbiter.Util.existsAndNotNull(this.feature)){
 			removeFeatureHandler(this.feature);
 		}
 		
@@ -35,9 +36,11 @@ Arbiter.GeometryExpansionPart.prototype.remove = function(removeFeatureHandler){
 		this.children[key].remove(removeFeatureHandler);
 	}
 	
-	if(Arbiter.Util.existsAndNotNull(this.parent)){
+	/*if(Arbiter.Util.existsAndNotNull(this.parent)){
 		this.parent.removeChild(this);
-	}
+	}*/
+	
+	//this.remove(removeFeatureHandler);
 };
 
 Arbiter.GeometryExpansionPart.prototype.removeFromCollection = function(removeFeatureHandler){

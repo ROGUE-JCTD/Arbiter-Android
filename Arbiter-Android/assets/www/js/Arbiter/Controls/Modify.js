@@ -62,7 +62,6 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, 
 		
 		modifyLayer.addFeatures(siblings);
 		
-		console.log("onFeatureSelected", siblings);
 		modifyController.activate();
 		
 		modifyController.selectFeature(selectedFeature);
@@ -100,8 +99,6 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, 
 		}
 		
 		geometryPart = part;
-		
-		console.log("onFeatureSelected: enable = " + enable + ", enableCollection = " + enableCollection);
 		
 		Arbiter.Cordova.setMultiPartBtnsEnabled(enable, enableCollection);
 	};
@@ -236,14 +233,10 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, 
 			
 			selectLayer.addFeatures(features);
 			
-			console.log("done: " + selectLayer.features.length);
-			
 			if(selectLayer.features.length > 0 || cancel){
 				controlPanelHelper.clear(function(){
 					
 					context.deactivate();
-					
-					console.log("endModifyMode expander: ", geometryExpander);
 					
 					if(Arbiter.Util.existsAndNotNull(onDone)){
 						onDone();
@@ -308,8 +301,6 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, 
 			
 			geometryAdder = new Arbiter.GeometryAdder(map, modifyLayer, geometryType, function(feature){
 				
-				console.log("onFeatureAdded", feature);
-				
 				geometryPart.addPart(geometryPart.type, feature, geometryPart.parent);
 				
 				modifyController.activate();
@@ -323,9 +314,6 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, 
 			modifyController.deactivate();
 			
 			geometryAdder = new Arbiter.GeometryAdder(map, modifyLayer, geometryType, function(feature){
-				
-				// onFeatureAdded
-				console.log("onFeatureAdded", feature);
 				
 				geometryPart.addUncle(geometryType, feature);
 				
@@ -344,7 +332,7 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, 
 				geometryPart.remove(function(feature){
 					
 					// Remove the geometry part from the layer
-					selectLayer.removeFeatures([feature]);
+					modifyLayer.removeFeatures([feature]);
 				});
 				
 				geometryPart = null;
@@ -364,10 +352,8 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, 
 				// Remove the geometry part from the geometry
 				// expansion record.
 				geometryPart.removeFromCollection(function(feature){
-					// Remove the geometry part from the layer
-					console.log("removeFromCollection removing feature", feature);
 					
-					selectLayer.removeFeatures([feature]);
+					modifyLayer.removeFeatures([feature]);
 				});
 				
 				geometryPart = null;

@@ -39,6 +39,21 @@ Arbiter.Controls.Insert = function(_olLayer, _map, _geometryType, insertCallback
 		}
 	};
 	
+	var unregisterListeners = function(){
+		
+		if(Arbiter.Util.existsAndNotNull(insertLayer)){
+			
+			insertLayer.events.unregister("featureadded", 
+					context, onFeatureAdded);
+			
+			insertLayer.events.unregister("sketchstarted",
+					context, onSketchStarted);
+			
+			insertLayer.events.unregister("sketchmodified",
+					context, onSketchModified);
+		}
+	};
+	
 	var _attachToMap = function(){
 		if(controller !== null){
 			map.addControl(controller);
@@ -55,6 +70,8 @@ Arbiter.Controls.Insert = function(_olLayer, _map, _geometryType, insertCallback
 			controller.deactivate();
 			
 			map.removeControl(controller);
+			
+			//unregisterListeners();
 			
 			controller = null;
 		}

@@ -1,15 +1,8 @@
 Arbiter.GeometryExpander = function(){
-	this.record = {
-		nextChild: 0
-	};
+	this.record = new Arbiter.GeometryExpansionPart(null, null, null);
 	
 	// Array to be used for adding the features to the map
 	this.features = [];
-	this.id = -1;
-};
-
-Arbiter.GeometryExpander.prototype.isLeaf = function(obj){
-	return obj.nextChild === 0;
 };
 
 Arbiter.GeometryExpander.prototype.isCollection = function(geometry){
@@ -25,32 +18,30 @@ Arbiter.GeometryExpander.prototype.expand = function(geometry, parent){
 	
 	var olGeometryClass = geometry.CLASS_NAME;
 	
-	var obj = {
-		type: olGeometryClass,
-		nextChild: 0
-	};
-	
 	if(!Arbiter.Util.existsAndNotNull(parent)){
 		parent = this.record;
 	}
-		
-	var current = parent.nextChild++;
 	
-	parent[current] = obj;
+	console.log("expand olGeometryClass = " + olGeometryClass);
+	
+	var obj = new Arbiter.GeometryExpansionPart(olGeometryClass, parent, parent.nextChild);
+	
+	// Add the part to it's parent's children
+	//parent.children[current] = obj;
+	parent.addChild(obj);
 	
 	if(this.isCollection(geometry)){
 		for(var i = 0; i < geometry.components.length; i++){
-			this.expand(geometry.components[i], parent[current]);
+			this.expand(geometry.components[i], obj);
 		}
 	}else{
 		var feature = new OpenLayers.Feature.Vector(geometry);
 		
 		feature.metadata = {
-			parent: parent,
-			selfIndex: current
+			part: obj
 		};
 		
-		parent[current].feature = feature;
+		obj.feature = feature;
 		
 		this.features.push(feature);
 	}
@@ -60,9 +51,8 @@ Arbiter.GeometryExpander.prototype.compress = function(){
 	var geometry = null;
 	
 	try{
-		console.log("before compressing");
 		geometry = this.getChildComponents(this.record);
-		console.log("geometry = " + geometry);
+		console.log("compress: ", geometry);
 	}catch(e){
 		console.log(e.stack);
 	}
@@ -72,13 +62,13 @@ Arbiter.GeometryExpander.prototype.compress = function(){
 
 Arbiter.GeometryExpander.prototype.getGeometry = function(type, components){
 	
+	console.log("expander getGeometry: type = " + type);
+	
 	if(!Arbiter.Util.existsAndNotNull(type)){
 		return null;
 	}
 	
 	var geometry = null;
-	
-	console.log("getGeometry begin");
 	
 	if(type === "OpenLayers.Geometry.Collection"){
 		geometry = new OpenLayers.Geometry.Collection(components);
@@ -92,40 +82,41 @@ Arbiter.GeometryExpander.prototype.getGeometry = function(type, components){
 		throw "Invalid geometry type for Arbiter.GeometryExpander.getGeometry: " + type;
 	}
 	
-	console.log("getGeometry: ", geometry);
-	
 	return geometry;
 };
 
 Arbiter.GeometryExpander.prototype.getChildComponents = function(next){
-	
-	if(this.isLeaf(next)){
-		console.log("is leaf");
-		return next.feature.geometry;
-	}
-	
-	console.log("getting child components");
-	
 	var geometry = null;
-	
 	var components = [];
 	
-	console.log("hi friend");
-	
-	for(var key in next){
-	
-		if(key !== "type" && key !== "nextChild"
-			&& key !== "feature"){
-			
-			components.push(this.getChildComponents(next[key]));
+	if(next.isLeaf()){
+		console.log("leaf and type = " + next.type, next);
+		
+		if(Arbiter.Util.existsAndNotNull(next.feature)){
+			geometry = next.feature.geometry;
+		}else{
+			geometry = this.getGeometry(next.type, components);
 		}
+		
+		console.log("isLeaf", geometry);
+		
+		return geometry;
 	}
 	
+	for(var key in next.children){
+	
+		components.push(this.getChildComponents(next.children[key]));
+	}
+	
+	console.log("before getGeometry", components);
 	geometry = this.getGeometry(next.type, components);
+	console.log("after getGeometry", geometry);
 	
 	if(!Arbiter.Util.existsAndNotNull(geometry) && components.length === 1){
 		geometry = components[0];
 	}
+	
+	console.log("geometry", geometry);
 	
 	return geometry;
 };

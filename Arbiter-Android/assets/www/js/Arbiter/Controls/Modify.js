@@ -1,11 +1,20 @@
-Arbiter.Controls.Modify = function(_olLayer, _selectedFeature, _schema, onFeatureModified){
+Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, onFeatureModified){
+	
+	var map = _map;
+	
+	var selectController = null;
+	
 	var modifyController = null;
 	
-	var selectedFeature = _selectedFeature;
+	var featureOfInterest = _featureOfInterest;
+	
+	var selectedFeature = null;
 	
 	var schema = _schema;
 	
 	var olLayer = _olLayer;
+	
+	var selectLayer = null;
 	
 	var modifyLayer = null;
 	
@@ -18,6 +27,8 @@ Arbiter.Controls.Modify = function(_olLayer, _selectedFeature, _schema, onFeatur
 	var geometryPart = null;
 	
 	var geometryExpander = null;
+	
+	var geometryAdder = null;
 	
 	var featureModified =  function(event){
 		console.log("onFeatureModified", event);
@@ -32,8 +43,33 @@ Arbiter.Controls.Modify = function(_olLayer, _selectedFeature, _schema, onFeatur
 		}
 	};
 
-	var onFeatureSelected = function(event){
-		console.log("onFeatureSelected", event);
+	var onFeatureSelected = function(feature){
+		console.log("onFeatureSelected", feature);
+		
+		selectedFeature = feature;
+		
+		selectController.deactivate();
+		
+		var siblings = feature.metadata.part.getSiblings();
+		
+		siblings.push(feature);
+		
+		selectLayer.removeFeatures(siblings);
+		
+		for(var i = 0; i < siblings.length; i++){
+			siblings[i].renderIntent = "select";
+		}
+		
+		modifyLayer.addFeatures(siblings);
+		
+		console.log("onFeatureSelected", siblings);
+		modifyController.activate();
+		
+		modifyController.selectFeature(selectedFeature);
+	};
+	
+	var onBeforeFeatureModified = function(event){
+		console.log("onBeforeFeatureModified", event);
 		
 		var geomClsName = event.feature.geometry.CLASS_NAME;
 		
@@ -44,29 +80,39 @@ Arbiter.Controls.Modify = function(_olLayer, _selectedFeature, _schema, onFeatur
 		
 		var feature = event.feature;
 		
-		if(Arbiter.Util.existsAndNotNull(feature.metadata) 
-				&& Arbiter.Util.existsAndNotNull(feature.metadata.parent) 
-				&& (feature.metadata.parent.type === "OpenLayers.Geometry.MultiPoint" 
-					|| feature.metadata.parent.type === "OpenLayers.Geometry.MultiLineString")
-					|| feature.metadata.parent.type === "OpenLayers.Geometry.MultiPolygon"){
-			enable = true;
+		if(Arbiter.Util.existsAndNotNull(feature.metadata)){
+			
+			var part = feature.metadata.part;
+			
+			if(Arbiter.Util.existsAndNotNull(part) 
+					&& Arbiter.Util.existsAndNotNull(part.parent)
+					&& Arbiter.Util.existsAndNotNull(part.parent.type)
+					&& (part.parent.type === "OpenLayers.Geometry.MultiPoint" 
+						|| part.parent.type === "OpenLayers.Geometry.MultiLineString"
+						|| part.parent.type === "OpenLayers.Geometry.MultiPolygon")){
+				
+				enable = true;
+			}
 		}
 		
 		if(type === Arbiter.Geometry.type.MULTIGEOMETRY){
 			enableCollection = true;
 		}
 		
+		geometryPart = part;
+		
+		console.log("onFeatureSelected: enable = " + enable + ", enableCollection = " + enableCollection);
+		
 		Arbiter.Cordova.setMultiPartBtnsEnabled(enable, enableCollection);
 	};
 	
 	var registerEvents = function(){
 		modifyLayer.events.register("featuremodified", null, featureModified);
-		modifyLayer.events.register("beforefeaturemodified", null, onFeatureSelected);
+		modifyLayer.events.register("beforefeaturemodified", null, onBeforeFeatureModified);
 	};
 	
 	var _attachToMap = function(){
 		if(modifyController !== null){
-			var map = Arbiter.Map.getMap();
 			
 			map.addControl(modifyController);
 			
@@ -76,55 +122,47 @@ Arbiter.Controls.Modify = function(_olLayer, _selectedFeature, _schema, onFeatur
 		}
 	};
 	
-	var _detachFromMap = function(){
-		if(modifyController !== null){
-			var map = Arbiter.Map.getMap();
-			
-			modifyController.deactivate();
-			
-			map.removeControl(modifyController);
-			
-			var features = modifyLayer.features;
-			
-			modifyLayer.removeAllFeatures();
-			
-			var geometry = geometryExpander.compress();
-			
-			console.log("geometryExpander.compress geometry = ", geometry);
-			
-			selectedFeature.geometry = geometry;
-			
-			olLayer.addFeatures(selectedFeature);
-			
-			map.removeLayer(modifyLayer);
-			
-			modifyController.destroy();
-			
-			modifyController = null;
-		}
-	};
+	var initSelectController = function(){
 	
-	var initModifyController = function(){
-		
-		var map = Arbiter.Map.getMap();
-		
-		modifyLayer = new OpenLayers.Layer.Vector("modifyLayer", {
+		selectLayer = new OpenLayers.Layer.Vector("selectLayer", {
 			styleMap: olLayer.styleMap
 		});
 		
-		olLayer.removeFeatures([selectedFeature]);
+		olLayer.removeFeatures([featureOfInterest]);
 		
 		geometryExpander = new Arbiter.GeometryExpander();
 		
-		geometryExpander.expand(selectedFeature.geometry);
-		
-		console.log("geometryExpander.features", geometryExpander.features);
+		geometryExpander.expand(featureOfInterest.geometry);
 		
 		for(var i = 0; i < geometryExpander.features; i++){
 			geometryExpander.features[i].renderIntent = "select";
 		}
 		
-		modifyLayer.addFeatures(geometryExpander.features);
+		selectLayer.addFeatures(geometryExpander.features);
+		
+		map.addLayers([selectLayer]);
+		
+		selectController = new OpenLayers.Control.SelectFeature(selectLayer, {
+			clickout: false,
+			toggle: true,
+			onSelect: function(feature){
+				onFeatureSelected(feature);
+			},
+			onUnselect: function(feature){
+				console.log("Modify.js onUnselect");
+			}
+		});
+		
+		map.addControl(selectController);
+		
+		selectController.activate();
+	};
+	
+	var initModifyController = function(){
+		
+		modifyLayer = new OpenLayers.Layer.Vector("modifyLayer", {
+			styleMap: olLayer.styleMap
+		});
 		
 		map.addLayers([modifyLayer]);
 		
@@ -135,34 +173,89 @@ Arbiter.Controls.Modify = function(_olLayer, _selectedFeature, _schema, onFeatur
 			clickout: false
 		});
 		
-		_attachToMap();
+		map.addControl(modifyController);
 	};
 	
 	return {
 		activate: function(){
+			initSelectController();
 			initModifyController();
-			
-			//modifyController.selectFeature(selectedFeature);
+			registerEvents();
 		},
 		
 		deactivate: function(){
-			_detachFromMap();
+			console.log("deactivate: ");
+			if(modifyController.active){
+				console.log("deactivate modifyController");
+				modifyController.deactivate();
+			}else{
+				console.log("deactivate selectController");
+				selectController.deactivate();
+			}
+			
+			map.removeControl(modifyController);
+			
+			map.removeControl(selectController);
+			
+			modifyLayer.removeAllFeatures();
+			
+			selectLayer.removeAllFeatures();
+			
+			map.removeLayer(selectLayer);
+			
+			map.removeLayer(modifyLayer);
+			
+			selectController.destroy();
+			
+			modifyController.destroy();
+			
+			selectController = null;
+			
+			modifyController = null;
+
+			var geometry = geometryExpander.compress();
+			
+			featureOfInterest.geometry = geometry;
+			
+			olLayer.addFeatures(featureOfInterest);
 		},
 		
-		endModifyMode: function(onEndModify){
+		done: function(onDone, cancel){
 			
 			var context = this;
 			
-			controlPanelHelper.clear(function(){
+			if(Arbiter.Util.existsAndNotNull(geometryAdder)){
+				geometryAdder.finish();
 				
-				context.deactivate();
+				geometryAdder = null;
+			}
+			
+			var features = modifyLayer.features;
+			
+			modifyLayer.removeAllFeatures();
+			
+			selectLayer.addFeatures(features);
+			
+			console.log("done: " + selectLayer.features.length);
+			
+			if(selectLayer.features.length > 0 || cancel){
+				controlPanelHelper.clear(function(){
+					
+					context.deactivate();
+					
+					console.log("endModifyMode expander: ", geometryExpander);
+					
+					if(Arbiter.Util.existsAndNotNull(onDone)){
+						onDone();
+					}
+				}, function(e){
+					console.log("endModifyMode error",e);
+				});
+			}else{
 				
-				if(Arbiter.Util.existsAndNotNull(onEndModify)){
-					onEndModify();
-				}
-			}, function(e){
-				console.log("endModifyMode error",e);
-			});
+				Arbiter.Cordova.notifyUserToAddGeometry();
+			}
+		
 		},
 		
 		restoreGeometry: function(wktGeometry){
@@ -170,37 +263,123 @@ Arbiter.Controls.Modify = function(_olLayer, _selectedFeature, _schema, onFeatur
 			
 			var geomFeature = Arbiter.Geometry.readWKT(wktGeometry);
 			
-			var srid = Arbiter.Map.getMap().projection.projCode;
+			var srid = map.projection.projCode;
 			
 			geomFeature.geometry.transform(new OpenLayers.Projection(schema.getSRID()),
 					new OpenLayers.Projection(srid));
 			
-			olLayer.removeFeatures([selectedFeature]);
+			olLayer.removeFeatures([featureOfInterest]);
 			
-			selectedFeature.geometry = geomFeature.geometry;
+			featureOfInterest.geometry = geomFeature.geometry;
 			
-			olLayer.addFeatures([selectedFeature]);
+			olLayer.addFeatures([featureOfInterest]);
 		},
 		
 		cancel: function(wktGeometry, onCancelled){
 			var context = this;
 			
-			this.endModifyMode(function(){
+			this.done(function(){
+				
+				geometryAdder = null;
 				
 				context.restoreGeometry(wktGeometry);
 				
 				if(Arbiter.Util.existsAndNotNull(onCancelled)){
 					onCancelled();
 				}
+			}, true);
+		},
+		
+		beginAddPart: function(){
+			
+			var geometryType = null;
+			
+			if(geometryPart.type === "OpenLayers.Geometry.Point"){
+				geometryType = Arbiter.Geometry.type.POINT;
+			}else if(geometryPart.type === "OpenLayers.Geometry.LineString"){
+				geometryType = Arbiter.Geometry.type.LINE;
+			}else if(geometryPart.type === "OpenLayers.Geometry.Polygon"){
+				geometryType = Arbiter.Geometry.type.POLYGON;
+			}else{
+				throw "Modify.js beginAddPart invalid type: " + geometryType;
+			}
+			
+			modifyController.deactivate();
+			
+			geometryAdder = new Arbiter.GeometryAdder(map, modifyLayer, geometryType, function(feature){
+				
+				console.log("onFeatureAdded", feature);
+				
+				geometryPart.addPart(geometryPart.type, feature, geometryPart.parent);
+				
+				modifyController.activate();
+			});
+		},
+		
+		beginAddGeometry: function(_geometryType){
+			
+			var geometryType = Arbiter.Geometry.getGeometryType(null, _geometryType);
+			
+			modifyController.deactivate();
+			
+			geometryAdder = new Arbiter.GeometryAdder(map, modifyLayer, geometryType, function(feature){
+				
+				// onFeatureAdded
+				console.log("onFeatureAdded", feature);
+				
+				geometryPart.addUncle(geometryType, feature);
+				
+				modifyController.activate();
 			});
 		},
 		
 		removePart: function(){
 			
+			if(Arbiter.Util.existsAndNotNull(geometryPart)){
+				
+				modifyController.deactivate();
+				
+				// Remove the geometry part from the geometry
+				// expansion record.
+				geometryPart.remove(function(feature){
+					
+					// Remove the geometry part from the layer
+					selectLayer.removeFeatures([feature]);
+				});
+				
+				geometryPart = null;
+				
+				modifyController.activate();
+				
+				Arbiter.Cordova.enableDoneEditingBtn();
+			}
 		},
 		
 		removeGeometry: function(){
 			
+			if(Arbiter.Util.existsAndNotNull(geometryPart)){
+				
+				modifyController.deactivate();
+				
+				// Remove the geometry part from the geometry
+				// expansion record.
+				geometryPart.removeFromCollection(function(feature){
+					// Remove the geometry part from the layer
+					console.log("removeFromCollection removing feature", feature);
+					
+					selectLayer.removeFeatures([feature]);
+				});
+				
+				geometryPart = null;
+				
+				modifyController.activate();
+				
+				Arbiter.Cordova.enableDoneEditingBtn();
+			}
+		},
+		
+		getGeometryExpander: function(){
+			return geometryExpander;
 		}
 	};
 };

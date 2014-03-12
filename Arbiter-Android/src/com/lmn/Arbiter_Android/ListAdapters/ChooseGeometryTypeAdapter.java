@@ -6,6 +6,7 @@ import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -125,9 +126,12 @@ public class ChooseGeometryTypeAdapter extends BaseAdapter{
 			public void onClick(View v){
 				
 				if(mode == Mode.INSERT){
+					Log.w("ChooseGeometry", "ChooseGeometry insert mode");
 					mapChangeListener.getMapChangeHelper()
 						.startInsertMode(featureType, layerId, geometryType);
 				}else if(mode == Mode.ADD_PART){
+					
+					Log.w("ChooseGeometry", "ChooseGeometry add part mode");
 					mapChangeListener.getMapChangeHelper().startAddPartMode(geometryType);
 				}
 				

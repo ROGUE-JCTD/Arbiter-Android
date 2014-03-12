@@ -158,7 +158,7 @@ public class MapChangeHelper {
 			public void run(){
 				Map.getMap().addGeometry(cordovaWebView, geometryType);
 				
-				editor.setEditMode(GeometryEditor.Mode.INSERT);
+				//editor.setEditMode(GeometryEditor.Mode.INSERT);
 			}
 		});
 	}

@@ -196,4 +196,10 @@
     <string name="done">Terminado</string>
     <string name="inspect">Inspeccionar</string>
     <string name="finish">Termina</string>
+    <string name="confirm_part_removal_title">Elimina la parte</string>
+    <string name="confirm_part_removal_msg">¿Está seguro que desea eliminar esta parte de la geometría?</string>
+    <string name="confirm_geometry_removal_title">Elimina la geometría</string>
+    <string name="confirm_geometry_removal_msg">¿Está seguro que desea eliminar esta geometría de la colección?</string>
+    <string name="notify_user_to_add_geometry_title">Tiene que tener una geometría</string>
+    <string name="notify_user_to_add_geometry_msg">Añade una geometría o elimina el elemento.</string>
 </resources>

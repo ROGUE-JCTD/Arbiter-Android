@@ -179,10 +179,12 @@ Arbiter.Cordova = (function() {
 					
 					var wktGeometry = null;
 					
-					if(!Arbiter.Util.existsAndNotNull(featureId)){
-						wktGeometry = Arbiter.Geometry.getNativeWKT(selectedFeature, layerId);
-					}else{
-						wktGeometry = Arbiter.Geometry.checkForGeometryCollection(layerId, featureId, schema.getSRID());
+					if(Arbiter.Util.existsAndNotNull(selectedFeature.geometry)){
+						if(!Arbiter.Util.existsAndNotNull(featureId)){
+							wktGeometry = Arbiter.Geometry.getNativeWKT(selectedFeature, layerId);
+						}else{
+							wktGeometry = Arbiter.Geometry.checkForGeometryCollection(layerId, featureId, schema.getSRID());
+						}
 					}
 					
 					console.log("getUpdatedGeometry = " + wktGeometry);
@@ -360,6 +362,20 @@ Arbiter.Cordova = (function() {
 		setMultiPartBtnsEnabled: function(enable, enableCollection){
 			
 			cordova.exec(null, null, "ArbiterCordova", "setMultiPartBtnsEnabled", [enable, enableCollection]);
+		},
+		
+		confirmPartRemoval: function(onConfirm){
+			
+			cordova.exec(onConfirm, null, "ArbiterCordova", "confirmPartRemoval", []);
+		},
+		
+		confirmGeometryRemoval: function(onConfirm){
+			
+			cordova.exec(onConfirm, null, "ArbiterCordova", "confirmGeometryRemoval", []);
+		},
+		
+		notifyUserToAddGeometry: function(){
+			cordova.exec(null, null, "ArbiterCordova", "notifyUserToAddGeometry", []);
 		}
 	};
 })();

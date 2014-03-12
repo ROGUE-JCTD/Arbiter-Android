@@ -87,7 +87,7 @@ Arbiter.Controls.ControlPanel = (function(){
 		
 		var schema = Arbiter.getLayerSchemas()[layerId];
 		
-		modifyControl = new Arbiter.Controls.Modify(
+		modifyControl = new Arbiter.Controls.Modify(Arbiter.Map.getMap(),
 				feature.layer, feature, schema, function(feature){
 		
 			var wktGeometry = Arbiter.Geometry.getNativeWKT(feature, layerId);
@@ -232,7 +232,7 @@ Arbiter.Controls.ControlPanel = (function(){
 				return;
 			}
 			
-			modifyControl.endModifyMode(function(){
+			modifyControl.done(function(){
 				
 				modifyControl = null;
 				
@@ -249,7 +249,7 @@ Arbiter.Controls.ControlPanel = (function(){
 				}catch(e){
 					console.log(e.stack);
 				}
-			});
+			}, false);
 		},
 		
 		unselect: function(){
@@ -271,7 +271,7 @@ Arbiter.Controls.ControlPanel = (function(){
 			console.log("ControlPanel.cancelEdit wktGeometry = " + wktGeometry);
 			
 			modifyControl.cancel(wktGeometry, function(){
-				modifyControl.deactivate();
+				//modifyControl.deactivate();
 				
 				modifyControl = null;
 				
@@ -295,8 +295,6 @@ Arbiter.Controls.ControlPanel = (function(){
 		},
 		
 		finishGeometry: function(){
-			console.log("finishGeometry");
-			
 			if(Arbiter.Util.existsAndNotNull(insertControl)){
 				insertControl.finishGeometry();
 			}
@@ -361,6 +359,7 @@ Arbiter.Controls.ControlPanel = (function(){
 		addPart: function(){
 			console.log("ControlPanel.addPart");
 			
+			modifyControl.beginAddPart();
 		},
 		
 		removePart: function(){
@@ -371,12 +370,18 @@ Arbiter.Controls.ControlPanel = (function(){
 		
 		addGeometry: function(geometryType){
 			console.log("ControlPanel.addGeometry: " + geometryType);
+			
+			modifyControl.beginAddGeometry(geometryType);
 		},
 		
 		removeGeometry: function(){
 			console.log("ControlPanel.removeGeometry");
 			
 			modifyControl.removeGeometry();
+		},
+		
+		getModifyControl: function(){
+			return modifyControl;
 		}
 	};
 })();

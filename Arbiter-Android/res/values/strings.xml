@@ -198,4 +198,10 @@
     <string name="remove">Remove</string>
     <string name="inspect">Inspect</string>
     <string name="finish">Finish</string>
+    <string name="confirm_part_removal_title">Remove part</string>
+    <string name="confirm_part_removal_msg">Are you sure you wish to remove this part of the geometry?</string>
+    <string name="confirm_geometry_removal_title">Remove geometry</string>
+    <string name="confirm_geometry_removal_msg">Are you sure you wish to remove this geometry from the collection?</string>
+    <string name="notify_user_to_add_geometry_title">Must have a geometry</string>
+    <string name="notify_user_to_add_geometry_msg">Add a geometry or delete the feature.</string>
 </resources>

@@ -122,10 +122,10 @@ public class GeometryEditor {
 				public void onClick(View v) {
 					
 					if(editMode == Mode.EDIT){
-						
+						Log.w("GeometryEditor", "GeometryEditor doneButton editMode = " + Mode.EDIT);
 						editHandler.done();
 					}else if(editMode == Mode.INSERT){
-						
+						Log.w("GeometryEditor", "GeometryEditor donButton editMode = " + Mode.INSERT);
 						insertHandler.done();
 					}
 					
@@ -271,6 +271,7 @@ public class GeometryEditor {
 		switch(editMode){
 			case Mode.INSERT:
 			
+				Log.w("GeometyEditor", "GeometryEditor.setEditMode INSERT");
 				toggleMultiPartBtns(false);
 				toggleConfirmBtns(true);
 				editBtn.setVisibility(View.GONE);
@@ -280,7 +281,7 @@ public class GeometryEditor {
 			
 			case Mode.EDIT:
 				
-				
+				Log.w("GeometyEditor", "GeometryEditor.setEditMode EDIT");
 				toggleMultiPartBtns(false);
 				toggleConfirmBtns(true);
 				editBtn.setVisibility(View.GONE);
@@ -290,6 +291,7 @@ public class GeometryEditor {
 				
 			case Mode.SELECT:
 				
+				Log.w("GeometyEditor", "GeometryEditor.setEditMode SELECT");
 				toggleMultiPartBtns(false);
 				toggleConfirmBtns(false);
 				editBtn.setVisibility(View.VISIBLE);
@@ -298,7 +300,7 @@ public class GeometryEditor {
 				break;
 				
 			case Mode.OFF:
-				
+				Log.w("GeometyEditor", "GeometryEditor.setEditMode OFF");
 				toggleMultiPartBtns(false);
 				toggleConfirmBtns(false);
 				editBtn.setVisibility(View.GONE);
@@ -327,11 +329,17 @@ public class GeometryEditor {
 		if(enable){
 			this.addPartBtn.setVisibility(View.VISIBLE);
 			this.removePartBtn.setVisibility(View.VISIBLE);
+		}else{
+			this.addPartBtn.setVisibility(View.GONE);
+			this.removePartBtn.setVisibility(View.GONE);
 		}
 		
 		if(enableCollection){
 			this.addGeometryBtn.setVisibility(View.VISIBLE);
 			this.removeGeometryBtn.setVisibility(View.VISIBLE);
+		}else{
+			this.addGeometryBtn.setVisibility(View.GONE);
+			this.removeGeometryBtn.setVisibility(View.GONE);
 		}
 	}
 	

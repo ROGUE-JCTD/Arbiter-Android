@@ -8,6 +8,7 @@ import org.json.JSONException;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
@@ -28,6 +29,7 @@ import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FailedSyncHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
+import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.Media.HandleZeroByteFiles;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
@@ -282,10 +284,119 @@ public class ArbiterCordova extends CordovaPlugin{
 			setMultiPartBtnsEnabled(enable, enableCollection);
 			
 			return true;
+		}else if("confirmPartRemoval".equals(action)){
+			
+			confirmPartRemoval(callbackContext);
+			
+			return true;
+		}else if("confirmGeometryRemoval".equals(action)){
+			
+			confirmGeometryRemoval(callbackContext);
+			
+			return true;
+		}else if("notifyUserToAddGeometry".equals(action)){
+			
+			notifyUserToAddGeometry();
+			
+			return true;
 		}
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
+	}
+	
+	private void notifyUserToAddGeometry(){
+		
+		final Activity activity = cordova.getActivity();
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				
+				final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+				
+				builder.setIcon(R.drawable.icon);
+				builder.setTitle(R.string.notify_user_to_add_geometry_title);
+				builder.setMessage(R.string.notify_user_to_add_geometry_msg);
+				
+				builder.setPositiveButton(android.R.string.ok, null);
+				
+				builder.create().show();
+			}
+		});
+	}
+	
+	private void confirmPartRemoval(final CallbackContext callback){
+		
+		final Activity activity = cordova.getActivity();
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				
+				final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+				
+				builder.setIcon(R.drawable.icon);
+				builder.setTitle(R.string.confirm_part_removal_title);
+				builder.setMessage(R.string.confirm_part_removal_msg);
+				
+				builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+						callback.success();
+						
+						switchToSelectMode();
+					}
+				});
+				
+				builder.setNegativeButton(android.R.string.cancel, null);
+				
+				builder.create().show();
+			}
+		});
+	}
+	
+	private void confirmGeometryRemoval(final CallbackContext callback){
+		
+		final Activity activity = cordova.getActivity();
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				
+				final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+				
+				builder.setIcon(R.drawable.icon);
+				builder.setTitle(R.string.confirm_geometry_removal_title);
+				builder.setMessage(R.string.confirm_geometry_removal_msg);
+				
+				builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+						callback.success();
+						
+						switchToSelectMode();
+					}
+				});
+				
+				builder.setNegativeButton(android.R.string.cancel, null);
+				
+				builder.create().show();
+			}
+		});
+	}
+	
+	private void switchToSelectMode(){
+		try{
+			((Map.MapChangeListener) cordova.getActivity())
+				.getMapChangeHelper().setEditMode(GeometryEditor.Mode.SELECT);
+		}catch(ClassCastException e){
+			e.printStackTrace();
+		}
 	}
 	
 	private void setMultiPartBtnsEnabled(boolean enable, boolean enableCollection){

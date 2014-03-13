@@ -154,14 +154,18 @@ Arbiter.Controls.ControlPanel = (function(){
 				
 				oomCleared = false;
 				
-				Arbiter.Cordova.featureSelected(
-						feature.layer.protocol.featureType,
-						featureId,
-						layerId,
-						feature,
-						_mode,
-						_cancel
-				);
+				if(selectedFeature.metadata["modified"]){
+					delete selectedFeature.metadata["modified"];
+				}else{
+					Arbiter.Cordova.featureSelected(
+							feature.layer.protocol.featureType,
+							featureId,
+							layerId,
+							feature,
+							_mode,
+							_cancel
+					);
+				}
 			}, function(e){
 				console.log("Error saving select mode", e);
 			});
@@ -239,6 +243,13 @@ Arbiter.Controls.ControlPanel = (function(){
 				selectControl.activate();
 				
 				if(Arbiter.Util.existsAndNotNull(selectedFeature)){
+					
+					if(!Arbiter.Util.existsAndNotNull(selectedFeature.metadata)){
+						selectedFeature.metadata = {};
+					}
+					
+					selectedFeature.metadata["modified"] = true;
+					
 					selectControl.select(selectedFeature);
 				}
 				
@@ -279,6 +290,12 @@ Arbiter.Controls.ControlPanel = (function(){
 				selectControl.activate();
 				
 				//console.log("selectControl active: " + selectControl.isActive());
+				
+				if(!Arbiter.Util.existsAndNotNull(selectedFeature.metadata)){
+					selectedFeature.metadata = {};
+				}
+				
+				selectedFeature.metadata["modified"] = true;
 				
 				// Reselect the selectedFeature
 				selectControl.select(selectedFeature);

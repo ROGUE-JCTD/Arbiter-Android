@@ -35,8 +35,8 @@ public class GeometryEditor {
 	private Button cancelBtn;
 	private Button doneBtn;
 	
-	private ImageButton inspectBtn;
-	private ImageButton editBtn;
+	//private ImageButton inspectBtn;
+	//private ImageButton editBtn;
 	private ImageButton addPartBtn;
 	private ImageButton removePartBtn;
 	private ImageButton addGeometryBtn;
@@ -69,8 +69,8 @@ public class GeometryEditor {
 			cancelBtn = (Button) activity.findViewById(R.id.cancelButton1);
 			doneBtn = (Button) activity.findViewById(R.id.doneButton1);
 			
-			inspectBtn = (ImageButton) activity.findViewById(R.id.infoBtn);
-			editBtn = (ImageButton) activity.findViewById(R.id.editBtn);
+			//inspectBtn = (ImageButton) activity.findViewById(R.id.infoBtn);
+			//editBtn = (ImageButton) activity.findViewById(R.id.editBtn);
 			addPartBtn = (ImageButton) activity.findViewById(R.id.addPartBtn);
 			removePartBtn = (ImageButton) activity.findViewById(R.id.removePartBtn);
 			addGeometryBtn = (ImageButton) activity.findViewById(R.id.addToCollectionBtn);
@@ -79,7 +79,12 @@ public class GeometryEditor {
 			editHandler = new EditHandler(activity);
 			insertHandler = new InsertHandler(activity);
 			
-			registerButtons();
+			try{
+				registerButtons();
+			}catch(ClassCastException e){
+				e.printStackTrace();
+			}
+			
 		}
 	}
 	
@@ -135,7 +140,7 @@ public class GeometryEditor {
 				}
 			});
 			
-			this.inspectBtn.setOnClickListener(new OnClickListener(){
+			/*this.inspectBtn.setOnClickListener(new OnClickListener(){
 			
 				@Override
 				public void onClick(View v){
@@ -165,7 +170,7 @@ public class GeometryEditor {
 					
 					setEditMode(Mode.EDIT);			
 				}
-			});
+			});*/
 			
 			this.addPartBtn.setOnClickListener(new OnClickListener(){
 
@@ -225,9 +230,32 @@ public class GeometryEditor {
 		}		
 	}
 	
+	private void startEditMode(){
+		
+		Activity activity = weakActivity.get();
+		
+		if(activity != null){
+			
+			// Activate modify mode on the js side
+			try{
+				final CordovaWebView webview = ((Map.CordovaMap) activity).getWebView();
+				
+				Map.getMap().enterModifyMode(webview);
+			}catch(ClassCastException e){
+				e.printStackTrace();
+			}
+			
+			ArbiterState.getArbiterState().editingFeature(feature, layerId);
+			
+			toggleConfirmBtns(true);
+		}
+	}
+	
 	private void toggleMultiPartBtns(boolean visibility){
 		
 		int visible;
+		
+		Log.w("GeometryEditor", "GeometryEditor.toggleMultiPartBtns(" + visibility + ")");
 		
 		if(visibility){
 			visible = View.VISIBLE;
@@ -267,15 +295,13 @@ public class GeometryEditor {
 	public void setEditMode(int editMode){
 		
 		this.editMode = editMode;
-			
+		
 		switch(editMode){
 			case Mode.INSERT:
 			
 				Log.w("GeometyEditor", "GeometryEditor.setEditMode INSERT");
 				toggleMultiPartBtns(false);
 				toggleConfirmBtns(true);
-				editBtn.setVisibility(View.GONE);
-				inspectBtn.setVisibility(View.GONE);
 				
 				break;
 			
@@ -284,8 +310,12 @@ public class GeometryEditor {
 				Log.w("GeometyEditor", "GeometryEditor.setEditMode EDIT");
 				toggleMultiPartBtns(false);
 				toggleConfirmBtns(true);
-				editBtn.setVisibility(View.GONE);
-				inspectBtn.setVisibility(View.VISIBLE);
+				
+				if(this.wktGeometry.contains("GEOMETRYCOLLECTION")){
+					this.addGeometryBtn.setVisibility(View.VISIBLE);
+				}
+				
+				startEditMode();
 				
 				break;
 				
@@ -294,8 +324,8 @@ public class GeometryEditor {
 				Log.w("GeometyEditor", "GeometryEditor.setEditMode SELECT");
 				toggleMultiPartBtns(false);
 				toggleConfirmBtns(false);
-				editBtn.setVisibility(View.VISIBLE);
-				inspectBtn.setVisibility(View.VISIBLE);
+				
+				displayInfoDialog(false);
 				
 				break;
 				
@@ -303,8 +333,6 @@ public class GeometryEditor {
 				Log.w("GeometyEditor", "GeometryEditor.setEditMode OFF");
 				toggleMultiPartBtns(false);
 				toggleConfirmBtns(false);
-				editBtn.setVisibility(View.GONE);
-				inspectBtn.setVisibility(View.GONE);
 				
 				break;
 			
@@ -352,6 +380,12 @@ public class GeometryEditor {
 		this.wktGeometry = wktGeometry;
 		
 		setFeature(featureType, featureId, onSetFeature);
+	}
+	
+	public void hidePartButtons(){
+		this.addPartBtn.setVisibility(View.GONE);
+		this.removePartBtn.setVisibility(View.GONE);
+		this.removeGeometryBtn.setVisibility(View.GONE);
 	}
 	
 	private void setFeature(final String featureType, final String featureId, final Runnable onSetFeature){
@@ -416,7 +450,7 @@ public class GeometryEditor {
 		}
 	}
 	
-	public void saveUpdatedGeometry(final String featureType,
+	public void showUpdatedGeometry(final String featureType,
 			final String featureId, final String layerId, final String wktGeometry){
 		
 		this.featureType = featureType;
@@ -452,20 +486,13 @@ public class GeometryEditor {
 						}
 						
 						feature.updateAttribute(feature.getGeometryName(), wktGeometry);
-						feature.backupGeometry();
-						
-						if(featureId != null && featureId != "null"){
-							
-							FeaturesHelper.getHelper().update(db, featureType, featureId, feature);
-						}
+						//feature.backupGeometry();
 						
 						activity.runOnUiThread(new Runnable(){
 							@Override
 							public void run(){
 								
-								if(feature.isNew()){
-									displayInfoDialog();
-								}
+								displayInfoDialog(true);
 								
 								dialog.dismiss();
 							}
@@ -478,15 +505,14 @@ public class GeometryEditor {
 		}
 	}
 	
-	private void displayInfoDialog(){
+	private void displayInfoDialog(boolean geomEdited){
 		Activity activity = weakActivity.get();
 		
 		if(activity != null){
 			try{
 				Log.w("GeometryEditor", "GeometryEditor displayInfoDialog featureId = " + featureId + ", wktGeometry = " + wktGeometry);
 				FeatureHelper helper = new FeatureHelper((FragmentActivity) activity);
-				helper.displayFeatureDialog(featureType, featureId,
-						layerId, wktGeometry);
+				helper.displayFeatureDialog(feature, layerId, geomEdited);
 			}catch(ClassCastException e){
 				e.printStackTrace();
 			}

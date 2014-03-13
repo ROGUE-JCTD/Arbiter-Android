@@ -117,13 +117,4 @@ public class Feature {
 	public void restoreGeometry(){
 		attributes.put(geometryName, originalGeometry);
 	}
-	
-	public boolean geometryChanged(){
-		boolean geometryChanged = getGeometry().equals(originalGeometry);
-		
-		Log.w("Feature", "Feature - originalGeometry = " 
-				+ originalGeometry + ", new = " + getGeometry() 
-				+ ", geometryChanged = " + geometryChanged);
-		return geometryChanged;
-	}
 }

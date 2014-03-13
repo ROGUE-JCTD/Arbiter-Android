@@ -189,7 +189,7 @@ Arbiter.Cordova = (function() {
 					
 					console.log("getUpdatedGeometry = " + wktGeometry);
 					
-					cordova.exec(null, null, "ArbiterCordova", "saveUpdatedGeometry", 
+					cordova.exec(null, null, "ArbiterCordova", "showUpdatedGeometry", 
 							[schema.getFeatureType(), featureId, layerId, wktGeometry]);
 				}catch(e){
 					console.log(e.stack);
@@ -376,6 +376,10 @@ Arbiter.Cordova = (function() {
 		
 		notifyUserToAddGeometry: function(){
 			cordova.exec(null, null, "ArbiterCordova", "notifyUserToAddGeometry", []);
+		},
+		
+		hidePartButtons: function(){
+			cordova.exec(null, null, "ArbiterCordova", "hidePartButtons", []);
 		}
 	};
 })();

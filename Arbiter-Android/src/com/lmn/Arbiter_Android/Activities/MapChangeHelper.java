@@ -74,22 +74,6 @@ public class MapChangeHelper {
 		reloadMap();
 	}
 	
-	public void toggleEditButtons(final boolean visible){
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				RelativeLayout layout = (RelativeLayout) activity
-						.findViewById(R.id.editFeatureButtons);
-				
-				if(visible){
-					layout.setVisibility(View.VISIBLE);
-				}else{
-					layout.setVisibility(View.GONE);
-				}
-			}
-		});
-	}
-	
 	public void onUnselectFeature(){
 		activity.runOnUiThread(new Runnable(){
 			@Override
@@ -229,7 +213,11 @@ public class MapChangeHelper {
 		});
 	}
 	
-	public void saveUpdatedGeometry(String featureType, String featureId, String layerId, String wktGeometry){
-		editor.saveUpdatedGeometry(featureType, featureId, layerId, wktGeometry);
+	public void showUpdatedGeometry(String featureType, String featureId, String layerId, String wktGeometry){
+		editor.showUpdatedGeometry(featureType, featureId, layerId, wktGeometry);
+	}
+	
+	public void hidePartButtons(){
+		editor.hidePartButtons();
 	}
 }

@@ -35,12 +35,6 @@ Arbiter.GeometryExpansionPart.prototype.remove = function(removeFeatureHandler){
 	for(var key in this.children){
 		this.children[key].remove(removeFeatureHandler);
 	}
-	
-	/*if(Arbiter.Util.existsAndNotNull(this.parent)){
-		this.parent.removeChild(this);
-	}*/
-	
-	//this.remove(removeFeatureHandler);
 };
 
 Arbiter.GeometryExpansionPart.prototype.removeFromCollection = function(removeFeatureHandler){
@@ -49,12 +43,8 @@ Arbiter.GeometryExpansionPart.prototype.removeFromCollection = function(removeFe
 			&& Arbiter.Util.existsAndNotNull(this.parent.type)
 			&& this.parent.type !== "OpenLayers.Geometry.Collection"){
 		
-		console.log("removeFromCollection isn't collection: " + this.parent.type);
 		this.parent.remove(removeFeatureHandler);
 	}else{
-		
-		console.log("removeFromCollection safety");
-		console.log("removeFromCollection collection or parent is null" + this.parent.type);
 		this.remove(removeFeatureHandler);
 	}
 };

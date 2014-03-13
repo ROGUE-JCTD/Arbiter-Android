@@ -36,7 +36,6 @@ Arbiter.GeometryAdder.prototype.onSketchStarted = function(){
 };
 
 Arbiter.GeometryAdder.prototype.onSketchModified = function(){
-	
 	console.log("onSketchModified");
 	
 	var type = Arbiter.Geometry.type;
@@ -44,16 +43,14 @@ Arbiter.GeometryAdder.prototype.onSketchModified = function(){
 	this.vertexCount++;
 	
 	if(this.vertexCount === 3 && (this.geometryType === type.POLYGON || this.geometryType === type.MULTIPOLYGON)){
-		console.log("do it");
+		
 		Arbiter.Cordova.enableDoneEditingBtn();
 	}else if(this.vertexCount === 2 && (this.geometryType === type.LINE || this.geometryType === type.MULTILINE)){
-		console.log("do it");
+		
 		Arbiter.Cordova.enableDoneEditingBtn();
 	}else if(this.vertexCount === 1 && (this.geometryType === type.POINT || this.geometryType === type.MULTIPOINT)){
-		console.log("do it");
+		
 		Arbiter.Cordova.enableDoneEditingBtn();
-	}else{
-		console.log("don't do it: " + this.geometryType + ", vertexCount = " + this.vertexCount);
 	}
 };
 
@@ -139,8 +136,6 @@ Arbiter.GeometryAdder.prototype.finish = function(){
 			&& (this.geometryType !== Arbiter.Geometry.type.POINT
 			&& this.geometryType !== Arbiter.Geometry.type.MULTIPOINT)){
 	
-		console.log("finish");
 		this.insertController.finishSketch();
-		console.log("finish end");
 	}
 };

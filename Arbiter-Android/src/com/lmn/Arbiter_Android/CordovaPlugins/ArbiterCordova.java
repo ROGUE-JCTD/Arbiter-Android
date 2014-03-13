@@ -266,14 +266,14 @@ public class ArbiterCordova extends CordovaPlugin{
 			featureUnselected();
 			
 			return true;
-		}else if("saveUpdatedGeometry".equals(action)){
+		}else if("showUpdatedGeometry".equals(action)){
 			
 			String featureType = args.getString(0);
 			String featureId = args.getString(1);
 			String layerId = args.getString(2);
 			String wktGeometry = args.getString(3);
 			
-			saveUpdatedGeometry(featureType, featureId, layerId, wktGeometry);
+			showUpdatedGeometry(featureType, featureId, layerId, wktGeometry);
 			
 			return true;
 		}else if("setMultiPartBtnsEnabled".equals(action)){
@@ -299,10 +299,33 @@ public class ArbiterCordova extends CordovaPlugin{
 			notifyUserToAddGeometry();
 			
 			return true;
+		}else if("hidePartButtons".equals(action)){
+			
+			hidePartButtons(); 
+			
+			return true;
 		}
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
+	}
+	
+	private void hidePartButtons(){
+		
+		final Activity activity = cordova.getActivity();
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				
+				try{
+					
+					((Map.MapChangeListener) activity).getMapChangeHelper().hidePartButtons();
+				}catch(ClassCastException e){
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 	
 	private void notifyUserToAddGeometry(){
@@ -410,7 +433,7 @@ public class ArbiterCordova extends CordovaPlugin{
 		}
 	}
 	
-	private void saveUpdatedGeometry(String featureType,
+	private void showUpdatedGeometry(String featureType,
 			String featureId, String layerId, String wktGeometry){
 		
 		Log.w("ArbiterCordova", "ArbiterCordova featureType: " + featureType 
@@ -418,7 +441,7 @@ public class ArbiterCordova extends CordovaPlugin{
 		
 		try{
 			((Map.MapChangeListener) cordova.getActivity())
-				.getMapChangeHelper().saveUpdatedGeometry(
+				.getMapChangeHelper().showUpdatedGeometry(
 						featureType, featureId, layerId, wktGeometry);
 		}catch(ClassCastException e){
 			e.printStackTrace();
@@ -701,22 +724,6 @@ public class ArbiterCordova extends CordovaPlugin{
 		cordova.getActivity().runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
-				/*FeatureHelper helper = new FeatureHelper(getFragmentActivity());
-				helper.displayFeatureDialog(featureType, featureId,
-						layerId, wktGeometry, mode);
-				
-				if(mode.equals(ControlPanelHelper.CONTROLS.INSERT)){
-					try{
-						
-						((Map.MapChangeListener) cordova.getActivity())
-						.getMapChangeHelper().doneInsertingFeature();
-						
-					}catch(ClassCastException e){
-						e.printStackTrace();
-					}
-				}
-				
-				notifyDoneEditingFeature();*/
 				
 				try{
 					Log.w(TAG, TAG + ".featureSelected");
@@ -728,22 +735,6 @@ public class ArbiterCordova extends CordovaPlugin{
 				}
 			}
 		});
-	}
-	
-	/**
-	 * Notify the MapListener that that the feature is done,
-	 * being edited.
-	 */
-	private void notifyDoneEditingFeature(){
-		try{
-			// Done editing so toggle the buttons
-			((Map.MapChangeListener) cordova.getActivity())
-				.getMapChangeHelper().toggleEditButtons(false);
-		} catch(ClassCastException e){
-			e.printStackTrace();
-			throw new ClassCastException(cordova.getActivity().toString() 
-					+ " must be an instance of Map.MapChangeListener");
-		}
 	}
 	
 	private void errorAddingLayers(final String error){

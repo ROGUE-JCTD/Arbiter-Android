@@ -90,9 +90,8 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 			
 			if(activeControl === controlPanelHelper.CONTROLS.SELECT){
 				
-				Arbiter.Controls.ControlPanel.setSelectedFeature(olFeature);
+				olFeature.metadata["modified"] = true;
 				
-				console.log("setSelectedState: reselecting feature");
 				Arbiter.Controls.ControlPanel.select(olFeature);
 			}else if(activeControl === controlPanelHelper.CONTROLS.MODIFY){
 				

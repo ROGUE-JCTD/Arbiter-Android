@@ -125,19 +125,21 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, 
 			styleMap: olLayer.styleMap
 		});
 		
+		map.addLayers([selectLayer]);
+		
+		// Make sure features get rendered as selected
+		selectLayer.events.register("featureadded", null, function(event){
+			event.feature.renderIntent = "select";
+			selectLayer.drawFeature(event.feature);
+		});
+		
 		olLayer.removeFeatures([featureOfInterest]);
 		
 		geometryExpander = new Arbiter.GeometryExpander();
 		
 		geometryExpander.expand(featureOfInterest.geometry);
 		
-		for(var i = 0; i < geometryExpander.features; i++){
-			geometryExpander.features[i].renderIntent = "select";
-		}
-		
 		selectLayer.addFeatures(geometryExpander.features);
-		
-		map.addLayers([selectLayer]);
 		
 		selectController = new OpenLayers.Control.SelectFeature(selectLayer, {
 			clickout: false,
@@ -315,7 +317,11 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, 
 			
 			geometryAdder = new Arbiter.GeometryAdder(map, modifyLayer, geometryType, function(feature){
 				
-				geometryPart.addUncle(geometryType, feature);
+				if(Arbiter.Util.existsAndNotNull(geometryPart)){
+					geometryPart.addUncle(geometryType, feature);
+				}else{
+					geometryExpander.addToCollection(geometryType, feature);
+				}
 				
 				modifyController.activate();
 			});
@@ -339,6 +345,8 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, 
 				
 				modifyController.activate();
 				
+				Arbiter.Cordova.hidePartButtons();
+				
 				Arbiter.Cordova.enableDoneEditingBtn();
 			}
 		},
@@ -357,6 +365,8 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, 
 				});
 				
 				geometryPart = null;
+				
+				Arbiter.Cordova.hidePartButtons();
 				
 				modifyController.activate();
 				

@@ -18,6 +18,7 @@ public class FeatureDialog extends ArbiterDialogFragment{
 	private FeatureDialogHelper helper;
 	private boolean startInEditMode;
 	private Button editButton;
+	private Button editOnMapButton;
 	private Button deleteButton;
 	private Button cancelButton;
 	
@@ -80,7 +81,8 @@ public class FeatureDialog extends ArbiterDialogFragment{
 	private void populateView(View view){
 		this.helper = new FeatureDialogHelper(getActivity(), 
 				view, feature, startInEditMode,
-				editButton, cancelButton, deleteButton, layerId);
+				editButton, editOnMapButton,
+				cancelButton, deleteButton, layerId);
 	}
 	
 	private void registerListeners(View view){
@@ -102,7 +104,7 @@ public class FeatureDialog extends ArbiterDialogFragment{
 			});
 		}
 		
-		/*editOnMapButton = (Button) view.findViewById(R.id.editFeature);
+		editOnMapButton = (Button) view.findViewById(R.id.editFeature);
 		
 		if(editOnMapButton != null){
 			editOnMapButton.setOnClickListener(new OnClickListener(){
@@ -111,7 +113,7 @@ public class FeatureDialog extends ArbiterDialogFragment{
 					helper.editOnMap();
 				}
 			});
-		}*/
+		}
 		
 		editButton = (Button) view.findViewById(R.id.editButton);
 		
@@ -122,10 +124,10 @@ public class FeatureDialog extends ArbiterDialogFragment{
 				public void onClick(View v) {
 					boolean editing = helper.isEditing();
 					if(!editing){
-						helper.startEditMode(editButton, 
+						helper.startEditMode(editButton, editOnMapButton,
 								cancelButton, deleteButton);
 					}else{
-						helper.endEditMode(editButton, 
+						helper.endEditMode(editButton, editOnMapButton,
 								cancelButton, deleteButton);
 					}
 				}

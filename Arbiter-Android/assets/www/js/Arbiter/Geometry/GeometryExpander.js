@@ -47,6 +47,89 @@ Arbiter.GeometryExpander.prototype.expand = function(geometry, parent){
 	}
 };
 
+Arbiter.GeometryExpander.prototype.getOlGeometryClass = function(geometryType){
+	var olGeometryClass = null;
+	
+	var type = Arbiter.Geometry.type;
+	
+	switch(geometryType){
+		case type.POINT: 
+			
+			olGeometryClass = "OpenLayers.Geometry.Point";
+			
+			break;
+			
+		case type.LINE:
+			
+			olGeometryClass = "OpenLayers.Geometry.LineString";
+			
+			break;
+			
+		case type.POLYGON:
+			
+			olGeometryClass = "OpenLayers.Geometry.Polygon";
+			
+			break;
+			
+		case type.MULTIPOINT:
+			
+			olGeometryClass = "OpenLayers.Geometry.MultiPoint";
+			
+			break;
+			
+		case type.MULTILINE:
+			
+			olGeometryClass = "OpenLayers.Geometry.MultiLineString";
+			
+			break;
+			
+		case type.MULTIPOLYGON:
+			
+			olGeometryClass = "OpenLayers.Geometry.MultiPolygon";
+			
+			break;
+		
+		default:
+			
+			throw "GeometryExpansionPart.addUncle() invalid geometryType: " + geometryType;
+	}
+	
+	return olGeometryClass;
+};
+
+Arbiter.GeometryExpander.prototype.addToCollection = function(geometryType, feature){
+	
+	var parent = this.record.children[0];
+	
+	var type = this.getOlGeometryClass(geometryType);
+	
+	var child = new Arbiter.GeometryExpansionPart(type, parent, parent.nextChild);
+	
+	parent.addChild(child);
+	
+	if(child.type === "OpenLayers.Geometry.MultiPoint" 
+		|| child.type === "OpenLayers.Geometry.MultiLineString" 
+			|| child.type === "OpenLayers.Geometry.MultiPolygon"){
+		
+		var leafType = child.type.replace("Multi", "");
+		
+		var leaf = new Arbiter.GeometryExpansionPart(leafType, child, child.nextChild);
+		
+		child.addChild(leaf);
+		leaf.feature = feature;
+		feature.metadata = {
+			part: leaf
+		};
+		
+	}else{
+		child.feature = feature;
+		
+		feature.metadata = {
+			part: child	
+		};
+	}
+};
+
 Arbiter.GeometryExpander.prototype.compress = function(){
 	var geometry = null;
 	
@@ -62,8 +145,6 @@ Arbiter.GeometryExpander.prototype.compress = function(){
 };
 
 Arbiter.GeometryExpander.prototype.getGeometry = function(type, components){
-	
-	console.log("expander getGeometry: type = " + type);
 	
 	if(!Arbiter.Util.existsAndNotNull(type)){
 		return null;
@@ -91,15 +172,12 @@ Arbiter.GeometryExpander.prototype.getChildComponents = function(next){
 	var components = [];
 	
 	if(next.isLeaf()){
-		console.log("leaf and type = " + next.type, next);
 		
 		if(Arbiter.Util.existsAndNotNull(next.feature)){
 			geometry = next.feature.geometry;
 		}else{
 			geometry = this.getGeometry(next.type, components);
 		}
-		
-		console.log("isLeaf", geometry);
 		
 		return geometry;
 	}
@@ -109,15 +187,11 @@ Arbiter.GeometryExpander.prototype.getChildComponents = function(next){
 		components.push(this.getChildComponents(next.children[key]));
 	}
 	
-	console.log("before getGeometry", components);
 	geometry = this.getGeometry(next.type, components);
-	console.log("after getGeometry", geometry);
 	
 	if(!Arbiter.Util.existsAndNotNull(geometry) && components.length === 1){
 		geometry = components[0];
 	}
-	
-	console.log("geometry", geometry);
 	
 	return geometry;
 };

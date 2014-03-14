@@ -202,6 +202,10 @@ public class MapChangeHelper {
 		});
 	}
 	
+	public int getEditMode(){
+		return editor.getEditMode();
+	}
+	
 	public void setEditMode(final int mode){
 		
 		activity.runOnUiThread(new Runnable(){

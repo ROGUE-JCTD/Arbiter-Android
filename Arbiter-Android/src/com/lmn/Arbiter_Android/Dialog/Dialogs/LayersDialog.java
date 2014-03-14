@@ -21,6 +21,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
+import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.ListAdapters.LayerListAdapter;
 import com.lmn.Arbiter_Android.LoaderCallbacks.LayerLoaderCallbacks;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
@@ -115,6 +116,27 @@ public class LayersDialog extends ArbiterDialogFragment{
 		this.layerLoaderCallbacks = new LayerLoaderCallbacks(this.getActivity(), this.layersAdapter, R.id.loader_layers);
 	}
 	
+	// Return true if not editing
+    private boolean makeSureNotEditing(){
+    		
+		int editMode = mapChangeListener.getMapChangeHelper().getEditMode();
+		
+		if(editMode == GeometryEditor.Mode.OFF || editMode == GeometryEditor.Mode.SELECT){
+			return true;
+		}
+			
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		
+		builder.setTitle(R.string.finish_editing_title);
+		builder.setMessage(R.string.finish_editing_message);
+		builder.setIcon(R.drawable.icon);
+		builder.setPositiveButton(android.R.string.ok, null);
+		
+		builder.create().show();
+		
+		return false;
+    }
+    
 	public void registerListeners(View view){
 		this.addLayersBtn = (ImageButton) view.findViewById(R.id.add_layers_button);
 		this.orderLayersBtn = (ImageButton) view.findViewById(R.id.layer_order);
@@ -134,14 +156,15 @@ public class LayersDialog extends ArbiterDialogFragment{
 			@Override
 			public void onClick(View v) {
 				
-				if(layersAdapter.getCount() < 5){
-					// Open the add layers dialog
-					(new ArbiterDialogs(getActivity().getApplicationContext(), getActivity().getResources(), 
-							getActivity().getSupportFragmentManager())).showAddLayersDialog(frag.getCopyOfLayers());
-				}else{
-					 displayLayersLimit();
+				if(makeSureNotEditing()){
+					if(layersAdapter.getCount() < 5){
+						// Open the add layers dialog
+						(new ArbiterDialogs(getActivity().getApplicationContext(), getActivity().getResources(), 
+								getActivity().getSupportFragmentManager())).showAddLayersDialog(frag.getCopyOfLayers());
+					}else{
+						 displayLayersLimit();
+					}
 				}
-				
 			}
 		});
 		
@@ -149,12 +172,14 @@ public class LayersDialog extends ArbiterDialogFragment{
 			@Override
 			public void onClick(View v){
 				
-				frag.getActivity().runOnUiThread(new Runnable(){
-					@Override
-					public void run(){
-						orderLayersController.beginOrderLayersMode();
-					}
-				});
+				if(makeSureNotEditing()){
+					frag.getActivity().runOnUiThread(new Runnable(){
+						@Override
+						public void run(){
+							orderLayersController.beginOrderLayersMode();
+						}
+					});
+				}
 			}
 		});
 		

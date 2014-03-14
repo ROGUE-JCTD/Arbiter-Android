@@ -219,7 +219,28 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, 
 			olLayer.addFeatures(featureOfInterest);
 		},
 		
-		done: function(onDone, cancel){
+		validEdit: function(){
+			
+			var featuresLength = 0;
+			
+			if(Arbiter.Util.existsAndNotNull(selectLayer)){
+				featuresLength += selectLayer.features.length;
+			}
+
+			if(Arbiter.Util.existsAndNotNull(modifyLayer)){
+				featuresLength += modifyLayer.features.length;
+			}
+			
+			var type = Arbiter.Geometry.getGeometryType(schema.getLayerId(), schema.getGeometryType());
+			var types = Arbiter.Geometry.type;
+			
+			return featuresLength > 0 || (type !== types.MULTIGEOMETRY
+					&& type !== types.MULTIPOINT 
+					&& type !== types.MULTILINE
+					&& type !== types.MULTIPOLYGON);
+		},
+		
+		done: function(onDone){
 			
 			var context = this;
 			
@@ -235,22 +256,16 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, 
 			
 			selectLayer.addFeatures(features);
 			
-			if(selectLayer.features.length > 0 || cancel){
-				controlPanelHelper.clear(function(){
-					
-					context.deactivate();
-					
-					if(Arbiter.Util.existsAndNotNull(onDone)){
-						onDone();
-					}
-				}, function(e){
-					console.log("endModifyMode error",e);
-				});
-			}else{
+			controlPanelHelper.clear(function(){
 				
-				Arbiter.Cordova.notifyUserToAddGeometry();
-			}
-		
+				context.deactivate();
+				
+				if(Arbiter.Util.existsAndNotNull(onDone)){
+					onDone();
+				}
+			}, function(e){
+				console.log("endModifyMode error",e);
+			});
 		},
 		
 		restoreGeometry: function(wktGeometry){
@@ -282,7 +297,7 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, 
 				if(Arbiter.Util.existsAndNotNull(onCancelled)){
 					onCancelled();
 				}
-			}, true);
+			});
 		},
 		
 		beginAddPart: function(){

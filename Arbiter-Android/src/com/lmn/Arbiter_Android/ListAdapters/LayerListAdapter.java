@@ -12,11 +12,13 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
+import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import com.lmn.Arbiter_Android.OrderLayers.OrderLayersModel;
 import com.lmn.Arbiter_Android.OrderLayers.OrderLayersModelException;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Color;
@@ -136,7 +138,9 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 
 					@Override
 					public void onClick(View v) {
-						deleteLayer(new Layer(listItem));
+						if(makeSureNotEditing()){
+							deleteLayer(new Layer(listItem));
+						}
 					}
             		
             	});
@@ -193,6 +197,27 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 		return view;
 	}
 	
+	// Return true if not editing
+    private boolean makeSureNotEditing(){
+    		
+		int editMode = mapChangeListener.getMapChangeHelper().getEditMode();
+		
+		if(editMode == GeometryEditor.Mode.OFF || editMode == GeometryEditor.Mode.SELECT){
+			return true;
+		}
+			
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		
+		builder.setTitle(R.string.finish_editing_title);
+		builder.setMessage(R.string.finish_editing_message);
+		builder.setIcon(R.drawable.icon);
+		builder.setPositiveButton(android.R.string.ok, null);
+		
+		builder.create().show();
+		
+		return false;
+    }
+    
 	private void updateLayerVisibility(final long layerId, final boolean visibility){
 		final ContentValues values = new ContentValues();
 		final String projectName = arbiterProject.getOpenProject(activity);

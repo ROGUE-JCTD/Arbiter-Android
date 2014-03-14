@@ -236,31 +236,35 @@ Arbiter.Controls.ControlPanel = (function(){
 				return;
 			}
 			
-			modifyControl.done(function(){
-				
-				modifyControl = null;
-				
-				selectControl.activate();
-				
-				if(Arbiter.Util.existsAndNotNull(selectedFeature)){
+			if(modifyControl.validEdit()){
+				modifyControl.done(function(){
 					
-					if(!Arbiter.Util.existsAndNotNull(selectedFeature.metadata)){
-						selectedFeature.metadata = {};
+					modifyControl = null;
+					
+					selectControl.activate();
+					
+					if(Arbiter.Util.existsAndNotNull(selectedFeature)){
+						
+						if(!Arbiter.Util.existsAndNotNull(selectedFeature.metadata)){
+							selectedFeature.metadata = {};
+						}
+						
+						selectedFeature.metadata["modified"] = true;
+						
+						selectControl.select(selectedFeature);
 					}
 					
-					selectedFeature.metadata["modified"] = true;
-					
-					selectControl.select(selectedFeature);
-				}
-				
-				try{
-					if(Arbiter.Util.existsAndNotNull(onExitModify)){
-						onExitModify();
+					try{
+						if(Arbiter.Util.existsAndNotNull(onExitModify)){
+							onExitModify();
+						}
+					}catch(e){
+						console.log(e.stack);
 					}
-				}catch(e){
-					console.log(e.stack);
-				}
-			}, false);
+				});
+			}else{
+				Arbiter.Cordova.notifyUserToAddGeometry();
+			}
 		},
 		
 		unselect: function(){

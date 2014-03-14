@@ -336,6 +336,12 @@ public class ArbiterCordova extends CordovaPlugin{
 			@Override
 			public void run(){
 				
+				try{
+					((Map.MapChangeListener) activity).getMapChangeHelper().setEditMode(GeometryEditor.Mode.EDIT);
+				}catch(ClassCastException e){
+					e.printStackTrace();
+				}
+				
 				final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 				
 				builder.setIcon(R.drawable.icon);

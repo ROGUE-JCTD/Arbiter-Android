@@ -202,4 +202,6 @@
     <string name="confirm_geometry_removal_msg">¿Está seguro que desea eliminar esta geometría de la colección?</string>
     <string name="notify_user_to_add_geometry_title">Tiene que tener una geometría</string>
     <string name="notify_user_to_add_geometry_msg">Añade una geometría o elimina el elemento.</string>
+    <string name="finish_editing_title">Termina la edición</string>
+    <string name="finish_editing_message">Por favor, termina la edición.</string>
 </resources>

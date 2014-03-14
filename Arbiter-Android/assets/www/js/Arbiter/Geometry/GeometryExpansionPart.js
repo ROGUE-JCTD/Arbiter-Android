@@ -204,3 +204,23 @@ Arbiter.GeometryExpansionPart.prototype.addUncle = function(geometryType, featur
 		};
 	}
 };
+
+Arbiter.GeometryExpansionPart.prototype.getIndexChain = function(){
+	var indexChain = "";
+	
+	var next = this;
+	
+	while(Arbiter.Util.existsAndNotNull(next)){
+		
+		indexChain = next.selfIndex + "," + indexChain;
+		
+		next = next.parent;
+		
+		if(!Arbiter.Util.existsAndNotNull(next.selfIndex)){
+			break;
+		}
+	}
+	
+	// Remove the trailing comma
+	return indexChain.substring(0, indexChain.length - 1);
+};

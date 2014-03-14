@@ -174,7 +174,7 @@ Arbiter.GeometryExpander.prototype.getChildComponents = function(next){
 	if(next.isLeaf()){
 		
 		if(Arbiter.Util.existsAndNotNull(next.feature)){
-			geometry = next.feature.geometry;
+			geometry = next.feature.geometry.clone();
 		}else{
 			geometry = this.getGeometry(next.type, components);
 		}

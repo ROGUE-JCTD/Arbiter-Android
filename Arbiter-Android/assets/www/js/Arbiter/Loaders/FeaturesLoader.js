@@ -80,7 +80,7 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 	};
 	
 	var setSelectedState = function(olFeature, activeControl,
-			layerId, featureId, geometry){
+			layerId, featureId, geometry, indexChain){
 		
 		var olFeatureId = olFeature.metadata[Arbiter.FeatureTableHelper.ID];
 		
@@ -99,7 +99,11 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 				
 				Arbiter.Controls.ControlPanel.moveSelectedFeature(geometry);
 				
-				Arbiter.Controls.ControlPanel.enterModifyMode(olFeature);
+				Arbiter.Controls.ControlPanel.enterModifyMode(olFeature, function(){
+					if(Arbiter.Util.existsAndNotNull(indexChain)){
+						Arbiter.Controls.ControlPanel.selectGeometryPartByIndexChain(indexChain);
+					}
+				});
 			}else if(activeControl === controlPanelHelper.CONTROLS.INSERT){
 				
 			}
@@ -139,7 +143,7 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 	};
 	
 	var processFeature = function(schema, dbFeature, olLayer,
-			activeControl, layerId, featureId, geometry){
+			activeControl, layerId, featureId, geometry, indexChain){
 		
 		var wkt = dbFeature[schema.getGeometryName()];
 		
@@ -188,7 +192,7 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 		olLayer.addFeatures([feature]);
 		
 		setSelectedState(feature, activeControl,
-				layerId, featureId, geometry);
+				layerId, featureId, geometry, indexChain);
 	};
 	
 	var getControlPanelMode = function(onSuccess, onFailure){
@@ -201,9 +205,17 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 					
 					controlPanelHelper.getGeometry(function(geometry){
 						
-						if(Arbiter.Util.funcExists(onSuccess)){
-							onSuccess(activeControl, layerId, featureId, geometry);
-						}
+						controlPanelHelper.getIndexChain(function(indexChain){
+							if(Arbiter.Util.funcExists(onSuccess)){
+								onSuccess(activeControl, layerId, featureId, geometry, indexChain);
+							}
+						}, function(e){
+							console.log("error getting indexChain", e);
+							
+							if(Arbiter.Util.funcExists(onFailure)){
+								onFailure(e);
+							}
+						});
 					}, function(e){
 						
 						console.log("error getting geometry", e);
@@ -240,7 +252,7 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 	return {
 		loadFeatures: function(schema, olLayer, onSuccess, onFailure){
 			
-			getControlPanelMode(function(activeControl, layerId, featureId, geometry){
+			getControlPanelMode(function(activeControl, layerId, featureId, geometry, indexChain){
 				
 				Arbiter.FeatureTableHelper.loadFeatures(schema, this, 
 						function(feature, currentFeatureIndex, featureCount){
@@ -248,7 +260,7 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 						if(feature !== null){
 							processFeature(schema, feature, olLayer,
 									activeControl, layerId,
-									featureId, geometry);
+									featureId, geometry, indexChain);
 						}
 					} catch (e) {
 						console.log("error loading feature", e);

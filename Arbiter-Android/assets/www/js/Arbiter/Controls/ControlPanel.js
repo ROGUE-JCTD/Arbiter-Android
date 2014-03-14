@@ -40,7 +40,7 @@ Arbiter.Controls.ControlPanel = (function(){
 				"could not get schema for layer id '" + layerId + "'";
 		}
 		
-		controlPanelHelper.set(0, layerId, controlPanelHelper.CONTROLS.INSERT, 0, function(){
+		controlPanelHelper.set(0, layerId, controlPanelHelper.CONTROLS.INSERT, 0, null, function(){
 			
 			var map = Arbiter.Map.getMap();
 			
@@ -73,7 +73,7 @@ Arbiter.Controls.ControlPanel = (function(){
 		});
 	};
 	
-	var startModifyMode = function(feature){
+	var startModifyMode = function(feature, onStartedModifyMode){
 		
 		var featureId = null;
 		
@@ -88,22 +88,10 @@ Arbiter.Controls.ControlPanel = (function(){
 		var schema = Arbiter.getLayerSchemas()[layerId];
 		
 		modifyControl = new Arbiter.Controls.Modify(Arbiter.Map.getMap(),
-				feature.layer, feature, schema, function(feature){
-		
-			var wktGeometry = Arbiter.Geometry.getNativeWKT(feature, layerId);
-			
-			controlPanelHelper.set(featureId, layerId, 
-					controlPanelHelper.CONTROLS.MODIFY, 
-					wktGeometry, function(){
-				
-				console.log("successfully updated geometry");
-			}, function(e){
-				console.log("error updating modified geometry", e);
-			});
-		});
+				feature.layer, feature, schema);
 		
 		controlPanelHelper.set(featureId, layerId,
-				controlPanelHelper.CONTROLS.MODIFY, wktGeometry, function(){
+				controlPanelHelper.CONTROLS.MODIFY, wktGeometry, null, function(){
 			
 			selectControl.deactivate();
 			
@@ -111,6 +99,9 @@ Arbiter.Controls.ControlPanel = (function(){
 			
 			mode = Arbiter.ControlPanelHelper.prototype.CONTROLS.MODIFY;
 			
+			if(Arbiter.Util.funcExists(onStartedModifyMode)){
+				onStartedModifyMode();
+			}
 		}, function(e){
 			console.log("start modify mode error", e);
 		});
@@ -150,7 +141,7 @@ Arbiter.Controls.ControlPanel = (function(){
 			
 			var layerId = Arbiter.Util.getLayerId(feature.layer);
 			
-			controlPanelHelper.set(featureId, layerId, controlPanelHelper.CONTROLS.SELECT, 0, function(){
+			controlPanelHelper.set(featureId, layerId, controlPanelHelper.CONTROLS.SELECT, 0, null, function(){
 				
 				oomCleared = false;
 				
@@ -207,7 +198,7 @@ Arbiter.Controls.ControlPanel = (function(){
 			selectControl.registerMapListeners();
 		},
 		
-		enterModifyMode: function(feature){
+		enterModifyMode: function(feature, onStartedModifyMode){
 			try{
 				if(feature === null 
 						|| feature === undefined){
@@ -219,7 +210,7 @@ Arbiter.Controls.ControlPanel = (function(){
 					throw "ControlPanel.js feature should not be " + feature;
 				}
 				
-				startModifyMode(feature);
+				startModifyMode(feature, onStartedModifyMode);
 			}catch(e){
 				console.log("enterModifyMode error", e);
 			}
@@ -343,6 +334,12 @@ Arbiter.Controls.ControlPanel = (function(){
 			
 			var geomFeature = Arbiter.Geometry.readWKT(wktGeometry);
 			
+			var olLayer = selectedFeature.layer;
+			
+			var layerId = Arbiter.Util.getLayerId(olLayer);
+			
+			var schema = Arbiter.getLayerSchemas()[layerId];
+			
 			var srid = Arbiter.Map.getMap().projection.projCode;
 			
 			geomFeature.geometry.transform(new OpenLayers.Projection(schema.getSRID()),
@@ -403,6 +400,11 @@ Arbiter.Controls.ControlPanel = (function(){
 		
 		getModifyControl: function(){
 			return modifyControl;
+		},
+		
+		selectGeometryPartByIndexChain: function(indexChain){
+			
+			modifyControl.selectGeometryPartByIndexChain(indexChain);
 		}
 	};
 })();

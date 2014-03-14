@@ -1,4 +1,4 @@
-Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, onFeatureModified){
+Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 	
 	var map = _map;
 	
@@ -30,11 +30,34 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, 
 	
 	var geometryAdder = null;
 	
+	var saveControlPanelInfo = function(geometryPart){
+		var featureId = featureOfInterest.metadata[Arbiter.FeatureTableHelper.ID];
+		var layerId = schema.getLayerId();
+		
+		var geometry = geometryExpander.compress();
+		
+		var tempFeature = new OpenLayers.Feature.Vector(geometry);
+		
+		var wktGeometry = Arbiter.Geometry.getNativeWKT(tempFeature, layerId);
+		
+		var indexChain = geometryPart.getIndexChain();
+		
+		console.log("saveControlPanelInfo: \nwktGeometry = " + wktGeometry + "\nindexChain = " + indexChain);
+		
+		controlPanelHelper.set(featureId, layerId, 
+				controlPanelHelper.CONTROLS.MODIFY, 
+				wktGeometry, indexChain, function(){
+			
+			console.log("successfully updated geometry");
+		}, function(e){
+			console.log("error updating modified geometry", e);
+		});
+	};
+	
 	var featureModified =  function(event){
 		console.log("onFeatureModified", event);
-		if(Arbiter.Util.funcExists(onFeatureModified)){
-			onFeatureModified(event.feature);
-		}
+		
+		saveControlPanelInfo(event.feature.metadata.part);
 		
 		if(!modified){
 			modified = true;
@@ -101,6 +124,8 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, 
 		geometryPart = part;
 		
 		Arbiter.Cordova.setMultiPartBtnsEnabled(enable, enableCollection);
+		
+		saveControlPanelInfo(event.feature.metadata.part);
 	};
 	
 	var registerEvents = function(){
@@ -391,6 +416,20 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema, 
 		
 		getGeometryExpander: function(){
 			return geometryExpander;
+		},
+		
+		selectGeometryPartByIndexChain: function(indexChain){
+			
+			var indices = indexChain.split(',');
+			
+			var next = geometryExpander.record;
+			
+			for(var i = 0; i < indices.length; i++){
+				
+				next = next.children[indices[i]];
+			}
+			
+			onFeatureSelected(next.feature);
 		}
 	};
 };

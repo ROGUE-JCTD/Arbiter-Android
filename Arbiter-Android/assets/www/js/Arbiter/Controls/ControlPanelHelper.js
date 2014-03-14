@@ -7,6 +7,9 @@ Arbiter.ControlPanelHelper.prototype.LAYER_ID = "cp_layer_id";
 Arbiter.ControlPanelHelper.prototype.FEATURE_ID = "cp_feature_id";
 Arbiter.ControlPanelHelper.prototype.GEOMETRY  = "cp_geometry";
 
+// For CONTROLS.MODIFY;
+Arbiter.ControlPanelHelper.prototype.INDEX_CHAIN = "cp_index_chain";
+
 Arbiter.ControlPanelHelper.prototype.CONTROLS = {
 	NONE: "0",
 	SELECT: "1",
@@ -16,14 +19,14 @@ Arbiter.ControlPanelHelper.prototype.CONTROLS = {
 
 Arbiter.ControlPanelHelper.prototype.clear = function(onSuccess, onFailure){
 	
-	this.set(0, 0, this.CONTROLS.NONE, 0, onSuccess, function(e){
+	this.set(0, 0, this.CONTROLS.NONE, 0, null, onSuccess, function(e){
 		if(Arbiter.Util.funcExists(onFailure)){
 			onFailure("Error clearing controlPanel - " + e);
 		}
 	});
 };
 
-Arbiter.ControlPanelHelper.prototype.set = function(featureId, layerId, control, geometry, onSuccess, onFailure){
+Arbiter.ControlPanelHelper.prototype.set = function(featureId, layerId, control, geometry, indexChain, onSuccess, onFailure){
 	var context = this;
 	
 	context.setActiveControl(control, function(){
@@ -34,12 +37,18 @@ Arbiter.ControlPanelHelper.prototype.set = function(featureId, layerId, control,
 				
 				context.setGeometry(geometry, function(){
 					
-					context.mode = control;
-					
-					if(Arbiter.Util.funcExists(onSuccess)){
-						onSuccess();
-					}
-					
+					context.setIndexChain(indexChain, function(){
+						
+						context.mode = control;
+						
+						if(Arbiter.Util.funcExists(onSuccess)){
+							onSuccess();
+						}
+					}, function(e){
+						if(Arbiter.Util.funcExists(onFailure)){
+							onFailure("ControlPanelHelper.js" + e);
+						}
+					});
 				}, function(e){
 					if(Arbiter.Util.funcExists(onFailure)){
 						onFailure("ControlPanelHelper.js" + e);
@@ -122,6 +131,23 @@ Arbiter.ControlPanelHelper.prototype.setGeometry = function(geometry, onSuccess,
 	});
 };
 
+Arbiter.ControlPanelHelper.prototype.setIndexChain = function(indexChain, onSuccess, onFailure){
+	var context = this;
+	
+	console.log("setIndexChain: indexChain = " + indexChain);
+	
+	Arbiter.PreferencesHelper.put(context.INDEX_CHAIN, indexChain, context, function(){
+		
+		if(Arbiter.Util.funcExists(onSuccess)){
+			onSuccess();
+		}
+	}, function(e){
+		if(Arbiter.Util.funcExists(onFailure)){
+			onFailure("Error setting " + context.INDEX_CHAIN + " - " + e);
+		}
+	})
+};
+
 Arbiter.ControlPanelHelper.prototype.getActiveControl = function(onSuccess, onFailure){
 	var context = this;
 	
@@ -174,6 +200,21 @@ Arbiter.ControlPanelHelper.prototype.getGeometry = function(onSuccess, onFailure
 		
 		if(Arbiter.Util.funcExists(onSuccess)){
 			onSuccess(geometry);
+		}
+	}, function(e){
+		if(Arbiter.Util.funcExists(onFailure)){
+			onFailure(e);
+		}
+	});
+};
+
+Arbiter.ControlPanelHelper.prototype.getIndexChain = function(onSuccess, onFailure){
+	var context = this;
+	
+	Arbiter.PreferencesHelper.get(context.INDEX_CHAIN, context, function(indexChain){
+		
+		if(Arbiter.Util.funcExists(onSuccess)){
+			onSuccess(indexChain);
 		}
 	}, function(e){
 		if(Arbiter.Util.funcExists(onFailure)){

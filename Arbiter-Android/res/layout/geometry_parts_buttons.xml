@@ -30,33 +30,33 @@
     
     <ImageButton
       android:id="@+id/addPartBtn"
-      android:src="@drawable/circled_plus"
+      android:src="@drawable/add_part"
       android:layout_below="@id/infoBtn"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginTop="15dp"
       android:contentDescription="@string/add"
       android:visibility="gone"
-      android:padding="5dp"
+      android:padding="0dp"
 	  android:background="#CCCCCC"
 	  android:alpha="0.9"/>
 
  	<ImageButton
       android:id="@+id/removePartBtn"
-      android:src="@drawable/circled_minus"
+      android:src="@drawable/remove_part"
       android:layout_below="@id/addPartBtn"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginTop="15dp"
       android:contentDescription="@string/remove"
       android:visibility="gone"
-      android:padding="5dp"
+      android:padding="0dp"
 	  android:background="#CCCCCC"
 	  android:alpha="0.9"/> 
      
  	<ImageButton
       android:id="@+id/addToCollectionBtn"
-      android:src="@drawable/circled_plus"
+      android:src="@drawable/add_geometry"
       android:layout_below="@id/removePartBtn"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
@@ -69,7 +69,7 @@
 	  
  	<ImageButton
       android:id="@+id/removeFromCollectionBtn"
-      android:src="@drawable/circled_minus"
+      android:src="@drawable/remove_geometry"
       android:layout_below="@id/addToCollectionBtn"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"

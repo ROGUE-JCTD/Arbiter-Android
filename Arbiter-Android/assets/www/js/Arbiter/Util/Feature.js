@@ -3,9 +3,54 @@ Arbiter.Util.Feature = (function(){
             extractAttributes: true
     });
     
-    gmlReader.geometryTypes["OpenLayers.Geometry.Collection"] = "MultiGeometry";
+    gmlReader.readers.gml["MultiPoint"] = function(node, container) {
+        var obj = {components: []};
+        this.readers.gml._inherit.apply(this, [node, obj, container]);
+        this.readChildNodes(node, obj);
+        
+        if(!container.components){
+        	container.components = [];
+        }
+        
+        container.components.push(new OpenLayers.Geometry.MultiPoint(obj.components));
+    };
     
-    gmlReader.readers.gml["MultiGeometry"] = gmlReader.readers.gml["GeometryCollection"];
+    gmlReader.readers.gml["LineString"] = function(node, container) {
+        var obj = {};
+        this.readers.gml._inherit.apply(this, [node, obj, container]);
+        this.readChildNodes(node, obj);
+        if(!container.components) {
+            container.components = [];
+        }
+        container.components.push(
+            new OpenLayers.Geometry.LineString(obj.points)
+        );
+    };
+    
+    gmlReader.readers.gml["MultiLineString"] = function(node, container) {
+        var obj = {components: []};
+        this.readers.gml._inherit.apply(this, [node, obj, container]);
+        this.readChildNodes(node, obj);
+        
+        if(!container.components){
+        	container.components = [];
+        }
+        
+        container.components.push(new OpenLayers.Geometry.MultiLineString(obj.components));
+    };
+    
+    gmlReader.readers.gml["MultiPolygon"] = function(node, container) {
+        var obj = {components: []};
+        this.readers.gml._inherit.apply(this, [node, obj, container]);
+        this.readChildNodes(node, obj);
+        
+        if(!container.components){
+        	container.components = [];
+        }
+        
+        container.components.push(new OpenLayers.Geometry.MultiPolygon(obj.components));
+    };
+    
     
     return {
     	transformBounds: function(srid, bounds){
@@ -72,8 +117,6 @@ Arbiter.Util.Feature = (function(){
                         '</ogc:Filter>' +
                 '</wfs:Query>' +
             '</wfs:GetFeature>';
-                
-            console.log("getFeatureRequest: " + getFeatureRequest);
             
             var gotRequestBack = false;
             

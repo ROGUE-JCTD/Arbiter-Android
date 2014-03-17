@@ -136,12 +136,13 @@ Arbiter.FailedSyncHelper = (function(){
 					}
 				}, function(tx, e){
 					
+				    console.log(e.stack);
 					if(Arbiter.Util.funcExists(onFailure)){
 						onFailure(e);
 					}
 				});
 			}, function(e){
-				
+				console.log(e.stack);
 				if(Arbiter.Util.funcExists(onFailure)){
 					onFailure(e);
 				}

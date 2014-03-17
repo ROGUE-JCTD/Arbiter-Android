@@ -27,6 +27,10 @@ Arbiter.MediaDownloaderHelper = function(feature,
     this.totalLayers = _totalLayers;
     this.finishedMedia = 0;
     this.onDownloadComplete = null;
+    
+    this.timedOut = false;
+    this.succeeded = false;
+    this.syncAbort = false;
 };
 
 Arbiter.MediaDownloaderHelper.prototype.pop = function(){
@@ -41,7 +45,6 @@ Arbiter.MediaDownloaderHelper.prototype.pop = function(){
 Arbiter.MediaDownloaderHelper.prototype.startDownload = function(onSuccess){
 	
 	this.onDownloadComplete = onSuccess;
-	
 	if(this.featureMedia.length === 0){
 		this.updateProgressDialog(false);
 	}
@@ -67,14 +70,15 @@ Arbiter.MediaDownloaderHelper.prototype.addToFailedMedia = function(_failed, _er
 Arbiter.MediaDownloaderHelper.prototype.startDownloadingNext = function(){
 	
 	var media = this.pop();
+    console.log("startDownloadingNext media", media);
 	
-	if(media !== undefined){
-		
+	if(media !== undefined && !this.syncAbort){
+	    console.log("startDownloadingNext downloadNext");
 		this.downloadNext(media);
 	}else{
-		
 		if(Arbiter.Util.funcExists(this.onDownloadComplete)){
-			this.onDownloadComplete(this.finishedMediaCount, this.failedMedia);
+
+			this.onDownloadComplete(this.finishedMediaCount, this.failedMedia, this.syncAbort);
 		}
 	}
 };
@@ -106,7 +110,7 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
 	var context = this;
 	
 	var onFailure = function(error){
-		
+	    console.log("download helper onFailure ", error);
 		context.updateProgressDialog(true);
 		
 		context.addToFailedMedia(media, error);
@@ -115,13 +119,15 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
 	};
 	
 	var onSuccess = function(){
+	    console.log("download helper onSuccess");
 		
 		var key = media;
 		
 		var dataType = Arbiter.FailedSyncHelper.DATA_TYPES.MEDIA;
 		
 		var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.DOWNLOAD;
-		
+		 console.log("removing key ", key, dataType, syncType,
+                context.schema.getLayerId());
 		context.updateProgressDialog(true);
 		
 		Arbiter.FailedSyncHelper.remove(key, dataType, syncType,
@@ -141,7 +147,7 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
     //only download if we don't have it
     this.mediaDir.getFile(media, {create: false, exclusive: false},
         function(fileEntry) {
-    		
+            console.log("download helper file already exists");
     		onSuccess();
         }, function(error) {
         	if(error.code === FileError.NOT_FOUND_ERR){
@@ -149,16 +155,34 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
                 var fileTransfer = new FileTransfer();
                 
                 var isFinished = false;
+                var fileError = null;
                 
                 var progressListener = new Arbiter.MediaProgressListener(fileTransfer,
                 		function(){
-                	
-                	if(isFinished === false){
-                		fileTransfer.abort();
-                	}
-                	
-                	onFailure("Download timed out");
-                	
+                    console.log("progresslistener no progress");
+                    context.timedOut = true;
+                	var timeoutCallback = function() {
+                	    if(isFinished === true) {
+                            progressListener.stopWatching();
+                            
+                            if(context.succeeded) {
+                                onSuccess();
+                            } else {
+                                if(fileError.code !== FileTransferError.ABORT_ERR){
+                                    onFailure(fileError);
+                                }
+                            }
+                        } else {
+                            context.timedOut = false;
+                            ft.abort();
+                            onFailure("Upload timed out");
+                        }
+                	};
+                    Arbiter.Cordova.showSyncTimeOutDialog(timeoutCallback, function(){
+                        onFailure("Upload timed out");
+                        context.syncAbort = true;
+                        timeoutCallback();
+                    });
                 });
                 
                 progressListener.watchProgress();
@@ -168,10 +192,13 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
                         console.log("download complete: " + result.fullPath);
                         
                         isFinished = true;
+                        context.succeeded = true;
+
+                        if(!context.timedOut) {
+                            progressListener.stopWatching();
                         
-                        progressListener.stopWatching();
-                        
-                        onSuccess();
+                            onSuccess();
+                        }
                         
                     }, function(transferError) {
                         console.log("download error source " + transferError.source);
@@ -179,11 +206,14 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
                         console.log("download error code" + transferError.code);
                         
                         isFinished = true;
+                        fileError = transferError;
+
+                        if(!context.timedOut) {
+                            progressListener.stopWatching();
                         
-                        progressListener.stopWatching();
-                        
-                        if(transferError.code !== FileTransferError.ABORT_ERR){
-                        	onFailure(transferError);
+                            if(transferError.code !== FileTransferError.ABORT_ERR){
+                                onFailure(transferError);
+                            }
                         }
                     }, undefined, {
                             headers: context.header

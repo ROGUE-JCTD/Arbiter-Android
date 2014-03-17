@@ -29,6 +29,10 @@ Arbiter.MediaUploader = function(_schema, _mediaToSend, _server, _mediaDir, _fin
 	// Start at -1 to account for the first upload
 	this.finishedMediaCount = 0;
 	this.totalMediaCount = 0;
+	
+	this.timedOut = false;
+	this.succeeded = false;
+	this.abortSync = false;
 };
 
 Arbiter.MediaUploader.prototype.pop = function(){
@@ -46,7 +50,7 @@ Arbiter.MediaUploader.prototype.startUpload = function(onSuccess){
 	if(this.totalMediaCount === 0){
 		
 		if(Arbiter.Util.funcExists(this.onUploadSuccess)){
-			this.onUploadSuccess(this.failedMedia);
+			this.onUploadSuccess(this.failedMedia, this.abortSync);
 		}
 		
 		return;
@@ -58,13 +62,17 @@ Arbiter.MediaUploader.prototype.startUpload = function(onSuccess){
 Arbiter.MediaUploader.prototype.startUploadingNext = function(){
 	var next = this.pop();
 	
-	if(next !== undefined){
-		
+	if(next !== undefined && !this.abortSync){
 		this.uploadNext(next);
 	}else{
-		
+		if(this.abortSync) {
+		    while(next !== undefined) {
+		        this.addToFailedMedia(next);
+	            next = this.pop();
+		    }
+		}
 		if(Arbiter.Util.funcExists(this.onUploadSuccess)){
-			this.onUploadSuccess(this.failedMedia);
+			this.onUploadSuccess(this.failedMedia, this.abortSync);
 		}
 	}
 };
@@ -176,15 +184,34 @@ Arbiter.MediaUploader.prototype.uploadNext = function(next){
         
         var isFinished = false;
         
+        //this will store the error returned from the filetransfer onFailure so it can be used in the timeout dialog callback
+        var fileError = null;
+        
         var progressListener = new Arbiter.MediaProgressListener(ft,
         		function(){
+            context.timedOut = true;
         	
-        	if(isFinished === false){
-        		ft.abort();
-        	}
-        	
-        	onFailure("Upload timed out");
-        	
+            var timeOutCallback = function() {
+                if(isFinished === true) {
+                    progressListener.stopWatching();
+                    
+                    if(context.succeeded) {
+                        onSuccess();
+                    } else {
+                        if(fileError.code !== FileTransferError.ABORT_ERR){
+                            onFailure(fileError);
+                        }
+                    }
+                } else {
+                    context.timedOut = false;
+                    ft.abort();
+                    onFailure("Upload timed out");
+                }
+            };
+        	Arbiter.Cordova.showSyncTimeOutDialog(timeOutCallback, function(){
+        	    context.abortSync = true;
+        	    timeOutCallback();
+        	});
         });
         
         progressListener.watchProgress();
@@ -195,21 +222,27 @@ Arbiter.MediaUploader.prototype.uploadNext = function(next){
             console.log("Sent = " + response.bytesSent);
             
             isFinished = true;
+            context.succeeded = true;
             
-            progressListener.stopWatching();
+            if(!context.timedOut) {
+                progressListener.stopWatching();
             
-            onSuccess();
+                onSuccess();
+            }
         }, function(error) {
             console.log("upload error source " + error.source);
             console.log("upload error target " + error.target);
             console.log("upload error code" + error.code);
             
             isFinished = true;
+            fileError = error;
+
+            if(!context.timedOut) {
+                progressListener.stopWatching();
             
-            progressListener.stopWatching();
-            
-            if(error.code !== FileTransferError.ABORT_ERR){
-            	onFailure(error);
+                if(error.code !== FileTransferError.ABORT_ERR){
+            	    onFailure(error);
+                }
             }
         }, options);
     }, function(error) {

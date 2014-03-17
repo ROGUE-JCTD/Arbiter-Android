@@ -42,10 +42,7 @@ public class SyncTimeOutDialog extends ArbiterDialogFragment{
 	@Override
 	public void onNegativeClick() {
 		//cancel the sync
-		CordovaWebView webView = ((MapActivity) this.getActivity()).getWebView();
-		Map.getMap().confirmSyncCancel(webView);
-
-		this.callback.success();
+		this.callback.error(0);
 		
 		final Activity activity = getActivity();
 		String title = activity.getResources().getString(R.string.sync_in_progress);

@@ -387,8 +387,8 @@ Arbiter.Cordova = (function() {
                     "dismissSyncProgressDialog", []);
         },
         
-        showSyncTimeOutDialog: function(callback){
-            cordova.exec(callback, null, "ArbiterCordova",
+        showSyncTimeOutDialog: function(keepWaitingCallback, cancelSyncCallback){
+            cordova.exec(keepWaitingCallback, cancelSyncCallback, "ArbiterCordova",
                     "showSyncTimeOutDialog", []);
         }
 	};

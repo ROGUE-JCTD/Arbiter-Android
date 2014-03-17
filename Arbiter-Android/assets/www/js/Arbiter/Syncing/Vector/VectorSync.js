@@ -1,11 +1,7 @@
-Arbiter.VectorSync = function(_syncObject, _onSuccess, _onFailure){
+Arbiter.VectorSync = function(_map, _bounds, _onSuccess, _onFailure){
 
-	this.map = _syncObject.map;
-	
-	this.bounds = _syncObject.bounds;
-	
-	this.syncObject = _syncObject;
-	
+	this.map = _map;
+	this.bounds = _bounds;
 	this.layers = this.map.getLayersByClass("OpenLayers.Layer.Vector");
 	
 	this.usingSpecificSchemas = false;
@@ -56,7 +52,7 @@ Arbiter.VectorSync.prototype.setSpecificSchemas = function(_schemas){
 };
 
 Arbiter.VectorSync.prototype.onUploadComplete = function(){
-    if(this.syncObject.syncAborted) {
+    if(this.syncTimedOut) {
         this.index = -1;
         var layer = this.pop();
             
@@ -75,12 +71,11 @@ Arbiter.VectorSync.prototype.onUploadComplete = function(){
 
 Arbiter.VectorSync.prototype.onDownloadComplete = function(){
 
-    if(this.syncObject.syncAborted && Arbiter.Util.funcExists(this.onFailure)){
+    if(this.syncTimedOut && Arbiter.Util.funcExists(this.onFailure)){
         this.onFailure('Connection timed out');
     }
 	if(Arbiter.Util.funcExists(this.onSuccess)){
-		this.onSuccess(this.failedToUpload,
-				this.failedToDownload, this.syncTimedOut);
+		this.onSuccess(this.failedToUpload, this.failedToDownload);
 	}
 };
 
@@ -122,7 +117,7 @@ Arbiter.VectorSync.prototype.startNextUpload = function(){
 	if(layer !== null && layer !== undefined){
 		var callback = function(){
 		    console.log("vector upload callback");
-			if(!context.syncObject.syncAborted) {
+			if(!context.syncTimedOut) {
 			    Arbiter.Cordova.updateUploadingVectorDataProgress(
 					++context.finishedLayoutUploadCount,
 					context.totalLayerCount);
@@ -141,8 +136,9 @@ Arbiter.VectorSync.prototype.startNextUpload = function(){
 		var dataType = Arbiter.FailedSyncHelper.DATA_TYPES.VECTOR;
 		var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.UPLOAD;
 		
-		var uploader = new Arbiter.VectorUploader(layer, function(){
-			
+		var uploader = new Arbiter.VectorUploader(layer, function(cancelSync){
+            context.syncTimedOut = cancelSync;
+            
 			Arbiter.FailedSyncHelper.remove(key, dataType, 
 					syncType, key, function(){
 				
@@ -152,10 +148,10 @@ Arbiter.VectorSync.prototype.startNextUpload = function(){
 				
 				callback();
 			});
-		}, function(featureType){
-			
+		}, function(featureType, cancelSync){
 			context.putFailedUpload(featureType);
 			
+		    context.syncTimedOut = cancelSync;
 			callback();
 		});
 		
@@ -201,7 +197,7 @@ Arbiter.VectorSync.prototype.startNextDownload = function(){
 		}
 		
 		var callback = function(){
-            if(!context.syncObject.syncAborted) {
+            if(!context.syncTimedOut) {
                 Arbiter.Cordova.updateDownloadingVectorDataProgress(
                         ++context.finishedLayerDownloadCount,
                         context.totalLayerCount);
@@ -222,8 +218,9 @@ Arbiter.VectorSync.prototype.startNextDownload = function(){
 		var dataType = Arbiter.FailedSyncHelper.DATA_TYPES.VECTOR;
 		var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.DOWNLOAD;
 		
-		var downloader = new Arbiter.VectorDownloader(schema, this.bounds, function(){
-			
+		var downloader = new Arbiter.VectorDownloader(schema, this.bounds, function(cancelSync){
+		    context.syncTimedOut = cancelSync;
+		    
 			Arbiter.FailedSyncHelper.remove(key, dataType, syncType, key, function(){
 				
 				callback();
@@ -232,8 +229,9 @@ Arbiter.VectorSync.prototype.startNextDownload = function(){
 				
 				callback();
 			});
-		}, function(featureType){
-			
+		}, function(featureType, cancelSync){
+		    context.syncTimedOut = cancelSync;
+		    
 			context.putFailedDownload(featureType)
 			callback();
 		});

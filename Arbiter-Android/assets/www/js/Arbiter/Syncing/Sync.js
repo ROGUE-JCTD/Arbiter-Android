@@ -181,8 +181,8 @@ Arbiter.Sync.prototype.storeUploadsAndDownloads = function(){
 Arbiter.Sync.prototype.startVectorSync = function(){
 	var context = this;
 	
-	var vectorSync = new Arbiter.VectorSync(this,
-			function(failedUploads, failedDownloads, timedOut){
+	var vectorSync = new Arbiter.VectorSync(this.map, this.bounds,
+			function(failedUploads, failedDownloads){
 		context.failedVectorUploads = failedUploads;
 		context.failedVectorDownloads = failedDownloads;
 		
@@ -190,10 +190,8 @@ Arbiter.Sync.prototype.startVectorSync = function(){
 				+ JSON.stringify(failedUploads) 
 				+ ", failedDownloads = " 
 				+ JSON.stringify(failedDownloads));
-		
-		//context.syncAborted = timedOut;
-		
-		if(!timedOut) {
+
+		if(!context.syncAborted) {
 	        context.startMediaSync();
 		} else {
 		    Arbiter.Cordova.dismissSyncProgressDialog();
@@ -214,7 +212,6 @@ Arbiter.Sync.prototype.startVectorSync = function(){
 	}else{
 		console.log("vector sync upload and download");
 		vectorSync.startUpload();
-        //vectorSync.startDownload();
 	}
 };
 
@@ -223,7 +220,7 @@ Arbiter.Sync.prototype.startMediaSync = function(){
 	
 	var mediaSync = new Arbiter.MediaSync(this.layers, 
 			this.schemas, this.mediaDir, this.mediaToSend);
-	
+
 	mediaSync.startSync(function(failedUploads, failedDownloads){
 		
 		context.failedMediaUploads = failedUploads;

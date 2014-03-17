@@ -3,10 +3,11 @@ Arbiter.VectorDownloader = function(_schema, _bounds, _onSuccess, _onFailure){
 	this.bounds = _bounds;
 	this.onSuccess = _onSuccess;
 	this.onFailure = _onFailure;
-	this.gotResponse = false;
 	
+	this.gotResponse = false;
     this.timedOut = false;
-	this.succeded = false;
+	this.succeeded = false;
+    this.abortSync = false;
 	
 	var serverId = this.schema.getServerId();
 	
@@ -21,13 +22,13 @@ Arbiter.VectorDownloader.prototype.onDownloadFailure = function(){
     this.succeeded = false;
 	//alert("download failed");
 	if(Arbiter.Util.funcExists(this.onFailure) && !this.timedOut){
-		this.onFailure(this.schema.getFeatureType());
+		this.onFailure(this.schema.getFeatureType(), this.abortSync);
 	}
 };
 
 Arbiter.VectorDownloader.prototype.onDownloadComplete = function(){
 	if(Arbiter.Util.funcExists(this.onSuccess)){
-		this.onSuccess();
+		this.onSuccess(this.abortSync);
 	}
 };
 
@@ -38,7 +39,7 @@ Arbiter.VectorDownloader.prototype.download = function(){
 	if(this.schema.isEditable() === false){
 		
 		if(Arbiter.Util.funcExists(context.onSuccess)){
-			this.onSuccess();
+			this.onSuccess(this.abortSync);
 		}
 		
 		return;
@@ -57,23 +58,30 @@ Arbiter.VectorDownloader.prototype.download = function(){
 		
 		context.onDownloadFailure();
 	});
+
+    var timeoutDialogCallback = function() {
+        if(context.gotResponse) {
+            if(context.succeeded){
+                if(Arbiter.Util.funcExists(context.onSuccess)) {
+                    context.onSuccess(context.abortSync);
+                }
+            } else {
+                if(Arbiter.Util.funcExists(context.onFailure)) {
+                    context.onFailure(context.schema.getFeatureType(), context.abortSync);
+                }
+            }
+        } else {
+            context.timedOut = false;
+        }
+    }
+    
     window.setTimeout(function(){
         if(!context.gotResponse) {
             context.timedOut = true;
-            Arbiter.Cordova.showSyncTimeOutDialog(function() {
-                if(context.gotResponse) {
-                    if(context.succeeded){
-                        if(Arbiter.Util.funcExists(context.onSuccess)) {
-                            context.onSuccess();
-                        }
-                    } else {
-                        if(Arbiter.Util.funcExists(context.onFailure)) {
-                            context.onFailure(context.schema.getFeatureType());
-                        }
-                    }
-                } else {
-                    context.timedOut = false;
-                }
+            
+            Arbiter.Cordova.showSyncTimeOutDialog(timeoutDialogCallback, function() {
+                context.abortSync = true;
+                timeoutDialogCallback();
             });
         }
     }, 20000);
@@ -98,7 +106,7 @@ Arbiter.VectorDownloader.prototype.onDownloadSuccess = function(features){
 					context.schema, features, function(failedToStore){
 					
 				if(Arbiter.Util.funcExists(context.onSuccess) && !context.timedOut){
-					context.onSuccess();
+					context.onSuccess(context.abortSync);
 				}
 				
 			}, function(e){
@@ -107,7 +115,7 @@ Arbiter.VectorDownloader.prototype.onDownloadSuccess = function(features){
 				console.log("VectorDownloader download error - " + JSON.stringify(e));
 				
 				if(Arbiter.Util.funcExists(context.onSuccess) && !context.timedOut){
-					context.onSuccess();
+					context.onSuccess(context.abortSync);
 				}
 			});
 			

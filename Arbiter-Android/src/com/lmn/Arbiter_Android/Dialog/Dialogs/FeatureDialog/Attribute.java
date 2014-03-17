@@ -7,6 +7,7 @@ import java.util.Calendar;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.DateTime.DatePickerFragment;
+import com.lmn.Arbiter_Android.TimeZone.LocalTime;
 
 import android.content.res.Resources;
 import android.support.v4.app.FragmentActivity;
@@ -27,7 +28,7 @@ public class Attribute {
 	
 	private Attribute(FragmentActivity activity, EnumerationHelper enumHelper){
 		this.enumHelper = enumHelper;
-		this.formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+		this.formatter = (new Util()).getDateFormat();
 		this.activity = activity;
 		this.dateValue = null;
 		this.spinner = null;
@@ -56,7 +57,11 @@ public class Attribute {
 		
 		this.startValue = value;
 		
-		setStartValue(value);
+		try {
+			setStartValue(value);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		
 		setEditMode(startInEditMode);
 	}
@@ -97,7 +102,7 @@ public class Attribute {
 		return formatter.format(Calendar.getInstance().getTime());
 	}
 	
-	private void setStartValue(String value){
+	private void setStartValue(String value) throws ParseException{
 		
 		if(enumHelper != null && (enumHelper.getType().equals("xsd:dateTime"))){
 			
@@ -107,7 +112,13 @@ public class Attribute {
 			
 			this.dateValue = value;
 			
-			this.setDate(value);
+			if(this.dateValue.charAt(this.dateValue.length() - 1) != 'Z'){
+				this.dateValue += 'Z';
+			}
+			
+			final Calendar localCalendar = (new LocalTime(this.dateValue, true)).getLocalCalendar();
+			
+			this.setDate(this.dateValue);
 			
 			final Attribute attribute = this;
 			
@@ -118,7 +129,7 @@ public class Attribute {
 					DatePickerFragment frag = null;
 					
 					try {
-						frag = DatePickerFragment.newInstance(dateValue, attribute, true);
+						frag = DatePickerFragment.newInstance(localCalendar, attribute, true);
 					} catch (ParseException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -176,8 +187,12 @@ public class Attribute {
 		
 		String formattedDate = null;
 		
+		if(this.dateValue.charAt(this.dateValue.length() - 1) != 'Z'){
+			this.dateValue += 'Z';
+		}
+		
 		try {
-			formattedDate = (this.formatter.parse(this.dateValue)).toString();
+			formattedDate = (new LocalTime(this.dateValue, true)).getLocalCalendar().getTime().toString();
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

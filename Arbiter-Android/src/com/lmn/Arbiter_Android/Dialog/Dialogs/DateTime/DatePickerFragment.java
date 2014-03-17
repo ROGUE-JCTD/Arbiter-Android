@@ -4,7 +4,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
+import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.Attribute;
 
 import android.os.Bundle;
@@ -25,16 +27,12 @@ public class DatePickerFragment extends DialogFragment implements  OnDateSetList
 	private boolean setTime;
 	private Attribute attribute;
 	
-	public static DatePickerFragment newInstance(String dateTimeStr, Attribute attribute, boolean setTime) throws ParseException{
+	public static DatePickerFragment newInstance(Calendar localCalendar, Attribute attribute, boolean setTime) throws ParseException{
 		DatePickerFragment frag = new DatePickerFragment();
 		
-		frag.sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-		
-		Date date = frag.sdf.parse(dateTimeStr);
+		frag.sdf = (new Util()).getDateFormat();
 
-		frag.calendar = Calendar.getInstance();
-		
-		frag.calendar.setTime(date);
+		frag.calendar = localCalendar;
 		
 		frag.isFirstTimeSet = true;
 		
@@ -69,7 +67,7 @@ public class DatePickerFragment extends DialogFragment implements  OnDateSetList
 	public void onDateSet(DatePicker view, int year, int monthOfYear,
 			int dayOfMonth) {
 		if(isFirstTimeSet && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1 &&
-				isFirstTimeSet && android.os.Build.VERSION.SDK_INT != android.os.Build.VERSION_CODES.JELLY_BEAN_MR2){
+				android.os.Build.VERSION.SDK_INT != android.os.Build.VERSION_CODES.JELLY_BEAN_MR2){
 			isFirstTimeSet = false;
 			return;
 		}
@@ -77,6 +75,8 @@ public class DatePickerFragment extends DialogFragment implements  OnDateSetList
 		calendar.set(Calendar.YEAR, year);
 		calendar.set(Calendar.MONTH, monthOfYear);
 		calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+		
+		Log.w("DatePicker", "DatePicker onDateSet");
 		
 		if(setTime){
 			// Plus 1 to adjust for difference between joda and java.util.date

@@ -1,6 +1,8 @@
 package com.lmn.Arbiter_Android;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -74,5 +76,14 @@ public class Util {
 		}catch(NumberFormatException e){}
 		
 		return false;
+	}
+	
+	public SimpleDateFormat getDateFormat(){
+		
+		TimeZone tz = TimeZone.getDefault();
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		df.setTimeZone(tz);
+		
+		return df;
 	}
 }

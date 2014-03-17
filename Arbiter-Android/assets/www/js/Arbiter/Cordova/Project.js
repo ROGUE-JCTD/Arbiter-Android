@@ -53,7 +53,7 @@ Arbiter.Cordova.Project = (function(){
 	
 	var storeFeatureData = function(layers, bounds, cacheTiles, onSuccess, onFailure){
 		
-		var schemaDownloader = new Arbiter.SchemaDownloader(layers, function(failedLayers){
+		var schemaDownloader = new Arbiter.SchemaDownloader(layers, Arbiter.WFS_DFT_VERSION, function(failedLayers){
 			
 			prepareSync(layers, bounds, cacheTiles, onSuccess, onFailure);
 		}, function(e){

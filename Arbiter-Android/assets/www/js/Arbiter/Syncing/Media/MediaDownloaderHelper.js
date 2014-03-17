@@ -15,7 +15,7 @@ Arbiter.MediaDownloaderHelper = function(feature,
 	
 	this.featureMedia = [];
 	this.index = -1;
-    if(mediaAttribute !== null && mediaAttribute !== undefined) {
+    if(Arbiter.Util.existsAndNotNull(mediaAttribute) && mediaAttribute !== "") {
         this.featureMedia = JSON.parse(mediaAttribute);
     }
     

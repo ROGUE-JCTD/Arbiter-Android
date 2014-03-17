@@ -43,8 +43,6 @@ Arbiter.VectorDownloader.prototype.download = function(){
 	Arbiter.Util.Feature.downloadFeatures(this.schema, this.bounds,
 			this.credentials, function(schema, features){
 		
-		console.log("downloadFeatures success", features);
-		
 		// Call the onDownloadSuccess method
 		context.onDownloadSuccess(features);
 		

@@ -56,6 +56,27 @@ Arbiter.Util = (function(){
 			return false;
 		},
 		
+		isArbiterWMSLayer: function(olLayer){
+			
+			if(this.existsAndNotNull(olLayer) && this.existsAndNotNull(olLayer.name) 
+					&& (olLayer.name.indexOf(Arbiter.Layers.type.WMS) != -1)){
+				return true;
+			}
+			
+			return false;
+		},
+		
+		isArbiterWFSLayer: function(olLayer){
+			
+			if(this.existsAndNotNull(olLayer) && this.existsAndNotNull(olLayer.name) 
+					&& this.layerIsEditable(olLayer) 
+					&& (olLayer.name.indexOf(Arbiter.Layers.type.WFS) != -1)){
+				return true;
+			}
+			
+			return false;
+		},
+		
 		layerIsEditable: function(olLayer){
 			if((olLayer instanceof OpenLayers.Layer.Vector)
 					&& !(olLayer instanceof OpenLayers.Layer.Vector.RootContainer)){
@@ -87,6 +108,28 @@ Arbiter.Util = (function(){
 			}
 			
 			return false;
+		},
+		
+		getFeaturesById: function(layerId, arbiterId){
+			var olLayer = Arbiter.Layers.getLayerById(layerId, Arbiter.Layers.type.WFS);
+			
+			var olFeatures = olLayer.features;
+			
+			var features = [];
+			
+			var olFeature = null;
+			
+			for(var i = 0; i < olFeatures.length; i++){
+				
+				olFeature = olFeatures[i];
+				
+				if(Arbiter.Util.existsAndNotNull(olFeature.metadata) 
+						&& olFeature.metadata[Arbiter.FeatureTableHelper.ID] === arbiterId){
+					features.push(olFeature);
+				}
+			}
+			
+			return features;
 		}
 	};
 })();

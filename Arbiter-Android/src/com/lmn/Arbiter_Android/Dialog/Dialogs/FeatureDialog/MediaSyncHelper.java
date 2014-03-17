@@ -42,37 +42,19 @@ public class MediaSyncHelper {
 		return mediaToSend;
 	}
 	
-	public void updateMediaToSend(String mediaToSend, boolean insert){
+	public void updateMediaToSend(String mediaToSend){
 		SQLiteDatabase db = getDb();
 		
-		if(insert){
-			PreferencesHelper.getHelper().insert(db,
-					context, MEDIA_TO_SEND, mediaToSend);
-		}else{
-			PreferencesHelper.getHelper().update(db,
-					context, MEDIA_TO_SEND, mediaToSend);
-		}
+		PreferencesHelper.getHelper().put(db,
+			context, MEDIA_TO_SEND, mediaToSend);
 	}
 	
 	public void clearMediaToSend(){
 		SQLiteDatabase db = getDb();
-		boolean insert = false;
 		
-		String mediaToSend = PreferencesHelper.getHelper().get(db,
-				context, MEDIA_TO_SEND);
+		String mediaToSend = "{}";
 		
-		if(mediaToSend == null){
-			insert = true;
-		}
-		
-		mediaToSend = "{}";
-		
-		if(insert){
-			PreferencesHelper.getHelper().insert(db, context,
-					MEDIA_TO_SEND, mediaToSend);
-		}else{
-			PreferencesHelper.getHelper().update(db, context,
-					MEDIA_TO_SEND, mediaToSend);
-		}
+		PreferencesHelper.getHelper().put(db, context,
+				MEDIA_TO_SEND, mediaToSend);
 	}
 }

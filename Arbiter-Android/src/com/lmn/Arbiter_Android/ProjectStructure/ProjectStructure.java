@@ -68,10 +68,10 @@ public class ProjectStructure {
 				ProjectDatabaseHelper.getHelper(context,
 						getProjectPath(defaultProjectName), false);
 		
-		PreferencesHelper.getHelper().insert(helper.getWritableDatabase(), 
+		PreferencesHelper.getHelper().put(helper.getWritableDatabase(), 
 				context, ArbiterProject.AOI, DEFAULT_PROJECT_AOI);
 		
-		PreferencesHelper.getHelper().insert(helper.getWritableDatabase(),
+		PreferencesHelper.getHelper().put(helper.getWritableDatabase(),
 				context, ArbiterProject.PROJECT_NAME, defaultProjectName);
 	}
 	

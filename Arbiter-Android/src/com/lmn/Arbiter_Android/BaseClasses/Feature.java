@@ -21,6 +21,7 @@ public class Feature {
 		this.featureType = featureType;
 		this.geometryName = geometryName;
 		this.attributes = attributes;
+		this.originalGeometry = attributes.get(geometryName);
 		
 		if(getSyncState() == null){
 			try {
@@ -50,7 +51,7 @@ public class Feature {
 	}
 	
 	public boolean isNew(){
-		return this.id == null;
+		return this.id == null || this.id.equals("null");
 	}
 	
 	public String getId(){
@@ -115,14 +116,5 @@ public class Feature {
 	
 	public void restoreGeometry(){
 		attributes.put(geometryName, originalGeometry);
-	}
-	
-	public boolean geometryChanged(){
-		boolean geometryChanged = getGeometry().equals(originalGeometry);
-		
-		Log.w("Feature", "Feature - originalGeometry = " 
-				+ originalGeometry + ", new = " + getGeometry() 
-				+ ", geometryChanged = " + geometryChanged);
-		return geometryChanged;
 	}
 }

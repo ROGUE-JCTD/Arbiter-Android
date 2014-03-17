@@ -40,7 +40,7 @@
 	<string name="updating_msg">Update in progress&#8230;</string>
 	<string name="insert_feature_title">Select layer to insert into.</string>
 	<string name="insert_layer_title">Inserting into:</string>
-	<string name="insert_layer_text">Layer</string>
+	<string name="insert_layer_text">Mode: Insert</string>
 	<string name="feature_saved">Feature saved</string>
 	<string name="feature_saved_msg">The feature has been saved.</string>
 	<string name="return_to_map">Return to Map</string>
@@ -186,4 +186,24 @@
     <string name="commit_date">Commit date:</string>
     <string name="build_date">Build date:</string>
     <string name="unknown">Unknown</string>
+    <string name="point">Point</string>
+    <string name="line">Line</string>
+    <string name="polygon">Polygon</string>
+    <string name="multipoint">Multi point</string>
+    <string name="multiline">Multi line</string>
+    <string name="multipolygon">Multi polygon</string>
+    <string name="choose_geometry_type">Geometry type</string>
+    <string name="done">Done</string>
+    <string name="add">Add</string>
+    <string name="remove">Remove</string>
+    <string name="inspect">Inspect</string>
+    <string name="finish">Finish</string>
+    <string name="confirm_part_removal_title">Remove part</string>
+    <string name="confirm_part_removal_msg">Are you sure you wish to remove this part of the geometry?</string>
+    <string name="confirm_geometry_removal_title">Remove geometry</string>
+    <string name="confirm_geometry_removal_msg">Are you sure you wish to remove this geometry from the collection?</string>
+    <string name="notify_user_to_add_geometry_title">Must have a geometry</string>
+    <string name="notify_user_to_add_geometry_msg">Add a geometry or delete the feature.</string>
+    <string name="finish_editing_title">Finish Editing</string>
+    <string name="finish_editing_message">Please finish editing.</string>
 </resources>

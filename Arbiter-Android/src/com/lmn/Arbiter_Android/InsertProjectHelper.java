@@ -117,10 +117,10 @@ public class InsertProjectHelper {
 	private void insertProjectInfo(ProjectDatabaseHelper helper, Context context, Project newProject){
 		
 		Log.w("InsertProjectHelper", "InsertProjectHelper: aoi = " + newProject.getAOI());
-		PreferencesHelper.getHelper().insert(helper.getWritableDatabase(), 
+		PreferencesHelper.getHelper().put(helper.getWritableDatabase(), 
 				context, ArbiterProject.AOI, newProject.getAOI());
 		
-		PreferencesHelper.getHelper().insert(helper.getWritableDatabase(),
+		PreferencesHelper.getHelper().put(helper.getWritableDatabase(),
 				context, ArbiterProject.PROJECT_NAME, newProject.getProjectName());
 	}
 }

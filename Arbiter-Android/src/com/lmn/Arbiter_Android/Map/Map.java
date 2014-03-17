@@ -199,11 +199,11 @@ public class Map{
 		webview.loadUrl(url);
 	}
 	
-	public void startInsertMode(CordovaWebView webview, long layerId){
+	public void startInsertMode(CordovaWebView webview, long layerId, String geometryType){
 		
 		String url = "javascript:app.waitForArbiterInit(new Function('"
 				+ "Arbiter.Controls.ControlPanel.startInsertMode("
-				+ Long.toString(layerId) + ")'))";
+				+ Long.toString(layerId) + ", \"" + geometryType + "\")'))";
 		
 		webview.loadUrl(url);
 	}
@@ -240,6 +240,54 @@ public class Map{
 		String url = "javascript:app.waitForArbiterInit(new Function('"
 				+ "Arbiter.Map.getMap().zoomOut()'))";
 		
+		webview.loadUrl(url);
+	}
+	
+	public void finishGeometry(CordovaWebView webview){
+		
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Controls.ControlPanel.finishGeometry()'))";
+		
+		webview.loadUrl(url);
+	}
+	
+	public void finishInserting(CordovaWebView webview){
+		
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Controls.ControlPanel.finishInserting()'))";
+		
+		webview.loadUrl(url);
+	}
+	
+	public void addPart(CordovaWebView webview){
+		
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Controls.ControlPanel.addPart()'))";
+		
+		webview.loadUrl(url);
+	}
+
+	public void removePart(CordovaWebView webview){
+	
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Controls.ControlPanel.removePart()'))";
+	
+		webview.loadUrl(url);
+	}
+
+	public void addGeometry(CordovaWebView webview, String type){
+		
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Controls.ControlPanel.addGeometry(\"" + type + "\")'))";
+		
+		webview.loadUrl(url);
+	}
+
+	public void removeGeometry(CordovaWebView webview){
+	
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Controls.ControlPanel.removeGeometry()'))";
+	
 		webview.loadUrl(url);
 	}
 }

@@ -3,21 +3,13 @@
  * @constructor
  * @param {Function} onSelect To be executed on feature select
  * @param {Function} onUnselect To be execute on feature unselect
- * @param {Boolean} includeOOMWorkaround Should the OOM workaround be included?
  */
-Arbiter.Controls.Select = function(onSelect, onUnselect, includeOOMWorkaround){
+Arbiter.Controls.Select = function(onSelect, onUnselect){
 	var context = this;
 	
 	var vectorLayers = [];
 	
 	var selectController = null;
-	
-	/*var oomWorkaround = null;
-	
-	if(includeOOMWorkaround){
-		oomWorkaround = new Arbiter.Controls
-			.Select.OOM_Workaround(this);
-	}*/
 	
 	var initSelectController = function(){
 		selectController = new OpenLayers.Control.SelectFeature(vectorLayers, {
@@ -86,8 +78,7 @@ Arbiter.Controls.Select = function(onSelect, onUnselect, includeOOMWorkaround){
 		
 		map.events.register("addlayer", context, function(event){
 			if(event && event.layer 
-					&& Arbiter.Util.layerIsEditable(event.layer)
-					&& event.layer.name !== Arbiter.AOI){
+					&& Arbiter.Util.isArbiterWFSLayer(event.layer)){
 				
 				vectorLayers.push(event.layer);
 				
@@ -102,8 +93,7 @@ Arbiter.Controls.Select = function(onSelect, onUnselect, includeOOMWorkaround){
 		map.events.register("removelayer", context, function(event){
 			
 			if(event && event.layer 
-					&& Arbiter.Util.layerIsEditable(event.layer)
-					&& event.layer !== Arbiter.AOI){
+					&& Arbiter.Util.isArbiterWFSLayer(event.layer)){
 				
 				removeFromVectorLayers(event.layer);
 				
@@ -116,12 +106,6 @@ Arbiter.Controls.Select = function(onSelect, onUnselect, includeOOMWorkaround){
 		registerMapListeners: function(){
 			onAddLayer();
 			onRemoveLayer();
-			
-			/*if(oomWorkaround !== null &&
-					oomWorkaround !== undefined){
-				
-				oomWorkaround.registerMapListeners();
-			}*/
 		},
 		
 		unselect: function(){
@@ -140,6 +124,17 @@ Arbiter.Controls.Select = function(onSelect, onUnselect, includeOOMWorkaround){
 		
 		select: function(feature){
 			selectController.select(feature);
+		},
+		
+		isActive: function(){
+			
+			var active = false;
+			
+			if(Arbiter.Util.existsAndNotNull(selectController)){
+				active = selectController.active;
+			}
+			
+			return active;
 		}
 	};
 };

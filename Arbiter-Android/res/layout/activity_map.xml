@@ -93,6 +93,13 @@
 	    android:background="#CCCCCC"
 	    android:alpha="0.9"/>
     
+    <include layout="@layout/edit_buttons" />
+    <include layout="@layout/geometry_parts_buttons"
+        android:layout_width="wrap_content"
+    	android:layout_height="wrap_content" 
+    	android:layout_below="@id/layersButton"
+    	android:layout_marginLeft="15dp"/>
+    
     <RelativeLayout
         android:id="@+id/insertFeatureBar"
         android:layout_width="wrap_content"
@@ -112,36 +119,59 @@
 	        android:layout_height="wrap_content"
 	        android:background="@color/transparent_blue">
 	        
-			<ImageButton
-		        android:id="@+id/cancelInsertButton"
-		        android:src="@drawable/cancel"
-		        android:contentDescription="@string/cancel_editing"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_alignParentLeft="true"
-		        android:layout_alignParentTop="true"
-		        android:padding="0dp"/>
-		    
 			<RelativeLayout
-			    android:layout_toRightOf="@id/cancelInsertButton"
+			    android:id="@+id/layerInfo"
 			    android:layout_width="wrap_content"
 			    android:layout_height="wrap_content"
-			    android:paddingLeft="5dp"
+			    android:paddingLeft="20dp"
 			    android:paddingRight="20dp"
-			    android:layout_centerInParent="true">
+			    android:layout_centerHorizontal="true">
 			    
 			    <TextView
 			        android:id="@+id/insertLayerTitle"
 			        android:text="@string/insert_layer_title"
 			        android:layout_width="wrap_content"
-			        android:layout_height="wrap_content"/>
+			        android:layout_height="wrap_content"
+			        android:textStyle="bold"
+			        android:textSize="14sp"
+			        android:paddingTop="5dp"
+			        android:paddingBottom="10dp"
+			        android:layout_centerHorizontal="true"/>
 			    
 			    <TextView
 			        android:id="@+id/insertLayerText"
 			        android:text="@string/insert_layer_text"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
+			        android:layout_centerHorizontal="true"
+			        android:paddingBottom="10dp"
 			        android:layout_below="@id/insertLayerTitle"/>
+			</RelativeLayout>
+			
+			<RelativeLayout 
+			    android:layout_below="@id/layerInfo"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:paddingLeft="5dp"
+			    android:layout_centerHorizontal="true">
+			    
+			    <ImageButton
+			        android:id="@+id/cancelInsertButton"
+			        android:src="@drawable/cancel"
+			        android:contentDescription="@string/cancel_editing"
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:layout_alignParentLeft="true"
+			        android:padding="0dp"/>
+			    
+			    <ImageButton
+			        android:id="@+id/doneInsertingButton"
+			        android:src="@drawable/checkmark"
+			        android:contentDescription="@string/done_editing"
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:layout_toRightOf="@id/cancelInsertButton"
+			        android:padding="7dp"/>
 			</RelativeLayout>
 	    </RelativeLayout>
     </RelativeLayout>

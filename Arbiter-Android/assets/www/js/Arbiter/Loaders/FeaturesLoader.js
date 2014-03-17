@@ -5,7 +5,7 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 	
 	var controlPanelHelper = new Arbiter.ControlPanelHelper();
 	
-	var addMetadata = function(dbFeature, olFeature){
+	var addMetadata = function(dbFeature, olFeature, partOfMulti){
 		if(olFeature.metadata === null 
 				|| olFeature.metadata === undefined){
 			
@@ -20,6 +20,8 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 		
 		olFeature.metadata[Arbiter.FeatureTableHelper.SYNC_STATE] =
 			dbFeature[Arbiter.FeatureTableHelper.SYNC_STATE];
+		
+		olFeature.metadata[Arbiter.FeatureTableHelper.PART_OF_MULTI] = partOfMulti;
 	};
 	
 	var addAttributes = function(schema, dbFeature, olFeature){
@@ -78,7 +80,7 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 	};
 	
 	var setSelectedState = function(olFeature, activeControl,
-			layerId, featureId, geometry){
+			layerId, featureId, geometry, indexChain){
 		
 		var olFeatureId = olFeature.metadata[Arbiter.FeatureTableHelper.ID];
 		
@@ -88,47 +90,109 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 			
 			if(activeControl === controlPanelHelper.CONTROLS.SELECT){
 				
-				Arbiter.Controls.ControlPanel.setSelectedFeature(olFeature);
+				olFeature.metadata["modified"] = true;
 				
 				Arbiter.Controls.ControlPanel.select(olFeature);
 			}else if(activeControl === controlPanelHelper.CONTROLS.MODIFY){
 				
 				Arbiter.Controls.ControlPanel.setSelectedFeature(olFeature);
 				
-				Arbiter.Controls.ControlPanel.restoreGeometry(geometry);
+				Arbiter.Controls.ControlPanel.moveSelectedFeature(geometry);
 				
-				Arbiter.Controls.ControlPanel.enterModifyMode(olFeature);
+				Arbiter.Controls.ControlPanel.enterModifyMode(olFeature, function(){
+					if(Arbiter.Util.existsAndNotNull(indexChain)){
+						Arbiter.Controls.ControlPanel.selectGeometryPartByIndexChain(indexChain);
+					}
+				});
 			}else if(activeControl === controlPanelHelper.CONTROLS.INSERT){
 				
 			}
 		}
 	};
 	
-	var processFeature = function(schema, dbFeature, olLayer,
-			activeControl, layerId, featureId, geometry){
+	var addComponents = function(collection, features, geometryType, srid){
 		
-		var olFeature = wktFormatter.
-			read(dbFeature[schema.getGeometryName()]);
+		var mapProj = Arbiter.Map.getMap().projection.projCode;
 		
-		// make sure the geometry is in EPSG:900913
-		var srid = schema.getSRID();
+		var add = null;
+		var olFeature = null;
 		
-		if(srid !== WGS84_Google_Mercator){
-			olFeature.geometry.transform
-				(new OpenLayers.Projection(schema.getSRID()), 
-					new OpenLayers.Projection(WGS84_Google_Mercator));
+		if(geometryType === Arbiter.Geometry.type.MULTIPOINT){
+			add = function(collection, feature){
+				collection.addPoint(feature.geometry);
+			};
+		}else{
+			add = function(collection, feature){
+				collection.addComponents(feature.geometry);
+			};
 		}
 		
-		addAttributes(schema, dbFeature, olFeature);
+		for(var i = 0; i < features.length; i++){
+			olFeature = features[i];
+			
+			if(srid !== mapProj){
+				olFeature.geometry.transform
+					(new OpenLayers.Projection(srid), 
+							new OpenLayers.Projection(mapProj));
+			}
+			
+			add(collection, olFeature);
+		}
 		
-		addMetadata(dbFeature, olFeature);
+		return collection;
+	};
+	
+	var processFeature = function(schema, dbFeature, olLayer,
+			activeControl, layerId, featureId, geometry, indexChain){
 		
-		setState(olFeature);
+		var wkt = dbFeature[schema.getGeometryName()];
 		
-		olLayer.addFeatures([olFeature]);
+		var partOfMulti = false;
 		
-		setSelectedState(olFeature, activeControl,
-				layerId, featureId, geometry);
+		if(wkt.substring(0, 5).indexOf("Multi") >= 0){
+			partOfMulti = true;
+		}
+		
+		var feature = wktFormatter.read(wkt);
+		
+		var geometryType = Arbiter.Geometry.getGeometryType(layerId, schema.getGeometryType());
+		
+		var srid = schema.getSRID();
+		
+		if(geometryType === Arbiter.Geometry.type.MULTIGEOMETRY){
+			
+			var collection = new OpenLayers.Geometry.Collection();
+			
+			if(feature.constructor != Array){
+				feature = [feature];
+			}
+			
+			collection = addComponents(collection, feature, geometryType, srid);
+			
+			feature = feature[0];
+			
+			feature.geometry = collection;
+		}else{
+			
+			var mapProj = Arbiter.Map.getMap().projection.projCode;
+			
+			if(srid !== mapProj){
+				feature.geometry.transform
+					(new OpenLayers.Projection(srid), 
+						new OpenLayers.Projection(mapProj));
+			}
+		}
+		
+		addAttributes(schema, dbFeature, feature);
+		
+		addMetadata(dbFeature, feature, partOfMulti);
+		
+		setState(feature);
+		
+		olLayer.addFeatures([feature]);
+		
+		setSelectedState(feature, activeControl,
+				layerId, featureId, geometry, indexChain);
 	};
 	
 	var getControlPanelMode = function(onSuccess, onFailure){
@@ -141,9 +205,17 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 					
 					controlPanelHelper.getGeometry(function(geometry){
 						
-						if(Arbiter.Util.funcExists(onSuccess)){
-							onSuccess(activeControl, layerId, featureId, geometry);
-						}
+						controlPanelHelper.getIndexChain(function(indexChain){
+							if(Arbiter.Util.funcExists(onSuccess)){
+								onSuccess(activeControl, layerId, featureId, geometry, indexChain);
+							}
+						}, function(e){
+							console.log("error getting indexChain", e);
+							
+							if(Arbiter.Util.funcExists(onFailure)){
+								onFailure(e);
+							}
+						});
 					}, function(e){
 						
 						console.log("error getting geometry", e);
@@ -180,7 +252,7 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 	return {
 		loadFeatures: function(schema, olLayer, onSuccess, onFailure){
 			
-			getControlPanelMode(function(activeControl, layerId, featureId, geometry){
+			getControlPanelMode(function(activeControl, layerId, featureId, geometry, indexChain){
 				
 				Arbiter.FeatureTableHelper.loadFeatures(schema, this, 
 						function(feature, currentFeatureIndex, featureCount){
@@ -188,7 +260,7 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 						if(feature !== null){
 							processFeature(schema, feature, olLayer,
 									activeControl, layerId,
-									featureId, geometry);
+									featureId, geometry, indexChain);
 						}
 					} catch (e) {
 						console.log("error loading feature", e);

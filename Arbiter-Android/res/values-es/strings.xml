@@ -40,7 +40,7 @@
 	<string name="updating_msg">Actualización en curso&#8230;</string>
 	<string name="insert_feature_title">Seleccionar capa para insertar.</string>
 	<string name="insert_layer_title">Inserción en:</string>
-	<string name="insert_layer_text">Capa</string>
+	<string name="insert_layer_text">Moda: Inserción</string>
 	<string name="feature_saved">Elemento guardado</string>
 	<string name="feature_saved_msg">El elemento se ha guardado.</string>
 	<string name="return_to_map">Volver al Mapa</string>
@@ -186,4 +186,22 @@
     <string name="commit_date">Tiempo de Destino:</string>
     <string name="build_date">Fecha de construcción:</string>
     <string name="unknown">Ignoto</string>
+    <string name="point">Punto</string>
+    <string name="line">Línea</string>
+    <string name="polygon">Polígono</string>
+    <string name="multipoint">Puntos múltiple</string>
+    <string name="multiline">Línea múltiple</string>
+    <string name="multipolygon">Polígono múltiple</string>
+    <string name="choose_geometry_type">Tipo de geometría</string>
+    <string name="done">Terminado</string>
+    <string name="inspect">Inspeccionar</string>
+    <string name="finish">Termina</string>
+    <string name="confirm_part_removal_title">Elimina la parte</string>
+    <string name="confirm_part_removal_msg">¿Está seguro que desea eliminar esta parte de la geometría?</string>
+    <string name="confirm_geometry_removal_title">Elimina la geometría</string>
+    <string name="confirm_geometry_removal_msg">¿Está seguro que desea eliminar esta geometría de la colección?</string>
+    <string name="notify_user_to_add_geometry_title">Tiene que tener una geometría</string>
+    <string name="notify_user_to_add_geometry_msg">Añade una geometría o elimina el elemento.</string>
+    <string name="finish_editing_title">Termina la edición</string>
+    <string name="finish_editing_message">Por favor, termina la edición.</string>
 </resources>

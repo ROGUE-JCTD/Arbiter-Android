@@ -20,7 +20,7 @@ Arbiter.StoreMediaFromFeature.prototype.getMediaFromOlFeature = function(olFeatu
 	
 	var parsed = null;
 	
-	if(Arbiter.Util.existsAndNotNull(attributeValue)){
+	if(Arbiter.Util.existsAndNotNull(attributeValue) && attributeValue !== ""){
 		parsed = JSON.parse(attributeValue);
 	}
 	

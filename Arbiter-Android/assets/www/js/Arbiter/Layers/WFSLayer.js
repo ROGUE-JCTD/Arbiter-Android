@@ -3,7 +3,7 @@ Arbiter.Layers.WFSLayer = (function(){
 	var createWFSProtocol = function(url, featureNamespace, geometryName,
 			featureType, srid, encodedCredentials) {
 
-		return new OpenLayers.Protocol.WFS({
+		var protocol = new OpenLayers.Protocol.WFS({
 			version : "1.0.0",
 			url : url + "/wfs",
 			featureNS : featureNamespace,
@@ -14,6 +14,18 @@ Arbiter.Layers.WFSLayer = (function(){
 				Authorization : 'Basic ' + encodedCredentials
 			}
 		});
+		
+		protocol.format.geometryTypes["OpenLayers.Geometry.Collection"] = "MultiGeometry";
+		
+		protocol.format.writers.gml["MultiGeometry"] = function(geometry){
+			var node = this.createElementNSPlus("gml:MultiGeometry");
+            for(var i=0, len=geometry.components.length; i<len; ++i) {
+                this.writeNode("geometryMember", geometry.components[i], node);
+            }
+            return node;
+		};
+		
+		return protocol;
 	};
 	
 	var getSaveStrategy = function(key, encodedCredentials) {
@@ -85,14 +97,9 @@ Arbiter.Layers.WFSLayer = (function(){
         var selectStyleTable = OpenLayers.Util.applyDefaults({},
         		OpenLayers.Feature.Vector.style["select"]);
 		
-		if(geometryType === "Point"){
-			defaultStyleTable.pointRadius = 18;
-            selectStyleTable.pointRadius = 18;
-		}else{
-			defaultStyleTable.pointRadius = 1;
-            selectStyleTable.pointRadius = 1;
-		}
-		
+		defaultStyleTable.pointRadius = 18;
+        selectStyleTable.pointRadius = 18;
+        
 		return new OpenLayers.StyleMap({
             'default': new OpenLayers.Style(defaultStyleTable),
             'select': new OpenLayers.Style(selectStyleTable)

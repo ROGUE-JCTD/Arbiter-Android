@@ -19,6 +19,8 @@ public class ControlPanelHelper {
 	
 	public static final String GEOMETRY = "cp_geometry";
 	
+	public static final String INDEX_CHAIN = "cp_index_chain";
+	
 	public static class CONTROLS {
 		public static final String NONE = "0";
 		public static final String SELECT = "1";
@@ -45,11 +47,14 @@ public class ControlPanelHelper {
 	public void clearControlPanel(){
 		SQLiteDatabase projectDb = getProjectDb();
 		
-		PreferencesHelper.getHelper().put(projectDb, context, ACTIVE_CONTROL,
+		PreferencesHelper helper = PreferencesHelper.getHelper();
+		
+		helper.put(projectDb, context, ACTIVE_CONTROL,
 				ControlPanelHelper.CONTROLS.NONE);
-		PreferencesHelper.getHelper().put(projectDb, context, LAYER_ID, "0");
-		PreferencesHelper.getHelper().put(projectDb, context, FEATURE_ID, "0");
-		PreferencesHelper.getHelper().put(projectDb, context, GEOMETRY, "0");
+		helper.put(projectDb, context, LAYER_ID, "0");
+		helper.put(projectDb, context, FEATURE_ID, "0");
+		helper.put(projectDb, context, GEOMETRY, "0");
+		helper.put(projectDb, context, INDEX_CHAIN, null);
 	}
 	
 	public void setFeatureId(String featureId){
@@ -59,7 +64,7 @@ public class ControlPanelHelper {
 		PreferencesHelper.getHelper().put(projectDb, context, FEATURE_ID, featureId);
 	}
 	
-	public void set(String featureId, String layerId, String control, String geometry){
+	public void set(String featureId, String layerId, String control, String geometry, String indexChain){
 		
 		SQLiteDatabase projectDb = getProjectDb();
 		
@@ -70,5 +75,7 @@ public class ControlPanelHelper {
 		PreferencesHelper.getHelper().put(projectDb, context, FEATURE_ID, featureId);
 		
 		PreferencesHelper.getHelper().put(projectDb, context, GEOMETRY, geometry);
+		
+		PreferencesHelper.getHelper().put(projectDb, context, INDEX_CHAIN, indexChain);
 	}
 }

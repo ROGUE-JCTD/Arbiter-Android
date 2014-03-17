@@ -26,12 +26,14 @@ import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FailedSyncHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.InsertFeatureDialog;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
+import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
@@ -117,15 +119,9 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     }
     
     private void clearControlPanelKVP(){
-    	//final MapActivity activity = this;
-        //getThreadPool().execute(new Runnable(){
-        //	@Override
-        //	public void run(){
-				ControlPanelHelper helper = new ControlPanelHelper(this);
+		ControlPanelHelper helper = new ControlPanelHelper(this);
     				
-    			helper.clearControlPanel();
-        //	}
-    //    });
+    	helper.clearControlPanel();
     }
     
     private void InitApplicationDatabase(){
@@ -172,8 +168,11 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	syncButton.setOnClickListener(new OnClickListener(){
     		@Override
     		public void onClick(View v){
-    			SyncProgressDialog.show(activity);
-    			Map.getMap().sync(cordovaWebView);
+    			
+    			if(makeSureNotEditing()){
+    				SyncProgressDialog.show(activity);
+            		Map.getMap().sync(cordovaWebView);
+    			}
     		}
     	});
     	
@@ -185,54 +184,6 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     		@Override
     		public void onClick(View v){
     			Map.getMap().zoomToAOI(cordovaWebView);
-    		}
-    	});
-    	
-    	ImageButton cancelEditing = (ImageButton) findViewById(R.id.cancelButton);
-    	
-    	cancelEditing.setOnClickListener(new OnClickListener(){
-    		@Override
-    		public void onClick(View v){
-    			// Toggle the cancel and done buttons
-    			mapChangeHelper.toggleEditButtons(false);
-    			
-    			// Open up the feature dialog for the selectedFeature
-    			Feature selectedFeature = ArbiterState.getArbiterState().isEditingFeature();
-    			
-    			// Exit modify mode
-    			Map.getMap().cancelEdit(cordovaWebView,
-    					selectedFeature.getOriginalGeometry());
-    			
-    			selectedFeature.restoreGeometry();
-    			
-    			FeatureHelper helper = new FeatureHelper(activity);
-    			
-    			helper.displayFeatureDialog(selectedFeature.getFeatureType(),
-    					selectedFeature.getId(), ArbiterState.getArbiterState()
-    					.getLayerBeingEdited(), selectedFeature.getOriginalGeometry(),
-    					ControlPanelHelper.CONTROLS.MODIFY);
-    		}
-    	});
-    	
-    	ImageButton doneEditing = (ImageButton) findViewById(R.id.doneButton);
-    	
-    	doneEditing.setOnClickListener(new OnClickListener(){
-    		@Override
-    		public void onClick(View v){
-    			
-    			Map.getMap().getUpdatedGeometry(cordovaWebView);
-    		}
-    	});
-    	
-    	ImageButton cancelInsert = (ImageButton) findViewById(R.id.cancelInsertButton);
-    	
-    	cancelInsert.setOnClickListener(new OnClickListener(){
-    		@Override
-    		public void onClick(View v){
-    			
-    			clearControlPanelKVP();
-    			
-    			mapChangeHelper.endInsertMode();
     		}
     	});
     	
@@ -266,6 +217,26 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	initIncompleteProjectHelper();
     	
     	incompleteProjectHelper.setSyncButton(syncButton);
+    }
+    
+    // Return true if not editing
+    private boolean makeSureNotEditing(){
+    	int editMode = mapChangeHelper.getEditMode();
+		
+		if(editMode == GeometryEditor.Mode.OFF || editMode == GeometryEditor.Mode.SELECT){
+			return true;
+		}
+			
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		
+		builder.setTitle(R.string.finish_editing_title);
+		builder.setMessage(R.string.finish_editing_message);
+		builder.setIcon(R.drawable.icon);
+		builder.setPositiveButton(android.R.string.ok, null);
+		
+		builder.create().show();
+		
+		return false;
     }
     
     @Override
@@ -318,7 +289,9 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     public boolean onOptionsItemSelected(MenuItem item){
     	switch (item.getItemId()) {
     		case R.id.action_new_feature:
-    			openInsertFeatureDialog();
+    			if(makeSureNotEditing()){
+    				openInsertFeatureDialog();
+    			}
     			
     			return true;
         	
@@ -327,30 +300,34 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         		return true;
         		
         	case R.id.action_projects:
-				Map.getMap().goToProjects(cordovaWebView);	
+        		if(makeSureNotEditing()){
+        			Map.getMap().goToProjects(cordovaWebView);
+        		}	
         		
         		return true;
         	
         	case R.id.action_aoi:
-        		if(arbiterProject != null) {
-	        		String openProject = arbiterProject.getOpenProject(this);
-	            	if(openProject.equals(this.getResources().getString(R.string.default_project_name))) {
-	            		final Activity context = this;
-						this.runOnUiThread(new Runnable(){
-							@Override
-							public void run(){
-			            		AlertDialog.Builder builder = new AlertDialog.Builder(context);
-								builder.setTitle(context.getResources().getString(R.string.error));
-								builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
-								builder.setMessage(context.getResources().getString(R.string.error_aoi_create_project));
-								
-								builder.create().show();
-							}
-						});
-	            	} else {
-	            		startAOIActivity();
-	            	}
-	        		
+        		if(makeSureNotEditing()){
+        			if(arbiterProject != null) {
+    	        		String openProject = arbiterProject.getOpenProject(this);
+    	            	if(openProject.equals(this.getResources().getString(R.string.default_project_name))) {
+    	            		final Activity context = this;
+    						this.runOnUiThread(new Runnable(){
+    							@Override
+    							public void run(){
+    			            		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+    								builder.setTitle(context.getResources().getString(R.string.error));
+    								builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
+    								builder.setMessage(context.getResources().getString(R.string.error_aoi_create_project));
+    								
+    								builder.create().show();
+    							}
+    						});
+    	            	} else {
+    	            		startAOIActivity();
+    	            	}
+    	        		
+            		}
         		}
         		
         		return true;

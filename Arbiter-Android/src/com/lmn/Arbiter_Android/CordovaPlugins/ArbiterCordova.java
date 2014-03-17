@@ -8,6 +8,7 @@ import org.json.JSONException;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
@@ -28,6 +29,7 @@ import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FailedSyncHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
+import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.Media.HandleZeroByteFiles;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
@@ -245,10 +247,211 @@ public class ArbiterCordova extends CordovaPlugin{
 			alertGeolocationError(args.getString(0));
 			
 			return true;
+		}else if("enableDoneEditingBtn".equals(action)){
+			
+			Map.MapChangeListener mapListener;
+			
+			try{
+				
+				mapListener = (Map.MapChangeListener) cordova.getActivity();
+				mapListener.getMapChangeHelper().enableDoneEditingButton();
+				
+			}catch(ClassCastException e){
+				e.printStackTrace();
+			}
+			
+			return true;
+		}else if("featureUnselected".equals(action)){
+			
+			featureUnselected();
+			
+			return true;
+		}else if("showUpdatedGeometry".equals(action)){
+			
+			String featureType = args.getString(0);
+			String featureId = args.getString(1);
+			String layerId = args.getString(2);
+			String wktGeometry = args.getString(3);
+			
+			showUpdatedGeometry(featureType, featureId, layerId, wktGeometry);
+			
+			return true;
+		}else if("setMultiPartBtnsEnabled".equals(action)){
+			
+			boolean enable = args.getBoolean(0);
+			boolean enableCollection = args.getBoolean(1);
+			
+			setMultiPartBtnsEnabled(enable, enableCollection);
+			
+			return true;
+		}else if("confirmPartRemoval".equals(action)){
+			
+			confirmPartRemoval(callbackContext);
+			
+			return true;
+		}else if("confirmGeometryRemoval".equals(action)){
+			
+			confirmGeometryRemoval(callbackContext);
+			
+			return true;
+		}else if("notifyUserToAddGeometry".equals(action)){
+			
+			notifyUserToAddGeometry();
+			
+			return true;
+		}else if("hidePartButtons".equals(action)){
+			
+			hidePartButtons(); 
+			
+			return true;
 		}
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
+	}
+	
+	private void hidePartButtons(){
+		
+		final Activity activity = cordova.getActivity();
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				
+				try{
+					
+					((Map.MapChangeListener) activity).getMapChangeHelper().hidePartButtons();
+				}catch(ClassCastException e){
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	private void notifyUserToAddGeometry(){
+		
+		final Activity activity = cordova.getActivity();
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				
+				try{
+					((Map.MapChangeListener) activity).getMapChangeHelper().setEditMode(GeometryEditor.Mode.EDIT);
+				}catch(ClassCastException e){
+					e.printStackTrace();
+				}
+				
+				final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+				
+				builder.setIcon(R.drawable.icon);
+				builder.setTitle(R.string.notify_user_to_add_geometry_title);
+				builder.setMessage(R.string.notify_user_to_add_geometry_msg);
+				
+				builder.setPositiveButton(android.R.string.ok, null);
+				
+				builder.create().show();
+			}
+		});
+	}
+	
+	private void confirmPartRemoval(final CallbackContext callback){
+		
+		final Activity activity = cordova.getActivity();
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				
+				final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+				
+				builder.setIcon(R.drawable.icon);
+				builder.setTitle(R.string.confirm_part_removal_title);
+				builder.setMessage(R.string.confirm_part_removal_msg);
+				
+				builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+						callback.success();
+						
+						switchToSelectMode();
+					}
+				});
+				
+				builder.setNegativeButton(android.R.string.cancel, null);
+				
+				builder.create().show();
+			}
+		});
+	}
+	
+	private void confirmGeometryRemoval(final CallbackContext callback){
+		
+		final Activity activity = cordova.getActivity();
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				
+				final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+				
+				builder.setIcon(R.drawable.icon);
+				builder.setTitle(R.string.confirm_geometry_removal_title);
+				builder.setMessage(R.string.confirm_geometry_removal_msg);
+				
+				builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+						callback.success();
+						
+						switchToSelectMode();
+					}
+				});
+				
+				builder.setNegativeButton(android.R.string.cancel, null);
+				
+				builder.create().show();
+			}
+		});
+	}
+	
+	private void switchToSelectMode(){
+		try{
+			((Map.MapChangeListener) cordova.getActivity())
+				.getMapChangeHelper().setEditMode(GeometryEditor.Mode.SELECT);
+		}catch(ClassCastException e){
+			e.printStackTrace();
+		}
+	}
+	
+	private void setMultiPartBtnsEnabled(boolean enable, boolean enableCollection){
+		
+		try{
+			
+			((Map.MapChangeListener) cordova.getActivity())
+				.getMapChangeHelper().enableMultiPartBtns(enable, enableCollection);
+		}catch(ClassCastException e){
+			e.printStackTrace();
+		}
+	}
+	
+	private void showUpdatedGeometry(String featureType,
+			String featureId, String layerId, String wktGeometry){
+		
+		Log.w("ArbiterCordova", "ArbiterCordova featureType: " + featureType 
+				+ ", featureId = " + featureId + ", wktGeometry = " + wktGeometry);
+		
+		try{
+			((Map.MapChangeListener) cordova.getActivity())
+				.getMapChangeHelper().showUpdatedGeometry(
+						featureType, featureId, layerId, wktGeometry);
+		}catch(ClassCastException e){
+			e.printStackTrace();
+		}
 	}
 	
 	private void alertGeolocationError(String msg){
@@ -511,46 +714,33 @@ public class ArbiterCordova extends CordovaPlugin{
 		return activity;
 	}
 	
+	private void featureUnselected(){
+		
+		try{
+			((Map.MapChangeListener) cordova.getActivity())
+				.getMapChangeHelper().onUnselectFeature();
+		}catch(ClassCastException e){
+			e.printStackTrace();
+		}
+	}
+	
 	private void featureSelected(final String featureType, final String featureId,
 			final String layerId, final String wktGeometry, final String mode){
 		
 		cordova.getActivity().runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
-				FeatureHelper helper = new FeatureHelper(getFragmentActivity());
-				helper.displayFeatureDialog(featureType, featureId,
-						layerId, wktGeometry, mode);
 				
-				if(mode.equals(ControlPanelHelper.CONTROLS.INSERT)){
-					try{
-						
-						((Map.MapChangeListener) cordova.getActivity())
-						.getMapChangeHelper().doneInsertingFeature();
-						
-					}catch(ClassCastException e){
-						e.printStackTrace();
-					}
+				try{
+					Log.w(TAG, TAG + ".featureSelected");
+					((Map.MapChangeListener) cordova.getActivity())
+						.getMapChangeHelper().onSelectFeature(featureType,
+								featureId, layerId, wktGeometry, mode);
+				}catch(ClassCastException e){
+					e.printStackTrace();
 				}
-				
-				notifyDoneEditingFeature();
 			}
 		});
-	}
-	
-	/**
-	 * Notify the MapListener that that the feature is done,
-	 * being edited.
-	 */
-	private void notifyDoneEditingFeature(){
-		try{
-			// Done editing so toggle the buttons
-			((Map.MapChangeListener) cordova.getActivity())
-				.getMapChangeHelper().toggleEditButtons(false);
-		} catch(ClassCastException e){
-			e.printStackTrace();
-			throw new ClassCastException(cordova.getActivity().toString() 
-					+ " must be an instance of Map.MapChangeListener");
-		}
 	}
 	
 	private void errorAddingLayers(final String error){

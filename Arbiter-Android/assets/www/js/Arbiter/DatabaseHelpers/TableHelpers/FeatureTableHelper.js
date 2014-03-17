@@ -37,6 +37,7 @@ Arbiter.FeatureTableHelper = (function(){
 		FID : "fid",
 		SYNC_STATE: "sync_state",
 		MODIFIED_STATE: "modified_state",
+		PART_OF_MULTI: "partOfMulti",
 		
 		MODIFIED_STATES: {
 			NONE: 0,
@@ -178,8 +179,12 @@ Arbiter.FeatureTableHelper = (function(){
     		var attributeName = null;
     		
     		// Push the geometry
-    		values.push(wktFormatter.write(Arbiter.Util.getFeatureInNativeProjection(srid, 
-    				schema.getSRID(), feature)));
+    		var nativeFeature = Arbiter.Util.getFeatureInNativeProjection(srid, 
+    				schema.getSRID(), feature);
+    		
+    		var wkt = wktFormatter.write(nativeFeature);
+    		
+    		values.push(wkt);
     		
     		// Push the modified state
     		if(isDownload){

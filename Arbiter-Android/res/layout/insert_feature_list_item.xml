@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/list_selector"
-    android:clickable="true" >
+    android:clickable="true"
+    android:padding="10dp" >
 
 	<!-- Layer name-->
     <TextView

@@ -8,6 +8,8 @@ Arbiter = (function(){
 	var isOnline = false;
 	
 	return {
+		// WFS version for DescribeFeatureType request
+		WFS_DFT_VERSION: "1.1.0",
 		
 		// Keys for preferences table in project db
 		INCLUDE_DEFAULT_LAYER: "include_default_layer",

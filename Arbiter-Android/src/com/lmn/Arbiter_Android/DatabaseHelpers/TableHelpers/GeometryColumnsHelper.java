@@ -152,4 +152,29 @@ public class GeometryColumnsHelper implements BaseColumns {
 		
 		return enumeration;
 	}
+	
+	public String getGeometryType(SQLiteDatabase db, String featureType){
+		
+		String whereClause = FEATURE_TABLE_NAME + "=?";
+		String[] whereArgs = {
+			featureType	
+		};
+		
+		String[] columns = {
+			FEATURE_GEOMETRY_TYPE	
+		};
+		
+		Cursor cursor = db.query(GEOMETRY_COLUMNS_TABLE_NAME, columns,
+				whereClause, whereArgs, null, null, null);
+		
+		String geometryType = null;
+		
+		if(cursor.moveToFirst()){
+			geometryType = cursor.getString(0);
+		}
+		
+		cursor.close();
+		
+		return geometryType;
+	}
 }

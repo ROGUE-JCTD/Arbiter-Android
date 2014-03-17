@@ -5,8 +5,10 @@ import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
+import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
@@ -102,7 +104,9 @@ public class ServerListAdapter extends BaseAdapter implements ArbiterAdapter<Spa
 
 					@Override
 					public void onClick(View v) {
-						displayDeletionAlert(server);
+						if(makeSureNotEditing()){
+							displayDeletionAlert(server);
+						}
 					}
             		
             	});
@@ -112,6 +116,27 @@ public class ServerListAdapter extends BaseAdapter implements ArbiterAdapter<Spa
 		return view;
 	}
 	
+	// Return true if not editing
+    private boolean makeSureNotEditing(){
+    		
+		int editMode = mapChangeListener.getMapChangeHelper().getEditMode();
+		
+		if(editMode == GeometryEditor.Mode.OFF || editMode == GeometryEditor.Mode.SELECT){
+			return true;
+		}
+			
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		
+		builder.setTitle(R.string.finish_editing_title);
+		builder.setMessage(R.string.finish_editing_message);
+		builder.setIcon(R.drawable.icon);
+		builder.setPositiveButton(android.R.string.ok, null);
+		
+		builder.create().show();
+		
+		return false;
+    }
+    
 	private void displayDeletionAlert(final Server server){
 		final Context context = activity.getApplicationContext();
 		

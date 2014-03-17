@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <ImageButton
+      android:id="@+id/infoBtn"
+      android:src="@drawable/info"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:contentDescription="@string/inspect"
+      android:visibility="gone"
+      android:padding="5dp"
+	  android:background="#CCCCCC"
+	  android:alpha="0.9"/>
+    
+    <ImageButton
+      android:id="@+id/editBtn"
+      android:src="@drawable/tools"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/infoBtn"
+      android:layout_marginTop="15dp"
+      android:contentDescription="@string/edit_attributes"
+      android:visibility="gone"
+      android:padding="5dp"
+	  android:background="#CCCCCC"
+	  android:alpha="0.9"/>
+    
+    <ImageButton
+      android:id="@+id/addPartBtn"
+      android:src="@drawable/add_part"
+      android:layout_below="@id/infoBtn"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:contentDescription="@string/add"
+      android:visibility="gone"
+      android:padding="0dp"
+	  android:background="#CCCCCC"
+	  android:alpha="0.9"/>
+
+ 	<ImageButton
+      android:id="@+id/removePartBtn"
+      android:src="@drawable/remove_part"
+      android:layout_below="@id/addPartBtn"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:contentDescription="@string/remove"
+      android:visibility="gone"
+      android:padding="0dp"
+	  android:background="#CCCCCC"
+	  android:alpha="0.9"/> 
+     
+ 	<ImageButton
+      android:id="@+id/addToCollectionBtn"
+      android:src="@drawable/add_geometry"
+      android:layout_below="@id/removePartBtn"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:contentDescription="@string/add"
+      android:visibility="gone"
+      android:padding="0dp"
+	  android:background="#CCCCCC"
+	  android:alpha="0.9"/> 
+	  
+ 	<ImageButton
+      android:id="@+id/removeFromCollectionBtn"
+      android:src="@drawable/remove_geometry"
+      android:layout_below="@id/addToCollectionBtn"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:contentDescription="@string/add"
+      android:visibility="gone"
+      android:padding="0dp"
+	  android:background="#CCCCCC"
+	  android:alpha="0.9"/>
+</RelativeLayout>

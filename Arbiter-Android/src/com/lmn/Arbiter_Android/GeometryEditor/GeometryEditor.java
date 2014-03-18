@@ -130,7 +130,7 @@ public class GeometryEditor {
 						Log.w("GeometryEditor", "GeometryEditor doneButton editMode = " + Mode.EDIT);
 						editHandler.done();
 					}else if(editMode == Mode.INSERT){
-						Log.w("GeometryEditor", "GeometryEditor donButton editMode = " + Mode.INSERT);
+						Log.w("GeometryEditor", "GeometryEditor doneButton editMode = " + Mode.INSERT);
 						insertHandler.done();
 					}
 					
@@ -139,38 +139,6 @@ public class GeometryEditor {
 					setEditMode(Mode.OFF);
 				}
 			});
-			
-			/*this.inspectBtn.setOnClickListener(new OnClickListener(){
-			
-				@Override
-				public void onClick(View v){
-					displayInfoDialog();
-				}
-			});
-			
-			this.editBtn.setOnClickListener(new OnClickListener(){
-
-				@Override
-				public void onClick(View v) {
-					
-					// Activate modify mode on the js side
-					try{
-						Map.getMap().enterModifyMode(webview);
-					}catch(ClassCastException e){
-						e.printStackTrace();
-					}
-					
-					ArbiterState.getArbiterState().editingFeature(feature, layerId);
-					
-					toggleMultiPartBtns(true);
-					
-					toggleConfirmBtns(true);
-					
-					editBtn.setVisibility(View.GONE);
-					
-					setEditMode(Mode.EDIT);			
-				}
-			});*/
 			
 			this.addPartBtn.setOnClickListener(new OnClickListener(){
 

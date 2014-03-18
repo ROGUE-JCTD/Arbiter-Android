@@ -27,6 +27,8 @@
 		
 		this.insertCallback = insertCallback;
 		
+		this.alreadyFinished = false;
+		
 		this.initController();
 	};
 	
@@ -91,7 +93,10 @@
 		
 		this.insertLayer.redraw();
 		
-		//this.finishInserting();
+		if(!this.alreadyFinished){
+			this.alreadyFinished = true;
+			this.finishInserting();
+		}
 	};
 	
 	prototype.onSketchStarted = function(feature, vertex){
@@ -202,6 +207,8 @@
 	
 	prototype.finishInserting = function(){
 		
+		this.alreadyFinished = true;
+		
 		this.finishGeometry();
 		
 		if(Arbiter.Util.existsAndNotNull(this.insertLayer) && this.insertLayer.features.length > 0){
@@ -247,7 +254,7 @@
 					
 					default:
 						
-						console.log("finish inserting uh oh: " + geometryType);
+						console.log("finish inserting uh oh: " + this.geometryType);
 				}
 				
 				feature = new OpenLayers.Feature.Vector(collection);

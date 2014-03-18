@@ -20,6 +20,7 @@ import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
+import com.lmn.Arbiter_Android.Activities.MapChangeHelper;
 import com.lmn.Arbiter_Android.Activities.ProjectsActivity;
 import com.lmn.Arbiter_Android.Activities.TileConfirmation;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
@@ -493,9 +494,10 @@ public class ArbiterCordova extends CordovaPlugin{
 				+ ", featureId = " + featureId + ", wktGeometry = " + wktGeometry);
 		
 		try{
-			((Map.MapChangeListener) cordova.getActivity())
-				.getMapChangeHelper().showUpdatedGeometry(
+			MapChangeHelper helper = ((Map.MapChangeListener) cordova.getActivity()).getMapChangeHelper();
+			helper.showUpdatedGeometry(
 						featureType, featureId, layerId, wktGeometry);
+			helper.setEditMode(GeometryEditor.Mode.OFF);
 		}catch(ClassCastException e){
 			e.printStackTrace();
 		}

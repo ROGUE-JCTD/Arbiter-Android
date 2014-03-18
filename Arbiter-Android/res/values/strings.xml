@@ -206,4 +206,6 @@
     <string name="notify_user_to_add_geometry_msg">Add a geometry or delete the feature.</string>
     <string name="finish_editing_title">Finish Editing</string>
     <string name="finish_editing_message">Please finish editing.</string>
+    <string name="unsupported_crs">Unsupported CRS</string>
+    <string name="loading_unsupported_crs">Could not load the following layers due to unsupported CRS:</string>
 </resources>

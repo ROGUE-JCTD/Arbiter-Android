@@ -380,6 +380,10 @@ Arbiter.Cordova = (function() {
 		
 		hidePartButtons: function(){
 			cordova.exec(null, null, "ArbiterCordova", "hidePartButtons", []);
+		},
+		
+		reportLayersWithUnsupportedCRS: function(layers){
+			cordova.exec(null, null, "ArbiterCordova", "reportLayersWithUnsupportedCRS", [layers]);
 		}
 	};
 })();

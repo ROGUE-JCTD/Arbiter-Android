@@ -204,4 +204,6 @@
     <string name="notify_user_to_add_geometry_msg">Añade una geometría o elimina el elemento.</string>
     <string name="finish_editing_title">Termina la edición</string>
     <string name="finish_editing_message">Por favor, termina la edición.</string>
+    <string name="unsupported_crs">La CRS todavía no está soportado.</string>
+    <string name="loading_unsupported_crs">No se pudo cargar las capas siguientes porque sus crs todavía no está soportado.</string>
 </resources>

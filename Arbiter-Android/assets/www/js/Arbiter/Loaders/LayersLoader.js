@@ -238,13 +238,68 @@ Arbiter.Loaders.LayersLoader = (function(){
 		}
 	};
 	
+	var checkSupportedCRS = function(dbLayers){
+		
+		var layerId = null;
+		var schema = null;
+		var proj4def = null;
+		var crs = null;
+		var unsupportedLayer = null;
+		
+		var schemas = Arbiter.getLayerSchemas();
+		
+		var layerTitleKey = Arbiter.LayersHelper.layerTitle();
+		var workspaceKey = Arbiter.LayersHelper.workspace();
+		var srsKey = Arbiter.GeometryColumnsHelper.featureGeometrySRID();
+		var serverIdKey = Arbiter.LayersHelper.serverId();
+		
+		var unsupportedLayers = [];
+		
+		var obj = null;
+		
+		for(var i = 0; i < dbLayers.length; i++){
+			
+			layerId = dbLayers[i][Arbiter.LayersHelper.layerId()];
+			
+			schema = schemas[layerId];
+			
+			crs = schema.getSRID();
+			
+			proj4def = Proj4js.defs[crs];
+			
+			if(!Arbiter.Util.existsAndNotNull(proj4def)){
+				
+				// Add the layer to the list of unsupported layers
+				// and decrement the index to continue iterating
+				unsupportedLayer = dbLayers.splice(i--, 1);
+				
+				if(unsupportedLayer.constructor === Array){
+					unsupportedLayer = unsupportedLayer[0];
+				}
+				
+				obj = {};
+				
+				obj[layerTitleKey] = unsupportedLayer[layerTitleKey];
+				obj[workspaceKey] = unsupportedLayer[workspaceKey];
+				obj[serverIdKey] = unsupportedLayer[serverIdKey];
+				obj[srsKey] = crs;
+				
+				unsupportedLayers.push(obj);
+			}
+		}
+		
+		console.log("unsupportedLayers", unsupportedLayers);
+		
+		return unsupportedLayers;
+	};
+	
 	return {
 		DONE_LOADING_LAYERS: "arbiter_done_loading_layers",
 		
 		load: function(onSuccess, onFailure){
 			var context = this;
 			
-			//Arbiter.Cordova.showLoadingLayersProgress();
+			var layersWithUnsupportedCRS = null;
 			
 			// Load the servers
 			Arbiter.ServersHelper.loadServers(this, function(){
@@ -255,6 +310,11 @@ Arbiter.Loaders.LayersLoader = (function(){
 					// Load the layer schemas with layer data loaded from the db
 					Arbiter.FeatureTableHelper.loadLayerSchemas(layers, function(){
 							
+						console.log("db layers loaded: ", layers);
+						
+						// Will return the unsupported layers and remove them from the layers array
+						layersWithUnsupportedCRS = checkSupportedCRS(layers);
+						
 							// Load the layers onto the map
 							loadLayers(layers, function(){
 								
@@ -276,6 +336,12 @@ Arbiter.Loaders.LayersLoader = (function(){
 										// properly.  This ensures they
 										// get drawn correctly.
 										redrawWFSLayers();
+										
+										if(Arbiter.Util.existsAndNotNull(layersWithUnsupportedCRS) 
+												&& layersWithUnsupportedCRS.length){
+											
+											Arbiter.Cordova.reportLayersWithUnsupportedCRS(layersWithUnsupportedCRS);
+										}
 									}, onFailure)
 								}, onFailure);
 								

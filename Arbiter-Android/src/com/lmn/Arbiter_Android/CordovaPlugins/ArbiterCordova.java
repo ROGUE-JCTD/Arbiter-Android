@@ -5,6 +5,7 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -25,6 +26,8 @@ import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.GeometryColumnsHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FailedSyncHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
@@ -304,10 +307,54 @@ public class ArbiterCordova extends CordovaPlugin{
 			hidePartButtons(); 
 			
 			return true;
+		}else if("reportLayersWithUnsupportedCRS".equals(action)){
+			
+			JSONArray layers = args.getJSONArray(0);
+			
+			reportLayersWithUnsupportedCRS(layers);
+			
+			return true;
 		}
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
+	}
+	
+	private void reportLayersWithUnsupportedCRS(final JSONArray layers){
+		
+		final Activity activity = cordova.getActivity();
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				
+				try{
+					
+					JSONObject layer = null;
+					
+					String list = cordova.getActivity().getResources().getString(R.string.loading_unsupported_crs) + "\n";
+					
+					for(int i = 0, count = layers.length(); i < count; i++){
+						
+						layer = layers.getJSONObject(i);
+						
+						list += "\n" + (i + 1) + ". " + layer.getString(LayersHelper.LAYER_TITLE) 
+								+ ", " + layer.getString(LayersHelper.WORKSPACE) 
+								+ ", " + layer.getString(GeometryColumnsHelper.FEATURE_GEOMETRY_SRID) + "\n";
+					}
+					
+					AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+					
+					builder.setTitle(R.string.unsupported_crs);
+					builder.setMessage(list);
+					builder.setPositiveButton(android.R.string.ok, null);
+					
+					builder.create().show();
+				}catch(JSONException e){
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 	
 	private void hidePartButtons(){

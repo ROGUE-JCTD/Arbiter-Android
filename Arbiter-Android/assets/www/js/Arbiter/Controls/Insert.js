@@ -5,114 +5,124 @@
  * @param {Arbiter.Geometry.type} _geometryType The type.
  * @param {Function} insertCallback To be executed after insert.
  */
-Arbiter.Controls.Insert = function(_olLayer, _map, _geometryType, insertCallback){
-	var context = this;
+(function(){
 	
-	var controller = null
-	
-	var olLayer = _olLayer;
-	 
-	var map = _map;
-	
-	var insertLayerName = "insertLayer";
-	
-	var insertLayer = null;
-	
-	var geometryType = _geometryType;
-	
-	var sketchStarted = false;
-	
-	var vertexCount = 0;
-	
-	var registerListeners = function(){
+	Arbiter.Controls.Insert = function(_olLayer, _map, _geometryType, insertCallback){
 		
-		if(insertLayer !== null && insertLayer !== undefined){
-			
-			insertLayer.events.register("featureadded", 
-					context, onFeatureAdded);
-			
-			insertLayer.events.register("sketchstarted",
-					context, onSketchStarted);
-			
-			insertLayer.events.register("sketchmodified",
-					context, onSketchModified);
-		}
-	};
-	
-	var unregisterListeners = function(){
+		this.controller = null
 		
-		if(Arbiter.Util.existsAndNotNull(insertLayer)){
+		this.olLayer = _olLayer;
+		 
+		this.map = _map;
+		
+		this.insertLayerName = "insertLayer";
+		
+		this.insertLayer = null;
+		
+		this.geometryType = _geometryType;
+		
+		this.sketchStarted = false;
+		
+		this.vertexCount = 0;
+		
+		this.insertCallback = insertCallback;
+		
+		this.initController();
+	};
+	
+	var prototype = Arbiter.Controls.Insert.prototype;
+	
+	prototype.attachToMap = function(){
+		if(this.controller !== null){
+			this.map.addControl(this.controller);
 			
-			insertLayer.events.unregister("featureadded", 
-					context, onFeatureAdded);
+			this.controller.activate();
 			
-			insertLayer.events.unregister("sketchstarted",
-					context, onSketchStarted);
-			
-			insertLayer.events.unregister("sketchmodified",
-					context, onSketchModified);
+			this.registerListeners();
 		}
 	};
 	
-	var _attachToMap = function(){
-		if(controller !== null){
-			map.addControl(controller);
+	prototype.registerListeners = function(){
+		
+		if(this.insertLayer !== null && this.insertLayer !== undefined){
 			
-			controller.activate();
+			this.insertLayer.events.register("featureadded", 
+					this, this.onFeatureAdded);
 			
-			registerListeners();
+			this.insertLayer.events.register("sketchstarted",
+					this, this.onSketchStarted);
+			
+			this.insertLayer.events.register("sketchmodified",
+					this, this.onSketchModified);
 		}
 	};
 	
-	var _detachFromMap = function(){
-		if(controller !== null){
+	prototype.unregisterListeners = function(){
+		
+		if(Arbiter.Util.existsAndNotNull(this.insertLayer)){
 			
-			controller.deactivate();
+			this.insertLayer.events.unregister("featureadded", 
+					this, this.onFeatureAdded);
 			
-			map.removeControl(controller);
+			this.insertLayer.events.unregister("sketchstarted",
+					this, this.onSketchStarted);
+			
+			this.insertLayer.events.unregister("sketchmodified",
+					this, this.onSketchModified);
+		}
+	};
+	
+	prototype.deactivate = function(){
+		if(this.controller !== null){
+			
+			this.controller.deactivate();
+			
+			this.map.removeControl(this.controller);
 			
 			//unregisterListeners();
 			
-			controller = null;
+			this.controller = null;
 		}
 	};
 	
-	var onSketchStarted = function(feature, vertex){
-		sketchStarted = true;
+	prototype.onFeatureAdded = function(event){
+		console.log("Insert: onFeatureAdded", event);
+		event.feature.renderIntent = 'select';
+		
+		this.insertLayer.redraw();
+		
+		//this.finishInserting();
 	};
 	
-	var onSketchModified = function(feature, vertex){
+	prototype.onSketchStarted = function(feature, vertex){
+		this.sketchStarted = true;
+	};
+	
+	prototype.onSketchModified = function(feature, vertex){
 		var type = Arbiter.Geometry.type;
 		
-		vertexCount++;
+		this.vertexCount++;
 		
-		if(vertexCount === 3 && (geometryType === type.POLYGON || geometryType === type.MULTIPOLYGON)){
+		if(this.vertexCount === 3 && (this.geometryType === type.POLYGON || this.geometryType === type.MULTIPOLYGON)){
 			
 			Arbiter.Cordova.enableDoneEditingBtn();
-		}else if(vertexCount === 2 && (geometryType === type.LINE || geometryType === type.MULTILINE)){
+		}else if(this.vertexCount === 2 && (this.geometryType === type.LINE || this.geometryType === type.MULTILINE)){
 			
 			Arbiter.Cordova.enableDoneEditingBtn();
-		}else if(vertexCount === 1 && (geometryType === type.POINT || geometryType === type.MULTIPOINT)){
+		}else if(this.vertexCount === 1 && (this.geometryType === type.POINT || this.geometryType === type.MULTIPOINT)){
 			
 			Arbiter.Cordova.enableDoneEditingBtn();
 		}
 	};
 	
-	var onFeatureAdded = function(event){
-		
-		event.feature.renderIntent = 'select';
-		insertLayer.redraw();
-	};
-	
-	var initController = function(){
-		
+	prototype.initController = function(){
 		var type = Arbiter.Geometry.type;
 		
 		var options = {};
 		
 		var handler = null;
 		
-		switch(geometryType){
+		switch(this.geometryType){
 			case type.POINT:
 				
 				handler = OpenLayers.Handler.Point;
@@ -168,102 +178,94 @@ Arbiter.Controls.Insert = function(_olLayer, _map, _geometryType, insertCallback
 				
 		}
 		
-		insertLayer = new OpenLayers.Layer.Vector(insertLayerName, {
-			styleMap: olLayer.styleMap
+		this.insertLayer = new OpenLayers.Layer.Vector(this.insertLayerName, {
+			styleMap: this.olLayer.styleMap
 		});
 		
-		map.addLayer(insertLayer);
+		this.map.addLayer(this.insertLayer);
 		
-		controller = new OpenLayers.Control.DrawFeature(insertLayer, handler, options);
+		this.controller = new OpenLayers.Control.DrawFeature(this.insertLayer, handler, options);
 		
-		_attachToMap();
+		this.attachToMap();
 	};
 	
-	initController();
-	
-	return {
-		deactivate: function(){
-			_detachFromMap();
-		},
-		
-		finishGeometry: function(){
-			try{
-				if(Arbiter.Util.existsAndNotNull(controller) && sketchStarted 
-						&& (controller.handler.CLASS_NAME !== "OpenLayers.Handler.Point")){
-					controller.finishSketch();
-				}
-			}catch(e){
-				e.stack;
+	prototype.finishGeometry = function(){
+		try{
+			if(Arbiter.Util.existsAndNotNull(this.controller) && this.sketchStarted 
+					&& (this.controller.handler.CLASS_NAME !== "OpenLayers.Handler.Point")){
+				this.controller.finishSketch();
 			}
-		},
+		}catch(e){
+			e.stack;
+		}
+	};
+	
+	prototype.finishInserting = function(){
 		
-		finishInserting: function(){
+		this.finishGeometry();
+		
+		if(Arbiter.Util.existsAndNotNull(this.insertLayer) && this.insertLayer.features.length > 0){
 			
-			this.finishGeometry();
-			
-			if(Arbiter.Util.existsAndNotNull(insertLayer) && insertLayer.features.length > 0){
+			var features = this.insertLayer.features;
+			var feature = null;
+			// Create collection
+			if(features.length > 1){
+				var types = Arbiter.Geometry.type;
 				
-				var features = insertLayer.features;
-				var feature = null;
-				// Create collection
-				if(features.length > 1){
-					var types = Arbiter.Geometry.type;
-					
-					var components = [];
-					
-					for(var i = 0; i < features.length; i++){
-						components.push(features[i].geometry);
-					}
-					
-					var collection = null;
-					
-					switch(geometryType){
-						case types.MULTIPOINT:
-						
-							collection = new OpenLayers.Geometry.MultiPoint(components);
-							
-							break;
-						
-						case types.MULTILINE:
-						
-							collection = new OpenLayers.Geometry.MultiLineString(components);
-							
-							break;
-						
-						case types.MULTIPOLYGON:
-						
-							collection = new OpenLayers.Geometry.MultiPolygon(components);
-							
-							break;
-						
-						case types.MULTIGEOMETRY:
-						
-							collection = new OpenLayers.Geometry.Collection(components);
-							
-							break;
-						
-						default:
-							
-							console.log("finish inserting uh oh: " + geometryType);
-					}
-					
-					feature = new OpenLayers.Feature.Vector(collection);
-					
-				}else{
-					feature = features[0];
+				var components = [];
+				
+				for(var i = 0; i < features.length; i++){
+					components.push(features[i].geometry);
 				}
 				
-				insertLayer.removeAllFeatures();
-				olLayer.addFeatures([feature]);
+				var collection = null;
 				
-				map.removeLayer(insertLayer);
-				
-				_detachFromMap();
-				
-				if(Arbiter.Util.funcExists(insertCallback)){
-					insertCallback(feature);
+				switch(this.geometryType){
+					case types.MULTIPOINT:
+					
+						collection = new OpenLayers.Geometry.MultiPoint(components);
+						
+						break;
+					
+					case types.MULTILINE:
+					
+						collection = new OpenLayers.Geometry.MultiLineString(components);
+						
+						break;
+					
+					case types.MULTIPOLYGON:
+					
+						collection = new OpenLayers.Geometry.MultiPolygon(components);
+						
+						break;
+					
+					case types.MULTIGEOMETRY:
+					
+						collection = new OpenLayers.Geometry.Collection(components);
+						
+						break;
+					
+					default:
+						
+						console.log("finish inserting uh oh: " + geometryType);
 				}
+				
+				feature = new OpenLayers.Feature.Vector(collection);
+				
+			}else{
+				feature = features[0];
+			}
+			
+			this.insertLayer.removeAllFeatures();
+			this.olLayer.addFeatures([feature]);
+			
+			this.map.removeLayer(this.insertLayer);
+			
+			this.deactivate();
+			
+			if(Arbiter.Util.funcExists(this.insertCallback)){
+				this.insertCallback(feature);
 			}
 		}
 	};
-};
+})();

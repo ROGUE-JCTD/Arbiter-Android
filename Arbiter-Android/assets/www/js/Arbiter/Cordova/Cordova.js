@@ -144,14 +144,10 @@ Arbiter.Cordova = (function() {
 		},
 		
 		getUpdatedGeometry: function(){
-			console.log("getUpdatedGeometry");
 			
 			Arbiter.Controls.ControlPanel.finishGeometry();
 			
-			console.log("geometry finished");
-			
 			Arbiter.Controls.ControlPanel.exitModifyMode(function(){
-				
 				
 				try{
 					var selectedFeature = Arbiter.Controls

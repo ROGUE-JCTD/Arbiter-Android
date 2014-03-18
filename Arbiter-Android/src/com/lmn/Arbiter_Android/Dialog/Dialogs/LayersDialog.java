@@ -51,7 +51,6 @@ public class LayersDialog extends ArbiterDialogFragment{
 		
 		frag.setTitle(title);
 		frag.setOk(ok);
-		frag.setCancel(cancel);
 		frag.setLayout(layout);
 		
 		return frag;

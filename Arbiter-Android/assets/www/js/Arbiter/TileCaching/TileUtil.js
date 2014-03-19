@@ -1,4 +1,4 @@
-Arbiter.Util.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
+Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
 	var TileUtil = this;
 	var appDb = _appDb;
 	var projectDb = _projectDb;

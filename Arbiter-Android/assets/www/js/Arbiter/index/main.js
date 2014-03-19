@@ -84,7 +84,7 @@ var app = (function() {
 									.registerMapListeners();
 								
 								Arbiter.setTileUtil(
-									new Arbiter.Util.TileUtil(
+									new Arbiter.TileUtil(
 										Arbiter.ApplicationDbHelper.getDatabase(),
 										Arbiter.ProjectDbHelper.getProjectDatabase(),
 										Arbiter.Map.getMap(),

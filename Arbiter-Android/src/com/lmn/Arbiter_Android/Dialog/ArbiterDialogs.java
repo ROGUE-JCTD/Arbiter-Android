@@ -2,26 +2,18 @@ package com.lmn.Arbiter_Android.Dialog;
 
 import java.util.ArrayList;
 
-import org.apache.cordova.CordovaWebView;
-
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnDismissListener;
 import android.content.res.Resources;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 
-import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
-import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.AddLayersDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.AddServerDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseAOIDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.GoOfflineDialog;
-import com.lmn.Arbiter_Android.Dialog.Dialogs.LayerInfoDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.LayersDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ProjectNameDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ServersDialog;
@@ -30,12 +22,10 @@ import com.lmn.Arbiter_Android.Dialog.Dialogs.WelcomeDialog;
 public class ArbiterDialogs {
 	private Resources resources;
 	private FragmentManager fragManager;
-	private Context context;
 	
 	public ArbiterDialogs(Context context, Resources resources, FragmentManager fragManager){
 		this.setResources(resources);
 		this.setFragManager(fragManager);
-		this.context = context;
 	}
 	
 	public void setFragManager(FragmentManager fragManager){
@@ -149,15 +139,5 @@ public class ArbiterDialogs {
 		
 		DialogFragment dialog = LayersDialog.newInstance(title, ok, cancel, layout);
 		dialog.show(fragManager, "layersDialog");
-	}
-	
-	public void showLayerInfoDialog(){
-		String title = resources.getString(R.string.layer_info_dialog_title);
-		String ok = resources.getString(android.R.string.ok);
-		String cancel = resources.getString(android.R.string.cancel);
-		int layout = R.layout.layer_info_dialog;
-		
-		DialogFragment dialog = LayerInfoDialog.newInstance(title, ok, cancel, layout);
-		dialog.show(fragManager, "layerInfoDialog");
 	}
 }

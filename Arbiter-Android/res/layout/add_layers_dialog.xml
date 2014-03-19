@@ -26,6 +26,7 @@
 	        android:layout_height="wrap_content"
 	        android:layout_marginTop="15dip"
 	        android:layout_marginLeft="15dip"
+	        android:layout_alignBottom="@id/chooseServer"
 	        android:layout_toRightOf="@id/chooseServer"
 	        android:layout_toLeftOf="@+id/add_server_button" />
 
@@ -34,24 +35,12 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_alignParentRight="true"
+	        android:layout_alignBottom="@id/chooseServer"
 	        android:layout_marginLeft="15dip"
-	        android:layout_centerVertical="true"
 	        android:contentDescription="@string/add_server_button"
 	        android:src="@drawable/content_new_black" />
         
     </RelativeLayout>
-   	
-    <MultiAutoCompleteTextView
-        android:id="@+id/multiAutoCompleteTextView1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dip"
-        android:ems="10"
-        android:hint="@string/layer_filter_hint"
-        android:visibility="gone" >
-
-        <requestFocus />
-    </MultiAutoCompleteTextView>
 
     <ListView
         android:id="@+id/addLayersListView"

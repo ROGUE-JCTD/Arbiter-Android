@@ -1,7 +1,7 @@
 package com.lmn.Arbiter_Android.OrderLayers;
 
 import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.ListAdapters.LayerListAdapter;
+import com.lmn.Arbiter_Android.ListAdapters.OverlayList;
 
 import android.view.View;
 import android.widget.ImageButton;
@@ -13,17 +13,17 @@ public class OrderLayersViewController {
 	private ImageButton orderLayersBtn;
 	private ImageButton cancelOrderLayersBtn;
 	private ImageButton doneOrderingLayersBtn;
-	private LayerListAdapter adapter;
+	private OverlayList overlayList;
 	
 	public OrderLayersViewController(ImageButton addLayersBtn, ImageButton orderLayersBtn, 
 			ImageButton cancelOrderLayersBtn, ImageButton doneOrderingLayersBtn,
-			LayerListAdapter adapter){
+			OverlayList overlayList){
 	
 		this.addLayersBtn = addLayersBtn;
 		this.orderLayersBtn = orderLayersBtn;
 		this.cancelOrderLayersBtn = cancelOrderLayersBtn;
 		this.doneOrderingLayersBtn = doneOrderingLayersBtn;
-		this.adapter = adapter;
+		this.overlayList = overlayList;
 	}
 	
 	private void toggleButtons(boolean orderLayersMode){
@@ -57,11 +57,11 @@ public class OrderLayersViewController {
 	private void toggleAdapterLayout(boolean orderLayersMode){
 		
 		if(orderLayersMode){
-			this.adapter.setItemLayout(R.layout.order_layers_list_item, orderLayersMode);
+			this.overlayList.setItemLayout(R.layout.order_layers_list_item);
 		}else{
-			this.adapter.setItemLayout(R.layout.layers_list_item, orderLayersMode);
+			this.overlayList.setItemLayout(R.layout.layers_list_item);
 		}
 		
-		this.adapter.notifyDataSetChanged();
+		this.overlayList.onDataUpdated();
 	}
 }

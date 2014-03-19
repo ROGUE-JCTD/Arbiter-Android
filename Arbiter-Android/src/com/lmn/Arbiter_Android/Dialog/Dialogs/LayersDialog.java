@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ListView;
+import android.widget.LinearLayout;
 import android.widget.ImageButton;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
@@ -22,7 +22,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
-import com.lmn.Arbiter_Android.ListAdapters.LayerListAdapter;
+import com.lmn.Arbiter_Android.ListAdapters.OverlayList;
 import com.lmn.Arbiter_Android.LoaderCallbacks.LayerLoaderCallbacks;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import com.lmn.Arbiter_Android.OrderLayers.OrderLayersViewController;
@@ -30,8 +30,7 @@ import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class LayersDialog extends ArbiterDialogFragment{
 	
-	private ListView listView;
-	private LayerListAdapter layersAdapter;
+	private OverlayList overlayList;
 	@SuppressWarnings("unused")
 	private LayerLoaderCallbacks layerLoaderCallbacks;
 	
@@ -108,11 +107,13 @@ public class LayersDialog extends ArbiterDialogFragment{
 	}
 	
 	public void populateListView(View view){
-		this.listView = (ListView) view.findViewById(R.id.layersListView);
-		this.layersAdapter = new LayerListAdapter(this.getActivity(), R.layout.layers_list_item);
-		this.listView.setAdapter(this.layersAdapter);
 		
-		this.layerLoaderCallbacks = new LayerLoaderCallbacks(this.getActivity(), this.layersAdapter, R.id.loader_layers);
+		LinearLayout overlayList =	(LinearLayout) view.findViewById(R.id.overlaysList);
+		LinearLayout baselayerList = (LinearLayout) view.findViewById(R.id.baselayerList);
+		
+		this.overlayList = new OverlayList(overlayList, this.getActivity(), R.layout.layers_list_item);
+		
+		this.layerLoaderCallbacks = new LayerLoaderCallbacks(this.getActivity(), this.overlayList, R.id.loader_layers);
 	}
 	
 	// Return true if not editing
@@ -143,7 +144,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 		this.doneOrderingLayersBtn = (ImageButton) view.findViewById(R.id.doneOrderingLayers);
 		
 		this.orderLayersController = new OrderLayersViewController(this.addLayersBtn, this.orderLayersBtn,
-				this.cancelOrderLayersBtn, this.doneOrderingLayersBtn, this.layersAdapter);
+				this.cancelOrderLayersBtn, this.doneOrderingLayersBtn, this.overlayList);
 		
 		final LayersDialog frag = this;
 			
@@ -156,7 +157,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 			public void onClick(View v) {
 				
 				if(makeSureNotEditing()){
-					if(layersAdapter.getCount() < 5){
+					if(overlayList.getCount() < 5){
 						// Open the add layers dialog
 						(new ArbiterDialogs(getActivity().getApplicationContext(), getActivity().getResources(), 
 								getActivity().getSupportFragmentManager())).showAddLayersDialog(frag.getCopyOfLayers());
@@ -185,7 +186,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 		this.cancelOrderLayersBtn.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v){
-				layersAdapter.setData(layersAdapter.getOrderLayersModel().getBackup());
+				overlayList.setData(overlayList.getOrderLayersModel().getBackup());
 				
 				orderLayersController.endOrderLayersMode();
 			}
@@ -229,7 +230,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 				
 				LayersHelper.getLayersHelper().updateLayers(getProjectDb(),
 						getActivity().getApplicationContext(),
-						layersAdapter.getLayers());
+						overlayList.getData());
 				
 				getActivity().runOnUiThread(new Runnable(){
 					@Override
@@ -244,7 +245,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 	}
 	
 	public ArrayList<Layer> getCopyOfLayers(){
-		ArrayList<Layer> layers = this.layersAdapter.getLayers();
+		ArrayList<Layer> layers = this.overlayList.getData();
 		
 		final ArrayList<Layer> mLayers = new ArrayList<Layer>(layers.size());
 		

@@ -18,33 +18,28 @@ import com.lmn.Arbiter_Android.OrderLayers.OrderLayersModel;
 import com.lmn.Arbiter_Android.OrderLayers.OrderLayersModelException;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Color;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<ArrayList<Layer>>{
-	public static final String TAG = "LayerListAdapter";
-	
-	private MapChangeListener mapChangeListener;
-	
-	private ArrayList<Layer> items;
-	private final LayoutInflater inflater;
+public class OverlayList extends CustomList<ArrayList<Layer>, Layer> {
+
+	private LayoutInflater inflater;
 	private int itemLayout;
-	private final FragmentActivity activity;
-	private final Context context;
-	private final ArbiterProject arbiterProject;
-	private boolean orderLayersMode;
+	private Activity activity;
+	private Context context;
+	private ArbiterProject arbiterProject;
 	private OrderLayersModel orderLayersModel;
+	private MapChangeListener mapChangeListener;
 	
 	private static final Map<String, String> COLOR_MAP;
     static {
@@ -66,16 +61,16 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 		aMap.put("white","#FFFFFF");
 		COLOR_MAP = Collections.unmodifiableMap(aMap);
     }
-	
-	public LayerListAdapter(FragmentActivity activity, int itemLayout){
+    
+	public OverlayList(ViewGroup viewGroup, Activity activity, int itemLayout){
+		super(viewGroup);
 		
-		this.context = activity.getApplicationContext();
-		this.inflater = LayoutInflater.from(this.context);
-		this.items = new ArrayList<Layer>();
-		this.itemLayout = itemLayout;
 		this.activity = activity;
+		this.context = activity.getApplicationContext();
+		this.inflater =	LayoutInflater.from(this.context);
+		this.itemLayout = itemLayout;
 		this.arbiterProject = ArbiterProject.getArbiterProject();
-		this.orderLayersMode = false;
+		
 		try {
 			this.orderLayersModel = new OrderLayersModel(this);
 		} catch (OrderLayersModelException e1) {
@@ -90,32 +85,37 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 					+ " must implement MapChangeListener");
 		}
 	}
-	
-	public void setData(ArrayList<Layer> layers){
-		items = layers;
 
-		this.orderLayersModel.setLayers(layers);
+	@Override
+	public void setData(ArrayList<Layer> layers){
+		super.setData(layers);
 		
-		notifyDataSetChanged();
+		this.orderLayersModel.setLayers(layers);
 	}
 	
 	@Override
-	public View getView(final int position, View convertView, ViewGroup parent){
-		View view = convertView;
+	public int getCount() {
+		return getData().size();
+	}
+
+	@Override
+	public Layer getItem(int index) {
+		return getData().get(index);
+	}
+
+	@Override
+	public View getView(final int position) {
 		
-		// Inflate the layout
-		if(!viewIsValid(view)){
-			view = inflater.inflate(itemLayout, null);
-		}
+		View view = inflater.inflate(itemLayout, null);
 		
-		final Layer listItem = getItem(position);
+		final Layer layer = getItem(position);
 		
-		if(listItem != null){
-			if(listItem.getColor() != null) {
+		if(layer != null){
+			if(layer.getColor() != null) {
 				View layerColorView = view.findViewById(R.id.layerColor);
 				
 				if(layerColorView != null){
-					layerColorView.setBackgroundColor(Color.parseColor(COLOR_MAP.get(listItem.getColor())));
+					layerColorView.setBackgroundColor(Color.parseColor(COLOR_MAP.get(layer.getColor())));
 				}
 			}
             TextView layerNameView = (TextView) view.findViewById(R.id.layerName);
@@ -126,11 +126,11 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
             ImageButton moveLayerDown = (ImageButton) view.findViewById(R.id.moveLayerDown);
             
             if(layerNameView != null){
-            	layerNameView.setText(listItem.getLayerTitle());
+            	layerNameView.setText(layer.getLayerTitle());
             }
             
             if(serverNameView != null){
-            	serverNameView.setText(listItem.getServerName());
+            	serverNameView.setText(layer.getServerName());
             }
             
             if(deleteButton != null){
@@ -139,7 +139,7 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 					@Override
 					public void onClick(View v) {
 						if(makeSureNotEditing()){
-							deleteLayer(new Layer(listItem));
+							deleteLayer(new Layer(layer));
 						}
 					}
             		
@@ -148,15 +148,15 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
             
             if(layerVisibility != null){
             	// Set the toggle to its appropriate position
-            	layerVisibility.setChecked(listItem.isChecked());
+            	layerVisibility.setChecked(layer.isChecked());
                 
             	layerVisibility.setOnClickListener(new OnClickListener() {
 
 					@Override
 					public void onClick(View v) {
-						listItem.setChecked(!listItem.isChecked());
+						layer.setChecked(!layer.isChecked());
 						
-						updateLayerVisibility(listItem.getLayerId(), listItem.isChecked()); 
+						updateLayerVisibility(layer.getLayerId(), layer.isChecked()); 
 					}
 				});
             }
@@ -199,7 +199,7 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 	
 	// Return true if not editing
     private boolean makeSureNotEditing(){
-    		
+    	
 		int editMode = mapChangeListener.getMapChangeHelper().getEditMode();
 		
 		if(editMode == GeometryEditor.Mode.OFF || editMode == GeometryEditor.Mode.SELECT){
@@ -243,6 +243,7 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 	}
 	
 	private void deleteLayer(final Layer layer){
+		
 		final String projectName = arbiterProject.getOpenProject(activity);
 		
 		CommandExecutor.runProcess(new Runnable(){
@@ -270,57 +271,8 @@ public class LayerListAdapter extends BaseAdapter implements ArbiterAdapter<Arra
 		});
 	}
 	
-	private boolean viewIsValid(View view){
-		
-		if(view == null){
-			return false;
-		}
-		
-		boolean valid = true;
-		
-		ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteLayer);
-		
-		if(this.orderLayersMode){
-			
-			if(deleteButton != null){
-				valid = false;
-			}
-		}else{
-			
-			if(deleteButton == null){
-				valid = false;
-			}
-		}
-		
-		return valid;
-	}
-	
-	@Override
-	public int getCount() {
-		if(items == null){
-			return 0;
-		}
-		
-		return items.size();
-	}
-
-	@Override
-	public Layer getItem(int position) {
-		return items.get(position);
-	}
-
-	@Override
-	public long getItemId(int position) {
-		return position;
-	}
-
-	public ArrayList<Layer> getLayers(){
-		return items;
-	}
-	
-	public void setItemLayout(int itemLayout, boolean orderLayersMode){
+	public void setItemLayout(int itemLayout){
 		this.itemLayout = itemLayout;
-		this.orderLayersMode = orderLayersMode;
 	}
 	
 	public OrderLayersModel getOrderLayersModel(){

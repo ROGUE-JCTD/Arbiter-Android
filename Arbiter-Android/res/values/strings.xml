@@ -208,4 +208,6 @@
     <string name="finish_editing_message">Please finish editing.</string>
     <string name="unsupported_crs">Unsupported CRS</string>
     <string name="loading_unsupported_crs">Could not load the following layers due to unsupported CRS:</string>
+    <string name="overlays">Overlays</string>
+    <string name="baselayer">BaseLayer</string>
 </resources>

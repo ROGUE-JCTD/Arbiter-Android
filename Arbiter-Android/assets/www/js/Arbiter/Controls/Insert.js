@@ -207,9 +207,11 @@
 	
 	prototype.finishInserting = function(){
 		
-		this.alreadyFinished = true;
-		
-		this.finishGeometry();
+		if(!this.alreadyFinished){
+			this.alreadyFinished = true;
+			
+			this.finishGeometry();
+		}
 		
 		if(Arbiter.Util.existsAndNotNull(this.insertLayer) && this.insertLayer.features.length > 0){
 			

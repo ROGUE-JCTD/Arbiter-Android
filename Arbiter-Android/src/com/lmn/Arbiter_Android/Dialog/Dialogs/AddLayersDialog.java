@@ -24,15 +24,15 @@ import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.ListAdapters.AddLayersListAdapter;
+import com.lmn.Arbiter_Android.ListAdapters.BaseLayerAdapter;
 import com.lmn.Arbiter_Android.ListAdapters.ServerListAdapter;
 import com.lmn.Arbiter_Android.LoaderCallbacks.AddLayersLoaderCallbacks;
+import com.lmn.Arbiter_Android.LoaderCallbacks.BaseLayerLoaderCallbacks;
 import com.lmn.Arbiter_Android.LoaderCallbacks.ServerLoaderCallbacks;
 import com.lmn.Arbiter_Android.Loaders.AddLayersListLoader;
-import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
@@ -42,12 +42,18 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	@SuppressWarnings("unused")
 	private AddLayersLoaderCallbacks addLayersLoaderCallbacks;
 	
+	@SuppressWarnings("unused")
+	private BaseLayerLoaderCallbacks baseLayerLoaderCallbacks;
+	
 	private ListView listView;
 	private ServerListAdapter serverAdapter;
+	private BaseLayerAdapter baseLayerAdapter;
 	private AddLayersListAdapter addLayersAdapter;
 	private Spinner spinner;
+	private Spinner baseLayerSpinner;
 	private ArrayList<Layer> layersInProject = null;
 	private boolean creatingProject;
+	private boolean onCreateAlreadyFired;
 	
 	private MapChangeListener mapChangeListener;
 	private ArbiterProject arbiterProject;
@@ -66,6 +72,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		frag.setOk(ok);
 		frag.setCancel(cancel);
 		frag.setLayout(layout);
+		frag.onCreateAlreadyFired = false;
 		
 		frag.layersInProject = layersInProject;
 		frag.arbiterProject = ArbiterProject.getArbiterProject();
@@ -114,6 +121,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		super.onDestroy();
 		
 		this.getActivity().getSupportLoaderManager().destroyLoader(R.id.loader_servers_dropdown);
+		this.getActivity().getSupportLoaderManager().destroyLoader(R.id.loader_base_layer_dropdown);
 		this.getActivity().getSupportLoaderManager().destroyLoader(R.id.loader_add_layers);
 	}
 	
@@ -223,9 +231,14 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 			@Override
 		    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
 				Log.w("AddLayersDialog", "AddLayersDialog spinner updated");
-		        // Server was selected so force the AddLayersListLoader to load
-				LocalBroadcastManager.getInstance(context).
-					sendBroadcast(new Intent(AddLayersListLoader.ADD_LAYERS_LIST_UPDATED));
+				
+				if(!onCreateAlreadyFired){
+					onCreateAlreadyFired = true;
+				}else{
+					// Server was selected so force the AddLayersListLoader to load
+					LocalBroadcastManager.getInstance(context).
+						sendBroadcast(new Intent(AddLayersListLoader.ADD_LAYERS_LIST_UPDATED));
+				}
 		    }
 
 		    @Override
@@ -240,6 +253,21 @@ public class AddLayersDialog extends ArbiterDialogFragment{
         // or start a new one.
         this.serverLoaderCallbacks = new ServerLoaderCallbacks(this, 
         		this.serverAdapter, R.id.loader_servers_dropdown);
+        
+        this.initializeBaseLayerSpinner(view);
+	}
+	
+	private void initializeBaseLayerSpinner(View view){
+		
+		Log.w("AddLayersDialog", "AddLayersDialog initializeBaseLayerSpinner");
+		this.baseLayerAdapter = new BaseLayerAdapter(this.getActivity(), 
+				R.layout.spinner_item, R.id.spinnerText, R.layout.drop_down_item);
+		
+		this.baseLayerSpinner = (Spinner) view.findViewById(R.id.baseLayerSpinner);
+		
+		this.baseLayerSpinner.setAdapter(this.baseLayerAdapter);
+		
+		this.baseLayerLoaderCallbacks = new BaseLayerLoaderCallbacks(this, this.baseLayerAdapter, R.id.loader_base_layer_dropdown);
 	}
 	
 	/**

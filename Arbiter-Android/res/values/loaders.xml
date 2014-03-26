@@ -3,6 +3,7 @@
     <item type="id" name="loader_projects" />
 	<item type="id" name="loader_servers_list" />
 	<item type="id" name="loader_servers_dropdown" />
+	<item type="id" name="loader_base_layer_dropdown" />
 	<item type="id" name="loader_add_layers" />
 	<item type="id" name="loader_layers" />
 	<item type="id" name="loader_map" />

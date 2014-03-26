@@ -13,6 +13,7 @@ public class PreferencesHelper implements BaseColumns{
 	public static final String SAVED_BOUNDS = "saved_bounds";
 	public static final String SAVED_ZOOM_LEVEL = "saved_zoom";
 	public static final String SHOULD_ZOOM_TO_AOI = "should_zoom_to_aoi";
+	public static final String BASE_LAYER = "base_layer";
 	
 	private PreferencesHelper(){}
 	

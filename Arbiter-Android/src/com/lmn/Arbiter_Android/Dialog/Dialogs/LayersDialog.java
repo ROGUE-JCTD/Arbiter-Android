@@ -109,7 +109,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 	public void populateListView(View view){
 		
 		LinearLayout overlayList =	(LinearLayout) view.findViewById(R.id.overlaysList);
-		LinearLayout baselayerList = (LinearLayout) view.findViewById(R.id.baselayerList);
+		//LinearLayout baselayerList = (LinearLayout) view.findViewById(R.id.baselayerList);
 		
 		this.overlayList = new OverlayList(overlayList, this.getActivity(), R.layout.layers_list_item);
 		

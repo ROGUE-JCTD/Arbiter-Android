@@ -3,6 +3,9 @@
     
     <available file="../.git" type="dir" property="git.present"/>
 
+    <property name="proj4-src" value="./assets/www/js/lib/proj4js/defs" />
+    <property name="proj4-dest" value="./assets/www/js/lib/proj4js/defs.js"/>
+    
     <target name="git.revision" description="Store git revision in ${repository.version}" if="git.present">
         <exec executable="git" outputproperty="git.revision" failifexecutionfails="false" errorproperty="">
             <arg value="log"/>
@@ -29,6 +32,13 @@
         </condition>
     </target> 
     
+    <target name="concat-proj4-defs" description="Concatenate the proj4 js definitions into one file.">
+        <echo>Concatenating proj4 definitions and outputting to ${proj4-src}</echo>
+    	<concat destfile="${proj4-dest}">
+    	    <fileset dir="${proj4-src}" includes="*.js" />
+    	</concat>	    
+    </target>
+    
     <target name="update-version" depends="git.revision,git.commitDate">
 	<property name="match.end" value='"' />
         
@@ -36,7 +46,7 @@
         <replaceregexp file="AndroidManifest.xml" match='${matchVersionName.start}[^"]*${match.end}' replace="${matchVersionName.start}${repository.version} - ${repository.date}${match.end}" />
     </target>
 
-    <target name="-pre-build" depends="update-version,git.revision,git.commitDate">
+    <target name="-pre-build" depends="update-version,git.revision,git.commitDate,concat-proj4-defs">
 		<echo>Updating version for commit: ${repository.version} - ${repository.date}</echo>
     </target>
 

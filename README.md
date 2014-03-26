@@ -11,5 +11,9 @@ License:  all source code is licensed under the [MIT license](http://opensource.
 
 ##Download
 
-[Download the latest build and try it out!](http://goo.gl/U2GlPe)
+Try it out!
+
+[Latest stable build](http://goo.gl/U2GlPe)
+
+[Latest dev build](http://goo.gl/8sZI2u)
 

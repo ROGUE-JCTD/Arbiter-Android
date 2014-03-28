@@ -6,13 +6,15 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
-import com.lmn.Arbiter_Android.BroadcastReceivers.ServerBroadcastReceiver;
+import com.lmn.Arbiter_Android.BaseClasses.BaseLayer;
+import com.lmn.Arbiter_Android.BroadcastReceivers.BaseLayerBroadcastReceiver;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
@@ -20,7 +22,7 @@ import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 public class BaseLayerLoader extends AsyncTaskLoader<JSONArray> {
 	public static final String BASE_LAYER_CHANGED = "BASE_LAYER_UPDATED";
 	
-	private ServerBroadcastReceiver loaderBroadcastReceiver = null;
+	private BaseLayerBroadcastReceiver loaderBroadcastReceiver = null;
 	private JSONArray baseLayers;
 	private Context context;
 	private Activity activity;
@@ -44,7 +46,12 @@ public class BaseLayerLoader extends AsyncTaskLoader<JSONArray> {
 				baseLayers = new JSONArray();
 			}
 		
-			baseLayers.put(new JSONObject("{'name': 'OpenStreetMap'}"));
+			if(baseLayers.length() == 0){
+				baseLayers.put(new JSONObject(
+						"{'" + BaseLayer.NAME + "': 'OpenStreetMap', '" 
+							+ BaseLayer.URL + "': null, '" 
+							+ BaseLayer.FEATURE_TYPE + "': null}"));
+			}
 			
 			Log.w("BaseLayerLoader", "BaseLayerLoader.loadInBackground baseLayers: " + baseLayers.toString());
 		} catch (JSONException e) {
@@ -104,10 +111,10 @@ public class BaseLayerLoader extends AsyncTaskLoader<JSONArray> {
 
         // Start watching for changes in the app data.
         if (loaderBroadcastReceiver == null) {
-        	/*loaderBroadcastReceiver = new ServerBroadcastReceiver(this);
+        	loaderBroadcastReceiver = new BaseLayerBroadcastReceiver(this);
         	LocalBroadcastManager.getInstance(getContext()).
         		registerReceiver(loaderBroadcastReceiver, 
-        				new IntentFilter(BaseLayerLoader.SERVER_LIST_UPDATED));*/
+        				new IntentFilter(BaseLayerLoader.BASE_LAYER_CHANGED));
         }
 
         if (takeContentChanged() || baseLayers == null) {

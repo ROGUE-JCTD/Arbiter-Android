@@ -2,10 +2,12 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +20,7 @@ import android.widget.Spinner;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Activities.AOIActivity;
+import com.lmn.Arbiter_Android.BaseClasses.BaseLayer;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
@@ -26,11 +29,10 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseBaseLayer.ChooseBaselayerDialog;
 import com.lmn.Arbiter_Android.ListAdapters.AddLayersListAdapter;
-import com.lmn.Arbiter_Android.ListAdapters.BaseLayerAdapter;
 import com.lmn.Arbiter_Android.ListAdapters.ServerListAdapter;
 import com.lmn.Arbiter_Android.LoaderCallbacks.AddLayersLoaderCallbacks;
-import com.lmn.Arbiter_Android.LoaderCallbacks.BaseLayerLoaderCallbacks;
 import com.lmn.Arbiter_Android.LoaderCallbacks.ServerLoaderCallbacks;
 import com.lmn.Arbiter_Android.Loaders.AddLayersListLoader;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
@@ -42,15 +44,10 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	@SuppressWarnings("unused")
 	private AddLayersLoaderCallbacks addLayersLoaderCallbacks;
 	
-	@SuppressWarnings("unused")
-	private BaseLayerLoaderCallbacks baseLayerLoaderCallbacks;
-	
 	private ListView listView;
 	private ServerListAdapter serverAdapter;
-	private BaseLayerAdapter baseLayerAdapter;
 	private AddLayersListAdapter addLayersAdapter;
 	private Spinner spinner;
-	private Spinner baseLayerSpinner;
 	private ArrayList<Layer> layersInProject = null;
 	private boolean creatingProject;
 	private boolean onCreateAlreadyFired;
@@ -121,7 +118,6 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		super.onDestroy();
 		
 		this.getActivity().getSupportLoaderManager().destroyLoader(R.id.loader_servers_dropdown);
-		this.getActivity().getSupportLoaderManager().destroyLoader(R.id.loader_base_layer_dropdown);
 		this.getActivity().getSupportLoaderManager().destroyLoader(R.id.loader_add_layers);
 	}
 	
@@ -184,8 +180,19 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 			Project newProject = ArbiterProject.getArbiterProject().getNewProject();
 			newProject.addLayers(layers);
 			
-			Intent projectsIntent = new Intent(getActivity(), AOIActivity.class);
-    		this.startActivity(projectsIntent);
+			//Intent projectsIntent = new Intent(getActivity(), AOIActivity.class);
+    		//this.startActivity(projectsIntent);
+			
+			FragmentActivity activity = getActivity();
+			
+			String title = activity.getResources().getString(R.string.choose_baselayer);
+			String ok = activity.getResources().getString(android.R.string.ok);
+			String cancel = activity.getResources().getString(android.R.string.cancel);
+			
+			ChooseBaselayerDialog dialog = ChooseBaselayerDialog.newInstance(title, ok, cancel, R.layout.choose_baselayer_dialog,
+					creatingProject, new BaseLayer("OpenStreetMap", null, null, null));
+			
+			dialog.show(activity.getSupportFragmentManager(), ChooseBaselayerDialog.TAG);
 		}
 	}
 	
@@ -253,21 +260,6 @@ public class AddLayersDialog extends ArbiterDialogFragment{
         // or start a new one.
         this.serverLoaderCallbacks = new ServerLoaderCallbacks(this, 
         		this.serverAdapter, R.id.loader_servers_dropdown);
-        
-        this.initializeBaseLayerSpinner(view);
-	}
-	
-	private void initializeBaseLayerSpinner(View view){
-		
-		Log.w("AddLayersDialog", "AddLayersDialog initializeBaseLayerSpinner");
-		this.baseLayerAdapter = new BaseLayerAdapter(this.getActivity(), 
-				R.layout.spinner_item, R.id.spinnerText, R.layout.drop_down_item);
-		
-		this.baseLayerSpinner = (Spinner) view.findViewById(R.id.baseLayerSpinner);
-		
-		this.baseLayerSpinner.setAdapter(this.baseLayerAdapter);
-		
-		this.baseLayerLoaderCallbacks = new BaseLayerLoaderCallbacks(this, this.baseLayerAdapter, R.id.loader_base_layer_dropdown);
 	}
 	
 	/**

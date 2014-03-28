@@ -22,7 +22,9 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
+import com.lmn.Arbiter_Android.ListAdapters.BaseLayerList;
 import com.lmn.Arbiter_Android.ListAdapters.OverlayList;
+import com.lmn.Arbiter_Android.LoaderCallbacks.BaseLayerLoaderCallbacks;
 import com.lmn.Arbiter_Android.LoaderCallbacks.LayerLoaderCallbacks;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import com.lmn.Arbiter_Android.OrderLayers.OrderLayersViewController;
@@ -31,8 +33,13 @@ import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 public class LayersDialog extends ArbiterDialogFragment{
 	
 	private OverlayList overlayList;
+	private BaseLayerList baseLayerList;
+	
 	@SuppressWarnings("unused")
 	private LayerLoaderCallbacks layerLoaderCallbacks;
+	
+	@SuppressWarnings("unused")
+	private BaseLayerLoaderCallbacks baseLayerLoaderCallbacks;
 	
 	@SuppressWarnings("unused")
 	private AddLayersConnectivityListener connectivityListener;
@@ -74,6 +81,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 		super.onDestroy();
 		
 		this.getActivity().getSupportLoaderManager().destroyLoader(R.id.loader_layers);
+		this.getActivity().getSupportLoaderManager().destroyLoader(R.id.loader_base_layer_list);
 	}
 	
 	@Override
@@ -108,12 +116,24 @@ public class LayersDialog extends ArbiterDialogFragment{
 	
 	public void populateListView(View view){
 		
+		populateOverlayList(view);
+		populateBaseLayerList(view);
+	}
+	
+	private void populateOverlayList(View view){
 		LinearLayout overlayList =	(LinearLayout) view.findViewById(R.id.overlaysList);
-		//LinearLayout baselayerList = (LinearLayout) view.findViewById(R.id.baselayerList);
 		
 		this.overlayList = new OverlayList(overlayList, this.getActivity(), R.layout.layers_list_item);
 		
 		this.layerLoaderCallbacks = new LayerLoaderCallbacks(this.getActivity(), this.overlayList, R.id.loader_layers);
+	}
+	
+	private void populateBaseLayerList(View view){
+		LinearLayout baselayerList = (LinearLayout) view.findViewById(R.id.baselayerList);
+		
+		this.baseLayerList = new BaseLayerList(baselayerList, this.getActivity(), R.layout.base_layer_list_item);
+		
+		this.baseLayerLoaderCallbacks = new BaseLayerLoaderCallbacks(this, this.baseLayerList, R.id.loader_base_layer_list);
 	}
 	
 	// Return true if not editing

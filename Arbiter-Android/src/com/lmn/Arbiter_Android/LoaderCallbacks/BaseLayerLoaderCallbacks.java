@@ -8,16 +8,16 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.util.Log;
 
-import com.lmn.Arbiter_Android.ListAdapters.BaseLayerAdapter;
+import com.lmn.Arbiter_Android.ListAdapters.ArbiterAdapter;
 import com.lmn.Arbiter_Android.Loaders.BaseLayerLoader;
 
 public class BaseLayerLoaderCallbacks implements LoaderManager.LoaderCallbacks<JSONArray>{
 
-	private BaseLayerAdapter baseLayerAdapter;
+	private ArbiterAdapter<JSONArray> baseLayerAdapter;
 	
 	private DialogFragment fragment;
 	
-	public BaseLayerLoaderCallbacks(DialogFragment fragment, BaseLayerAdapter adapter, int id){
+	public BaseLayerLoaderCallbacks(DialogFragment fragment, ArbiterAdapter<JSONArray> adapter, int id){
 		this.baseLayerAdapter = adapter;
 		this.fragment = fragment;
 		

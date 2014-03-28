@@ -6,15 +6,55 @@ import org.json.JSONObject;
 public class BaseLayer {
 	
 	public static final String NAME = "name";
+	public static final String URL = "url";
+	public static final String SERVER_NAME = "serverName";
+	public static final String FEATURE_TYPE = "featureType";
 	
-	private JSONObject baseLayer;
+	private String name;
+	private String url;
+	private String serverName;
+	private String featureType;
 	
-	public BaseLayer(JSONObject baseLayer){
-		this.baseLayer = baseLayer;
+	public BaseLayer(String name, String url, String serverName, String featureType){
+		this.name = name;
+		this.url = url;
+		this.serverName = serverName;
+		this.featureType = featureType;
 	}
 	
-	public String getName() throws JSONException{
+	public BaseLayer(JSONObject obj){
 		
-		return (this.baseLayer != null) ? this.baseLayer.getString(NAME) : "";
+		try{
+			this.name = obj.getString(NAME);
+			this.url = obj.getString(URL);
+			this.featureType = obj.getString(FEATURE_TYPE);
+		}catch(JSONException e){
+			e.printStackTrace();
+		}
+	}
+	
+	public String getName(){
+		return name;
+	}
+	
+	public String getUrl(){
+		return url;
+	}
+	
+	public String getServerName(){
+		return serverName;
+	}
+	
+	public String getFeatureType(){
+		return featureType;
+	}
+	
+	public JSONObject getJSON() throws JSONException{
+		String json = "{'" + NAME + "': '" + name + "'," 
+			+ "'" + URL + "': '" + url + "',"
+			+ "'" + SERVER_NAME + "': '" + serverName + "',"
+			+ "'" + FEATURE_TYPE + "': '" + featureType + "'}";
+		
+		return new JSONObject(json);
 	}
 }

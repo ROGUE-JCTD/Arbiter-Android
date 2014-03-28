@@ -19,15 +19,12 @@ public class BaseLayerAdapter extends BaseAdapter implements ArbiterAdapter<JSON
 	private LayoutInflater inflater;
 	private int itemLayout;
 	private int textId;
-	private int dropDownLayout;
 	
-	public BaseLayerAdapter(FragmentActivity activity, int itemLayout, 
-			int textId, int dropDownLayout){
+	public BaseLayerAdapter(FragmentActivity activity, int itemLayout, int textId){
 		
 		this.inflater = LayoutInflater.from(activity.getApplicationContext());
 		this.itemLayout = itemLayout;
 		this.textId = textId;
-		this.dropDownLayout = dropDownLayout;
 	}
 	
 	@Override
@@ -69,38 +66,7 @@ public class BaseLayerAdapter extends BaseAdapter implements ArbiterAdapter<JSON
 			TextView layerName = (TextView) view.findViewById(textId);
 		
 			if(layerName != null){
-				try {
-					layerName.setText(baseLayer.getName());
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-		
-		return view;
-	}
-	
-	@Override
-	public View getDropDownView(int position, View convertView, ViewGroup parent){
-		View view = convertView;
-		
-		if(view == null){
-			view = inflater.inflate(dropDownLayout, null);
-		}
-		
-		BaseLayer baseLayer = new BaseLayer(getItem(position));
-	
-		if(baseLayer != null){
-			TextView layerName = (TextView) view.findViewById(textId);
-		
-			if(layerName != null){
-				try {
-					layerName.setText(baseLayer.getName());
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				layerName.setText(baseLayer.getName());
 			}
 		}
 		

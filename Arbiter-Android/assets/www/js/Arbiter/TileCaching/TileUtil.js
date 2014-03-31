@@ -9,11 +9,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
 		
 		map.events.register("addlayer", TileUtil, function(event){
 			if(event && event.layer 
-					&& event.layer.getURL
-					&& event.layer.isBaseLayer
-					
-					// For now, going to limit this to an OSM layer
-					&& event.layer instanceof OpenLayers.Layer.OSM){
+					&& event.layer.getURL){
 				
 				event.layer.getURL_Original = event.layer.getURL;
 				

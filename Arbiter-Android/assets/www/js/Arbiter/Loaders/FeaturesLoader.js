@@ -256,6 +256,7 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 				
 				Arbiter.FeatureTableHelper.loadFeatures(schema, this, 
 						function(feature, currentFeatureIndex, featureCount){
+					
 					try{
 						if(feature !== null){
 							processFeature(schema, feature, olLayer,

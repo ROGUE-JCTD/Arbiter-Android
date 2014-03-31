@@ -4,10 +4,19 @@ Arbiter.Layers.WMSLayer = (function(){
 		create: function(key, schema){
 			
 			console.log("create wmsLayer for: " + schema.getPrefix() + ":" + schema.getFeatureType());
+			
+			var featureType = "";
+			
+			if(Arbiter.Util.existsAndNotNull(schema.getPrefix()) && schema.getPrefix() !== "null"){
+				featureType += schema.getPrefix() + ":";
+			}
+			
+			featureType += schema.getFeatureType();
+			
 			var layer = new OpenLayers.Layer.WMS(Arbiter.Layers.getLayerName(
 					key, Arbiter.Layers.type.WMS),
 					schema.getUrl() + "/wms", {
-						layers : schema.getPrefix() + ":" + schema.getFeatureType(),
+						layers : featureType,
 						transparent : true,
 						format : "image/png"
 

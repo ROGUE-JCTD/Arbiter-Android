@@ -49,7 +49,9 @@ public class BaseLayerLoader extends AsyncTaskLoader<JSONArray> {
 			if(baseLayers.length() == 0){
 				baseLayers.put(new JSONObject(
 						"{'" + BaseLayer.NAME + "': 'OpenStreetMap', '" 
-							+ BaseLayer.URL + "': null, '" 
+							+ BaseLayer.URL + "': null, '"
+							+ BaseLayer.SERVER_ID + "': 'OpenStreetMap', '"
+							+ BaseLayer.SERVER_NAME + "': 'OpenStreetMap', '"
 							+ BaseLayer.FEATURE_TYPE + "': null}"));
 			}
 			

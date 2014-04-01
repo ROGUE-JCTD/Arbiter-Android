@@ -103,7 +103,9 @@ public class InsertProjectHelper {
 	
 	private void insertBaseLayer(SQLiteDatabase db, Context context, BaseLayer baseLayer) throws JSONException{
 		
-		PreferencesHelper.getHelper().put(db, context, PreferencesHelper.BASE_LAYER, "[" + baseLayer.getJSON().toString() + "]");
+		if(baseLayer != null){
+			PreferencesHelper.getHelper().put(db, context, PreferencesHelper.BASE_LAYER, "[" + baseLayer.getJSON().toString() + "]");
+		}
 	}
 	
 	private ProjectDatabaseHelper getProjectDatabaseHelper(Context context, String projectName){

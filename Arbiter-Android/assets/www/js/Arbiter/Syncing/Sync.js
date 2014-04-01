@@ -1,7 +1,10 @@
-Arbiter.Sync = function(_map, _cacheTiles, _bounds,
-		_downloadOnly, _onSuccess, _onFailure){
+Arbiter.Sync = function(_map,_bounds,
+		_downloadOnly, _onSuccess, _onFailure,
+		_fileSystem, _baseLayer, _cacheTiles){
 	
 	this.map = _map;
+	this.fileSystem = _fileSystem;
+	this.baseLayer = _baseLayer;
 	this.cacheTiles = _cacheTiles;
 	this.bounds = _bounds;
 	this.downloadOnly = _downloadOnly;
@@ -247,7 +250,7 @@ Arbiter.Sync.prototype.startTileCache = function(){
 			this.bounds.getTop());
 	
 	console.log("startTileCache: " + JSON.stringify(olBounds));
-	
+		
 	Arbiter.getTileUtil().cacheTiles(olBounds, function(){
 		
 		console.log("cached tiles");

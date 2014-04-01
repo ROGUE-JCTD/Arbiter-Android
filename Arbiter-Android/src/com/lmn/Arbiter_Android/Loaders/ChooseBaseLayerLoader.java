@@ -32,7 +32,7 @@ public class ChooseBaseLayerLoader extends LayersListLoader {
 		
 		layers = addServerInfoToLayers(layers, servers);
 		
-		layers.add(new Layer(new BaseLayer("OpenStreetMap", null, null, null)));
+		layers.add(new Layer(new BaseLayer("OpenStreetMap", null, null,"OpenStreetMap", null)));
 		
 		return layers;
 	}

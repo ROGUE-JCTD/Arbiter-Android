@@ -86,24 +86,25 @@ public class ChooseBaseLayerAdapter extends BaseAdapter implements ArbiterAdapte
             TextView serverNameView = (TextView) view.findViewById(R.id.serverName);
             
             String layerName = null;
+            String serverName = null;
+            String serverId = null;
             
             Log.w("ChooseBAseLayerADapter", "ChooseBaseLayerAdapter name = " + layer.getLayerTitle());
             
         	if(layer.getLayerTitle() == null){
         		layerName = "OpenStreetMap";
+        		serverName ="OpenStreetMap";
+        		serverId = "OpenStreetMap";
         	}else{
         		layerName = layer.getLayerTitle();
+        		serverName = layer.getServerName();
+        		serverId = Integer.toString(layer.getServerId());
         	}
         	
         	layerNameView.setText(layerName);
+        	serverNameView.setText(serverName);
         	
-        	if(layer.getLayerTitle() == null){
-        		serverNameView.setText("OpenStreetMap");
-        	}else{
-        		serverNameView.setText(layer.getServerName());
-        	}
-        	
-        	final BaseLayer baseLayer = new BaseLayer(layerName, layer.getServerUrl(), layer.getServerName(), layer.getFeatureType());
+        	final BaseLayer baseLayer = new BaseLayer(layerName, layer.getServerUrl(), layer.getServerName(), serverId, layer.getFeatureType());
 		
 			view.setOnClickListener(new OnClickListener(){
 				@Override

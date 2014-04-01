@@ -44,10 +44,9 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 	private ArbiterProject arbiterProject;
 	private TextView selectedBaseLayerField;
 	private BaseLayer baseLayer;
-	private BaseLayer selectedBaseLayer;
 	
 	public static ChooseBaselayerDialog newInstance(String title, String ok, 
-			String cancel, int layout, boolean creatingProject, BaseLayer selectedBaseLayer){
+			String cancel, int layout, boolean creatingProject, BaseLayer baseLayer){
 		ChooseBaselayerDialog frag = new ChooseBaselayerDialog();
 		
 		frag.setTitle(title);
@@ -56,9 +55,8 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 		frag.setLayout(layout);
 		frag.creatingProject = creatingProject;
 		frag.selectedBaseLayerField = null;
-		frag.baseLayer = null;
+		frag.baseLayer = baseLayer;
 		frag.arbiterProject = ArbiterProject.getArbiterProject();
-		frag.selectedBaseLayer = selectedBaseLayer;
 		
 		return frag;
 	}
@@ -159,13 +157,13 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 	private void populateAddLayersList(View view){
 		this.selectedBaseLayerField = (TextView) view.findViewById(R.id.selectedBaseLayer);
 		
-		if(this.selectedBaseLayer != null){
-			this.selectedBaseLayerField.setText(this.selectedBaseLayer.getName());
+		if(this.baseLayer != null){
+			this.selectedBaseLayerField.setText(this.baseLayer.getName());
 		}
 		
 		this.listView = (ListView) view.findViewById(R.id.layersListView);
 		this.layersAdapter = new ChooseBaseLayerAdapter(getActivity(),
-				R.layout.base_layer_list_item, this, creatingProject, this.selectedBaseLayer);
+				R.layout.base_layer_list_item, this, creatingProject, this.baseLayer);
 		this.listView.setAdapter(this.layersAdapter);
 		
 		if(!creatingProject){
@@ -182,7 +180,9 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 				deepCopy.add(newLayers.get(i));
 			}
 			
-			deepCopy.add(new Layer(new BaseLayer("OpenStreetMap", null, null, null)));
+			Log.w("ChooseBaseLayer", "ChooseBaseLayer adding default base layer");
+			BaseLayer baseLayer = new BaseLayer("OpenStreetMap", null, null,"OpenStreetMap", null);
+			deepCopy.add(new Layer(baseLayer));
 			
 			this.layersAdapter.setData(deepCopy);
 		}

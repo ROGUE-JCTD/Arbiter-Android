@@ -1,9 +1,10 @@
-Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
+Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	var TileUtil = this;
 	var appDb = _appDb;
 	var projectDb = _projectDb;
 	var map = _map;
 	var fileSystem = _fileSystem;
+	var tileDir = _tileDir;
 	
 	var registerOnLayerAdded = function(){
 		
@@ -39,6 +40,14 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
 	this.cacheTilesTest1Couter = 0,
 	this.counterCacheInProgressMax = 2,
 	this.androidClearWebCacheAfter = 15,
+	
+	this.setTileDir = function(_tileDir){
+		tileDir = _tileDir;
+	};
+	
+	this.getTileDir = function(){
+		return tileDir;
+	};
 	
 	this.formatSuffixMap = {
 	    "image/png": "png",
@@ -150,7 +159,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
 		map.zoomToExtent(caching.extent, true);
 		
 		//Arbiter.setMessageOverlay(Arbiter.localizeString("Caching Tiles","label","cachingTiles"), Arbiter.localizeString("Will Download {0} Tiles","label","willDownloadTiles").format(caching.counterMax));
-		TileUtil.serviceCacheRequests();
+		TileUtil.serviceCacheRequests(tileDir);
 	};
 	
 	
@@ -160,7 +169,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
 	    		TileUtil.cachingComplete();
 	    	}
 	    } else {
-	    	TileUtil.serviceCacheRequests();
+	    	TileUtil.serviceCacheRequests(tileDir);
 	    }
 	},
 	
@@ -268,7 +277,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
 		} 
 		
 		//-- continue with clearing cache and then re downloading tiles 
-		TileUtil.clearCache("Arbiter/osm", function(){
+		TileUtil.clearCache(function(){
 			
 			if (TileUtil.cacheTilesTest1Couter > 0) {
 				console.log("~~~~ cacheTiles. done clear cache. starting testTilesTableIsEmpty MAKE sure there is only one project in arbiter!");
@@ -416,11 +425,11 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
 					}
 				};
 					
-				TileUtil.saveTile(_url, "Arbiter/osm", "15", "5199", "12123", "png", saveTileSuccessTest, saveTileErrorTest);
+				TileUtil.saveTile(_url, "15", "5199", "12123", "png", saveTileSuccessTest, saveTileErrorTest);
 			};
 			
 			//Update databases
-			TileUtil.addTile(_url, "Arbiter/osm", "15", "5199", "12123", "png", addTileCallbackTest, 1, 1000);
+			TileUtil.addTile(_url, "15", "5199", "12123", "png", addTileCallbackTest, 1, 1000);
 	};
 	
 	/**
@@ -545,7 +554,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
 	    var path;
 	    
 	    if(Arbiter.hasAOIBeenSet()){
-	    	path = fileSystem.root.fullPath + "/" + "Arbiter/osm" +"/" 
+	    	path = fileSystem.root.fullPath + "/" + tileDir.path +"/" 
 	    		+ xyz.z + "/" + xyz.x + "/" + xyz.y + "." + ext;
 	    }else{
 	    	path = this.getURL_Original(bounds);
@@ -868,14 +877,14 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
 					};
 					
 					// write the tile to device
-					TileUtil.saveTile(url, "Arbiter/osm", xyz.z, xyz.x, xyz.y, ext, saveTileSuccess, saveTileError);
+					TileUtil.saveTile(url, xyz.z, xyz.x, xyz.y, ext, saveTileSuccess, saveTileError);
 				};
 	
 				//TODO: get rid of tile ids in general and just store it as a json array in projectKeyValueDatabase?
 				
 				// add the tile to databases immediately so that if multiple getURL calls come in for a given tile, 
 				// we do not download the tile multiple times
-	    		TileUtil.addTile(url, "Arbiter/osm", xyz.z, xyz.x, xyz.y, ext, addTileCallback, tileNewRefCounter, tileId);
+	    		TileUtil.addTile(url, xyz.z, xyz.x, xyz.y, ext, addTileCallback, tileNewRefCounter, tileId);
 			}, function(tx, e) {
 				console.log("TileUtil.cacheTile ERROR", e);
 			});	
@@ -885,73 +894,64 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
 	};
 	
 	
-	this.saveTile = function(fileUrl, tileset, z, x, y, ext, successCallback, errorCallback) {
+	this.saveTile = function(fileUrl, z, x, y, ext, successCallback, errorCallback) {
 		if (TileUtil.debug) {
-			console.log("---- TileUtil.saveTile. tileset: " + tileset + ", z: " + z + ", x: " + x + ", y: " + y + ", url: " + fileUrl);
+			console.log("---- TileUtil.saveTile. tileset: " + tileDir.path + ", z: " + z + ", x: " + x + ", y: " + y + ", url: " + fileUrl);
 		}
 		
-		fileSystem.root.getDirectory(tileset, {create: true, exclusive: false}, 
-			function(tilesetDirEntry){
-				//console.log("---- tilesetDirEntry: " + tilesetDirEntry.fullPath);
-				tilesetDirEntry.getDirectory("" + z, {create: true, exclusive: false}, 
-					function(zDirEntry){
-						//console.log("---- zDirEntry: " + zDirEntry.fullPath);
-						zDirEntry.getDirectory("" + x, {create: true, exclusive: false}, 
-							function(xDirEntry){
-								//console.log("---- xDirEntry: " + xDirEntry.fullPath);
-								var filePath = xDirEntry.fullPath + "/" + y + "." + ext; 
-								
-								//console.log("==== will store file at: " + filePath);
+		//console.log("---- tilesetDirEntry: " + tilesetDirEntry.fullPath);
+		tileDir.dir.getDirectory("" + z, {create: true, exclusive: false}, 
+			function(zDirEntry){
+				//console.log("---- zDirEntry: " + zDirEntry.fullPath);
+				zDirEntry.getDirectory("" + x, {create: true, exclusive: false}, 
+					function(xDirEntry){
+						//console.log("---- xDirEntry: " + xDirEntry.fullPath);
+						var filePath = xDirEntry.fullPath + "/" + y + "." + ext; 
 						
-								var fileTransfer = new FileTransfer();
-								//var uri = encodeURI(fileUrl);
-								var uri = fileUrl;
-						
-								fileTransfer.download(
-									uri,
-									filePath,
-									function(entry) {
-										if (successCallback){
-											successCallback(fileUrl, filePath);
-										}
-									},
-									function(err) {
-										console.log("fileTransfer.download error: ");
-										console.log(err);
-										
-										console.log("TileUtil.saveTile WARNING Failed download or save file to: " + filePath, err);
-										
-										if (errorCallback){
-											errorCallback(fileUrl, filePath, err);
-										}
-									}
-								);
-							}, function(e1, e2) {
-								if (errorCallback){
-									errorCallback(e1, e2);
+						//console.log("==== will store file at: " + filePath);
+				
+						var fileTransfer = new FileTransfer();
+						//var uri = encodeURI(fileUrl);
+						var uri = fileUrl;
+				
+						fileTransfer.download(
+							uri,
+							filePath,
+							function(entry) {
+								if (successCallback){
+									successCallback(fileUrl, filePath);
 								}
-								console.log("TileUtil.saveTile ERROR 1", e1, e2);
+							},
+							function(err) {
+								console.log("fileTransfer.download error: ");
+								console.log(err);
+								
+								console.log("TileUtil.saveTile WARNING Failed download or save file to: " + filePath, err);
+								
+								if (errorCallback){
+									errorCallback(fileUrl, filePath, err);
+								}
 							}
 						);
 					}, function(e1, e2) {
 						if (errorCallback){
 							errorCallback(e1, e2);
 						}
-						console.log("TileUtil.saveTile ERROR 2", e1, e2);
+						console.log("TileUtil.saveTile ERROR 1", e1, e2);
 					}
 				);
 			}, function(e1, e2) {
 				if (errorCallback){
 					errorCallback(e1, e2);
 				}
-				console.log("TileUtil.saveTile ERROR 3", e1, e2);
+				console.log("TileUtil.saveTile ERROR 2", e1, e2);
 			}
 		);
 	
 		return;
 	};
 	
-	this.addTile = function(url, tileset, z, x, y, ext,
+	this.addTile = function(url, z, x, y, ext,
 			successCallback, tileNewRefCounter, tileId) {
 		
 		if(appDb === null || appDb === undefined){
@@ -965,10 +965,10 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
 		if (tileNewRefCounter === 1) {
 			// alert("inserted tile. id: " + res.insertId);
 			appDb.transaction(function(tx) {
-				var path = fileSystem.root.fullPath + "/" + tileset +"/" + z + "/" + x + "/" + y + "." + ext;
+				var path = fileSystem.root.fullPath + "/" + tileDir.path +"/" + z + "/" + x + "/" + y + "." + ext;
 	
 				var statement = "INSERT INTO tiles (tileset, z, x, y, path, url, ref_counter) VALUES (?, ?, ?, ?, ?, ?, ?);";
-				tx.executeSql(statement, [ tileset, z, x, y, path, url, 1 ], function(tx, res) {
+				tx.executeSql(statement, [ tileDir.path, z, x, y, path, url, 1 ], function(tx, res) {
 						
 					//HACK WORKAROUND: 	the first time something is inserted into a table
 					// 					the inserterId comes back null for some reason. 
@@ -1024,7 +1024,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem){
 	}; 
 	
 	//clear entries in db, removed tiles from device
-	this.clearCache = function(tileset, successCallback) {
+	this.clearCache = function(successCallback) {
 		if (TileUtil.debug) {
 			console.log("---- TileUtil.clearCache");
 		}	

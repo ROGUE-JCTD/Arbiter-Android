@@ -98,20 +98,32 @@ Arbiter.Cordova.Project = (function(){
 			Arbiter.ProjectDbHelper.getProjectDatabase().close();
 			Arbiter.FeatureDbHelper.getFeatureDatabase().close();
 			
-			Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
-				var bounds = null;
+			var baseLayerLoader = new Arbiter.Loaders.BaseLayer();
+			
+			baseLayerLoader.load(function(baseLayer){
 				
-				if(_aoi !== null && _aoi !== undefined 
-						&& _aoi !== ""){
-					
-					var aoi = _aoi.split(',');
-					
-					bounds = new Arbiter.Util.Bounds(aoi[0], 
-						aoi[1], aoi[2], aoi[3]);
-				}
+				var tileDir = new Arbiter.TileDir(Arbiter.FileSystem.getFileSystem(), baseLayer);
 				
-				storeData(context, layers, bounds, true, function(){
-					onSuccess();
+				tileDir.getTileDir(function(dir){
+					
+					Arbiter.getTileUtil().setTileDir(dir);
+					
+					Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
+						var bounds = null;
+						
+						if(_aoi !== null && _aoi !== undefined 
+								&& _aoi !== ""){
+							
+							var aoi = _aoi.split(',');
+							
+							bounds = new Arbiter.Util.Bounds(aoi[0], 
+								aoi[1], aoi[2], aoi[3]);
+						}
+						
+						storeData(context, layers, bounds, true, function(){
+							onSuccess();
+						}, onFailure);
+					}, onFailure);
 				}, onFailure);
 			}, onFailure);
 		},
@@ -252,6 +264,8 @@ Arbiter.Cordova.Project = (function(){
 		sync: function(_cacheTiles, _downloadOnly, _specificSchemas, onSuccess, onFailure){
 			console.log("sync");
 			
+			var context = this;
+			
 			if(syncInProgress === true){
 				
 				console.log("sync is already in progress!");
@@ -278,7 +292,7 @@ Arbiter.Cordova.Project = (function(){
 				
 				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.UPDATING);
 				
-				Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
+				Arbiter.PreferencesHelper.get(Arbiter.AOI, context, function(_aoi){
 					
 					if(_aoi !== null && _aoi !== undefined 
 							&& _aoi !== ""){
@@ -287,37 +301,52 @@ Arbiter.Cordova.Project = (function(){
 						
 						var bounds = new Arbiter.Util.Bounds(aoi[0], aoi[1], aoi[2], aoi[3]);
 						
-						var syncHelper = new Arbiter.Sync(map, cacheTiles,
-								bounds, downloadOnly, function(){
+						Arbiter.PreferencesHelper.get(Arbiter.BASE_LAYER, context, function(baseLayer){
 							
-							syncInProgress = false;
-							
-							if(Arbiter.Util.funcExists(onSuccess)){
-								onSuccess();
-							}else{
-								Arbiter.Cordova.syncCompleted();
+							if(Arbiter.Util.existsAndNotNull(baseLayer)){
+								try{
+									// base layer is stored as an array of json objects
+									baseLayer = JSON.parse(baseLayer)[0];
+								}catch(e){
+									console.log(e.stack);
+								}
 							}
+							
+							var syncHelper = new Arbiter.Sync(map, bounds, downloadOnly, function(){
+								
+								syncInProgress = false;
+								
+								if(Arbiter.Util.funcExists(onSuccess)){
+									onSuccess();
+								}else{
+									Arbiter.Cordova.syncCompleted();
+								}
+							}, function(e){
+								
+								console.log("sync failed", e);
+								
+								syncInProgress = false;
+								
+								if(Arbiter.Util.funcExists(onFailure)){
+									onFailure(e);
+								}else{
+									Arbiter.Cordova.syncCompleted();
+								}
+							}, Arbiter.FileSystem.getFileSystem(), baseLayer, cacheTiles);
+							
+							if(downloadOnly === true || downloadOnly === "true"){
+								
+								syncHelper.setSpecificSchemas(specificSchemas);
+							}
+							
+							syncInProgress = true;
+							
+							syncHelper.sync();
 						}, function(e){
-							
-							console.log("sync failed", e);
-							
-							syncInProgress = false;
-							
 							if(Arbiter.Util.funcExists(onFailure)){
 								onFailure(e);
-							}else{
-								Arbiter.Cordova.syncCompleted();
 							}
 						});
-						
-						if(downloadOnly === true || downloadOnly === "true"){
-							
-							syncHelper.setSpecificSchemas(specificSchemas);
-						}
-						
-						syncInProgress = true;
-						
-						syncHelper.sync();
 					}
 				}, function(e){
 					

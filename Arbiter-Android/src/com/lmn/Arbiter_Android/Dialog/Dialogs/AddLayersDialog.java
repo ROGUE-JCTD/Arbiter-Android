@@ -190,7 +190,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 			String cancel = activity.getResources().getString(android.R.string.cancel);
 			
 			ChooseBaselayerDialog dialog = ChooseBaselayerDialog.newInstance(title, ok, cancel, R.layout.choose_baselayer_dialog,
-					creatingProject, new BaseLayer("OpenStreetMap", null, null,"OpenStreetMap", null));
+					creatingProject, BaseLayer.createOSMBaseLayer());
 			
 			dialog.show(activity.getSupportFragmentManager(), ChooseBaselayerDialog.TAG);
 		}

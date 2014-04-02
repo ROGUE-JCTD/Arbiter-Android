@@ -88,23 +88,30 @@ public class ChooseBaseLayerAdapter extends BaseAdapter implements ArbiterAdapte
             String layerName = null;
             String serverName = null;
             String serverId = null;
+            String featureType = null;
+            String layerTitle = layer.getLayerTitle();
             
             Log.w("ChooseBAseLayerADapter", "ChooseBaseLayerAdapter name = " + layer.getLayerTitle());
             
-        	if(layer.getLayerTitle() == null){
+        	if(layerTitle == null || (layerTitle != null && layerTitle.equals("OpenStreetMap"))){
         		layerName = "OpenStreetMap";
         		serverName ="OpenStreetMap";
         		serverId = "OpenStreetMap";
+        		featureType = "";
         	}else{
-        		layerName = layer.getLayerTitle();
+        		layerName = layerTitle;
         		serverName = layer.getServerName();
         		serverId = Integer.toString(layer.getServerId());
+        		featureType = layer.getFeatureType();
         	}
         	
         	layerNameView.setText(layerName);
         	serverNameView.setText(serverName);
         	
-        	final BaseLayer baseLayer = new BaseLayer(layerName, layer.getServerUrl(), layer.getServerName(), serverId, layer.getFeatureType());
+        	Log.w("ChooseBaseLayer", "ChooseBaseLayer layername = " + layerName + ", url = " 
+        			+ layer.getServerUrl() + ", server name = " + serverName + ", serverId = " 
+        			+ serverId + ", featureType = " + featureType);
+        	final BaseLayer baseLayer = new BaseLayer(layerName, layer.getServerUrl(), serverName, serverId, featureType);
 		
 			view.setOnClickListener(new OnClickListener(){
 				@Override

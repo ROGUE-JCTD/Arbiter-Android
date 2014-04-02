@@ -17,6 +17,12 @@ public class BaseLayer {
 	private String serverId;
 	private String featureType;
 	
+	public static BaseLayer createOSMBaseLayer(){
+		String osm = "OpenStreetMap";
+		
+		return new BaseLayer(osm, null, osm, osm, "");
+	}
+	
 	public BaseLayer(String name, String url, String serverName, String serverId, String featureType){
 		this.name = name;
 		this.url = url;

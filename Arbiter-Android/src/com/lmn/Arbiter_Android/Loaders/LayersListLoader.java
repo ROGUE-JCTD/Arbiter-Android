@@ -83,7 +83,7 @@ public class LayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 	private BaseLayer getBaseLayerFromJSON(String json) throws JSONException{
 		
 		if(json == null){
-			return new BaseLayer("OpenStreetMap", null, null, "OpenStreetMap", null);
+			return BaseLayer.createOSMBaseLayer();
 		}
 		
 		JSONArray baseLayers = new JSONArray(json);

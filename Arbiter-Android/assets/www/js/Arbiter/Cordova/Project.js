@@ -98,7 +98,99 @@ Arbiter.Cordova.Project = (function(){
 			Arbiter.ProjectDbHelper.getProjectDatabase().close();
 			Arbiter.FeatureDbHelper.getFeatureDatabase().close();
 			
+			Arbiter.Cordova.Project.updateBaseLayer(function(){
+				Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
+					var bounds = null;
+					
+					if(_aoi !== null && _aoi !== undefined 
+							&& _aoi !== ""){
+						
+						var aoi = _aoi.split(',');
+						
+						bounds = new Arbiter.Util.Bounds(aoi[0], 
+							aoi[1], aoi[2], aoi[3]);
+					}
+					
+					storeData(context, layers, bounds, true, function(){
+						onSuccess();
+					}, onFailure);
+				}, onFailure);
+			}, onFailure);
+		},
+		
+		cacheBaseLayer: function(){
+			
+			var context = this;
+			
+			if(syncInProgress){
+				
+				console.log("sync already in progress");
+				
+				return;
+			}
+			
+			var fail = function(e){
+				
+				console.log("sync failed", e);
+				
+				if(syncInProgress){
+					Arbiter.Cordova.syncCompleted();
+				}
+				
+				syncInProgress = false;
+			};
+			
+			Arbiter.Cordova.Project.updateBaseLayer(function(){
+				
+				console.log("updated base layer: ", Arbiter.getTileUtil().getTileDir().path);
+				
+				var baseLayerLoader = new Arbiter.Loaders.BaseLayer();
+				
+				baseLayerLoader.load(function(baseLayer){
+					
+					Arbiter.Loaders.LayersLoader.load(function(){
+						
+						Arbiter.PreferencesHelper.get(Arbiter.AOI, context, function(_aoi){
+							
+							if(_aoi !== null && _aoi !== undefined 
+									&& _aoi !== ""){
+								
+								var aoi = _aoi.split(',');
+								
+								var bounds = new Arbiter.Util.Bounds(aoi[0], aoi[1], aoi[2], aoi[3]);
+									
+								var map = Arbiter.Map.getMap();
+								
+								var syncHelper = new Arbiter.Sync(map, bounds, true, function(){
+									
+									syncInProgress = false;
+									
+									Arbiter.Cordova.syncCompleted();
+								}, fail, Arbiter.FileSystem.getFileSystem(), baseLayer, true);
+								
+								syncInProgress = true;
+								
+								Arbiter.Cordova.setState(Arbiter.Cordova.STATES.UPDATING);
+								
+								syncHelper.startTileCache();
+							}
+						}, fail);
+					}, fail);
+				}, fail);
+			}, fail);
+		},
+		
+		updateBaseLayer: function(onSuccess, onFailure){
 			var baseLayerLoader = new Arbiter.Loaders.BaseLayer();
+			
+			var fail = function(e){
+				
+				console.log("Error changing base layer: " + e);
+				
+				if(Arbiter.Util.existsAndNotNull(onFailure)){
+					onFailure(e);
+				}
+			};
 			
 			baseLayerLoader.load(function(baseLayer){
 				
@@ -108,24 +200,11 @@ Arbiter.Cordova.Project = (function(){
 					
 					Arbiter.getTileUtil().setTileDir(dir);
 					
-					Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
-						var bounds = null;
-						
-						if(_aoi !== null && _aoi !== undefined 
-								&& _aoi !== ""){
-							
-							var aoi = _aoi.split(',');
-							
-							bounds = new Arbiter.Util.Bounds(aoi[0], 
-								aoi[1], aoi[2], aoi[3]);
-						}
-						
-						storeData(context, layers, bounds, true, function(){
-							onSuccess();
-						}, onFailure);
-					}, onFailure);
-				}, onFailure);
-			}, onFailure);
+					if(Arbiter.Util.existsAndNotNull(onSuccess)){
+						onSuccess();
+					}
+				}, fail);
+			}, fail);
 		},
 		
 		addLayers: function(layers){

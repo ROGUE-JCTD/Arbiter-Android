@@ -65,6 +65,8 @@ Arbiter.Layers = (function() {
 			this.addLayer(osmLayer);
 
 			osmLayer.setVisibility(visibility);
+			
+			return osmLayer;
 		},
 		
 		/**

@@ -37,6 +37,14 @@ Arbiter.Loaders.LayersLoader = (function(){
 		var map = Arbiter.Map.getMap();
 		if (map.layers.length) {
 			Arbiter.Layers.setNewBaseLayer(olBaseLayer);
+			
+			map.setLayerIndex(olBaseLayer, 0);
+			
+			if(!Arbiter.Util.existsAndNotNull(olBaseLayer.metadata)){
+				olBaseLayer.metadata = {};
+			}
+			
+			olBaseLayer.metadata.isBaseLayer = true;
 		}
 	};
 	
@@ -174,15 +182,15 @@ Arbiter.Loaders.LayersLoader = (function(){
 		var layer;
 		var olBaseLayer = null;
 		
-		if(baseLayer === null || (baseLayer != null && baseLayer[Arbiter.BaseLayer.NAME] === "OpenStreetMap")){
-			Arbiter.Layers.addDefaultLayer(true);
+		if(!Arbiter.Util.existsAndNotNull(baseLayer) || (Arbiter.Util.existsAndNotNull(baseLayer) && baseLayer[Arbiter.BaseLayer.NAME] === "OpenStreetMap")){
+			olBaseLayer = Arbiter.Layers.addDefaultLayer(true);
 		}
 		
 		if(layerSchemas === undefined 
 				|| layerSchemas === null 
 				|| (Arbiter.getLayerSchemasLength() === 0)){
 			
-			setBaseLayer();
+			setBaseLayer(olBaseLayer);
 			
 			loadAOILayer();
 			
@@ -214,7 +222,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 			
 			featureType += schema.getFeatureType();
 			
-			if(baseLayer != null && (featureType === baseLayer[Arbiter.BaseLayer.FEATURE_TYPE])){
+			if(Arbiter.Util.existsAndNotNull(baseLayer) && (featureType === baseLayer[Arbiter.BaseLayer.FEATURE_TYPE])){
 				olBaseLayer = wmsLayer;
 				dbLayers.splice(i--, 1);
 			}else{
@@ -232,6 +240,8 @@ Arbiter.Loaders.LayersLoader = (function(){
 				editableLayers++;
 				// Load the vector layer
 				loadWFSLayer(key, schema, onSuccess);
+			}else{
+				layersToLoad--;
 			}
 		}
 		

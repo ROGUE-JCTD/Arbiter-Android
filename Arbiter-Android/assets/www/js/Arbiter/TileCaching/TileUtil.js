@@ -553,7 +553,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	    
 	    var path;
 	    
-	    if(Arbiter.hasAOIBeenSet()){
+	    if(Arbiter.hasAOIBeenSet() && Arbiter.Util.existsAndNotNull(this.metadata) && this.metadata.isBaseLayer){
 	    	path = fileSystem.root.fullPath + "/" + tileDir.path +"/" 
 	    		+ xyz.z + "/" + xyz.x + "/" + xyz.y + "." + ext;
 	    }else{

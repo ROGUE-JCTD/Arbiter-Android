@@ -12,8 +12,8 @@ Arbiter.Util = (function(){
 		 */
 		parseFeatureType: function(_featureType){
 			var colonIndex = _featureType.indexOf(":");
-			var workspace;
-			var featureType;
+			var workspace = null;
+			var featureType = _featureType;
 			
 			if(colonIndex >= 0){
 				workspace = _featureType.substring(0, colonIndex);

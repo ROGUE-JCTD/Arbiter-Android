@@ -26,96 +26,105 @@ var app = (function() {
 		Arbiter.Init(function() {
 			
 			// Get the file system for use in TileUtil.js
-			Arbiter.FileSystem.setFileSystem(function(){
+			Arbiter.FileSystem.setFileSystem(function(fileSystem){
+				
+				var baseLayerLoader = new Arbiter.Loaders.BaseLayer();
 				
 				// Make sure the directories for storing tiles exists
-				Arbiter.FileSystem.ensureTileDirectoryExists(function(){
+				baseLayerLoader.load(function(baseLayer){
 					
-					// Get the saved bounds and zoom
-					Arbiter.Cordova.Project.getSavedBounds(function(savedBounds, savedZoom){
+					var tileDirectory = new Arbiter.TileDir(fileSystem, baseLayer);
+					
+					tileDirectory.getTileDir(function(tileDir){
 						
-						// Get the locale
-						navigator.globalization.getLocaleName(function(locale){
-							var localeCode = 'en';
-							if(locale.value.indexOf('es') >= 0){
-								localeCode = 'es'
-							}
-							Arbiter.Localization.setLocale(localeCode);
-						
-							// Get the AOI to check to see if it's been set
-							Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
-								
-								var bounds = null;
-								
-								if(savedBounds !== null && savedBounds !== undefined 
-										&& savedZoom !== null 
-										&& savedZoom !== undefined){
+						// Get the saved bounds and zoom
+						Arbiter.Cordova.Project.getSavedBounds(function(savedBounds, savedZoom){
+							
+							// Get the locale
+							navigator.globalization.getLocaleName(function(locale){
+								var localeCode = 'en';
+								if(locale.value.indexOf('es') >= 0){
+									localeCode = 'es'
+								}
+								Arbiter.Localization.setLocale(localeCode);
+							
+								// Get the AOI to check to see if it's been set
+								Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
 									
-									bounds = savedBounds.split(',');
+									var bounds = null;
 									
-									if(_aoi !== null && _aoi !== undefined 
-											&& _aoi !== ""){
+									if(savedBounds !== null && savedBounds !== undefined 
+											&& savedZoom !== null 
+											&& savedZoom !== undefined){
 										
-										Arbiter.aoiHasBeenSet(true);
-									}
-									
-									Arbiter.Map.zoomToExtent(bounds[0], 
-											bounds[1], bounds[2], 
-											bounds[3], savedZoom);
-								}else{
-									
-									if(_aoi !== null && _aoi !== undefined 
-											&& _aoi !== ""){
+										bounds = savedBounds.split(',');
 										
-										Arbiter.aoiHasBeenSet(true);
-										
-										bounds = _aoi.split(',');
+										if(_aoi !== null && _aoi !== undefined 
+												&& _aoi !== ""){
+											
+											Arbiter.aoiHasBeenSet(true);
+										}
 										
 										Arbiter.Map.zoomToExtent(bounds[0], 
 												bounds[1], bounds[2], 
-												bounds[3]);
+												bounds[3], savedZoom);
+									}else{
+										
+										if(_aoi !== null && _aoi !== undefined 
+												&& _aoi !== ""){
+											
+											Arbiter.aoiHasBeenSet(true);
+											
+											bounds = _aoi.split(',');
+											
+											Arbiter.Map.zoomToExtent(bounds[0], 
+													bounds[1], bounds[2], 
+													bounds[3]);
+										}
 									}
-								}
-								
-								Arbiter.Cordova.OOM_Workaround
-									.registerMapListeners();
-							
-								Arbiter.Controls.ControlPanel
-									.registerMapListeners();
-								
-								Arbiter.setTileUtil(
-									new Arbiter.Util.TileUtil(
-										Arbiter.ApplicationDbHelper.getDatabase(),
-										Arbiter.ProjectDbHelper.getProjectDatabase(),
-										Arbiter.Map.getMap(),
-										Arbiter.FileSystem.getFileSystem()
-									)
-								);
-								
-								Arbiter.Loaders.LayersLoader.addEventTypes();
-								
-								Arbiter.Loaders.LayersLoader.load(function(){
 									
-									findMeOOM();
-								}, function(e){
-									console.log("Could not load layers during initialization: " + JSON.stringify(e));
-								});
+									Arbiter.Cordova.OOM_Workaround
+										.registerMapListeners();
 								
-								for ( var i = 0; i < waitFuncs.length; i++) {
-									waitFuncs[i].call();
-								}
-				
-								ArbiterInitialized = true;
+									Arbiter.Controls.ControlPanel
+										.registerMapListeners();
+									
+									Arbiter.setTileUtil(
+										new Arbiter.TileUtil(
+											Arbiter.ApplicationDbHelper.getDatabase(),
+											Arbiter.ProjectDbHelper.getProjectDatabase(),
+											Arbiter.Map.getMap(),
+											fileSystem,
+											tileDir
+										)
+									);
+									
+									Arbiter.Loaders.LayersLoader.addEventTypes();
+									
+									Arbiter.Loaders.LayersLoader.load(function(){
+										
+										findMeOOM();
+									}, function(e){
+										console.log("Could not load layers during initialization: " + JSON.stringify(e));
+									});
+									
+									for ( var i = 0; i < waitFuncs.length; i++) {
+										waitFuncs[i].call();
+									}
+					
+									ArbiterInitialized = true;
+								});
+							}, function(e){
+								console.log("Error initializing Arbiter while getting the locale", e);
 							});
 						}, function(e){
-							console.log("Error initializing Arbiter while getting the locale", e);
+							console.log("Error initializing Arbiter while getting saved bounds", e);
 						});
 					}, function(e){
-						console.log("Error initializing Arbiter while getting saved bounds", e);
+						console.log("Error initializing Arbiter getting tile dir", e);
 					});
-					
 				}, function(e){
-					console.log("Error initializing Arbiter during Tile Directory creation", e);
+					console.log("Error initializing Arbiter loading base layer", e);
 				});
 			}, function(e){
 				console.log("Error initializing Arbiter - ", e);

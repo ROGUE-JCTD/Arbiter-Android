@@ -71,7 +71,7 @@ Arbiter.FileSystem = (function(){
 	return{
 		ROOT_LEVEL : "Arbiter",
 		
-		TILESET : "osm",
+		TILESET_ROOT : "TileSets",
 		
 		// Media dirs begin
 		PROJECTS : "Projects",
@@ -85,7 +85,7 @@ Arbiter.FileSystem = (function(){
 				fileSystem = _fileSystem;
 				
 				if(Arbiter.Util.funcExists(onSuccess)){
-					onSuccess();
+					onSuccess(fileSystem);
 				}
 			}, function(e){
 				

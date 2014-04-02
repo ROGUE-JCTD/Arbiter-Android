@@ -2,10 +2,12 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
@@ -18,21 +20,21 @@ import android.widget.Spinner;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Activities.AOIActivity;
+import com.lmn.Arbiter_Android.BaseClasses.BaseLayer;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseBaseLayer.ChooseBaselayerDialog;
 import com.lmn.Arbiter_Android.ListAdapters.AddLayersListAdapter;
 import com.lmn.Arbiter_Android.ListAdapters.ServerListAdapter;
 import com.lmn.Arbiter_Android.LoaderCallbacks.AddLayersLoaderCallbacks;
 import com.lmn.Arbiter_Android.LoaderCallbacks.ServerLoaderCallbacks;
 import com.lmn.Arbiter_Android.Loaders.AddLayersListLoader;
-import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
@@ -48,6 +50,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	private Spinner spinner;
 	private ArrayList<Layer> layersInProject = null;
 	private boolean creatingProject;
+	private boolean onCreateAlreadyFired;
 	
 	private MapChangeListener mapChangeListener;
 	private ArbiterProject arbiterProject;
@@ -66,6 +69,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		frag.setOk(ok);
 		frag.setCancel(cancel);
 		frag.setLayout(layout);
+		frag.onCreateAlreadyFired = false;
 		
 		frag.layersInProject = layersInProject;
 		frag.arbiterProject = ArbiterProject.getArbiterProject();
@@ -176,8 +180,19 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 			Project newProject = ArbiterProject.getArbiterProject().getNewProject();
 			newProject.addLayers(layers);
 			
-			Intent projectsIntent = new Intent(getActivity(), AOIActivity.class);
-    		this.startActivity(projectsIntent);
+			//Intent projectsIntent = new Intent(getActivity(), AOIActivity.class);
+    		//this.startActivity(projectsIntent);
+			
+			FragmentActivity activity = getActivity();
+			
+			String title = activity.getResources().getString(R.string.choose_baselayer);
+			String ok = activity.getResources().getString(android.R.string.ok);
+			String cancel = activity.getResources().getString(android.R.string.cancel);
+			
+			ChooseBaselayerDialog dialog = ChooseBaselayerDialog.newInstance(title, ok, cancel, R.layout.choose_baselayer_dialog,
+					creatingProject, BaseLayer.createOSMBaseLayer());
+			
+			dialog.show(activity.getSupportFragmentManager(), ChooseBaselayerDialog.TAG);
 		}
 	}
 	
@@ -223,9 +238,14 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 			@Override
 		    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
 				Log.w("AddLayersDialog", "AddLayersDialog spinner updated");
-		        // Server was selected so force the AddLayersListLoader to load
-				LocalBroadcastManager.getInstance(context).
-					sendBroadcast(new Intent(AddLayersListLoader.ADD_LAYERS_LIST_UPDATED));
+				
+				if(!onCreateAlreadyFired){
+					onCreateAlreadyFired = true;
+				}else{
+					// Server was selected so force the AddLayersListLoader to load
+					LocalBroadcastManager.getInstance(context).
+						sendBroadcast(new Intent(AddLayersListLoader.ADD_LAYERS_LIST_UPDATED));
+				}
 		    }
 
 		    @Override

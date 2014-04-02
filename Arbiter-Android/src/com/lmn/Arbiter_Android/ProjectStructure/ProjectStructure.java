@@ -16,6 +16,7 @@ import android.os.Environment;
 public class ProjectStructure {
 	private ProjectAlerts alerts;
 	public static final String ROOT_PATH = "Arbiter";
+	public static final String TILESETS_PATH = "TileSets";
 	public static final String PROJECTS_PATH = "Projects";
 	public static final String MEDIA_PATH = "Media";
 	private static final String DEFAULT_PROJECT_AOI = "";
@@ -181,6 +182,22 @@ public class ProjectStructure {
 	
 	public static String getProjectsRoot(){
 		return getApplicationRoot() + File.separator + PROJECTS_PATH;
+	}
+	
+	public static String getTileSetsRoot(){
+		return getApplicationRoot() + File.separator + TILESETS_PATH;
+	}
+	
+	public static String getTileDir(String serverId, String featureType){
+		String path = getTileSetsRoot() + File.separator + serverId;
+		
+		String[] parts = featureType.split(":");
+		
+		for(int i = 0; i < parts.length; i++){
+			path += File.separator + parts[i];
+		}
+		
+		return path;
 	}
 	
 	public static String getProjectPath(String projectName){

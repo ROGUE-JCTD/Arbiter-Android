@@ -2,16 +2,18 @@ package com.lmn.Arbiter_Android.OrderLayers;
 
 import java.util.ArrayList;
 
+import android.util.Log;
+
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
-import com.lmn.Arbiter_Android.ListAdapters.LayerListAdapter;
+import com.lmn.Arbiter_Android.ListAdapters.OverlayList;
 
 public class OrderLayersModel {
 	public static final String TAG = "OrderLayersModel";
 	private ArrayList<Layer> layers;
 	private ArrayList<Layer> copy;
-	private LayerListAdapter adapter;
+	private OverlayList adapter;
 	
-	public OrderLayersModel(LayerListAdapter adapter) throws OrderLayersModelException{
+	public OrderLayersModel(OverlayList adapter) throws OrderLayersModelException{
 		
 		if(adapter == null){
 			throw new OrderLayersModelException("Adapter must not be null");
@@ -45,15 +47,18 @@ public class OrderLayersModel {
 	}
 	
 	public void moveLayerDown(int layerIndex){
+		Log.w("OrderLayersModel", "OrderLayersModel move layer down: " + layerIndex);
+		
 		swapLayerWithLayerBelow(layerIndex);
 		
-		this.adapter.notifyDataSetChanged();
+		this.adapter.onDataUpdated();
 	}
 	
 	public void moveLayerUp(int layerIndex){
+		Log.w("OrderLayersModel", "OrderLayersModel move layer up: " + layerIndex);
 		swapLayerWithLayerAbove(layerIndex);
 		
-		this.adapter.notifyDataSetChanged();
+		this.adapter.onDataUpdated();
 	}
 	
 	public ArrayList<Layer> getBackup(){

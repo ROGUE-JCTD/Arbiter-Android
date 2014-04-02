@@ -224,4 +224,13 @@ public class MapChangeHelper {
 	public void hidePartButtons(){
 		editor.hidePartButtons();
 	}
+	
+	public void cacheBaseLayer(){
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				Map.getMap().cacheBaseLayer(cordovaWebView);
+			}
+		});
+	}
 }

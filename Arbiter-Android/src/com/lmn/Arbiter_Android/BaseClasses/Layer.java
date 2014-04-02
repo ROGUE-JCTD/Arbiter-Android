@@ -74,6 +74,13 @@ public class Layer {
 		this.layerOrder = item.getLayerOrder();
 	}
 	
+	public Layer(BaseLayer baseLayer){
+		this.featureType = baseLayer.getFeatureType();
+		this.title = baseLayer.getName();
+		this.serverName = baseLayer.getServerName();
+		this.serverUrl = baseLayer.getUrl();
+	}
+	
 	public int getLayerId(){
 		return layerId;
 	}

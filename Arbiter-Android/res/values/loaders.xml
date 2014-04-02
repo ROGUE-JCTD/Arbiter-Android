@@ -3,8 +3,10 @@
     <item type="id" name="loader_projects" />
 	<item type="id" name="loader_servers_list" />
 	<item type="id" name="loader_servers_dropdown" />
+	<item type="id" name="loader_base_layer_list" />
 	<item type="id" name="loader_add_layers" />
 	<item type="id" name="loader_layers" />
+	<item type="id" name="loader_layers_choose_baselayer" />
 	<item type="id" name="loader_map" />
 	<item type="id" name="loader_aoi_map" />
 	<item type="id" name="loader_insert_feature_dialog" />

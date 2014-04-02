@@ -206,4 +206,13 @@
     <string name="finish_editing_message">Por favor, termina la edición.</string>
     <string name="unsupported_crs">La CRS todavía no está soportado.</string>
     <string name="loading_unsupported_crs">No se pudo cargar las capas siguientes porque sus crs todavía no está soportado.</string>
+    <string name="overlays">Capas sobrepuestas</string>
+    <string name="baselayer">Capa base</string>
+    <string name="base">Base</string>
+    <string name="choose_baselayer">Eliga su capa base</string>
+    <string name="change_baselayer_warning">
+        Cambiando la capa de base se eliminará el anteriormente 
+         descargado teselas y descargar nuevas teselas 
+          para su área de interés. ¿Está seguro que desea continuar?
+    </string>
 </resources>

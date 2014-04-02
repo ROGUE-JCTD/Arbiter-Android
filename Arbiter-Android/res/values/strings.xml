@@ -208,4 +208,13 @@
     <string name="finish_editing_message">Please finish editing.</string>
     <string name="unsupported_crs">Unsupported CRS</string>
     <string name="loading_unsupported_crs">Could not load the following layers due to unsupported CRS:</string>
+    <string name="overlays">Overlays</string>
+    <string name="baselayer">Base layer</string>
+    <string name="base">Base</string>
+    <string name="choose_baselayer">Select base layer</string>
+    <string name="change_baselayer_warning">
+        Changing your base layer will remove the previously 
+        downloaded tiles and download new tiles
+         for your area of interest.  Are you sure you want to continue?
+    </string>
 </resources>

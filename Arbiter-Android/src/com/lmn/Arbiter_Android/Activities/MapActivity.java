@@ -311,10 +311,11 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         			if(arbiterProject != null) {
     	        		String openProject = arbiterProject.getOpenProject(this);
     	            	if(openProject.equals(this.getResources().getString(R.string.default_project_name))) {
-    	            		final Activity context = this;
+    	            		
     						this.runOnUiThread(new Runnable(){
     							@Override
     							public void run(){
+    								Activity context = getActivity();
     			            		AlertDialog.Builder builder = new AlertDialog.Builder(context);
     								builder.setTitle(context.getResources().getString(R.string.error));
     								builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
@@ -360,8 +361,6 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	super.onResume();
     	Log.w(TAG, TAG + " onResume");
     	
-    	final MapActivity activity = this;
-    	
     	if (this.cordovaWebView == null) {
     		return;
         }
@@ -384,10 +383,10 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     		getThreadPool().execute(new Runnable(){
 				@Override
 				public void run(){
-					OOMWorkaround oom = new OOMWorkaround(activity);
+					OOMWorkaround oom = new OOMWorkaround(getActivity());
     				oom.resetSavedBounds(false);
     				
-    				activity.runOnUiThread(new Runnable(){
+    				getActivity().runOnUiThread(new Runnable(){
     					@Override
     					public void run(){
     						
@@ -399,14 +398,14 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
 				    					getResources().getString(R.string.create_project_msg)
 				    			);*/
 				    			
-				    			SyncProgressDialog.show(activity);
-				    			insertHelper = new InsertProjectHelper(activity);
+				    			SyncProgressDialog.show(getActivity());
+				    			insertHelper = new InsertProjectHelper(getActivity());
 				    			insertHelper.insert();
 				    		}
 				    		// Setting the aoi
 				    		else if(ArbiterState.getArbiterState().isSettingAOI()){
 				    			Log.w(TAG, TAG + ".onResume() setting aoi");
-								SyncProgressDialog.show(activity);
+								SyncProgressDialog.show(getActivity());
 				    			updateProjectAOI();
 				    		}else{
 				    			// Project changed

@@ -4,11 +4,11 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 
 import android.database.sqlite.SQLiteDatabase;
 
-public class UpgradeToVersionTwo {
+public class UpgradeProjectDbToVersionTwo {
 	private String tempTableName;
 	private SQLiteDatabase db;
 	
-	public UpgradeToVersionTwo(SQLiteDatabase db, int oldVersion, int newVersion) throws DatabaseVersionException{
+	public UpgradeProjectDbToVersionTwo(SQLiteDatabase db, int oldVersion, int newVersion) throws DatabaseVersionException{
 		
 		if(oldVersion != 1){
 			throw new DatabaseVersionException("Can't upgrade db from version: " + Integer.toString(oldVersion));

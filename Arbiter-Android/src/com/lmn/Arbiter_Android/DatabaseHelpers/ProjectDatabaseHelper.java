@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.lmn.Arbiter_Android.DatabaseHelpers.Migrations.DatabaseVersionException;
-import com.lmn.Arbiter_Android.DatabaseHelpers.Migrations.UpgradeToVersionTwo;
+import com.lmn.Arbiter_Android.DatabaseHelpers.Migrations.UpgradeProjectDbToVersionTwo;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FailedSync;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
@@ -52,7 +52,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 		
 		if(oldVersion == 1 && newVersion == 2){
 			try {
-				UpgradeToVersionTwo upgradeHelper = new UpgradeToVersionTwo(db, oldVersion, newVersion);
+				UpgradeProjectDbToVersionTwo upgradeHelper = new UpgradeProjectDbToVersionTwo(db, oldVersion, newVersion);
 				
 				upgradeHelper.upgrade();
 			} catch (DatabaseVersionException e) {

@@ -6,13 +6,16 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.lmn.Arbiter_Android.DatabaseHelpers.Migrations.DatabaseVersionException;
+import com.lmn.Arbiter_Android.DatabaseHelpers.Migrations.UpgradeAppDbToVersionTwo;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesHelper;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ApplicationDatabaseHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "arbiter_application.db";
-	private static int DATABASE_VERSION = 1;
+	private static int DATABASE_VERSION = 2;
 	
 	private ApplicationDatabaseHelper(Context context){
 		super(context, ProjectStructure.getApplicationRoot() + File.separator + DATABASE_NAME, null, DATABASE_VERSION);
@@ -32,16 +35,22 @@ public class ApplicationDatabaseHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		ServersHelper.getServersHelper().createTable(db);
 		TilesHelper.getHelper().createTable(db);
+		PreferencesHelper.getHelper().createTable(db);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// TODO: Migrate the tables
-		db.execSQL("DROP TABLE IF EXISTS " + ServersHelper.SERVERS_TABLE_NAME + ";");
-		db.execSQL("DROP TABLE IF EXISTS " + TilesHelper.TABLE_NAME + ";");
 		
-		ServersHelper.getServersHelper().createTable(db);
-		TilesHelper.getHelper().createTable(db);
+		if(oldVersion == 1 && newVersion == 2){
+			try {
+				UpgradeAppDbToVersionTwo upgrader = new UpgradeAppDbToVersionTwo(db, oldVersion, newVersion);
+				
+				upgrader.upgrade();
+			} catch (DatabaseVersionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	@Override

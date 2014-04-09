@@ -4,47 +4,37 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 
 import android.database.sqlite.SQLiteDatabase;
 
-public class UpgradeProjectDbToVersionTwo {
+public class UpgradeProjectDbFrom1To2 implements Migration{
 	private String tempTableName;
-	private SQLiteDatabase db;
 	
-	public UpgradeProjectDbToVersionTwo(SQLiteDatabase db, int oldVersion, int newVersion) throws DatabaseVersionException{
-		
-		if(oldVersion != 1){
-			throw new DatabaseVersionException("Can't upgrade db from version: " + Integer.toString(oldVersion));
-		}
-		
-		if(newVersion != 2){
-			throw new DatabaseVersionException("Can't upgrade db to version: " + Integer.toString(newVersion));
-		}
+	public UpgradeProjectDbFrom1To2(){
 		
 		this.tempTableName = "temporaryLayersTable";
-		this.db = db;
 	}
 	
-	public void upgrade(){
+	public void migrate(SQLiteDatabase db){
 		
-		createBackupTable();
+		createBackupTable(db);
 		
-		createTableWithNewSchema();
+		createTableWithNewSchema(db);
 		
-		moveDataOver();
+		moveDataOver(db);
 		
-		dropTemporaryTable();
+		dropTemporaryTable(db);
 	}
 	
-	private void createBackupTable(){
+	private void createBackupTable(SQLiteDatabase db){
 		
 		String createBackupTable = "ALTER TABLE " + LayersHelper.LAYERS_TABLE_NAME + " RENAME TO " + tempTableName + ";";
 		
 		db.execSQL(createBackupTable);
 	}
 	
-	private void createTableWithNewSchema(){
+	private void createTableWithNewSchema(SQLiteDatabase db){
 		LayersHelper.getLayersHelper().createTable(db);
 	}
 	
-	private void moveDataOver(){
+	private void moveDataOver(SQLiteDatabase db){
 		String fields = LayersHelper._ID + "," +
 				LayersHelper.LAYER_TITLE + "," +
 				LayersHelper.FEATURE_TYPE + "," +
@@ -60,7 +50,7 @@ public class UpgradeProjectDbToVersionTwo {
 		db.execSQL(moveDataOver);
 	}
 	
-	private void dropTemporaryTable(){
+	private void dropTemporaryTable(SQLiteDatabase db){
 		
 		db.execSQL("DROP TABLE " + tempTableName);
 	}

@@ -1,5 +1,7 @@
 Arbiter.ServersHelper = (function(){
 	var _ID = "_id"
+	
+	var SERVER_TYPE = "type";
 	var SERVER_NAME = "server_name";
 	var SERVER_URL = "url";
 	var SERVER_USERNAME = "username";
@@ -35,6 +37,7 @@ Arbiter.ServersHelper = (function(){
 					
 					Arbiter.Util.Servers.putServer(row[_ID], 
 							new Arbiter.Util.Server(
+									row[SERVER_TYPE],
 									row[SERVER_NAME], 
 									row[SERVER_URL], 
 									row[SERVER_USERNAME], 

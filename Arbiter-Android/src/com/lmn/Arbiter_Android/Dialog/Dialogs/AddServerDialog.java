@@ -17,8 +17,11 @@ import android.text.Selection;
 import android.util.Base64;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Activities.HasThreadPool;
@@ -27,14 +30,17 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
+import com.lmn.Arbiter_Android.ListAdapters.ServerTypesAdapter;
 
 public class AddServerDialog extends ArbiterDialogFragment{
 	private Server server;
+	private Spinner serverTypeSpinner;
 	private EditText nameField;
 	private EditText urlField;
 	private EditText usernameField;
 	private EditText passwordField;
 	private CheckBox showPassword;
+	private ServerTypesAdapter serverTypeAdapter;
 	
 	public static AddServerDialog newInstance(String title, String ok, 
 			String cancel, int layout, Server server){
@@ -55,16 +61,49 @@ public class AddServerDialog extends ArbiterDialogFragment{
 		return frag;
 	}
 	
-	@Override
-	public void onPositiveClick() {
-		final Activity activity = this.getActivity();
-		final Context context = activity.getApplicationContext();
+	public void putServer(final ProgressDialog progressDialog){
+		
+		// Queue the command to insert the project
+		CommandExecutor.runProcess(new Runnable(){
+			@Override
+			public void run() {
+				Context context = getActivity().getApplicationContext();
+				
+				ApplicationDatabaseHelper helper = 
+						ApplicationDatabaseHelper.getHelper(context);
+				
+				boolean insert = false;
+				
+				if(server == null){
+					insert = true;
+					server = new Server();
+				}
+				
+				setServer(server);
+				
+				if(!insert){
+					updateServer(helper, context, server);
+				}else{
+					insertServer(helper, context, server);
+				}
+				
+				getActivity().runOnUiThread(new Runnable(){
+					@Override
+					public void run(){
+						dismiss();
+						
+						if(progressDialog != null){
+							progressDialog.dismiss();
+						}
+					}
+				});
+			}
+		});
+	}
+	
+	public void attemptAuthentication(final ProgressDialog progressDialog){
 		
 		try{		
-			String title = context.getResources().getString(R.string.validating_server);
-			String message = context.getResources().getString(R.string.please_wait);
-			
-			final ProgressDialog progressDialog = ProgressDialog.show(activity, title, message, false);
 			
 			((HasThreadPool) this.getActivity()).getThreadPool().execute(new Runnable(){
 				@Override
@@ -80,89 +119,82 @@ public class AddServerDialog extends ArbiterDialogFragment{
 					
 					request.addHeader("Authorization", "Basic " + credentials);
 					
-					final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 					try {
 						HttpResponse response = client.execute(request);
 						int code = response.getStatusLine().getStatusCode();
 						switch (code) {
 						case 200:
-							// Queue the command to insert the project
-							CommandExecutor.runProcess(new Runnable(){
-								@Override
-								public void run() {
-									ApplicationDatabaseHelper helper = 
-											ApplicationDatabaseHelper.getHelper(context);
-									
-									boolean insert = false;
-									
-									if(server == null){
-										insert = true;
-										server = new Server();
-									}
-									
-									setServer(server);
-									
-									if(!insert){
-										updateServer(helper, context, server);
-									}else{
-										insertServer(helper, context, server);
-									}
-									dismiss();
-								}
-							});
+							
+							putServer(progressDialog);
+							
 							break;
 						case 401:
-							activity.runOnUiThread(new Runnable(){
-								@Override
-								public void run(){
-									builder.setTitle(context.getResources().getString(R.string.error));
-									builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
-									builder.setMessage(context.getResources().getString(R.string.authentication_failed));
-									
-									builder.create().show();
-								}
-							});
+							
+							displayAuthenticationError(R.string.authentication_failed, progressDialog);
+							
 							break;
 						default:	
-							activity.runOnUiThread(new Runnable(){
-								@Override
-								public void run(){
-									builder.setTitle(context.getResources().getString(R.string.error));
-									builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
-									builder.setMessage(context.getResources().getString(R.string.unable_to_connect));
-									
-									builder.create().show();
-								}
-							});
+							
+							displayAuthenticationError(R.string.unable_to_connect, progressDialog);
 						}
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-						activity.runOnUiThread(new Runnable(){
-							@Override
-							public void run(){
-								builder.setTitle(context.getResources().getString(R.string.error));
-								builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
-								builder.setMessage(context.getResources().getString(R.string.unable_to_connect));
-								
-								builder.create().show();
-							}
-						});
-					}
-					activity.runOnUiThread(new Runnable(){
-						@Override
-						public void run(){
-							progressDialog.dismiss();
-						}
-					});					
+						
+						displayAuthenticationError(R.string.unable_to_connect, progressDialog);
+					}					
 				}
 			});
 		}catch(ClassCastException e){
 			e.printStackTrace();
+			
+			progressDialog.dismiss();
+		}
+	}
+	
+	public void displayAuthenticationError(final int errorId, final ProgressDialog progressDialog){
+		final Activity activity = getActivity();
+		final Context context = activity.getApplicationContext();
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+				
+				builder.setTitle(context.getResources().getString(R.string.error));
+				builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
+				builder.setMessage(context.getResources().getString(errorId));
+				
+				builder.create().show();
+				
+				if(progressDialog != null){
+					progressDialog.dismiss();
+				}
+			}
+		});
+	}
+	
+	@Override
+	public void onPositiveClick() {
+		Activity activity = getActivity();
+		Context context = activity.getApplicationContext();
+		
+		String title = context.getResources().getString(R.string.validating_server);
+		String message = context.getResources().getString(R.string.please_wait);
+		
+		final ProgressDialog progressDialog = ProgressDialog.show(activity, title, message, false);
+		
+		String type = (String) this.serverTypeSpinner.getSelectedItem();
+		
+		if(type.equals(ServerTypesAdapter.Types.WMS)){
+			attemptAuthentication(progressDialog);
+		}else{
+			putServer(progressDialog);
 		}
 	}
 	
 	private void setFields(Server server){
+		serverTypeSpinner.setSelection(serverTypeAdapter.getPositionFromType(server.getType()));
 		nameField.setText(server.getName());
 		urlField.setText(server.getUrl());
 		usernameField.setText(server.getUsername());
@@ -170,6 +202,7 @@ public class AddServerDialog extends ArbiterDialogFragment{
 	}
 	
 	private void setServer(Server server){
+		server.setType((String) serverTypeSpinner.getSelectedItem());
 		server.setName(nameField.getText().toString());
 		server.setUrl(urlField.getText().toString());
 		server.setUsername(usernameField.getText().toString());
@@ -211,11 +244,40 @@ public class AddServerDialog extends ArbiterDialogFragment{
 	@Override
 	public void beforeCreateDialog(View view) {
 		
+		this.serverTypeSpinner = (Spinner) view.findViewById(R.id.server_type);
 		this.nameField = (EditText) view.findViewById(R.id.server_name);
 		this.urlField = (EditText) view.findViewById(R.id.server_url);
 		this.usernameField = (EditText) view.findViewById(R.id.server_username);
 		this.passwordField = (EditText) view.findViewById(R.id.server_password);
 		this.showPassword = (CheckBox) view.findViewById(R.id.server_show_password);
+		
+		this.serverTypeAdapter = new ServerTypesAdapter(getActivity());
+		
+		this.serverTypeSpinner.setAdapter(this.serverTypeAdapter);
+		
+		this.serverTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener(){
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+				// TODO Auto-generated method stub
+				
+				String type = serverTypeAdapter.getItem(position);
+				
+				if(type.equals(ServerTypesAdapter.Types.WMS)){
+					
+					urlField.setHint(ServerTypesAdapter.Hints.WMS);
+				}else{
+					urlField.setHint(ServerTypesAdapter.Hints.TMS);
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
 		this.showPassword.setOnClickListener(new OnClickListener() {
 

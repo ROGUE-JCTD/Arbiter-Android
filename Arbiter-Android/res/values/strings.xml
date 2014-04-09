@@ -217,4 +217,5 @@
         downloaded tiles and download new tiles
          for your area of interest.  Are you sure you want to continue?
     </string>
+    <string name="type">Type</string>
 </resources>

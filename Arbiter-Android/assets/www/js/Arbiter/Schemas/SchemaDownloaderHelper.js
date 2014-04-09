@@ -5,10 +5,12 @@ Arbiter.SchemaDownloaderHelper = function(_layer, _wfsVersion, _onSuccess, _onFa
 	this.onFailure = _onFailure;
 	
 	this.serverId = this.layer[Arbiter.LayersHelper.serverId()];
+	
 	this.layerId = this.layer[Arbiter.LayersHelper.layerId()];
 	
-	console.log("schemaDownloaderHelper layerId = " + this.layerId);
 	var server = Arbiter.Util.Servers.getServer(this.serverId);
+	
+	this.serverType = server.getType();
 	
 	this.url = server.getUrl();
 	this.credentials = Arbiter.Util.getEncodedCredentials(
@@ -46,10 +48,19 @@ Arbiter.SchemaDownloaderHelper.prototype.onDownloadFailure = function(){
 Arbiter.SchemaDownloaderHelper.prototype.downloadSchema = function(){
 	var context = this;
 	
+	if(this.serverType === "TMS"){
+		
+		this.onDownloadSuccess();
+		
+		return;
+	}
+	
 	var gotRequestBack = false;
 	
+	var url = this.url.substring(0, this.url.length - 4);
+	
 	var request = new OpenLayers.Request.GET({
-		url: context.url + "/wfs?service=wfs&version=" + context.wfsVersion + "&request=DescribeFeatureType&typeName=" + context.featureType,
+		url: url + "/wfs?service=wfs&version=" + context.wfsVersion + "&request=DescribeFeatureType&typeName=" + context.featureType,
 		headers: {
 			Authorization: 'Basic ' + context.credentials
 		},
@@ -69,7 +80,7 @@ Arbiter.SchemaDownloaderHelper.prototype.downloadSchema = function(){
 			try{
 				context.schema = new Arbiter.Util.LayerSchema(context.layerId, context.url,
 						results.targetNamespace, context.featureType, context.srid,
-						results.featureTypes[0].properties, context.serverId, context.color);
+						results.featureTypes[0].properties, context.serverId, context.serverType, context.color);
 			}catch(e){
 				var msg = "Could not create schema - " + JSON.stringify(e);
 				

@@ -43,7 +43,7 @@ public class GetCapabilities {
 	 */
 	public ArrayList<Layer> getLayers(Server server, ArrayList<Layer> layersInProject){
 		if(server != null && server.getUrl() != null){
-			String url = server.getUrl() + "/wms?service=wms&version=1.1.1&request=getCapabilities";
+			String url = server.getUrl() + "?service=wms&version=1.1.1&request=GetCapabilities";
 			
 			HttpParams params = new BasicHttpParams();
 			
@@ -69,6 +69,10 @@ public class GetCapabilities {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}
+			
+			if(response == null){
+				return null;
 			}
 			
 			Log.w("ADD_LAYERS_LIST_LOADER", "ADD_LAYERS_LIST_LOADER - Sending GET request to URL: " + url);

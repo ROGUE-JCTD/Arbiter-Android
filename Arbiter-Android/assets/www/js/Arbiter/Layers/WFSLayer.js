@@ -3,9 +3,11 @@ Arbiter.Layers.WFSLayer = (function(){
 	var createWFSProtocol = function(url, featureNamespace, geometryName,
 			featureType, srid, encodedCredentials) {
 
+		url = url.substring(0, url.length - 3) + "wfs";
+		
 		var protocol = new OpenLayers.Protocol.WFS({
 			version : "1.0.0",
-			url : url + "/wfs",
+			url : url,
 			featureNS : featureNamespace,
 			geometryName : geometryName,
 			featureType : featureType,

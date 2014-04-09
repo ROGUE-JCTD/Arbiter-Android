@@ -155,7 +155,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 		};
 	
 		caching.counterMax = TileUtil.queueCacheRequests(caching.extent);
-	
+		
 		map.zoomToExtent(caching.extent, true);
 		
 		//Arbiter.setMessageOverlay(Arbiter.localizeString("Caching Tiles","label","cachingTiles"), Arbiter.localizeString("Will Download {0} Tiles","label","willDownloadTiles").format(caching.counterMax));
@@ -547,6 +547,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	
 	this.getURL = function(bounds) {
 		var xyz = TileUtil.getXYZ(bounds, map.baseLayer);
+		
 	    var ext = TileUtil.getLayerFormatExtension(this);
 	    
 	    // use the info we have to derive were the tile would be stored on the device
@@ -554,12 +555,12 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	    var path;
 	    
 	    if(Arbiter.hasAOIBeenSet() && Arbiter.Util.existsAndNotNull(this.metadata) && this.metadata.isBaseLayer){
+	    	
 	    	path = fileSystem.root.fullPath + "/" + tileDir.path +"/" 
 	    		+ xyz.z + "/" + xyz.x + "/" + xyz.y + "." + ext;
 	    }else{
 	    	path = this.getURL_Original(bounds);
 	    }
-	    
 	    
 	 	return path;
 	};
@@ -738,6 +739,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 		var resolutionForZoom = map.getResolutionForZoom(zoom);
 		
 		var res = layer.getServerResolution(resolutionForZoom);
+		
 	    var x = Math.round((bounds.left - layer.maxExtent.left) /
 	        (res * layer.tileSize.w));
 	    var y = Math.round((layer.maxExtent.top - bounds.top) /
@@ -750,7 +752,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	    
 	    var z = -1;
 	    
-	    if (layer.serverResolutions){
+		if (layer.serverResolutions){
 			z = OpenLayers.Util.indexOf(layer.serverResolutions, res);
 		} else {
 			z = map.getZoomForResolution(res) + (layer.zoomOffset || 0);
@@ -760,15 +762,18 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 			Arbiter.error('TileUtil.getXYZ, z === -1');
 		}
 		
-		
-	    if (layer.wrapDateLine) {
-	        var limit = Math.pow(2, z);
-	        x = ((x % limit) + limit) % limit;
-	    }
+		if(layer instanceof OpenLayers.Layer.TMS){
+			
+			y = (1 << z) - y - 1;
+		}else{
+			if (layer.wrapDateLine) {
+		        var limit = Math.pow(2, z);
+		        x = ((x % limit) + limit) % limit;
+		    }
+		}
 	
 	    return {'x': x, 'y': y, 'z': z};
 	};
-	
 	
 	this.getURLForXYZLayerOnly = function (layer, xyz) {
 	    var url = layer.url;
@@ -778,7 +783,21 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	    }
 	    
 	    return OpenLayers.String.format(url, xyz);
-	},
+	};
+	
+	this.getURLForTMSLayerOnly = function(layer, xyz){
+		var url = layer.url;
+		
+		var path = layer.serviceVersion + "/" + layer.layername 
+			+ "/" + xyz.z + "/" + xyz.x + "/" 
+			+ xyz.y + "." + layer.type; 
+		
+        var url = layer.url;
+        if (OpenLayers.Util.isArray(url)) {
+            url = layer.selectUrl(path, url);
+        }
+        return url + path;
+	};
 	
 	this.cacheTile = function(bounds, zoom){
 		
@@ -791,7 +810,6 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	    }
 	    
 	    var xyz = TileUtil.getXYZ(bounds, caching.layer, zoom);
-		console.log("cacheTile 's xyz:", xyz.x, xyz.y, xyz.z);
 	    //alert("printed tile xyz. " + xyz);
 		
 		var url = '';
@@ -800,7 +818,9 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 		// zoom level of the map which we avoid settings since it results in more crashes on android
 		if (caching.layer instanceof OpenLayers.Layer.XYZ) {
 			url = TileUtil.getURLForXYZLayerOnly(caching.layer, xyz);
-		} else {
+		} else if(caching.layer instanceof OpenLayers.Layer.TMS){
+			url = TileUtil.getURLForTMSLayerOnly(caching.layer, xyz);
+		}else {
 			url = caching.layer.getURL_Original(bounds);
 		}
 	
@@ -913,7 +933,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 						var fileTransfer = new FileTransfer();
 						//var uri = encodeURI(fileUrl);
 						var uri = fileUrl;
-				
+						
 						fileTransfer.download(
 							uri,
 							filePath,
@@ -959,7 +979,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 		}
 		
 	    if (TileUtil.debug) {
-	    	console.log("---- TileUtil.addTile: ", url, tileset, z, x, y, ext, tileNewRefCounter, tileId );
+	    	console.log("---- TileUtil.addTile: ", url, tileDir.path, z, x, y, ext, tileNewRefCounter, tileId );
 	    }
 	
 		if (tileNewRefCounter === 1) {

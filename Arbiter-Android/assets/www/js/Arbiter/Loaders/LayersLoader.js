@@ -115,6 +115,16 @@ Arbiter.Loaders.LayersLoader = (function(){
 				olLayer, onSuccess, onFailure);
 	};
 	
+	var loadTMSLayer = function(key, schema){
+		var olLayer = Arbiter.Layers.TMSLayer.create(key, schema);
+		
+		Arbiter.Layers.addLayer(olLayer);
+		
+		olLayer.setVisibility(schema.isVisible());
+		
+		return olLayer;
+	};
+	
 	var loadWMSLayer = function(key, schema){
 		var olLayer = Arbiter.Layers.WMSLayer.create(key, schema);
 		
@@ -179,7 +189,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 		
 		var layerSchemas = Arbiter.getLayerSchemas();
 		
-		var layer;
+		var layer = null;
 		var olBaseLayer = null;
 		
 		if(!Arbiter.Util.existsAndNotNull(baseLayer) || (Arbiter.Util.existsAndNotNull(baseLayer) && baseLayer[Arbiter.BaseLayer.NAME] === "OpenStreetMap")){
@@ -204,15 +214,23 @@ Arbiter.Loaders.LayersLoader = (function(){
 		var schema;
 		var key;
 		var editableLayers = 0;
-		var wmsLayer = null;
 		var featureType = null;
+		var serverType = null;
 		
 		for(var i = 0; i < dbLayers.length; i++){
 			key = dbLayers[i][Arbiter.LayersHelper.layerId()];
 			
 			schema = layerSchemas[key];
 			
-			wmsLayer = loadWMSLayer(key, schema);
+			serverType = schema.getServerType();
+			
+			if(serverType === "WMS"){
+				layer = loadWMSLayer(key, schema);
+			}else if(serverType === "TMS"){
+				layer = loadTMSLayer(key, schema);
+			}else{
+				console.log("Invalid server type: " + serverType);
+			}
 			
 			featureType = "";
 			
@@ -223,10 +241,13 @@ Arbiter.Loaders.LayersLoader = (function(){
 			featureType += schema.getFeatureType();
 			
 			if(Arbiter.Util.existsAndNotNull(baseLayer) && (featureType === baseLayer[Arbiter.BaseLayer.FEATURE_TYPE])){
-				olBaseLayer = wmsLayer;
+				olBaseLayer = layer;
 				dbLayers.splice(i--, 1);
 			}else{
-				layersToLoad++;
+				
+				if(serverType === "WMS"){
+					layersToLoad++;
+				}
 			}
 		}
 		
@@ -237,6 +258,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 			schema = layerSchemas[key];
 			
 			if(schema.isEditable()){
+				
 				editableLayers++;
 				// Load the vector layer
 				loadWFSLayer(key, schema, onSuccess);
@@ -358,8 +380,6 @@ Arbiter.Loaders.LayersLoader = (function(){
 						
 						// Load the layer schemas with layer data loaded from the db
 						Arbiter.FeatureTableHelper.loadLayerSchemas(layers, function(){
-								
-							console.log("db layers loaded: ", layers);
 							
 							// Will return the unsupported layers and remove them from the layers array
 							layersWithUnsupportedCRS = checkSupportedCRS(baseLayer, layers);

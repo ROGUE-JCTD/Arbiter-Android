@@ -20,10 +20,12 @@ import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
+import com.lmn.Arbiter_Android.ListAdapters.ServerTypesAdapter;
 import com.lmn.Arbiter_Android.Loaders.ServersListLoader;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ServersHelper implements BaseColumns{
+	public static final String SERVER_TYPE = "type";
 	public static final String SERVER_NAME = "server_name";
 	public static final String SERVER_URL = "url";
 	public static final String SERVER_USERNAME = "username";
@@ -46,6 +48,7 @@ public class ServersHelper implements BaseColumns{
 		String sql = "CREATE TABLE " + SERVERS_TABLE_NAME + " (" +
 					_ID +
 					" INTEGER PRIMARY KEY AUTOINCREMENT, " +
+					SERVER_TYPE + " TEXT DEFAULT '" + ServerTypesAdapter.Types.WMS + "'," +
 					SERVER_NAME + " TEXT, " +
 					SERVER_URL + " TEXT, " +
 					SERVER_USERNAME + " TEXT, " +
@@ -56,7 +59,7 @@ public class ServersHelper implements BaseColumns{
 	
 	public SparseArray<Server> getAll(SQLiteDatabase db){
 		// Projection - columns to get back
-		String[] columns = {SERVER_NAME, SERVER_URL, 
+		String[] columns = {SERVER_TYPE, SERVER_NAME, SERVER_URL, 
 				SERVER_USERNAME, SERVER_PASSWORD, _ID};
 		
 		// How to sort the results
@@ -73,9 +76,11 @@ public class ServersHelper implements BaseColumns{
 		
 		//Traverse the cursors to populate the projects array
 		for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-			key = cursor.getInt(4);
+			key = cursor.getInt(5);
+			Log.w("ServersHelper", "ServersHelper type = " + cursor.getString(0));
 			servers.put(key, new Server(cursor.getString(0),
-					cursor.getString(1), cursor.getString(2), cursor.getString(3), key));
+					cursor.getString(1), cursor.getString(2),
+					cursor.getString(3), cursor.getString(4), key));
 		}
 		
 		cursor.close();
@@ -95,10 +100,11 @@ public class ServersHelper implements BaseColumns{
 			
 			for(int i = 0; i < newServers.length; i++){
 				values = new ContentValues();
-				values.put(ServersHelper.SERVER_NAME, newServers[i].getName());
-				values.put(ServersHelper.SERVER_URL, newServers[i].getUrl());
-				values.put(ServersHelper.SERVER_USERNAME, newServers[i].getUsername());
-				values.put(ServersHelper.SERVER_PASSWORD, newServers[i].getPassword());
+				values.put(SERVER_TYPE, newServers[i].getType());
+				values.put(SERVER_NAME, newServers[i].getName());
+				values.put(SERVER_URL, newServers[i].getUrl());
+				values.put(SERVER_USERNAME, newServers[i].getUsername());
+				values.put(SERVER_PASSWORD, newServers[i].getPassword());
 					
 				serverIds[i] = db.insert(SERVERS_TABLE_NAME, null, values);
 				
@@ -133,6 +139,7 @@ public class ServersHelper implements BaseColumns{
 			};
 			
 			ContentValues values = new ContentValues();
+			values.put(SERVER_TYPE, server.getType());
 			values.put(SERVER_NAME, server.getName());
 			values.put(SERVER_USERNAME, server.getUsername());
 			values.put(SERVER_PASSWORD, server.getPassword());

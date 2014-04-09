@@ -1,9 +1,7 @@
-Arbiter.Layers.WMSLayer = (function(){
+Arbiter.Layers.TMSLayer = (function(){
 	
 	return {
 		create: function(key, schema){
-			
-			console.log("create wmsLayer for: " + schema.getPrefix() + ":" + schema.getFeatureType());
 			
 			var featureType = "";
 			
@@ -13,24 +11,22 @@ Arbiter.Layers.WMSLayer = (function(){
 			
 			featureType += schema.getFeatureType();
 			
-			var layer = new OpenLayers.Layer.WMS(Arbiter.Layers.getLayerName(
-					key, Arbiter.Layers.type.WMS),
-					schema.getUrl(), {
-						layers : featureType,
-						transparent : true,
-						format : "image/png"
-
-					}, {
-						isBaseLayer : false,
-						transitionEffect : 'resize',
-						visibility : schema.isVisible()
+			var layer = null;
+			
+			var url = schema.getUrl().substring(0, schema.getUrl().length - 6);
+			layer = new OpenLayers.Layer.TMS(Arbiter.Layers.getLayerName(
+					key, Arbiter.Layers.type.TMS),
+					url, {
+						layername : featureType,
+						isBaseLayer: false,
+						type: "png"
 					});
-
+			
 			return layer;
 		},
 		
-		refreshWMSLayer : function(key) {
-			var layerName = Arbiter.Layers.getLayerName(key, Arbiter.Layers.type.WMS);
+		refreshTMSLayer : function(key) {
+			var layerName = Arbiter.Layers.getLayerName(key, Arbiter.Layers.type.TMS);
 			
 			var map = Arbiter.Map.getMap();
 			var layers = map.getLayersByName(layerName);

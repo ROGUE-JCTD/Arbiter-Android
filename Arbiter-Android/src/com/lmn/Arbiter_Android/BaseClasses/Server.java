@@ -4,6 +4,7 @@ public class Server {
 	public static final String DEFAULT_SERVER_NAME = "OpenStreetMap";
 	
 	private int id;
+	private String type;
 	private String serverName;
 	private String url;
 	private String username;
@@ -11,19 +12,29 @@ public class Server {
 	
 	public Server(){
 		this.id = -1;
+		this.type = null;
 		this.serverName = null;
 		this.url = null;
 		this.username = null;
 		this.password = null;
 	}
 	
-	public Server(String serverName, String url, 
+	public Server(String type, String serverName, String url, 
 			String username, String password, int id){
+		this.type = type;
 		this.serverName = serverName;
 		this.url = url;
 		this.username = username;
 		this.password = password;
 		this.id = id;
+	}
+	
+	public String getType(){
+		return type;
+	}
+	
+	public void setType(String type){
+		this.type = type;
 	}
 	
 	public String getName(){

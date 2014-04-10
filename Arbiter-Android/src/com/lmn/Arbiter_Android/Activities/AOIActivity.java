@@ -37,10 +37,10 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface,
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		Config.init(this);
+		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.choose_aoi_dialog);
-		
-		Config.init(this);
 		
 		cordovaWebView = (CordovaWebView) findViewById(R.id.aoiWebView);
 		
@@ -124,6 +124,7 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface,
     protected void onDestroy(){
     	super.onDestroy();
     	if(this.cordovaWebView != null){
+    		Log.w("AOIActivity", "AOIActivity onDestroy");
     		cordovaWebView.handleDestroy();
     	}
     }

@@ -1,4 +1,4 @@
-(function() {
+cordova.define("com.phonegap.plugins.sqlite.SQLitePlugin", function(require, exports, module) { (function() {
   var SQLiteFactory, SQLitePlugin, SQLitePluginCallback, SQLitePluginTransaction, pcb, root;
 
   root = this;
@@ -410,3 +410,5 @@
   };
 
 }).call(this);
+
+});

@@ -72,9 +72,10 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+    	Config.init(this);
+    	
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-        Config.init(this);
         
         Init(savedInstanceState);
         
@@ -443,6 +444,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     protected void onDestroy(){
     	super.onDestroy();
     	if(this.cordovaWebView != null){
+    		Log.w("MapActivity", "MapActivity onDestroy");
     		cordovaWebView.handleDestroy();
     	}
     	

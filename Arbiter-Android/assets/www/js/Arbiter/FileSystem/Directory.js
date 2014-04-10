@@ -55,6 +55,8 @@
 					}
 				}else{
 					if(Arbiter.Util.existsAndNotNull(onNotExists)){
+						console.log("Couldn't get directory", e);
+						
 						onNotExists(e);
 					}
 				}

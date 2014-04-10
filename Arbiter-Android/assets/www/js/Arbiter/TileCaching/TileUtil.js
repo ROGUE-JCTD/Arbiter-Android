@@ -926,7 +926,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 				zDirEntry.getDirectory("" + x, {create: true, exclusive: false}, 
 					function(xDirEntry){
 						//console.log("---- xDirEntry: " + xDirEntry.fullPath);
-						var filePath = xDirEntry.fullPath + "/" + y + "." + ext; 
+						var filePath = xDirEntry.toURL() + "/" + y + "." + ext; 
 						
 						//console.log("==== will store file at: " + filePath);
 				

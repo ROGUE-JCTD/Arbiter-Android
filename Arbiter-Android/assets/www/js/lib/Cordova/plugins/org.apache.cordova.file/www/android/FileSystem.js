@@ -1,4 +1,4 @@
-cordova.define("org.apache.cordova.file.FileSystem", function(require, exports, module) { /*
+cordova.define("org.apache.cordova.file.androidFileSystem", function(require, exports, module) { /*
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -19,28 +19,17 @@ cordova.define("org.apache.cordova.file.FileSystem", function(require, exports, 
  *
 */
 
-var DirectoryEntry = require('./DirectoryEntry');
+FILESYSTEM_PROTOCOL = "cdvfile";
 
-/**
- * An interface representing a file system
- *
- * @constructor
- * {DOMString} name the unique name of the file system (readonly)
- * {DirectoryEntry} root directory of the file system (readonly)
- */
-var FileSystem = function(name, root) {
-    this.name = name || null;
-    if (root) {
-        this.root = new DirectoryEntry(root.name, root.fullPath, this);
-    } else {
-        this.root = new DirectoryEntry(this.name, '/', this);
+module.exports = {
+    __format__: function(fullPath) {
+        if (this.name === 'content') {
+            return 'content:/' + fullPath;
+        }
+        var path = ('/'+this.name+(fullPath[0]==='/'?'':'/')+encodeURI(fullPath)).replace('//','/');
+        return FILESYSTEM_PROTOCOL + '://localhost' + path;
     }
 };
 
-FileSystem.prototype.__format__ = function(fullPath) {
-    return fullPath;
-};
-
-module.exports = FileSystem;
 
 });

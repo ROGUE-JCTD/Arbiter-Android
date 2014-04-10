@@ -34,6 +34,7 @@ import android.util.Log;
 
 public class SQLitePlugin extends CordovaPlugin
 {
+	
 	///////////////////////////////////
 	// kzusy changes
 	//////////////////////////////////
@@ -42,7 +43,7 @@ public class SQLitePlugin extends CordovaPlugin
 	private static final String APPLICATION_DATABASE_NAME = "appdb";
 	
 	private String oldProjectName;
-	
+
 	/**
 	 * Multiple database map (static).
 	 */
@@ -223,36 +224,39 @@ public class SQLitePlugin extends CordovaPlugin
 
 		dbmap.put(dbname, mydb);*/
 		
-		////////////////////////////////
+		// //////////////////////////////
 		// kzusy modifications
-		////////////////////////////////
-		
+		// //////////////////////////////
+
 		// The database opening logic is handled with the DatabaseHelpers
 		// in com.lmn.Arbiter_Android.DatabaseHelpers, so we don't need to do
 		// any of the opening above.
-		
+
 		// Get the path to the databases from the current project
 		Context context = cordova.getActivity().getApplicationContext();
-		
-		this.oldProjectName = ArbiterProject.getArbiterProject().
-				getOpenProject(cordova.getActivity());
-		
+
+		this.oldProjectName = ArbiterProject.getArbiterProject()
+				.getOpenProject(cordova.getActivity());
+
 		String path = ProjectStructure.getProjectPath(this.oldProjectName);
-		
+
 		// If the plugin doesn't know about the db,
 		// get it for plugin use.
-		if(FEATURE_DATABASE_NAME.equals(dbname)){
-			dbmap.put(dbname, FeatureDatabaseHelper.
-					getHelper(context, path, false).getWritableDatabase());
-		}else if(PROJECT_DATABASE_NAME.equals(dbname)){
-			dbmap.put(dbname, ProjectDatabaseHelper.
-					getHelper(context, path, false).getWritableDatabase());
-		}else if(APPLICATION_DATABASE_NAME.equals(dbname)){
-			dbmap.put(dbname, ApplicationDatabaseHelper
-					.getHelper(context).getWritableDatabase());
-		}else{
+		if (FEATURE_DATABASE_NAME.equals(dbname)) {
+			dbmap.put(dbname,
+					FeatureDatabaseHelper.getHelper(context, path, false)
+							.getWritableDatabase());
+		} else if (PROJECT_DATABASE_NAME.equals(dbname)) {
+			dbmap.put(dbname,
+					ProjectDatabaseHelper.getHelper(context, path, false)
+							.getWritableDatabase());
+		} else if (APPLICATION_DATABASE_NAME.equals(dbname)) {
+			dbmap.put(dbname, ApplicationDatabaseHelper.getHelper(context)
+					.getWritableDatabase());
+		} else {
 			try {
-				throw new Exception("SQLitePlugin: Database '" + dbname + " doesn't exist!");
+				throw new Exception("SQLitePlugin: Database '" + dbname
+						+ " doesn't exist!");
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -362,7 +366,7 @@ public class SQLitePlugin extends CordovaPlugin
 	private void updateDatabases(){
 		String projectName = ArbiterProject.getArbiterProject()
 				.getOpenProject(this.cordova.getActivity());
-		
+
 		if(!projectName.equals(oldProjectName)){
 			for(String name : dbmap.keySet()){
 				openDatabase(name, null);
@@ -389,10 +393,10 @@ public class SQLitePlugin extends CordovaPlugin
 	 *            Callback context from Cordova API
 	 *
 	 */
-	@SuppressLint("NewApi")
-	private void executeSqlBatch(final String dbname, final String[] queryarr, 
+	private void executeSqlBatch(final String dbname, final String[] queryarr,
 			final JSONArray[] jsonparams, final String[] queryIDs, final CallbackContext cbc)
 	{
+		
 		final Activity activity = this.cordova.getActivity();
 		final SQLitePlugin sqlitePlugin = this;
 		
@@ -603,7 +607,7 @@ public class SQLitePlugin extends CordovaPlugin
 						// TODO what to do?
 					}
 				}
-				
+
 				final JSONArray _batchResults = batchResults;
 				
 				activity.runOnUiThread(new Runnable(){
@@ -625,7 +629,6 @@ public class SQLitePlugin extends CordovaPlugin
 	 * @return results in string form
 	 *
 	 */
-	@SuppressLint("NewApi")
 	private JSONObject getRowsResultFromQuery(Cursor cur)
 	{
 		JSONObject rowsResult = new JSONObject();

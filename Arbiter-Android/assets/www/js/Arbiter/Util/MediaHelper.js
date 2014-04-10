@@ -70,7 +70,7 @@ Arbiter.MediaHelper = (function(){
                         function(dir) {
                             var fileTransfer = new FileTransfer();
                             var uri = encodeURI(url + entry);
-                            fileTransfer.download(uri,dir.fullPath + "/" + entry,
+                            fileTransfer.download(uri,dir.toURL() + "/" + entry,
                                 function(result) {
                                     console.log("download complete: " + result.fullPath);
                                     if(Arbiter.Util.funcExists(onSuccess)){

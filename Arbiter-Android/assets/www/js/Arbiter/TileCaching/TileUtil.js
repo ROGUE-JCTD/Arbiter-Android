@@ -72,9 +72,9 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 					 var i;
 					 for (i=0; i<entries.length; i++) {
 						 if (entries[i].isDirectory) {
-							 console.log("--{ Dir: " + entries[i].name, "path: " + entries[i].fullPath);
+							 console.log("--{ Dir: " + entries[i].name, "path: " + entries[i].toURL());
 						 } else {
-							 console.log("--{ File: " + entries[i].name, "path: " + entries[i].fullPath);
+							 console.log("--{ File: " + entries[i].name, "path: " + entries[i].toURL());
 						 }
 					 }
 				},
@@ -97,9 +97,9 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 						var i;
 						for (i=0; i<entries.length; i++) {
 							if (entries[i].isDirectory) {
-								console.log("--{ Dir: " + entries[i].name, "path: " + entries[i].fullPath);
+								console.log("--{ Dir: " + entries[i].name, "path: " + entries[i].toURL());
 							} else {
-								console.log("--{ File: " + entries[i].name, "path: " + entries[i].fullPath);
+								console.log("--{ File: " + entries[i].name, "path: " + entries[i].toURL());
 							}
 						}
 					},
@@ -556,7 +556,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	    
 	    if(Arbiter.hasAOIBeenSet() && Arbiter.Util.existsAndNotNull(this.metadata) && this.metadata.isBaseLayer){
 	    	
-	    	path = fileSystem.root.fullPath + "/" + tileDir.path +"/" 
+	    	path = fileSystem.root.toURL() + "/" + tileDir.path +"/" 
 	    		+ xyz.z + "/" + xyz.x + "/" + xyz.y + "." + ext;
 	    }else{
 	    	path = this.getURL_Original(bounds);
@@ -919,13 +919,13 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 			console.log("---- TileUtil.saveTile. tileset: " + tileDir.path + ", z: " + z + ", x: " + x + ", y: " + y + ", url: " + fileUrl);
 		}
 		
-		//console.log("---- tilesetDirEntry: " + tilesetDirEntry.fullPath);
+		//console.log("---- tilesetDirEntry: " + tilesetDirEntry.toURL());
 		tileDir.dir.getDirectory("" + z, {create: true, exclusive: false}, 
 			function(zDirEntry){
-				//console.log("---- zDirEntry: " + zDirEntry.fullPath);
+				//console.log("---- zDirEntry: " + zDirEntry.toURL());
 				zDirEntry.getDirectory("" + x, {create: true, exclusive: false}, 
 					function(xDirEntry){
-						//console.log("---- xDirEntry: " + xDirEntry.fullPath);
+						//console.log("---- xDirEntry: " + xDirEntry.toURL());
 						var filePath = xDirEntry.toURL() + "/" + y + "." + ext; 
 						
 						//console.log("==== will store file at: " + filePath);
@@ -985,7 +985,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 		if (tileNewRefCounter === 1) {
 			// alert("inserted tile. id: " + res.insertId);
 			appDb.transaction(function(tx) {
-				var path = fileSystem.root.fullPath + "/" + tileDir.path +"/" + z + "/" + x + "/" + y + "." + ext;
+				var path = fileSystem.root.toURL() + "/" + tileDir.path +"/" + z + "/" + x + "/" + y + "." + ext;
 	
 				var statement = "INSERT INTO tiles (tileset, z, x, y, path, url, ref_counter) VALUES (?, ?, ?, ?, ?, ?, ?);";
 				tx.executeSql(statement, [ tileDir.path, z, x, y, path, url, 1 ], function(tx, res) {
@@ -1224,7 +1224,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	
 	this.removeTileFromDevice = function(path, id, successCallback, errorCallback){
 		// remove tile from disk
-		var newPath = path.replace(fileSystem.root.fullPath + '/','');
+		var newPath = path.replace(fileSystem.root.toURL() + '/','');
 		fileSystem.root.getFile(newPath, {create: false},
 			function(fileEntry){
 				fileEntry.remove(

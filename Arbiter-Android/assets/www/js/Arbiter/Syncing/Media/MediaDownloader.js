@@ -14,11 +14,7 @@ Arbiter.MediaDownloader = function(_featureDb, _schema, _server,
 			this.server.getUsername(),
 			this.server.getPassword());
 	
-	this.url = this.server.getUrl();
-	this.url = this.url.substring(0,
-			this.url.length - 9);
-	
-    this.url += "file-service/";
+	this.url = Arbiter.Util.getFileServiceURL(this.server.getUrl());
     
 	this.header = {
 		Authorization: 'Basic ' + credentials	

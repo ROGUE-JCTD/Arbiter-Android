@@ -14,11 +14,7 @@ Arbiter.MediaUploader = function(_schema, _mediaToSend, _server, _mediaDir, _fin
 			this.server.getUsername(), 
 			this.server.getPassword());
 	
-	this.url = this.server.getUrl();
-	this.url = this.url.substring(0,
-			this.url.length - 9);
-	
-    this.url += "file-service/upload";
+    this.url = Arbiter.Util.getFileServiceURL(this.server.getUrl()) + "upload";
     
 	this.header = {
 		Authorization: 'Basic ' + credentials	
@@ -189,7 +185,7 @@ Arbiter.MediaUploader.prototype.uploadNext = function(next){
         
         progressListener.watchProgress();
         
-        ft.upload(fileEntry.fullPath, encodeURI(context.url), function(response) {
+        ft.upload(fileEntry.toURL(), encodeURI(context.url), function(response) {
             console.log("Code = " + response.responseCode);
             console.log("Response = " + response.response);
             console.log("Sent = " + response.bytesSent);

@@ -130,6 +130,25 @@ Arbiter.Util = (function(){
 			}
 			
 			return features;
+		},
+		
+		getFileServiceURL: function(url){
+			
+			var fileServiceURL = null;
+			
+			var prefix = null;
+			
+			if(url.indexOf("http://") === 0){
+				prefix = "http://";
+				fileServiceURL = url.substr(7);
+			}else if(url.indexOf("https://") === 0){
+				prefix = "https://";
+				fileServiceURL = url.substr(8);
+			}
+			
+			fileServiceURL = prefix + fileServiceURL.split('/')[0] + "/file-service/";
+			
+			return fileServiceURL;
 		}
 	};
 })();

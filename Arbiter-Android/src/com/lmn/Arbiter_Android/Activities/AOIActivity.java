@@ -124,7 +124,6 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface,
     protected void onDestroy(){
     	super.onDestroy();
     	if(this.cordovaWebView != null){
-    		Log.w("AOIActivity", "AOIActivity onDestroy");
     		cordovaWebView.handleDestroy();
     	}
     }

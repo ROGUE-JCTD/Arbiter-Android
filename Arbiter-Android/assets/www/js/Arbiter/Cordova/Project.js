@@ -236,39 +236,6 @@ Arbiter.Cordova.Project = (function(){
 			}, onFailure);
 		},
 		
-		/**
-		 * callback is the callback to be executed
-		 * after all of the features finish downloading
-		 */
-		downloadFeatures: function(schema, bounds, encodedCredentials, onSuccess, onFailure){
-			var context = this;
-			
-			// Insert the downloaded features
-			// into the layers feature table
-			Arbiter.Util.Feature.downloadFeatures(schema, bounds, 
-					encodedCredentials, function(schema, features){
-				// Features will be in their native srid at this point so pass the srid of the schema
-				var isDownload = true;
-				
-				Arbiter.FeatureTableHelper.insertFeatures(schema, schema.getSRID(),
-						features, isDownload, function(){
-					try{
-						console.log("inserted features now downloading media for said features");
-						
-						Arbiter.MediaHelper.downloadMedia(schema, encodedCredentials, features, function(){
-							if(Arbiter.Util.funcExists(onSuccess)){
-								console.log("executing download features onSuccess");
-								onSuccess();
-							}
-						}, onFailure);
-					}catch(e){
-						console.log("Media failed to download");
-					}
-					
-				});
-			}, onFailure);
-		},
-		
 		updateAOI: function(left, bottom, right, top){
 			var aoi = left + ", " + bottom 
 				+ ", " + right + ", " + top;

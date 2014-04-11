@@ -1,27 +1,6 @@
 Arbiter.FileSystem = (function(){
 	var fileSystem = null;
 	
-	var createTileDirectories = function(onSuccess, onFailure){
-		var tileset = Arbiter.FileSystem.ROOT_LEVEL + Arbiter.FileSystem.fileSeparator
-			+ Arbiter.FileSystem.TILESET;
-		
-		fileSystem.root.getDirectory(Arbiter.FileSystem.ROOT_LEVEL, {create: true}, function(parent){
-			fileSystem.root.getDirectory(tileset, {create: true}, function(parent){
-				if(Arbiter.Util.funcExists(onSuccess)){
-					onSuccess();
-				}
-			}, function(){
-				if(Arbiter.Util.funcExists(onFailure)){
-					onFailure("Error getting " + tileset + " directory");
-				}
-			});
-		}, function(){
-			if(Arbiter.Util.funcExists(onFailure)){
-				onFailure("Error getting " + Arbiter.FileSystem.ROOT_LEVEL + " directory");
-			}
-		});
-	};
-	
 	var createMediaDirectories = function(projectName, onSuccess, onFailure){
 		var path = Arbiter.FileSystem.ROOT_LEVEL;
 		
@@ -39,6 +18,8 @@ Arbiter.FileSystem = (function(){
 					path += Arbiter.FileSystem.fileSeparator + Arbiter.FileSystem.MEDIA;
 					
 					fileSystem.root.getDirectory(path, {create: true}, function(mediaDir){
+						
+						console.log("createMediaDirectory toURL() = " + mediaDir.toURL());
 						
 						if(Arbiter.Util.funcExists(onSuccess)){
 							onSuccess(mediaDir);
@@ -97,14 +78,6 @@ Arbiter.FileSystem = (function(){
 		
 		getFileSystem: function(){
 			return fileSystem;
-		},
-		
-		ensureTileDirectoryExists: function(onSuccess, onFailure){
-			createTileDirectories(function(){
-				if(Arbiter.Util.funcExists(onSuccess)){
-					onSuccess(fileSystem);
-				}
-			}, onFailure);
 		},
 		
 		ensureMediaDirectoryExists: function(onSuccess, onFailure){

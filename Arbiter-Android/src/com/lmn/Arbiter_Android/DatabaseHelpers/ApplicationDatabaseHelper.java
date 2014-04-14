@@ -6,13 +6,15 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.lmn.Arbiter_Android.DatabaseHelpers.Migrations.Migration;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesHelper;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ApplicationDatabaseHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "arbiter_application.db";
-	private static int DATABASE_VERSION = 1;
+	private static int DATABASE_VERSION = 3;
 	
 	private ApplicationDatabaseHelper(Context context){
 		super(context, ProjectStructure.getApplicationRoot() + File.separator + DATABASE_NAME, null, DATABASE_VERSION);
@@ -32,16 +34,36 @@ public class ApplicationDatabaseHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		ServersHelper.getServersHelper().createTable(db);
 		TilesHelper.getHelper().createTable(db);
+		PreferencesHelper.getHelper().createTable(db);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// TODO: Migrate the tables
-		db.execSQL("DROP TABLE IF EXISTS " + ServersHelper.SERVERS_TABLE_NAME + ";");
-		db.execSQL("DROP TABLE IF EXISTS " + TilesHelper.TABLE_NAME + ";");
 		
-		ServersHelper.getServersHelper().createTable(db);
-		TilesHelper.getHelper().createTable(db);
+		int version = oldVersion;
+		int updatedVersion = newVersion;
+		
+		while(version != updatedVersion){
+			
+			try {
+				Class<?> clazz = Class.forName("com.lmn.Arbiter_Android.DatabaseHelpers.Migrations.UpgradeAppDbFrom" 
+						+ Integer.toString(version) + "To" 
+						+ Integer.toString(++version));
+				
+				Migration migration = (Migration) clazz.newInstance();
+				
+				migration.migrate(db);
+				
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}catch(ClassCastException e){
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	@Override

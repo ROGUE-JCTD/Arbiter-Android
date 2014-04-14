@@ -164,8 +164,9 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
                 progressListener.watchProgress();
                 
                 var uri = encodeURI(context.url + media);
-                fileTransfer.download(uri, context.mediaDir.fullPath + "/" + media, function(result) {
-                        console.log("download complete: " + result.fullPath);
+                
+                fileTransfer.download(uri, context.mediaDir.toURL() + "/" + media, function(result) {
+                        console.log("download complete: " + result.toURL());
                         
                         isFinished = true;
                         

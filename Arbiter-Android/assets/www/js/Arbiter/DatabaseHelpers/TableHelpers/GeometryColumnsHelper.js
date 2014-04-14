@@ -75,7 +75,7 @@ Arbiter.GeometryColumnsHelper = (function(){
     				}
     			}, function(tx, e){
     				console.log("ERROR: Arbiter.GeometryColumnsHelper"
-    						+ ".getGeometryColumn inner", e);
+    						+ ".getGeometryColumn inner", e.stack);
     				
     				if(Arbiter.Util.funcExists(onFailure)){
     					onFailure.call(context, e);

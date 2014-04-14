@@ -2,21 +2,26 @@ package com.lmn.Arbiter_Android.Loaders;
 
 import java.util.ArrayList;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.SparseArray;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
+import com.lmn.Arbiter_Android.BaseClasses.BaseLayer;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.BroadcastReceivers.LayerBroadcastReceiver;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
-//import com.lmn.Arbiter_Android.DatabaseHelpers.DbHelpers;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
@@ -51,16 +56,60 @@ public class LayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 	public ArrayList<Layer> loadInBackground() {
 		updateProjectDbHelper();
 		
+		SQLiteDatabase db = getProjectDbHelper().getWritableDatabase();
+		
 		ArrayList<Layer> layers = LayersHelper.getLayersHelper().
-				getAll(projectDbHelper.getWritableDatabase());
+				getAll(db);
 		
 		SparseArray<Server> servers = ServersHelper.getServersHelper().
-				getAll(appDbHelper.getWritableDatabase());
+				getAll(getAppDbHelper().getWritableDatabase());
 		
-		return addServerInfoToLayers(layers, servers);
+		layers = addServerInfoToLayers(layers, servers);
+		
+		String json = PreferencesHelper.getHelper().get(db, context, PreferencesHelper.BASE_LAYER);
+		
+		try {
+			BaseLayer baseLayer = getBaseLayerFromJSON(json);
+			
+			layers = removeBaseLayerFromLayers(baseLayer, layers);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return layers;
 	}
 	
-	private ArrayList<Layer> addServerInfoToLayers(ArrayList<Layer> layers, 
+	private BaseLayer getBaseLayerFromJSON(String json) throws JSONException{
+		
+		if(json == null){
+			return BaseLayer.createOSMBaseLayer();
+		}
+		
+		JSONArray baseLayers = new JSONArray(json);
+		
+		return new BaseLayer(baseLayers.getJSONObject(0));
+	}
+	
+	private ArrayList<Layer> removeBaseLayerFromLayers(BaseLayer baseLayer, ArrayList<Layer> layers){
+		String featureType = baseLayer.getFeatureType();
+		
+		if(featureType == null || featureType.equals("null")){
+			return layers;
+		}
+		
+		for(int i = 0, count = layers.size(); i < count; i++){
+			
+			if(featureType.equals(layers.get(i).getFeatureType())){
+				layers.remove(i);
+				break;
+			}
+		}
+		
+		return layers;
+	}
+	
+	protected ArrayList<Layer> addServerInfoToLayers(ArrayList<Layer> layers, 
 			SparseArray<Server> servers){
 		Server server;
 		
@@ -71,6 +120,14 @@ public class LayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 		}
 		
 		return layers;
+	}
+	
+	protected ProjectDatabaseHelper getProjectDbHelper(){
+		return this.projectDbHelper;
+	}
+	
+	protected ApplicationDatabaseHelper getAppDbHelper(){
+		return this.appDbHelper;
 	}
 	
 	/**
@@ -87,7 +144,7 @@ public class LayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
             }
         }
         
-        ArrayList<Layer> oldLayers = _layers;
+        ArrayList<Layer> oldLayers = layers;
         layers = _layers;
 
         if (isStarted()) {

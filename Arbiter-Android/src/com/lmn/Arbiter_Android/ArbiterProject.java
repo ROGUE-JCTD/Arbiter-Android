@@ -2,25 +2,19 @@ package com.lmn.Arbiter_Android;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.support.v4.app.FragmentActivity;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.lmn.Arbiter_Android.BaseClasses.Project;
-import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 import com.lmn.Arbiter_Android.Map.Map;
-import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ArbiterProject {
-	private static final String ARBITER_PREFERENCES = "ArbiterPreferences";
 	private static final String OPEN_PROJECT_NAME = "openProjectName";
 	
 	// Keys for preferences table in project db
@@ -49,20 +43,16 @@ public class ArbiterProject {
 	}
 	
 	/**
-	 * Update SharedPreferences with the projectId, and keep the open project id 
-	 * and whether or not the current project includes the default layer.
+	 * Save the last open project
 	 * 
 	 * @param context
 	 * @param projectId
 	 */
 	public void setOpenProject(Context context, String projectName){
 		
-		// Save the open project id to shared preferences for persistent storage
-		SharedPreferences settings = context.getSharedPreferences(ARBITER_PREFERENCES, Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = settings.edit();
-		editor.putString(OPEN_PROJECT_NAME, projectName);
+		SQLiteDatabase db = ApplicationDatabaseHelper.getHelper(context).getWritableDatabase();
 		
-		editor.commit();
+		PreferencesHelper.getHelper().put(db, context, OPEN_PROJECT_NAME, projectName);
 		
 		// Set the open project
 		this.openProjectName = projectName;
@@ -79,13 +69,10 @@ public class ArbiterProject {
 	public String getOpenProject(Activity activity){
 		if(!openProjectHasBeenInitialized()){
 			Context context = activity.getApplicationContext();
-			
-			// projectId hasn't been set yet so get the
-			// last open project from SharedPreferences
-    		SharedPreferences settings = context.
-    				getSharedPreferences(ARBITER_PREFERENCES, FragmentActivity.MODE_PRIVATE);
     		
-    		openProjectName = settings.getString(OPEN_PROJECT_NAME, null);
+    		SQLiteDatabase db = ApplicationDatabaseHelper.getHelper(context).getWritableDatabase();
+    		
+    		openProjectName = PreferencesHelper.getHelper().get(db, context, OPEN_PROJECT_NAME);
     		
     		// If openProject is STILL -1, then there wasn't a previously opened project  
     		if(!openProjectHasBeenInitialized()){

@@ -33,10 +33,18 @@ Arbiter.Loaders.LayersLoader = (function(){
 		Arbiter.Layers.removeAllLayers();
 	};
 	
-	var setBaseLayer = function(){
+	var setBaseLayer = function(olBaseLayer){
 		var map = Arbiter.Map.getMap();
 		if (map.layers.length) {
-			Arbiter.Layers.setNewBaseLayer(map.layers[0]);
+			Arbiter.Layers.setNewBaseLayer(olBaseLayer);
+			
+			map.setLayerIndex(olBaseLayer, 0);
+			
+			if(!Arbiter.Util.existsAndNotNull(olBaseLayer.metadata)){
+				olBaseLayer.metadata = {};
+			}
+			
+			olBaseLayer.metadata.isBaseLayer = true;
 		}
 	};
 	
@@ -107,12 +115,24 @@ Arbiter.Loaders.LayersLoader = (function(){
 				olLayer, onSuccess, onFailure);
 	};
 	
+	var loadTMSLayer = function(key, schema){
+		var olLayer = Arbiter.Layers.TMSLayer.create(key, schema);
+		
+		Arbiter.Layers.addLayer(olLayer);
+		
+		olLayer.setVisibility(schema.isVisible());
+		
+		return olLayer;
+	};
+	
 	var loadWMSLayer = function(key, schema){
 		var olLayer = Arbiter.Layers.WMSLayer.create(key, schema);
 		
 		Arbiter.Layers.addLayer(olLayer);
 		
 		olLayer.setVisibility(schema.isVisible());
+		
+		return olLayer;
 	};
 	
 	var addAOIToMap = function(_aoi){
@@ -161,7 +181,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 		});
 	};
 	
-	var loadLayers = function(dbLayers, onSuccess){
+	var loadLayers = function(baseLayer, dbLayers, onSuccess){
 		
 		reset();
 		
@@ -169,15 +189,18 @@ Arbiter.Loaders.LayersLoader = (function(){
 		
 		var layerSchemas = Arbiter.getLayerSchemas();
 		
-		var layer;
+		var layer = null;
+		var olBaseLayer = null;
 		
-		Arbiter.Layers.addDefaultLayer(true);
+		if(!Arbiter.Util.existsAndNotNull(baseLayer) || (Arbiter.Util.existsAndNotNull(baseLayer) && baseLayer[Arbiter.BaseLayer.NAME] === "OpenStreetMap")){
+			olBaseLayer = Arbiter.Layers.addDefaultLayer(true);
+		}
 		
 		if(layerSchemas === undefined 
 				|| layerSchemas === null 
 				|| (Arbiter.getLayerSchemasLength() === 0)){
 			
-			setBaseLayer();
+			setBaseLayer(olBaseLayer);
 			
 			loadAOILayer();
 			
@@ -191,15 +214,41 @@ Arbiter.Loaders.LayersLoader = (function(){
 		var schema;
 		var key;
 		var editableLayers = 0;
+		var featureType = null;
+		var serverType = null;
 		
 		for(var i = 0; i < dbLayers.length; i++){
 			key = dbLayers[i][Arbiter.LayersHelper.layerId()];
 			
 			schema = layerSchemas[key];
 			
-			loadWMSLayer(key, schema);
+			serverType = schema.getServerType();
 			
-			layersToLoad++;
+			if(serverType === "WMS"){
+				layer = loadWMSLayer(key, schema);
+			}else if(serverType === "TMS"){
+				layer = loadTMSLayer(key, schema);
+			}else{
+				console.log("Invalid server type: " + serverType);
+			}
+			
+			featureType = "";
+			
+			if(Arbiter.Util.existsAndNotNull(schema.getPrefix()) && schema.getPrefix() !== "null"){
+				featureType += schema.getPrefix() + ":";
+			}
+			
+			featureType += schema.getFeatureType();
+			
+			if(Arbiter.Util.existsAndNotNull(baseLayer) && (featureType === baseLayer[Arbiter.BaseLayer.FEATURE_TYPE])){
+				olBaseLayer = layer;
+				dbLayers.splice(i--, 1);
+			}else{
+				
+				if(serverType === "WMS"){
+					layersToLoad++;
+				}
+			}
 		}
 		
 		for(var i = 0; i < dbLayers.length; i++){
@@ -209,18 +258,24 @@ Arbiter.Loaders.LayersLoader = (function(){
 			schema = layerSchemas[key];
 			
 			if(schema.isEditable()){
+				
 				editableLayers++;
 				// Load the vector layer
 				loadWFSLayer(key, schema, onSuccess);
+			}else{
+				layersToLoad--;
 			}
 		}
 		
-		setBaseLayer();
-		
 		loadAOILayer();
+		
+		if(Arbiter.Util.existsAndNotNull(olBaseLayer)){
+			setBaseLayer(olBaseLayer);
+		}
 		
 		if(editableLayers === 0 
 				&& Arbiter.Util.funcExists(onSuccess)){
+			
 			onSuccess();
 		}
 	};
@@ -238,7 +293,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 		}
 	};
 	
-	var checkSupportedCRS = function(dbLayers){
+	var checkSupportedCRS = function(baseLayer, dbLayers){
 		
 		var layerId = null;
 		var schema = null;
@@ -263,28 +318,33 @@ Arbiter.Loaders.LayersLoader = (function(){
 			
 			schema = schemas[layerId];
 			
-			crs = schema.getSRID();
-			
-			proj4def = Proj4js.defs[crs];
-			
-			if(!Arbiter.Util.existsAndNotNull(proj4def)){
+			if(dbLayers[i][Arbiter.LayersHelper.featureType()] !== baseLayer[Arbiter.BaseLayer.FEATURE_TYPE] && schema.isEditable()){
 				
-				// Add the layer to the list of unsupported layers
-				// and decrement the index to continue iterating
-				unsupportedLayer = dbLayers.splice(i--, 1);
+				crs = schema.getSRID();
 				
-				if(unsupportedLayer.constructor === Array){
-					unsupportedLayer = unsupportedLayer[0];
+				proj4def = Proj4js.defs[crs];
+				
+				if(!Arbiter.Util.existsAndNotNull(proj4def)){
+					
+					// Add the layer to the list of unsupported layers
+					// and decrement the index to continue iterating
+					unsupportedLayer = dbLayers.splice(i--, 1);
+					
+					if(unsupportedLayer.constructor === Array){
+						unsupportedLayer = unsupportedLayer[0];
+					}
+					
+					obj = {};
+					
+					obj[layerTitleKey] = unsupportedLayer[layerTitleKey];
+					obj[workspaceKey] = unsupportedLayer[workspaceKey];
+					obj[serverIdKey] = unsupportedLayer[serverIdKey];
+					obj[srsKey] = crs;
+					
+					unsupportedLayers.push(obj);
 				}
-				
-				obj = {};
-				
-				obj[layerTitleKey] = unsupportedLayer[layerTitleKey];
-				obj[workspaceKey] = unsupportedLayer[workspaceKey];
-				obj[serverIdKey] = unsupportedLayer[serverIdKey];
-				obj[srsKey] = crs;
-				
-				unsupportedLayers.push(obj);
+			}else{
+				console.log("its the baselayer or isn't editable!");
 			}
 		}
 		
@@ -302,50 +362,59 @@ Arbiter.Loaders.LayersLoader = (function(){
 			var layersWithUnsupportedCRS = null;
 			
 			// Load the servers
-			Arbiter.ServersHelper.loadServers(this, function(){
+			Arbiter.ServersHelper.loadServers(context, function(){
 				
 				// Load the layers from the database
-				Arbiter.LayersHelper.loadLayers(this, function(layers){
+				Arbiter.LayersHelper.loadLayers(context, function(layers){
 					
-					// Load the layer schemas with layer data loaded from the db
-					Arbiter.FeatureTableHelper.loadLayerSchemas(layers, function(){
+					Arbiter.PreferencesHelper.get(Arbiter.BASE_LAYER, context, function(baseLayer){
+
+						if(Arbiter.Util.existsAndNotNull(baseLayer)){
+							try{
+								// base layer is stored as an array of json objects
+								baseLayer = JSON.parse(baseLayer)[0];
+							}catch(e){
+								console.log(e.stack);
+							}
+						}
+						
+						// Load the layer schemas with layer data loaded from the db
+						Arbiter.FeatureTableHelper.loadLayerSchemas(layers, function(){
 							
-						console.log("db layers loaded: ", layers);
-						
-						// Will return the unsupported layers and remove them from the layers array
-						layersWithUnsupportedCRS = checkSupportedCRS(layers);
-						
-							// Load the layers onto the map
-							loadLayers(layers, function(){
-								
-								var controlPanelHelper = new Arbiter.ControlPanelHelper();
-								controlPanelHelper.getActiveControl(function(activeControl){
+							// Will return the unsupported layers and remove them from the layers array
+							layersWithUnsupportedCRS = checkSupportedCRS(baseLayer, layers);
+							
+								// Load the layers onto the map
+								loadLayers(baseLayer, layers, function(){
 									
-									controlPanelHelper.getLayerId(function(layerId){
+									var controlPanelHelper = new Arbiter.ControlPanelHelper();
+									controlPanelHelper.getActiveControl(function(activeControl){
 										
-										if(activeControl == controlPanelHelper.CONTROLS.INSERT){
-											Arbiter.Controls.ControlPanel.startInsertMode(layerId);
-										}
-										
-										if(Arbiter.Util.funcExists(onSuccess)){
-											onSuccess();
-										}
-										
-										// Sometimes after loading,
-										// the wfs layers do not get drawn
-										// properly.  This ensures they
-										// get drawn correctly.
-										redrawWFSLayers();
-										
-										if(Arbiter.Util.existsAndNotNull(layersWithUnsupportedCRS) 
-												&& layersWithUnsupportedCRS.length){
+										controlPanelHelper.getLayerId(function(layerId){
 											
-											Arbiter.Cordova.reportLayersWithUnsupportedCRS(layersWithUnsupportedCRS);
-										}
-									}, onFailure)
-								}, onFailure);
-								
-							});
+											if(activeControl == controlPanelHelper.CONTROLS.INSERT){
+												Arbiter.Controls.ControlPanel.startInsertMode(layerId);
+											}
+											
+											if(Arbiter.Util.funcExists(onSuccess)){
+												onSuccess();
+											}
+											
+											// Sometimes after loading,
+											// the wfs layers do not get drawn
+											// properly.  This ensures they
+											// get drawn correctly.
+											redrawWFSLayers();
+											
+											if(Arbiter.Util.existsAndNotNull(layersWithUnsupportedCRS) 
+													&& layersWithUnsupportedCRS.length){
+												
+												Arbiter.Cordova.reportLayersWithUnsupportedCRS(layersWithUnsupportedCRS);
+											}
+										}, onFailure)
+									}, onFailure);
+								});
+						}, onFailure);
 					}, onFailure);
 				}, onFailure);
 			}, onFailure);

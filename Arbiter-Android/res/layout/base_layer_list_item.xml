@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+	android:layout_height="56dip"
+	android:background="@drawable/list_selector"
+	android:clickable="true" >
+
+	<RelativeLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:layout_marginLeft="15dp" >
+	
+		<!-- Layer name-->
+	    <TextView
+	        android:id="@+id/layerName"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="5dip"
+	        android:text="@string/projects_activity_name"
+	        android:textColor="#040404"
+	        android:typeface="sans"
+	        android:textSize="14sp"
+	        android:textStyle="bold"/>
+	    
+	    <!-- Server name -->
+	    <TextView
+	        android:id="@+id/serverName"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/layerName"
+	        android:textColor="#343434"
+	        android:textSize="12sp"
+	        android:layout_marginTop="1dip"
+	        android:text="@string/server_name_hint" />
+	    
+	</RelativeLayout>
+    
+</RelativeLayout>

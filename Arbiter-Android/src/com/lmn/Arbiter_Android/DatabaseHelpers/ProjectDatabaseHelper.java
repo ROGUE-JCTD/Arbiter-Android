@@ -6,8 +6,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.lmn.Arbiter_Android.DatabaseHelpers.Migrations.DatabaseVersionException;
-import com.lmn.Arbiter_Android.DatabaseHelpers.Migrations.UpgradeToVersionTwo;
+import com.lmn.Arbiter_Android.DatabaseHelpers.Migrations.Migration;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FailedSync;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
@@ -50,13 +49,27 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		
-		if(oldVersion == 1 && newVersion == 2){
+		int version = oldVersion;
+		int updatedVersion = newVersion;
+		
+		while(version != updatedVersion){
+			
 			try {
-				UpgradeToVersionTwo upgradeHelper = new UpgradeToVersionTwo(db, oldVersion, newVersion);
+				Class<?> clazz = Class.forName("com.lmn.Arbiter_Android.DatabaseHelpers.Migrations.UpgradeProjectDbFrom" 
+						+ Integer.toString(version) + "To" 
+						+ Integer.toString(++version));
 				
-				upgradeHelper.upgrade();
-			} catch (DatabaseVersionException e) {
-				// TODO Auto-generated catch block
+				Migration migration = (Migration) clazz.newInstance();
+				
+				migration.migrate(db);
+				
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}catch(ClassCastException e){
 				e.printStackTrace();
 			}
 		}

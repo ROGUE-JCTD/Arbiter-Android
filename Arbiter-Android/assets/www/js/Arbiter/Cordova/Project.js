@@ -98,22 +98,113 @@ Arbiter.Cordova.Project = (function(){
 			Arbiter.ProjectDbHelper.getProjectDatabase().close();
 			Arbiter.FeatureDbHelper.getFeatureDatabase().close();
 			
-			Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
-				var bounds = null;
-				
-				if(_aoi !== null && _aoi !== undefined 
-						&& _aoi !== ""){
+			Arbiter.Cordova.Project.updateBaseLayer(function(){
+				Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
+					var bounds = null;
 					
-					var aoi = _aoi.split(',');
+					if(_aoi !== null && _aoi !== undefined 
+							&& _aoi !== ""){
+						
+						var aoi = _aoi.split(',');
+						
+						bounds = new Arbiter.Util.Bounds(aoi[0], 
+							aoi[1], aoi[2], aoi[3]);
+					}
 					
-					bounds = new Arbiter.Util.Bounds(aoi[0], 
-						aoi[1], aoi[2], aoi[3]);
-				}
-				
-				storeData(context, layers, bounds, true, function(){
-					onSuccess();
+					storeData(context, layers, bounds, true, function(){
+						onSuccess();
+					}, onFailure);
 				}, onFailure);
 			}, onFailure);
+		},
+		
+		cacheBaseLayer: function(){
+			
+			var context = this;
+			
+			if(syncInProgress){
+				
+				console.log("sync already in progress");
+				
+				return;
+			}
+			
+			var fail = function(e){
+				
+				console.log("sync failed", e);
+				
+				if(syncInProgress){
+					Arbiter.Cordova.syncCompleted();
+				}
+				
+				syncInProgress = false;
+			};
+			
+			Arbiter.Cordova.Project.updateBaseLayer(function(){
+				
+				console.log("updated base layer: ", Arbiter.getTileUtil().getTileDir().path);
+				
+				var baseLayerLoader = new Arbiter.Loaders.BaseLayer();
+				
+				baseLayerLoader.load(function(baseLayer){
+					
+					Arbiter.Loaders.LayersLoader.load(function(){
+						
+						Arbiter.PreferencesHelper.get(Arbiter.AOI, context, function(_aoi){
+							
+							if(_aoi !== null && _aoi !== undefined 
+									&& _aoi !== ""){
+								
+								var aoi = _aoi.split(',');
+								
+								var bounds = new Arbiter.Util.Bounds(aoi[0], aoi[1], aoi[2], aoi[3]);
+									
+								var map = Arbiter.Map.getMap();
+								
+								var syncHelper = new Arbiter.Sync(map, bounds, true, function(){
+									
+									syncInProgress = false;
+									
+									Arbiter.Cordova.syncCompleted();
+								}, fail, Arbiter.FileSystem.getFileSystem(), baseLayer, true);
+								
+								syncInProgress = true;
+								
+								Arbiter.Cordova.setState(Arbiter.Cordova.STATES.UPDATING);
+								
+								syncHelper.startTileCache();
+							}
+						}, fail);
+					}, fail);
+				}, fail);
+			}, fail);
+		},
+		
+		updateBaseLayer: function(onSuccess, onFailure){
+			var baseLayerLoader = new Arbiter.Loaders.BaseLayer();
+			
+			var fail = function(e){
+				
+				console.log("Error changing base layer: " + e);
+				
+				if(Arbiter.Util.existsAndNotNull(onFailure)){
+					onFailure(e);
+				}
+			};
+			
+			baseLayerLoader.load(function(baseLayer){
+				
+				var tileDir = new Arbiter.TileDir(Arbiter.FileSystem.getFileSystem(), baseLayer);
+				
+				tileDir.getTileDir(function(dir){
+					
+					Arbiter.getTileUtil().setTileDir(dir);
+					
+					if(Arbiter.Util.existsAndNotNull(onSuccess)){
+						onSuccess();
+					}
+				}, fail);
+			}, fail);
 		},
 		
 		addLayers: function(layers){
@@ -142,39 +233,6 @@ Arbiter.Cordova.Project = (function(){
 					
 					onSuccess();
 				}, onFailure);
-			}, onFailure);
-		},
-		
-		/**
-		 * callback is the callback to be executed
-		 * after all of the features finish downloading
-		 */
-		downloadFeatures: function(schema, bounds, encodedCredentials, onSuccess, onFailure){
-			var context = this;
-			
-			// Insert the downloaded features
-			// into the layers feature table
-			Arbiter.Util.Feature.downloadFeatures(schema, bounds, 
-					encodedCredentials, function(schema, features){
-				// Features will be in their native srid at this point so pass the srid of the schema
-				var isDownload = true;
-				
-				Arbiter.FeatureTableHelper.insertFeatures(schema, schema.getSRID(),
-						features, isDownload, function(){
-					try{
-						console.log("inserted features now downloading media for said features");
-						
-						Arbiter.MediaHelper.downloadMedia(schema, encodedCredentials, features, function(){
-							if(Arbiter.Util.funcExists(onSuccess)){
-								console.log("executing download features onSuccess");
-								onSuccess();
-							}
-						}, onFailure);
-					}catch(e){
-						console.log("Media failed to download");
-					}
-					
-				});
 			}, onFailure);
 		},
 		
@@ -252,6 +310,8 @@ Arbiter.Cordova.Project = (function(){
 		sync: function(_cacheTiles, _downloadOnly, _specificSchemas, onSuccess, onFailure){
 			console.log("sync");
 			
+			var context = this;
+			
 			if(syncInProgress === true){
 				
 				console.log("sync is already in progress!");
@@ -278,7 +338,7 @@ Arbiter.Cordova.Project = (function(){
 				
 				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.UPDATING);
 				
-				Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
+				Arbiter.PreferencesHelper.get(Arbiter.AOI, context, function(_aoi){
 					
 					if(_aoi !== null && _aoi !== undefined 
 							&& _aoi !== ""){
@@ -287,37 +347,52 @@ Arbiter.Cordova.Project = (function(){
 						
 						var bounds = new Arbiter.Util.Bounds(aoi[0], aoi[1], aoi[2], aoi[3]);
 						
-						var syncHelper = new Arbiter.Sync(map, cacheTiles,
-								bounds, downloadOnly, function(){
+						Arbiter.PreferencesHelper.get(Arbiter.BASE_LAYER, context, function(baseLayer){
 							
-							syncInProgress = false;
-							
-							if(Arbiter.Util.funcExists(onSuccess)){
-								onSuccess();
-							}else{
-								Arbiter.Cordova.syncCompleted();
+							if(Arbiter.Util.existsAndNotNull(baseLayer)){
+								try{
+									// base layer is stored as an array of json objects
+									baseLayer = JSON.parse(baseLayer)[0];
+								}catch(e){
+									console.log(e.stack);
+								}
 							}
+							
+							var syncHelper = new Arbiter.Sync(map, bounds, downloadOnly, function(){
+								
+								syncInProgress = false;
+								
+								if(Arbiter.Util.funcExists(onSuccess)){
+									onSuccess();
+								}else{
+									Arbiter.Cordova.syncCompleted();
+								}
+							}, function(e){
+								
+								console.log("sync failed", e);
+								
+								syncInProgress = false;
+								
+								if(Arbiter.Util.funcExists(onFailure)){
+									onFailure(e);
+								}else{
+									Arbiter.Cordova.syncCompleted();
+								}
+							}, Arbiter.FileSystem.getFileSystem(), baseLayer, cacheTiles);
+							
+							if(downloadOnly === true || downloadOnly === "true"){
+								
+								syncHelper.setSpecificSchemas(specificSchemas);
+							}
+							
+							syncInProgress = true;
+							
+							syncHelper.sync();
 						}, function(e){
-							
-							console.log("sync failed", e);
-							
-							syncInProgress = false;
-							
 							if(Arbiter.Util.funcExists(onFailure)){
 								onFailure(e);
-							}else{
-								Arbiter.Cordova.syncCompleted();
 							}
 						});
-						
-						if(downloadOnly === true || downloadOnly === "true"){
-							
-							syncHelper.setSpecificSchemas(specificSchemas);
-						}
-						
-						syncInProgress = true;
-						
-						syncHelper.sync();
 					}
 				}, function(e){
 					

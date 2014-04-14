@@ -3,7 +3,8 @@ Arbiter.Layers = (function() {
 	return {
 		type: {
 			WFS: "wfs",
-			WMS: "wms"
+			WMS: "wms",
+			TMS: "tms"
 		},
 		
 		/**
@@ -20,7 +21,7 @@ Arbiter.Layers = (function() {
 				throw "Arbiter.Layers.getLayerName: id must not be " + layerId;
 			}
 
-			if (type === this.type.WMS || type === this.type.WFS) {
+			if (type === this.type.WMS || type === this.type.WFS || type === this.type.TMS) {
 				return layerId + "-" + type;
 			}
 
@@ -65,6 +66,8 @@ Arbiter.Layers = (function() {
 			this.addLayer(osmLayer);
 
 			osmLayer.setVisibility(visibility);
+			
+			return osmLayer;
 		},
 		
 		/**

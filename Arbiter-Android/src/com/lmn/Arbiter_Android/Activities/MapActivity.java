@@ -15,10 +15,8 @@ import com.lmn.Arbiter_Android.InsertProjectHelper;
 import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.About.About;
-import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.ConnectivityListeners.SyncConnectivityListener;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
-import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
@@ -33,7 +31,6 @@ import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
@@ -75,9 +72,10 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+    	Config.init(this);
+    	
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-        Config.init(this);
         
         Init(savedInstanceState);
         
@@ -311,10 +309,11 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         			if(arbiterProject != null) {
     	        		String openProject = arbiterProject.getOpenProject(this);
     	            	if(openProject.equals(this.getResources().getString(R.string.default_project_name))) {
-    	            		final Activity context = this;
+    	            		
     						this.runOnUiThread(new Runnable(){
     							@Override
     							public void run(){
+    								Activity context = getActivity();
     			            		AlertDialog.Builder builder = new AlertDialog.Builder(context);
     								builder.setTitle(context.getResources().getString(R.string.error));
     								builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
@@ -360,8 +359,6 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	super.onResume();
     	Log.w(TAG, TAG + " onResume");
     	
-    	final MapActivity activity = this;
-    	
     	if (this.cordovaWebView == null) {
     		return;
         }
@@ -384,10 +381,10 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     		getThreadPool().execute(new Runnable(){
 				@Override
 				public void run(){
-					OOMWorkaround oom = new OOMWorkaround(activity);
+					OOMWorkaround oom = new OOMWorkaround(getActivity());
     				oom.resetSavedBounds(false);
     				
-    				activity.runOnUiThread(new Runnable(){
+    				getActivity().runOnUiThread(new Runnable(){
     					@Override
     					public void run(){
     						
@@ -399,14 +396,14 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
 				    					getResources().getString(R.string.create_project_msg)
 				    			);*/
 				    			
-				    			SyncProgressDialog.show(activity);
-				    			insertHelper = new InsertProjectHelper(activity);
+				    			SyncProgressDialog.show(getActivity());
+				    			insertHelper = new InsertProjectHelper(getActivity());
 				    			insertHelper.insert();
 				    		}
 				    		// Setting the aoi
 				    		else if(ArbiterState.getArbiterState().isSettingAOI()){
 				    			Log.w(TAG, TAG + ".onResume() setting aoi");
-								SyncProgressDialog.show(activity);
+								SyncProgressDialog.show(getActivity());
 				    			updateProjectAOI();
 				    		}else{
 				    			// Project changed
@@ -447,6 +444,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     protected void onDestroy(){
     	super.onDestroy();
     	if(this.cordovaWebView != null){
+    		Log.w("MapActivity", "MapActivity onDestroy");
     		cordovaWebView.handleDestroy();
     	}
     	

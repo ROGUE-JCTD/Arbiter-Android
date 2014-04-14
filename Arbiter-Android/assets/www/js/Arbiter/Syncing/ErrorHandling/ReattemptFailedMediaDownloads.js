@@ -117,8 +117,8 @@ Arbiter.ReattemptFailedMediaDownloads.prototype.download = function(url, credent
                 progressListener.watchProgress();
                 
                 var uri = encodeURI(context.url + file);
-                fileTransfer.download(uri, context.mediaDir.fullPath + "/" + file, function(result) {
-                        console.log("download complete: " + result.fullPath);
+                fileTransfer.download(uri, context.mediaDir.toURL() + "/" + file, function(result) {
+                        console.log("download complete: " + result.toURL());
                         
                         isFinished = true;
                         

@@ -1,11 +1,15 @@
 package com.lmn.Arbiter_Android;
 
+import org.json.JSONException;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.lmn.Arbiter_Android.BaseClasses.BaseLayer;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
@@ -83,10 +87,25 @@ public class InsertProjectHelper {
 		// Insert the layers into the new project
 		long[] layerIds = insertLayers(helper, context, newProject);
 		
+		// Insert the base layer into the new project
+		try {
+			insertBaseLayer(helper.getWritableDatabase(), context, newProject.getBaseLayer());
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		// Insert the aoi and default layer info
 		insertProjectInfo(helper, context, newProject);
 		
 		return layerIds;
+	}
+	
+	private void insertBaseLayer(SQLiteDatabase db, Context context, BaseLayer baseLayer) throws JSONException{
+		
+		if(baseLayer != null){
+			PreferencesHelper.getHelper().put(db, context, PreferencesHelper.BASE_LAYER, "[" + baseLayer.getJSON().toString() + "]");
+		}
 	}
 	
 	private ProjectDatabaseHelper getProjectDatabaseHelper(Context context, String projectName){

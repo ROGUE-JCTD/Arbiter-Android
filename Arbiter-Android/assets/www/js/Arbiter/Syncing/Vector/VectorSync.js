@@ -119,8 +119,8 @@ Arbiter.VectorSync.prototype.startNextUpload = function(){
 					syncType, key, function(){
 				
 				callback();
-			}, function(){
-				console.log("Could not remove this layer from failed_sync - " + key);
+			}, function(e){
+				console.log("Could not remove this layer from failed_sync - " + key, e);
 				
 				callback();
 			});

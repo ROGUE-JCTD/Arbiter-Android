@@ -18,11 +18,12 @@
 <script src="js/lib/proj4js/proj4js-compressed.js" type="text/javascript"></script>
 <script src="js/lib/proj4js/defs.js" type="text/javascript"></script>
 <script src="js/lib/OpenLayers-2.13.1/OpenLayers.mobile.debug.js" type="text/javascript"></script>
-<script src="js/lib/Cordova/plugins/org.pgsqlite/SQLitePlugin.js" type="text/javascript"></script>
 <script src="js/Arbiter/Arbiter.js" type="text/javascript"></script>
 <script src="js/Arbiter/Util/Util.js" type="text/javascript"></script>
 <script src="js/Arbiter/Localization/Localization.js" type="text/javascript"></script>
-<script src="js/Arbiter/Util/FileSystem.js" type="text/javascript"></script>
+<script src="js/Arbiter/FileSystem/Directory.js" type="text/javascript"></script>
+<script src="js/Arbiter/FileSystem/FileSystem.js" type="text/javascript"></script>
+<script src="js/Arbiter/FileSystem/TileDir.js" type="text/javascript"></script>
 <script src="js/Arbiter/Geometry/Geometry.js" type="text/javascript"></script>
 <script src="js/Arbiter/Geometry/GeometryExpansionPart.js" type="text/javascript"></script>
 <script src="js/Arbiter/Geometry/GeometryExpander.js" type="text/javascript"></script>
@@ -33,7 +34,8 @@
 <script src="js/Arbiter/Util/Enumeration.js" type="text/javascript"></script>
 <script src="js/Arbiter/Util/LayerSchema.js" type="text/javascript"></script>
 <script src="js/Arbiter/Util/Feature.js" type="text/javascript"></script>
-<script src="js/Arbiter/Util/TileUtil.js" type="text/javascript"></script>
+<script src="js/Arbiter/Util/BaseLayer.js" type="text/javascript"></script>
+<script src="js/Arbiter/TileCaching/TileUtil.js" type="text/javascript"></script>
 <script src="js/Arbiter/Cordova/SQLiteTransaction.js" type="text/javascript"></script>
 <script src="js/Arbiter/Cordova/SQLiteTransactionManager.js" type="text/javascript"></script>
 <script src="js/Arbiter/DatabaseHelpers/ProjectDbHelper.js" type="text/javascript"></script>
@@ -56,9 +58,11 @@
 <script src="js/Arbiter/Controls/ControlPanelHelper.js"></script>
 <script src="js/Arbiter/Controls/ControlPanel.js" type="text/javascript"></script>
 <script src="js/Arbiter/Layers/Layers.js" type="text/javascript"></script>
+<script src="js/Arbiter/Layers/TMSLayer.js" type="text/javascript"></script>
 <script src="js/Arbiter/Layers/WMSLayer.js" type="text/javascript"></script>
 <script src="js/Arbiter/Layers/WFSLayer.js" type="text/javascript"></script>
 <script src="js/Arbiter/Loaders/Loaders.js" type="text/javascript"></script>
+<script src="js/Arbiter/Loaders/BaseLayer.js" type="text/javascript"></script>
 <script src="js/Arbiter/Loaders/FeaturesLoader.js" type="text/javascript"></script>
 <script src="js/Arbiter/Loaders/LayersLoader.js" type="text/javascript"></script>
 <script src="js/Arbiter/Syncing/ErrorHandling/StoreVectorToSync.js" type="text/javascript"></script>

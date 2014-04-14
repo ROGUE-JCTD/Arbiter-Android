@@ -14,10 +14,11 @@ Arbiter.Util.LayerSchema = function(){
 	var mediaColumn = null;
 	var layerId = null;
 	var color = null;
+	var serverType = null;
 	
 	var LayerSchema;
 	
-	if(arguments.length === 8){ // Downloaded from the interwebs...
+	if(arguments.length === 9){ // Downloaded from the interwebs...
 		var _layerId = arguments[0];
 		var _url = arguments[1];
 		var _workspace = arguments[2];
@@ -25,9 +26,10 @@ Arbiter.Util.LayerSchema = function(){
 		var _srid = arguments[4];
 		var properties = arguments[5];
 		var _serverId = arguments[6];
-		var _color = arguments[7];
+		var _serverType = arguments[7]
+		var _color = arguments[8];
 		
-		LayerSchema = function(_layerId, _url, _workspace, _featureType, _srid, properties, _serverId, _color){
+		LayerSchema = function(_layerId, _url, _workspace, _featureType, _srid, properties, _serverId, _serverType, _color){
 			var parsedFeatureType = Arbiter.Util.parseFeatureType(_featureType);
 			featureType = parsedFeatureType.featureType;
 			prefix = parsedFeatureType.prefix;
@@ -41,6 +43,7 @@ Arbiter.Util.LayerSchema = function(){
 			enumeration = new Arbiter.Util.Enumeration();
 			visibility = true;
 			serverId = _serverId;
+			serverType = _serverType;
 			color = _color;
 			
 			var attribute = null;
@@ -70,8 +73,8 @@ Arbiter.Util.LayerSchema = function(){
 			}
 		};
 		
-		LayerSchema(_layerId, _url, _workspace, _featureType, _srid, properties, _serverId, _color);
-	}else if(arguments.length === 14){ // Loaded from database
+		LayerSchema(_layerId, _url, _workspace, _featureType, _srid, properties, _serverId, _serverType, _color);
+	}else if(arguments.length === 15){ // Loaded from database
 		var _layerId = arguments[0];
 		var _url = arguments[1];
 		var _workspace = arguments[2];
@@ -84,14 +87,15 @@ Arbiter.Util.LayerSchema = function(){
 		var _attributes = arguments[9];
 		var _visibility = arguments[10];
 		var _serverId = arguments[11];
-		var _mediaColumn = arguments[12];
-		var _color = arguments[13];
+		var _serverType = arguments[12];
+		var _mediaColumn = arguments[13];
+		var _color = arguments[14];
 		
 		LayerSchema = function(_layerId, _url, _workspace, 
 				_prefix, _featureType, _srid, 
 				_geometryName, _geometryType,
 				_enumeration, _attributes, 
-				_visibility, _serverId, _mediaColumn, _color){
+				_visibility, _serverId, _serverType, _mediaColumn, _color){
 			
 			layerId = _layerId;
 			editable = true;
@@ -106,25 +110,27 @@ Arbiter.Util.LayerSchema = function(){
 			geometryType = _geometryType;
 			visibility = _visibility;
 			serverId = _serverId;
+			serverType = _serverType;
 			mediaColumn = _mediaColumn;
 			color = _color;
 		};
 		
 		LayerSchema(_layerId, _url, _workspace, _prefix, _featureType, 
 				_srid, _geometryName, _geometryType, 
-				_enumeration, _attributes, _visibility, _serverId, _mediaColumn, _color);
+				_enumeration, _attributes, _visibility, _serverId, _serverType, _mediaColumn, _color);
 		
-	}else if(arguments.length === 7){ // LayerGroup
+	}else if(arguments.length === 8){ // LayerGroup
 		var _layerId = arguments[0];
 		var _url = arguments[1];
 		var _workspace = arguments[2];
 		var _featureType = arguments[3];
 		var _visibility = arguments[4];
 		var _serverId = arguments[5];
-		var _color = arguments[6];
+		var _serverType = arguments[6];
+		var _color = arguments[7];
 		
 		LayerSchema = function(_layerId, _url, _workspace, 
-				_featureType, _visibility, _serverId, _color){
+				_featureType, _visibility, _serverId, _serverType, _color){
 			var parsedFeatureType = Arbiter.Util.parseFeatureType(_featureType);
 			
 			layerId = _layerId;
@@ -135,11 +141,12 @@ Arbiter.Util.LayerSchema = function(){
 			editable = false;
 			visibility = _visibility;
 			serverId = _serverId;
+			serverType = _serverType;
 			color = _color;
 		};
 		
 		LayerSchema(_layerId, _url, _workspace, _featureType,
-				_visibility, _serverId, _color);
+				_visibility, _serverId, _serverType, _color);
 		
 	}else{
 		throw "LayerSchema: Invalid number of arguments - " + arguments.length;
@@ -195,8 +202,12 @@ Arbiter.Util.LayerSchema = function(){
 			return serverId;
 		},
 		
+		getServerType: function(){
+			return serverType;
+		},
+		
 		isEditable: function(){
-			return editable;
+			return editable && (serverType !== "TMS");
 		}, 
 		
 		getMediaColumn: function(){

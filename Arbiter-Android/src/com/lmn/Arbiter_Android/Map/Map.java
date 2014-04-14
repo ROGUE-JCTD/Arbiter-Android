@@ -290,4 +290,11 @@ public class Map{
 	
 		webview.loadUrl(url);
 	}
+	
+	public void cacheBaseLayer(CordovaWebView webview){
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "Arbiter.Cordova.Project.cacheBaseLayer()'))";
+	
+		webview.loadUrl(url);
+	}
 }

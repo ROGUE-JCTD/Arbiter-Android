@@ -6,11 +6,13 @@ public class Project {
 	private String projectName;
 	private ArrayList<Layer> layers;
 	private String aoi;
+	private BaseLayer baseLayer;
 	
 	public Project(String projectName, String aoi){
 		this.projectName = projectName;
 		this.layers = new ArrayList<Layer>();
 		this.aoi = aoi;
+		this.baseLayer = null;
 	}
 	
 	public Project(Project project){
@@ -22,6 +24,8 @@ public class Project {
 		for(int i = 0; i < pLayers.size(); i++){
 			this.layers.add(new Layer(pLayers.get(i)));
 		}
+		
+		this.baseLayer = project.getBaseLayer();
 	}
 	
 	public String getAOI(){
@@ -38,6 +42,14 @@ public class Project {
 	
 	public void addLayer(Layer layer){
 		layers.add(layer);
+	}
+	
+	public void setBaseLayer(BaseLayer baseLayer){
+		this.baseLayer = baseLayer;
+	}
+	
+	public BaseLayer getBaseLayer(){
+		return this.baseLayer;
 	}
 	
 	/**

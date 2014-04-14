@@ -84,7 +84,7 @@ public class ServerListAdapter extends BaseAdapter implements ArbiterAdapter<Spa
 				serverName.setText(server.getName());
 			}
 
-			if(serverName.getText() != "OpenStreetMap"){
+			if(!serverName.getText().equals("OpenStreetMap")){
 				view.setOnClickListener(new OnClickListener(){
 					@Override
 					public void onClick(View v) {

@@ -556,7 +556,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	    
 	    if(Arbiter.hasAOIBeenSet() && Arbiter.Util.existsAndNotNull(this.metadata) && this.metadata.isBaseLayer){
 	    	
-	    	path = fileSystem.root.toURL() + "/" + tileDir.path +"/" 
+	    	path = Arbiter.FileSystem.NATIVE_ROOT_URL + "/" + tileDir.path +"/" 
 	    		+ xyz.z + "/" + xyz.x + "/" + xyz.y + "." + ext;
 	    }else{
 	    	path = this.getURL_Original(bounds);

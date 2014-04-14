@@ -50,6 +50,8 @@ Arbiter.FileSystem = (function(){
 	};
 	
 	return{
+		NATIVE_ROOT_URL: null,
+		
 		ROOT_LEVEL : "Arbiter",
 		
 		TILESET_ROOT : "TileSets",
@@ -62,18 +64,25 @@ Arbiter.FileSystem = (function(){
 		// Media dirs end.
 		
 		setFileSystem: function(onSuccess, onFailure){
-			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(_fileSystem){
-				fileSystem = _fileSystem;
-				
-				if(Arbiter.Util.funcExists(onSuccess)){
-					onSuccess(fileSystem);
-				}
-			}, function(e){
+			var fail = function(e){
 				
 				if(Arbiter.Util.funcExists(onFailure)){
 					onFailure(e.code);
 				}
-			});
+			};
+			
+			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(_fileSystem){
+				fileSystem = _fileSystem;
+				
+				window.resolveLocalFileSystemURL("cdvfile://localhost/persistent/", function(fileEntry){
+					
+					Arbiter.FileSystem.NATIVE_ROOT_URL = fileEntry.nativeURL;
+					
+					if(Arbiter.Util.funcExists(onSuccess)){
+						onSuccess(fileSystem);
+					}
+				}, fail);
+			}, fail);
 		},
 		
 		getFileSystem: function(){

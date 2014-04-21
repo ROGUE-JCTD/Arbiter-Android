@@ -149,6 +149,18 @@ Arbiter.Util = (function(){
 			fileServiceURL = prefix + fileServiceURL.split('/')[0] + "/file-service/";
 			
 			return fileServiceURL;
+		},
+		
+		getFeatureTypeNoPrefix: function(featureType){
+			
+			featureType = featureType.split(':');
+			
+			return featureType[featureType.length - 1];
+		},
+		
+		getTempFeatureTableName: function(featureType){
+				
+			return Arbiter.TEMP_FEATURE_TABLE_UUID + '_' + Arbiter.Util.getFeatureTypeNoPrefix(featureType);
 		}
 	};
 })();

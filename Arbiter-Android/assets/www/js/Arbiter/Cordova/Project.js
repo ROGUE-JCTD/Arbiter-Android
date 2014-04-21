@@ -166,7 +166,8 @@ Arbiter.Cordova.Project = (function(){
 									syncInProgress = false;
 									
 									Arbiter.Cordova.syncCompleted();
-								}, fail, Arbiter.FileSystem.getFileSystem(), baseLayer, true);
+								}, fail, Arbiter.FileSystem.getFileSystem(), baseLayer, true, 
+								Arbiter.ProjectDbHelper.getProjectDatabase(), Arbiter.FeatureDbHelper.getFeatureDatabase());
 								
 								syncInProgress = true;
 								
@@ -378,7 +379,8 @@ Arbiter.Cordova.Project = (function(){
 								}else{
 									Arbiter.Cordova.syncCompleted();
 								}
-							}, Arbiter.FileSystem.getFileSystem(), baseLayer, cacheTiles);
+							}, Arbiter.FileSystem.getFileSystem(), baseLayer, cacheTiles, 
+							Arbiter.ProjectDbHelper.getProjectDatabase(), Arbiter.FeatureDbHelper.getFeatureDatabase());
 							
 							if(downloadOnly === true || downloadOnly === "true"){
 								

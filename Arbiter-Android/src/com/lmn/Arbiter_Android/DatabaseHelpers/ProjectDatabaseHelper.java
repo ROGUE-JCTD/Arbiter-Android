@@ -9,12 +9,14 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.Migrations.Migration;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FailedSync;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.NotificationsTableHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.SyncTableHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TileIdsHelper;
 
 public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "arbiter_project.db";
-	private static int DATABASE_VERSION = 2;
+	private static int DATABASE_VERSION = 3;
 	
 	private String currentPath;
 	
@@ -44,6 +46,9 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 		PreferencesHelper.getHelper().createTable(db);
 		TileIdsHelper.getHelper().createTable(db);
 		FailedSync.getHelper().createTable(db);
+		
+		(new SyncTableHelper(db)).createTable();
+		(new NotificationsTableHelper(db)).createTable();
 	}
 
 	@Override

@@ -168,15 +168,22 @@
 				notification[construct.LAYER_ID] = this.schema.getLayerId();
 				notification[construct.SYNC_ID] = this.syncId;
 				
-			} // If the hash of the features isn't the same, then the feature must have been modified
-			else if(SHA1(JSON.stringify(currentFeature)) !== SHA1(JSON.stringify(previousFeature))){
+			}else{ 
+			
+				// Remove the metadata because it interferes with the hash
+				currentFeature = this._removeMetadata(currentFeature);
+				previousFeature = this._removeMetadata(previousFeature);
 				
-				notification = {};
+				// If the hash of the features isn't the same, then the feature must have been modified
+				if(SHA1(JSON.stringify(currentFeature)) !== SHA1(JSON.stringify(previousFeature))){
 				
-				notification[construct.FID] = currentFeatureId;
-				notification[construct.STATE] = this._getDiff(currentFeature, previousFeature);
-				notification[construct.LAYER_ID] = this.schema.getLayerId();
-				notification[construct.SYNC_ID] = this.syncId;
+					notification = {};
+					
+					notification[construct.FID] = currentFeatureId;
+					notification[construct.STATE] = this._getDiff(currentFeature, previousFeature);
+					notification[construct.LAYER_ID] = this.schema.getLayerId();
+					notification[construct.SYNC_ID] = this.syncId;
+				}
 			}
 			
 			if(Arbiter.Util.existsAndNotNull(previousFeature)){
@@ -189,6 +196,15 @@
 		}
 		
 		this._getRemovalNotifications();
+	};
+	
+	prototype._removeMetadata = function(feature){
+		
+		delete feature[Arbiter.FeatureTableHelper.ID];
+		delete feature[Arbiter.FeatureTableHelper.SYNC_STATE];
+		delete feature[Arbiter.FeatureTableHelper.MODIFIED_STATE];
+		
+		return feature;
 	};
 	
 	// Only the features that were removed will still be in the previous features list at this point

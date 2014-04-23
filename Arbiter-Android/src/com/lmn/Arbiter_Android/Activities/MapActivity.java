@@ -283,6 +283,11 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
 		this.startActivity(aoiIntent);
     }
     
+    private void startNotificationsActivity(){
+    	Intent notificationsIntent = new Intent(this, NotificationsActivity.class);
+    	this.startActivity(notificationsIntent);
+    }
+    
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
     	switch (item.getItemId()) {
@@ -331,6 +336,12 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         		
         		return true;
     		
+        	case R.id.action_notifications:
+        		
+        		startNotificationsActivity();
+        		
+        		return true;
+        		
         	case R.id.action_about:
         		
         		new About(this).displayAboutDialog();;

@@ -1,6 +1,28 @@
 package com.lmn.Arbiter_Android.BaseClasses;
 
-public class Layer {
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.lmn.Arbiter_Android.ArbiterProject;
+import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.NotificationsTableHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.SyncTableHelper;
+import com.lmn.Arbiter_Android.Loaders.NotificationsLoader;
+import com.lmn.Arbiter_Android.Notifications.NotificationListItem;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
+
+public class Layer extends NotificationListItem{
 	
 	/**
 	 * Create a key for the methods requiring a key (removeDuplicates, setCheckedLayers..)
@@ -28,6 +50,8 @@ public class Layer {
 	private int serverId;
 	private int layerOrder;
 	
+	private int syncId;
+	
 	// Recycled for whether the layer is checked in the AddLayers List
 	// and for the layers visibility
 	private boolean checked;
@@ -46,6 +70,7 @@ public class Layer {
 		this.serverUrl = serverUrl;
 		this.workspace = workspace;
 		this.layerOrder = layerOrder;
+		this.syncId = -1;
 		
 		setChecked(checked);
 	}
@@ -72,6 +97,7 @@ public class Layer {
 		this.serverUrl = item.getServerUrl();
 		this.workspace = item.getWorkspace();
 		this.layerOrder = item.getLayerOrder();
+		this.syncId = item.getSyncId();
 	}
 	
 	public Layer(BaseLayer baseLayer){
@@ -79,6 +105,14 @@ public class Layer {
 		this.title = baseLayer.getName();
 		this.serverName = baseLayer.getServerName();
 		this.serverUrl = baseLayer.getUrl();
+	}
+	
+	public int getSyncId(){
+		return syncId;
+	}
+	
+	public void setSyncId(int syncId){
+		this.syncId = syncId;
 	}
 	
 	public int getLayerId(){
@@ -155,5 +189,62 @@ public class Layer {
 	
 	public void setLayerOrder(int layerOrder){
 		this.layerOrder = layerOrder;
+	}
+	
+	@Override
+	public void setNotificationView(View view, final Activity activity){
+		
+		super.setNotificationView(view, activity);
+		
+		view.setBackgroundColor(Color.parseColor(ColorMap.COLOR_MAP.get(getColor())));
+		
+		TextView layerTitleTextView = (TextView) view.findViewById(R.id.notification_layer_title);
+		
+		Button deleteButton = (Button) view.findViewById(R.id.deleteButton);
+		
+		layerTitleTextView.setText(getLayerTitle());
+		
+		layerTitleTextView.setVisibility(View.VISIBLE);
+		
+		deleteButton.setTextColor(activity.getResources().getColor(android.R.color.white));
+		
+		deleteButton.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				
+				deleteNotifications(activity);
+			}
+		});
+	}
+	
+	public void deleteNotifications(final Activity activity){
+		
+		CommandExecutor.runProcess(new Runnable(){
+			@Override
+			public void run(){
+				
+				String projectName = ArbiterProject.getArbiterProject().getOpenProject(activity);
+				
+				String projectPath = ProjectStructure.getProjectPath(projectName);
+				
+				SQLiteDatabase db = ProjectDatabaseHelper.getHelper(activity.getApplicationContext(), projectPath, false).getWritableDatabase();
+				
+				NotificationsTableHelper notificationsTableHelper = new NotificationsTableHelper(db);
+				
+				Log.w("Layer", "Layer syncID = " + syncId);
+				
+				notificationsTableHelper.deleteByLayerId(syncId, layerId);
+				
+				activity.runOnUiThread(new Runnable(){
+					@Override
+					public void run(){
+						
+						LocalBroadcastManager.getInstance(activity.getApplicationContext()).sendBroadcast(
+								new Intent(NotificationsLoader.NOTIFICATIONS_UPDATED));
+					}
+				});
+			}
+		});
 	}
 }

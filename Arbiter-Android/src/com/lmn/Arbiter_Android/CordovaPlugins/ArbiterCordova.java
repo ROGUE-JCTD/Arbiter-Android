@@ -13,6 +13,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
@@ -20,21 +21,19 @@ import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
-import com.lmn.Arbiter_Android.Activities.MapActivity;
 import com.lmn.Arbiter_Android.Activities.MapChangeHelper;
-import com.lmn.Arbiter_Android.Activities.NotificationBadge;
 import com.lmn.Arbiter_Android.Activities.ProjectsActivity;
 import com.lmn.Arbiter_Android.Activities.TileConfirmation;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.GeometryColumnsHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.NotificationsTableHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FailedSyncHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
+import com.lmn.Arbiter_Android.Loaders.NotificationsLoader;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.Media.HandleZeroByteFiles;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
@@ -704,9 +703,6 @@ public class ArbiterCordova extends CordovaPlugin{
 				HandleZeroByteFiles handler = new HandleZeroByteFiles(mediaPath);
 				handler.deleteZeroByteFiles();
 				
-				NotificationsTableHelper notificationsTableHelper = new NotificationsTableHelper(projectDb);
-				final int notificationsCount = notificationsTableHelper.getNotificationsCount();
-				
 				activity.runOnUiThread(new Runnable(){
 					@Override
 					public void run(){
@@ -719,16 +715,8 @@ public class ArbiterCordova extends CordovaPlugin{
 									activity.getApplicationContext());
 						}
 						
-						try{
-						
-							NotificationBadge badge = ((MapActivity) activity).getNotificationBadge();
-							
-							if(badge != null){
-								badge.setCount(notificationsCount);
-							}
-						}catch(ClassCastException e){
-							e.printStackTrace();
-						}
+						LocalBroadcastManager.getInstance(activity.getApplicationContext()).sendBroadcast(
+								new Intent(NotificationsLoader.NOTIFICATIONS_UPDATED));
 						
 						SyncProgressDialog.dismiss(activity);
 						

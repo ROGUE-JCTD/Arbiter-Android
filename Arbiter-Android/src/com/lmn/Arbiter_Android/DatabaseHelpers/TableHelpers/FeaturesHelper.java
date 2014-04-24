@@ -2,7 +2,6 @@ package com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 
@@ -79,6 +78,52 @@ public class FeaturesHelper{
 		cursor.close();
 
 		return new Feature(id, featureType, geometryColumn, attributes);
+	}
+	
+	public Feature getFeatureByFid(SQLiteDatabase db, String fid, String featureType){
+		
+		String whereClause = FID + "=?";
+		String[] whereArgs = {
+			fid
+		};
+		
+		String geometryColumn = null;
+		
+		try {
+			geometryColumn = getGeometryColumn(db, featureType);
+		} catch (FeatureHelperException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Cursor cursor = db.query(featureType, null, whereClause,
+				whereArgs, null, null, null);
+
+		String[] columnNames = cursor.getColumnNames();
+		String id = null;
+		
+		LinkedHashMap<String, String> attributes = new LinkedHashMap<String, String>(cursor.getColumnCount());
+		
+		Feature feature = null;
+		
+		if(cursor.moveToFirst()){
+			
+			for(int i = 0; i < columnNames.length; i++){
+				
+				if(!columnNames[i].equals(ID)){
+					attributes.put(columnNames[i], cursor.getString(i));
+				}else{
+					id = cursor.getString(i);
+				}
+			}
+			
+			feature = new Feature(id, featureType, geometryColumn, attributes);
+		}
+
+		cursor.close();
+
+		
+		return feature;
 	}
 	
 	private LinkedHashMap<String, String> getEmptyAttributesWithGeometry(SQLiteDatabase db, 

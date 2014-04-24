@@ -26,6 +26,8 @@ import com.lmn.Arbiter_Android.Dialog.Dialogs.InsertFeatureDialog;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Map.Map;
+import com.lmn.Arbiter_Android.OnReturnToMap.OnReturnToMap;
+import com.lmn.Arbiter_Android.OnReturnToMap.ReturnToMapJob;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 import android.os.Bundle;
@@ -365,6 +367,19 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         }
     }
     
+    private void executeOnReturnToMapJobs(){
+    	OnReturnToMap onReturnToMap = OnReturnToMap.getOnReturnToMap();
+        
+        ReturnToMapJob job = onReturnToMap.pop();
+        
+        while(job != null){
+        	
+        	job.run(this);
+        	
+        	job = onReturnToMap.pop();
+        }
+    }
+    
     @Override 
     protected void onResume(){
     	super.onResume();
@@ -387,6 +402,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
             }
         }
          
+        executeOnReturnToMapJobs();
+        
     	if(arbiterProject != null){
     		
     		getThreadPool().execute(new Runnable(){

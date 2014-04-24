@@ -173,6 +173,36 @@ var app = (function() {
 			} else {
 				func.call();
 			}
+		},
+		
+		zoomToFeature: function(layerId, fid){
+			
+			var map = Arbiter.Map.getMap();
+			
+			var layer = Arbiter.Layers.getLayerById(layerId, Arbiter.Layers.type.WFS);
+			
+			var feature = layer.getFeatureByFid(fid);
+			
+			if(Arbiter.Util.existsAndNotNull(feature)){
+				feature.geometry.calculateBounds();
+				var bounds = feature.geometry.getBounds();
+				
+				var zoomForExtent = map.getZoomForExtent(bounds);
+				
+				if(zoomForExtent > 18){
+					
+					var centroid = feature.geometry.getCentroid();
+					
+					map.setCenter(new OpenLayers.LonLat(centroid.x, centroid.y), 18);
+				}else{
+					
+					map.zoomToExtent(bounds);
+				}
+				
+				feature.renderIntent = "select";
+				
+				layer.drawFeature(feature);
+			}
 		}
 	};
 })();

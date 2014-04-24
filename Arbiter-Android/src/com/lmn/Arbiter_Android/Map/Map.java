@@ -243,6 +243,15 @@ public class Map{
 		webview.loadUrl(url);
 	}
 	
+	public void zoomToFeature(CordovaWebView webview, String layerId, String fid){
+		
+		String url = "javascript:app.waitForArbiterInit(new Function('"
+				+ "app.zoomToFeature(\"" + layerId + "\",\"" + fid + "\")'))";
+		
+		Log.w("Map", url);
+		webview.loadUrl(url);
+	}
+	
 	public void finishGeometry(CordovaWebView webview){
 		
 		String url = "javascript:app.waitForArbiterInit(new Function('"

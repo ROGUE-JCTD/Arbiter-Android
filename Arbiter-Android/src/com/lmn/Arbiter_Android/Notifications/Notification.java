@@ -2,16 +2,26 @@ package com.lmn.Arbiter_Android.Notifications;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Activities.MapActivity;
+import com.lmn.Arbiter_Android.BaseClasses.Feature;
+import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.NotificationsTableHelper;
 import com.lmn.Arbiter_Android.Loaders.NotificationsLoader;
+import com.lmn.Arbiter_Android.Map.Map;
+import com.lmn.Arbiter_Android.OnReturnToMap.OnReturnToMap;
+import com.lmn.Arbiter_Android.OnReturnToMap.ReturnToMapJob;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -79,6 +89,15 @@ public class Notification extends NotificationListItem {
 		
 		featureNotificationLayout.setVisibility(View.VISIBLE);
 		
+		view.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				
+				zoomToFeatureIfExists(activity);
+			}
+		});
+		
 		Button deleteButton = (Button) view.findViewById(R.id.deleteButton);
 		
 		deleteButton.setTextColor(activity.getResources().getColor(android.R.color.black));
@@ -93,20 +112,54 @@ public class Notification extends NotificationListItem {
 		});
 	}
 	
+	private void zoomToFeatureIfExists(final Activity activity){
+		
+		CommandExecutor.runProcess(new Runnable(){
+			@Override
+			public void run(){
+				
+				SQLiteDatabase projectDb = getProjectDb(activity);
+				SQLiteDatabase featureDb = getFeatureDb(activity);
+				
+				final boolean featureExists = featureExists(featureDb, getFeatureType(projectDb));
+				
+				activity.runOnUiThread(new Runnable(){
+					@Override
+					public void run(){
+						
+						Log.w("Notification", "Notification: zoomToFeatureIfExists: featureExists = " + featureExists);
+						
+						if(featureExists){
+							
+							OnReturnToMap onReturnToMap = OnReturnToMap.getOnReturnToMap();
+							
+							onReturnToMap.push(new ReturnToMapJob(){
+
+								@Override
+								public void run(MapActivity activity) {
+									
+									Map.getMap().zoomToFeature(activity.getWebView(), Integer.toString(layerId), fid);
+								}
+							});
+							
+							activity.finish();
+						}else{
+							
+							
+						}
+					}
+				});
+			}
+		});
+	}
+	
 	private void delete(final Activity activity){
 		
 		CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run(){
 				
-				String projectName = ArbiterProject.getArbiterProject().getOpenProject(activity);
-				
-				String projectPath = ProjectStructure.getProjectPath(projectName);
-				
-				SQLiteDatabase db = ProjectDatabaseHelper.getHelper(activity.getApplicationContext(),
-						projectPath, false).getWritableDatabase();
-				
-				NotificationsTableHelper notificationHelper = new NotificationsTableHelper(db);
+				NotificationsTableHelper notificationHelper = new NotificationsTableHelper(getProjectDb(activity));
 				
 				notificationHelper.deleteById(id);
 				
@@ -120,5 +173,43 @@ public class Notification extends NotificationListItem {
 				});
 			}
 		});
+	}
+	
+	private SQLiteDatabase getProjectDb(Activity activity){
+		
+		String projectName = ArbiterProject.getArbiterProject().getOpenProject(activity);
+		
+		String projectPath = ProjectStructure.getProjectPath(projectName);
+		
+		return ProjectDatabaseHelper.getHelper(activity.getApplicationContext(),
+				projectPath, false).getWritableDatabase();
+	}
+	
+	private SQLiteDatabase getFeatureDb(Activity activity){
+		
+		String projectName = ArbiterProject.getArbiterProject().getOpenProject(activity);
+		
+		String projectPath = ProjectStructure.getProjectPath(projectName);
+		
+		return FeatureDatabaseHelper.getHelper(activity.getApplicationContext(),
+				projectPath, false).getWritableDatabase();
+	}
+	
+	private String getFeatureType(SQLiteDatabase projectDb){
+		
+		String featureType = null;
+		
+		Layer layer = LayersHelper.getLayersHelper().get(projectDb, layerId);
+		
+		featureType = layer.getFeatureTypeNoPrefix();
+		
+		return featureType;
+	}
+	
+	private boolean featureExists(SQLiteDatabase featureDb, String featureType){
+		
+		Feature feature = FeaturesHelper.getHelper().getFeatureByFid(featureDb, fid, featureType);
+		
+		return (feature == null) ? false : true;
 	}
 }

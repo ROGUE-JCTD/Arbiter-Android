@@ -2,6 +2,7 @@
 <resources>
     <item type="id" name="loader_projects" />
     <item type="id" name="loader_notifications" />
+    <item type="id" name="loader_notification_badge" />
 	<item type="id" name="loader_servers_list" />
 	<item type="id" name="loader_servers_dropdown" />
 	<item type="id" name="loader_base_layer_list" />

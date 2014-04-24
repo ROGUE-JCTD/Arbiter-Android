@@ -43,6 +43,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ImageButton;
 
 public class MapActivity extends FragmentActivity implements CordovaInterface,
@@ -57,6 +58,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     private boolean menuPrepared;
     @SuppressWarnings("unused")
 	private SyncConnectivityListener syncConnectivityListener;
+    private NotificationBadge notificationBadge;
     
     // For CORDOVA
     private CordovaWebView cordovaWebView;
@@ -244,10 +246,20 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	super.onSaveInstanceState(outState);
     }
     
+    public NotificationBadge getNotificationBadge(){
+    	return this.notificationBadge;
+    }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_map, menu);
+        
+        Log.w("MapActivity", "MapActivity onCreateOptionsMenu");
+        
+        if(this.notificationBadge == null){
+        	this.notificationBadge = new NotificationBadge(this, menu);
+        }
         
         return true;
     }
@@ -283,11 +295,6 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     private void startAOIActivity(){
     	Intent aoiIntent = new Intent(this, AOIActivity.class);
 		this.startActivity(aoiIntent);
-    }
-    
-    private void startNotificationsActivity(){
-    	Intent notificationsIntent = new Intent(this, NotificationsActivity.class);
-    	this.startActivity(notificationsIntent);
     }
     
     @Override
@@ -335,12 +342,6 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	        		
             		}
         		}
-        		
-        		return true;
-    		
-        	case R.id.action_notifications:
-        		
-        		startNotificationsActivity();
         		
         		return true;
         		
@@ -479,6 +480,10 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	if(this.failedSyncHelper != null){
 			this.failedSyncHelper.dismiss();
 		}
+    	
+    	if(this.notificationBadge != null){
+    		this.notificationBadge.onDestroy();
+    	}
     }
     
     @Override

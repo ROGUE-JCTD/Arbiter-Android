@@ -2,7 +2,8 @@
 
     <item
         android:id="@+id/action_notifications"
-        android:showAsAction="never"
+        android:showAsAction="ifRoom"
+        android:actionLayout="@layout/notifications_count"
         android:title="@string/notifications"/>
     
     <item

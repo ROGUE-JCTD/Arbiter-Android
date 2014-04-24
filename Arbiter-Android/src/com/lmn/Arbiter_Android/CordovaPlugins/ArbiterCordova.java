@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
@@ -19,13 +20,16 @@ import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
+import com.lmn.Arbiter_Android.Activities.MapActivity;
 import com.lmn.Arbiter_Android.Activities.MapChangeHelper;
+import com.lmn.Arbiter_Android.Activities.NotificationBadge;
 import com.lmn.Arbiter_Android.Activities.ProjectsActivity;
 import com.lmn.Arbiter_Android.Activities.TileConfirmation;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.GeometryColumnsHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.NotificationsTableHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FailedSyncHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
@@ -685,9 +689,12 @@ public class ArbiterCordova extends CordovaPlugin{
 		}catch(ClassCastException e){
 			e.printStackTrace();
 		}
+		
+		final SQLiteDatabase projectDb = ProjectDatabaseHelper.getHelper(fragActivity.getApplicationContext(),
+				projectPath, false).getWritableDatabase();
+		
 		FailedSyncHelper failedSyncHelper = new FailedSyncHelper(fragActivity,
-				ProjectDatabaseHelper.getHelper(fragActivity.getApplicationContext(),
-						projectPath, false).getWritableDatabase());
+				projectDb);
 		
 		failedSyncHelper.checkIncompleteSync();
 		
@@ -696,34 +703,48 @@ public class ArbiterCordova extends CordovaPlugin{
 			public void run(){
 				HandleZeroByteFiles handler = new HandleZeroByteFiles(mediaPath);
 				handler.deleteZeroByteFiles();
-			}
-		});
-		
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
 				
-				// If a sync completed and new project wasn't null,
-				// That means a project was just created.
-				if(arbiterProject.getNewProject() != null){
-					
-					arbiterProject.doneCreatingProject(
-							activity.getApplicationContext());
-				}
+				NotificationsTableHelper notificationsTableHelper = new NotificationsTableHelper(projectDb);
+				final int notificationsCount = notificationsTableHelper.getNotificationsCount();
 				
-				SyncProgressDialog.dismiss(activity);
-				
-				try{
-					((Map.MapChangeListener) activity)
-						.getMapChangeHelper().onSyncCompleted();
-					
-				} catch(ClassCastException e){
-					e.printStackTrace();
-					throw new ClassCastException(activity.toString() 
-							+ " must be an instance of Map.MapChangeListener");
-				}
-				
-				callbackContext.success();
+				activity.runOnUiThread(new Runnable(){
+					@Override
+					public void run(){
+						
+						// If a sync completed and new project wasn't null,
+						// That means a project was just created.
+						if(arbiterProject.getNewProject() != null){
+							
+							arbiterProject.doneCreatingProject(
+									activity.getApplicationContext());
+						}
+						
+						try{
+						
+							NotificationBadge badge = ((MapActivity) activity).getNotificationBadge();
+							
+							if(badge != null){
+								badge.setCount(notificationsCount);
+							}
+						}catch(ClassCastException e){
+							e.printStackTrace();
+						}
+						
+						SyncProgressDialog.dismiss(activity);
+						
+						try{
+							((Map.MapChangeListener) activity)
+								.getMapChangeHelper().onSyncCompleted();
+							
+						} catch(ClassCastException e){
+							e.printStackTrace();
+							throw new ClassCastException(activity.toString() 
+									+ " must be an instance of Map.MapChangeListener");
+						}
+						
+						callbackContext.success();
+					}
+				});
 			}
 		});
 	}

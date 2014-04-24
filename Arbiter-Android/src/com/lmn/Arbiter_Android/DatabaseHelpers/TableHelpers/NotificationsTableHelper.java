@@ -193,4 +193,23 @@ public class NotificationsTableHelper implements BaseColumns{
 			this.db.endTransaction();
 		}
 	}
+	
+	public int getNotificationsCount(){
+		
+		String[] columns = {
+			"COUNT(*)"
+		};
+		
+		Cursor cursor = this.db.query(TABLE_NAME, columns, null, null, null, null, null);
+		
+		int count = 0;
+		
+		if(cursor.moveToFirst()){
+			count = cursor.getInt(0);
+		}
+		
+		cursor.close();
+		
+		return count;
+	}
 }

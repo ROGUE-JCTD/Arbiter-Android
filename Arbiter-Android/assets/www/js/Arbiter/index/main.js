@@ -113,6 +113,8 @@ var app = (function() {
 									}
 					
 									ArbiterInitialized = true;
+									
+									Arbiter.Cordova.appFinishedLoading();
 								});
 							}, function(e){
 								console.log("Error initializing Arbiter while getting the locale", e);

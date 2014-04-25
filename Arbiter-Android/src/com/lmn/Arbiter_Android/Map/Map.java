@@ -10,6 +10,8 @@ import org.json.JSONObject;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.Activities.MapChangeHelper;
+import com.lmn.Arbiter_Android.AppFinishedLoading.AppFinishedLoading;
+import com.lmn.Arbiter_Android.AppFinishedLoading.AppFinishedLoadingJob;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.GeometryColumnsHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
@@ -35,82 +37,152 @@ public class Map{
 		return map;
 	}
 	
-	public void goToProjects(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.goToProjects()'));";
-		webview.loadUrl(url);
-	}
-	
-	public void createNewProject(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.createNewProject()'));";
-		webview.loadUrl(url);
-	}
-	
-	public void createProject(CordovaWebView webview, final ArrayList<Layer> layers, long[] layerIds){
-		try{
-			String url = "javascript:app.waitForArbiterInit(new Function('"
-					+ "Arbiter.Cordova.Project.createProject("
-					+ getLayersJSON(layers, layerIds) + ")'))";
-				
-			webview.loadUrl(url);
-		} catch (JSONException e){
-			e.printStackTrace();
-		}
-	}
-	
-	public void addLayers(CordovaWebView webview, final ArrayList<Layer> layers, final long[] layerIds){
-		try{
-			String url = "javascript:app.waitForArbiterInit(new Function('"
-					+ "Arbiter.Cordova.Project.addLayers(" 
-					+ getLayersJSON(layers, layerIds) + ")'))";
-			
-			webview.loadUrl(url);
-		} catch (JSONException e){
-			e.printStackTrace();
-		}
-	}
-	
-	public void getTileCount(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.getTileCount()'));";
+	public void goToProjects(final CordovaWebView webview){
 		
-		webview.loadUrl(url);
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.goToProjects()'));";
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void createNewProject(final CordovaWebView webview){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.createNewProject()'));";
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void createProject(final CordovaWebView webview, final ArrayList<Layer> layers, final long[] layerIds){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				try{
+					String url = "javascript:app.waitForArbiterInit(new Function('"
+							+ "Arbiter.Cordova.Project.createProject("
+							+ getLayersJSON(layers, layerIds) + ")'))";
+						
+					webview.loadUrl(url);
+				} catch (JSONException e){
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	public void addLayers(final CordovaWebView webview, final ArrayList<Layer> layers, final long[] layerIds){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				try{
+					String url = "javascript:app.waitForArbiterInit(new Function('"
+							+ "Arbiter.Cordova.Project.addLayers(" 
+							+ getLayersJSON(layers, layerIds) + ")'))";
+					
+					webview.loadUrl(url);
+				} catch (JSONException e){
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	public void getTileCount(final CordovaWebView webview){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.getTileCount()'));";
+				
+				webview.loadUrl(url);
+			}
+		});
 	}
 
-	public void setNewProjectsAOI(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.setNewProjectsAOI()'));";
+	public void setNewProjectsAOI(final CordovaWebView webview){
 		
-		webview.loadUrl(url);
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.setNewProjectsAOI()'));";
+				
+				webview.loadUrl(url);
+			}
+		});
 	}
 	
-	public void setAOI(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.setProjectsAOI()'))";
+	public void setAOI(final CordovaWebView webview){
 		
-		webview.loadUrl(url);
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.setProjectsAOI()'))";
+				
+				webview.loadUrl(url);
+			}
+		});
 	}
 	
-	public void zoomToAOI(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.Project.zoomToAOI()'))";
+	public void zoomToAOI(final CordovaWebView webview){
 		
-		webview.loadUrl(url);
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.Project.zoomToAOI()'))";
+				
+				webview.loadUrl(url);
+			}
+		});
 	}
 	
-	public void zoomToDefault(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.Project.zoomToDefault()'))";
+	public void zoomToDefault(final CordovaWebView webview){
 		
-		webview.loadUrl(url);
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Cordova.Project.zoomToDefault()'))";
+				
+				webview.loadUrl(url);
+			}
+		});
 	}
 	
-	public void zoomToExtent(CordovaWebView webview, String extent, String zoomLevel){
-		String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Map.zoomToExtent(" 
-				+ extent;
+	public void zoomToExtent(final CordovaWebView webview, final String extent, final String zoomLevel){
 		
-		if(zoomLevel != null){
-			url += ", " + zoomLevel;
-		}
-		
-		url += ")'))";
-		
-		Log.w("Map", "Map.zoomToExtent: " + url);
-		webview.loadUrl(url);
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('Arbiter.Map.zoomToExtent(" 
+						+ extent;
+				
+				if(zoomLevel != null){
+					url += ", " + zoomLevel;
+				}
+				
+				url += ")'))";
+				
+				Log.w("Map", "Map.zoomToExtent: " + url);
+				webview.loadUrl(url);
+			}
+		});
 	}
 	
 	private JSONArray getLayersJSON(ArrayList<Layer> layers, long[] layerIds) throws JSONException{
@@ -146,164 +218,320 @@ public class Map{
 		return jsonArray;
 	}
 	
-	public void toggleLayerVisibility(CordovaWebView webview, long layerId){
-		String url = "javascript:app.waitForArbiterInit(new Function('";
+	public void toggleLayerVisibility(final CordovaWebView webview, final long layerId){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('";
+				
+				url += "Arbiter.Layers.toggleLayerVisibilityById(" + Long.toString(layerId) + ")";
+				
+				url += "'))";
+				
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void resetWebApp(final CordovaWebView webview){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Cordova.resetWebApp()'))";
+				
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void enterModifyMode(final CordovaWebView webview){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Controls.ControlPanel.enterModifyMode()'))";
+				
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void exitModifyMode(final CordovaWebView webview){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Controls.ControlPanel.exitModifyMode()'))";
+				
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void cancelEdit(final CordovaWebView webview, final String originalGeometry){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Controls.ControlPanel.cancelEdit(\"" + originalGeometry + "\")'))";
+				
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void getUpdatedGeometry(final CordovaWebView webview){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Cordova.getUpdatedGeometry()'))";
+				
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void unselect(final CordovaWebView webview){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Controls.ControlPanel.unselect()'))";
+				
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void startInsertMode(final CordovaWebView webview, final long layerId, final String geometryType){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Controls.ControlPanel.startInsertMode("
+						+ Long.toString(layerId) + ", \"" + geometryType + "\")'))";
+				
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void sync(final CordovaWebView webview){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Cordova.Project.sync()'))";
+				
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void zoomToCurrentPosition(final CordovaWebView webview){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Cordova.Project.zoomToCurrentPosition()'))";
+				
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void updateAOI(final CordovaWebView webview, final String aoi){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Cordova.Project.updateAOI(" + aoi + ")'))";
+				
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void zoomIn(final CordovaWebView webview){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Map.getMap().zoomIn()'))";
+				
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void zoomOut(final CordovaWebView webview){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Map.getMap().zoomOut()'))";
+				
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void zoomToFeature(final CordovaWebView webview, final String layerId, final String fid){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "app.zoomToFeature(\"" + layerId + "\",\"" + fid + "\")'))";
+				
+				Log.w("Map", url);
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void finishGeometry(final CordovaWebView webview){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Controls.ControlPanel.finishGeometry()'))";
+				
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void finishInserting(final CordovaWebView webview){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Controls.ControlPanel.finishInserting()'))";
+				
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void addPart(final CordovaWebView webview){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Controls.ControlPanel.addPart()'))";
+				
+				webview.loadUrl(url);
+			}
+		});
+	}
+
+	public void removePart(final CordovaWebView webview){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Controls.ControlPanel.removePart()'))";
 			
-		url += "Arbiter.Layers.toggleLayerVisibilityById(" + Long.toString(layerId) + ")";
-		
-		url += "'))";
-		
-		webview.loadUrl(url);
-	}
-	
-	public void resetWebApp(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Cordova.resetWebApp()'))";
-		
-		webview.loadUrl(url);
-	}
-	
-	public void enterModifyMode(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.ControlPanel.enterModifyMode()'))";
-		
-		webview.loadUrl(url);
-	}
-	
-	public void exitModifyMode(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.ControlPanel.exitModifyMode()'))";
-		
-		webview.loadUrl(url);
-	}
-	
-	public void cancelEdit(CordovaWebView webview, String originalGeometry){
-		
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.ControlPanel.cancelEdit(\"" + originalGeometry + "\")'))";
-		
-		webview.loadUrl(url);
-	}
-	
-	public void getUpdatedGeometry(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Cordova.getUpdatedGeometry()'))";
-		
-		webview.loadUrl(url);
-	}
-	
-	public void unselect(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.ControlPanel.unselect()'))";
-		
-		webview.loadUrl(url);
-	}
-	
-	public void startInsertMode(CordovaWebView webview, long layerId, String geometryType){
-		
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.ControlPanel.startInsertMode("
-				+ Long.toString(layerId) + ", \"" + geometryType + "\")'))";
-		
-		webview.loadUrl(url);
-	}
-	
-	public void sync(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Cordova.Project.sync()'))";
-		
-		webview.loadUrl(url);
-	}
-	
-	public void zoomToCurrentPosition(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Cordova.Project.zoomToCurrentPosition()'))";
-		
-		webview.loadUrl(url);
-	}
-	
-	public void updateAOI(CordovaWebView webview, String aoi){
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Cordova.Project.updateAOI(" + aoi + ")'))";
-		
-		webview.loadUrl(url);
-	}
-	
-	public void zoomIn(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Map.getMap().zoomIn()'))";
-		
-		webview.loadUrl(url);
-	}
-	
-	public void zoomOut(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Map.getMap().zoomOut()'))";
-		
-		webview.loadUrl(url);
-	}
-	
-	public void zoomToFeature(CordovaWebView webview, String layerId, String fid){
-		
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "app.zoomToFeature(\"" + layerId + "\",\"" + fid + "\")'))";
-		
-		Log.w("Map", url);
-		webview.loadUrl(url);
-	}
-	
-	public void finishGeometry(CordovaWebView webview){
-		
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.ControlPanel.finishGeometry()'))";
-		
-		webview.loadUrl(url);
-	}
-	
-	public void finishInserting(CordovaWebView webview){
-		
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.ControlPanel.finishInserting()'))";
-		
-		webview.loadUrl(url);
-	}
-	
-	public void addPart(CordovaWebView webview){
-		
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.ControlPanel.addPart()'))";
-		
-		webview.loadUrl(url);
+				webview.loadUrl(url);
+			}
+		});
 	}
 
-	public void removePart(CordovaWebView webview){
-	
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.ControlPanel.removePart()'))";
-	
-		webview.loadUrl(url);
+	public void addGeometry(final CordovaWebView webview, final String type){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Controls.ControlPanel.addGeometry(\"" + type + "\")'))";
+				
+				webview.loadUrl(url);
+			}
+		});
 	}
 
-	public void addGeometry(CordovaWebView webview, String type){
-		
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.ControlPanel.addGeometry(\"" + type + "\")'))";
-		
-		webview.loadUrl(url);
-	}
-
-	public void removeGeometry(CordovaWebView webview){
+	public void removeGeometry(final CordovaWebView webview){
 	
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Controls.ControlPanel.removeGeometry()'))";
-	
-		webview.loadUrl(url);
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Controls.ControlPanel.removeGeometry()'))";
+			
+				webview.loadUrl(url);
+			}
+		});
 	}
 	
-	public void cacheBaseLayer(CordovaWebView webview){
-		String url = "javascript:app.waitForArbiterInit(new Function('"
-				+ "Arbiter.Cordova.Project.cacheBaseLayer()'))";
+	public void cacheBaseLayer(final CordovaWebView webview){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Cordova.Project.cacheBaseLayer()'))";
+			
+				webview.loadUrl(url);
+			}
+		});
+	}
 	
-		webview.loadUrl(url);
+	public void getNotifications(final CordovaWebView webview, final String syncId){
+		
+		Log.w("Map", "Map.getNotifications syncId = " + syncId);
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				Log.w("Map", "Map.getNotifications executing syncId = " + syncId);
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Cordova.Project.getNotifications(\"" + syncId + "\")'))";
+			
+				webview.loadUrl(url);
+			}
+		});
 	}
 }

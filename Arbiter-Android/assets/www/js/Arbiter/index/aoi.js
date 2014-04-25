@@ -58,6 +58,7 @@ var app = (function() {
 
 						ArbiterInitialized = true;
 					
+						Arbiter.Cordova.appFinishedLoading();
 					}, function(e){
 						console.log("Error initializing Arbiter while getting saved bounds", e);
 					});

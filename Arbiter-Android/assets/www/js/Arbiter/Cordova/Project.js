@@ -409,6 +409,60 @@ Arbiter.Cordova.Project = (function(){
 					Arbiter.Cordova.syncCompleted();
 				}
 			}
+		},
+		
+		getNotifications: function(syncId){
+			
+			console.log("getNoficiations: syncId = " + syncId);
+			
+			var context = this;
+			
+			if(syncInProgress){
+				
+				console.log("sync already in progress");
+				
+				return;
+			}
+			
+			var fail = function(e){
+				
+				console.log("sync failed", e);
+				
+				if(syncInProgress){
+					Arbiter.Cordova.syncCompleted();
+				}
+				
+				syncInProgress = false;
+			};
+			
+			Arbiter.PreferencesHelper.get(Arbiter.AOI, context, function(_aoi){
+				
+				if(_aoi !== null && _aoi !== undefined 
+						&& _aoi !== ""){
+					
+					var aoi = _aoi.split(',');
+					
+					var bounds = new Arbiter.Util.Bounds(aoi[0], aoi[1], aoi[2], aoi[3]);
+						
+					var map = Arbiter.Map.getMap();
+					
+					var syncHelper = new Arbiter.Sync(map, bounds, false, function(){
+						
+						syncInProgress = false;
+						
+						Arbiter.Cordova.gotNotifications();
+					}, fail, Arbiter.FileSystem.getFileSystem(), null, false, 
+					Arbiter.ProjectDbHelper.getProjectDatabase(), Arbiter.FeatureDbHelper.getFeatureDatabase());
+					
+					syncInProgress = true;
+					
+					Arbiter.Cordova.setState(Arbiter.Cordova.STATES.UPDATING);
+					
+					syncHelper.syncId = syncId;
+					
+					syncHelper.getNotifications();
+				}
+			}, fail);
 		}
 	};
 })();

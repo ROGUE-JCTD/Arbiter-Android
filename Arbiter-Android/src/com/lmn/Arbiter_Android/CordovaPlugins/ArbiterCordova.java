@@ -24,6 +24,7 @@ import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.Activities.MapChangeHelper;
 import com.lmn.Arbiter_Android.Activities.ProjectsActivity;
 import com.lmn.Arbiter_Android.Activities.TileConfirmation;
+import com.lmn.Arbiter_Android.AppFinishedLoading.AppFinishedLoading;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.GeometryColumnsHelper;
@@ -64,6 +65,11 @@ public class ArbiterCordova extends CordovaPlugin{
 			String tileCount = args.getString(1);
 			
 			setProjectsAOI(aoi, tileCount);
+			
+			return true;
+		}else if("appFinishedLoading".equals(action)){
+			
+			AppFinishedLoading.getInstance().setFinishedLoading(true);
 			
 			return true;
 		}else if("resetWebApp".equals(action)){
@@ -313,6 +319,11 @@ public class ArbiterCordova extends CordovaPlugin{
 			JSONArray layers = args.getJSONArray(0);
 			
 			reportLayersWithUnsupportedCRS(layers);
+			
+			return true;
+		}else if("gotNotifications".equals(action)){
+			
+			gotNotifications();
 			
 			return true;
 		}
@@ -672,6 +683,22 @@ public class ArbiterCordova extends CordovaPlugin{
 		});
 		
 		callback.success();
+	}
+	
+	private void gotNotifications(){
+		
+		final Activity activity = cordova.getActivity();
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				
+				LocalBroadcastManager.getInstance(activity.getApplicationContext()).sendBroadcast(
+						new Intent(NotificationsLoader.NOTIFICATIONS_UPDATED));
+				
+				SyncProgressDialog.dismiss(activity);
+			}
+		});
 	}
 	
 	private void syncCompleted(final CallbackContext callbackContext){

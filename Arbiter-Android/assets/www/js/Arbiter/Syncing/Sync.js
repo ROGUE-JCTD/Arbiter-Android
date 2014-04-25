@@ -75,20 +75,7 @@
 			});
 		};
 		
-		if(!this.downloadOnly && Arbiter.Util.existsAndNotNull(this.notificationHandler)){
-			
-			this.notificationHandler.endCurrentSync(function(){
-				
-				console.log("Ended current sync");
-				
-				run();
-			}, function(e){
-				console.log("Couldn't end current sync..", e);
-				context.onSyncFailed(e);
-			});
-		}else{
-			run();
-		}
+		run();
 	};
 
 	prototype.removeTemporaryTables = function(onSuccess, onFailure){
@@ -335,48 +322,63 @@
 	
 	prototype.getNotifications = function(layerIndex){
 		
-		// If the notification handler exists, then get the notifications for this layer
-		if(Arbiter.Util.existsAndNotNull(this.notificationHandler)){
+		var context = this;
+		
+		this.initialize(function(){
 			
-			var context = this;
-			
-			// If the layerIndex hasn't been specified, set it to 0 to get the first layer
-			if(!Arbiter.Util.existsAndNotNull(layerIndex)){
-				layerIndex = 0;
-			} // If the layerIndex is >= the layer count, then
-			// there are no more layers to get so the sync is completed
-			else if(layerIndex >= this.layers.length){
+			// If the notification handler exists, then get the notifications for this layer
+			if(Arbiter.Util.existsAndNotNull(context.notificationHandler)){
 				
-				this.onSyncCompleted();
-				
-				return;
-			}
-			
-			// Get the schema corresponding to the current layer
-			var layer = this.layers[layerIndex];
-			var schema = this.schemas[layer[Arbiter.LayersHelper.layerId()]];
-			
-			// If the schema exists and is editable, then get the notifications for the layer
-			if(Arbiter.Util.existsAndNotNull(schema) && schema.isEditable()){
-				
-				var notificationComputer = new Arbiter.NotificationComputer(this.featureDb, this.projectDb, schema, this.syncId, function(){
+				// If the layerIndex hasn't been specified, set it to 0 to get the first layer
+				if(!Arbiter.Util.existsAndNotNull(layerIndex)){
+					layerIndex = 0;
+				} // If the layerIndex is >= the layer count, then
+				// there are no more layers to get so the sync is completed
+				else if(layerIndex >= context.layers.length){
 					
-					console.log("successfully computed notifications");
-					context.getNotifications(++layerIndex);
-				}, function(e){
-					console.log("failed to compute notifications", ((Arbiter.Util.existsAndNotNull(e.stack)) ? e.stack : e));
-					context.onSyncFailed("Failed to compute notifications: " + ((Arbiter.Util.existsAndNotNull(e.stack)) ? e.stack : e));
-				});
+					context.notificationHandler.syncId = context.syncId;
+					
+					context.notificationHandler.endCurrentSync(function(){
+						
+						console.log("Ended current sync");
+						
+						context.onSyncCompleted();
+					}, function(e){
+						console.log("Couldn't end current sync..", e);
+						context.onSyncFailed(e);
+					});
+					
+					return;
+				}
 				
-				notificationComputer.computeNotifications();
-			} // If the schema isn't editable or doesn't exist, 
-			// iterate to the next layer
-			else{
-				this.getNotifications(++layerIndex);
+				// Get the schema corresponding to the current layer
+				var layer = context.layers[layerIndex];
+				var schema = context.schemas[layer[Arbiter.LayersHelper.layerId()]];
+				
+				// If the schema exists and is editable, then get the notifications for the layer
+				if(Arbiter.Util.existsAndNotNull(schema) && schema.isEditable()){
+					
+					var notificationComputer = new Arbiter.NotificationComputer(context.featureDb, context.projectDb, schema, context.syncId, function(){
+						
+						console.log("successfully computed notifications");
+						context.getNotifications(++layerIndex);
+					}, function(e){
+						console.log("failed to compute notifications", ((Arbiter.Util.existsAndNotNull(e.stack)) ? e.stack : e));
+						context.onSyncFailed("Failed to compute notifications: " + ((Arbiter.Util.existsAndNotNull(e.stack)) ? e.stack : e));
+					});
+					
+					notificationComputer.computeNotifications();
+				} // If the schema isn't editable or doesn't exist, 
+				// iterate to the next layer
+				else{
+					context.getNotifications(++layerIndex);
+				}
+			}else{
+				context.onSyncCompleted();
 			}
-		}else{
-			this.onSyncCompleted();
-		}
+		}, function(e){
+			context.onSyncFailed(e);
+		});
 	};
 })();
 

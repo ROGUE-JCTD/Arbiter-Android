@@ -46,9 +46,30 @@
 			
 			context.featureTx = tx;
 			
-			context._getCurrentFeatures();
+			context._checkTempFeatureTableExists();
 		}, function(e){
 			
+			context.onComputeFailure(e);
+		});
+	};
+	
+	prototype._checkTempFeatureTableExists = function(){
+		
+		var context = this;
+		
+		var sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='" 
+			+ Arbiter.Util.getTempFeatureTableName(this.schema.getFeatureType()) + "';";
+		
+		this.featureTx.executeSql(sql, [], function(tx, res){
+			
+			// If the table exists, proceed
+			if(res.rows.length > 0){
+				context._getCurrentFeatures();
+			}else{
+				// If the table doesn't exist, then call the success here.
+				context.onComputeSuccess();
+			}
+		}, function(tx, e){
 			context.onComputeFailure(e);
 		});
 	};

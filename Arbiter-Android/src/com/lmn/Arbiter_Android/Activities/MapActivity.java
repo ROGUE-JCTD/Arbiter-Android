@@ -20,12 +20,14 @@ import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.SyncTableHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FailedSyncHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.InsertFeatureDialog;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Map.Map;
+import com.lmn.Arbiter_Android.Notifications.Sync;
 import com.lmn.Arbiter_Android.OnReturnToMap.OnReturnToMap;
 import com.lmn.Arbiter_Android.OnReturnToMap.ReturnToMapJob;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
@@ -381,6 +383,45 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         }
     }
     
+    private void checkNotificationsAreComputed(){
+    	
+    	final Activity activity = this;
+    	
+    	SyncProgressDialog.show(this, getResources().getString(R.string.loading),
+    			getResources().getString(R.string.please_wait));
+    	
+    	getThreadPool().execute(new Runnable(){
+    		@Override
+    		public void run(){
+    			
+    			SyncTableHelper helper = new SyncTableHelper(getProjectDatabase());
+    	    	
+    	    	final Sync sync = helper.checkNotificationsAreComputed();
+    	    	
+    	    	activity.runOnUiThread(new Runnable(){
+    	    		@Override
+    	    		public void run(){
+    	    			
+    	    			if(!sync.getNotificationsAreSet()){
+    	    				
+    	    				Map.getMap().getNotifications(cordovaWebView, Integer.toString(sync.getId()));
+    	    			}else{
+    	    				
+    	    				SyncProgressDialog.dismiss(activity);
+    	    			}
+    	    		}
+    	    	});
+    		}
+    	});
+    }
+    
+    @Override
+    protected void onStart(){
+    	super.onStart();
+    	
+    	checkNotificationsAreComputed();
+    }
+    
     @Override 
     protected void onResume(){
     	super.onResume();
@@ -419,11 +460,6 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     						
 				    		// Creating a project
 				    		if(ArbiterState.getArbiterState().isCreatingProject()){
-				    			/*arbiterProject.showCreateProjectProgress(
-				    					activity, 
-				    					getResources().getString(R.string.create_project_progress),
-				    					getResources().getString(R.string.create_project_msg)
-				    			);*/
 				    			
 				    			SyncProgressDialog.show(getActivity());
 				    			insertHelper = new InsertProjectHelper(getActivity());

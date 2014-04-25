@@ -30,7 +30,8 @@ public class SyncTableHelper implements BaseColumns{
 	public Sync getSyncById(int syncId){
 		
 		String[] columns = {
-			TIMESTAMP
+			TIMESTAMP,
+			NOTIFICATIONS_ARE_SET
 		};
 		
 		String selection = _ID + "=?";
@@ -43,7 +44,7 @@ public class SyncTableHelper implements BaseColumns{
 		Sync sync = null;
 		
 		if(cursor.moveToFirst()){
-			sync = new Sync(syncId, cursor.getString(0));
+			sync = new Sync(syncId, cursor.getString(0), cursor.getString(1));
 		}
 		
 		return sync;
@@ -68,5 +69,35 @@ public class SyncTableHelper implements BaseColumns{
 		}finally{
 			this.db.endTransaction();
 		}
+	}
+	
+	public Sync checkNotificationsAreComputed(){
+		
+		String[] columns = {
+			_ID,
+			TIMESTAMP,
+			NOTIFICATIONS_ARE_SET
+		};
+		
+		String selection = _ID + " = (SELECT max(" + _ID + ") FROM " + TABLE_NAME + ");";
+		
+		Cursor cursor = this.db.query(TABLE_NAME, columns, selection, null, null, null, null);
+		
+		Sync sync = null;
+		
+		if(cursor.moveToFirst()){
+			
+			String areSet = cursor.getString(2);
+			
+			if(areSet == null || (areSet != null && areSet.equals(""))){
+				areSet = "false";
+			}
+			
+			sync = new Sync(cursor.getInt(0), cursor.getString(1), areSet);
+		}
+		
+		cursor.close();
+		
+		return sync;
 	}
 }

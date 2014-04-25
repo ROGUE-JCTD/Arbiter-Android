@@ -24,10 +24,12 @@ public class Sync extends NotificationListItem{
 
 	private Integer syncId;
 	private String timestamp;
+	private boolean notificationsAreSet;
 	
-	public Sync(Integer syncId, String timestamp){
+	public Sync(Integer syncId, String timestamp, String notificationsAreSet){
 		this.syncId = syncId;
 		this.timestamp = timestamp;
+		this.notificationsAreSet = Boolean.parseBoolean(notificationsAreSet);
 	}
 	
 	public Integer getId(){
@@ -36,6 +38,10 @@ public class Sync extends NotificationListItem{
 	
 	public String getTimestamp(){
 		return this.timestamp;
+	}
+	
+	public boolean getNotificationsAreSet(){
+		return this.notificationsAreSet;
 	}
 	
 	@Override

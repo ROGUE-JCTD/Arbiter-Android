@@ -402,7 +402,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	    		@Override
     	    		public void run(){
     	    			
-    	    			if(!sync.getNotificationsAreSet()){
+    	    			if(sync != null && !sync.getNotificationsAreSet()){
     	    				
     	    				Map.getMap().getNotifications(cordovaWebView, Integer.toString(sync.getId()));
     	    			}else{

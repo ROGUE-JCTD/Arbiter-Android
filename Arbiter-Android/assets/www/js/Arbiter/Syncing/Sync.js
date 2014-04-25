@@ -62,11 +62,8 @@
 		
 		var run = function(){
 			
-			console.log("removing temporary tables");
-			context.removeTemporaryTables(null, function(){
+			context.removeTemporaryTables(function(){
 				context.syncInProgress = false;
-				
-				console.log("removed temporary tables: bla");
 				
 				if(Arbiter.Util.funcExists(context.onSuccess)){
 					context.onSuccess();
@@ -94,18 +91,14 @@
 		}
 	};
 
-	prototype.removeTemporaryTables = function(layerIndex, onSuccess, onFailure){
+	prototype.removeTemporaryTables = function(onSuccess, onFailure){
 		
 		var tempTableCleaner = new Arbiter.TemporaryTableCleaner(this.featureDb, this.layers, this.schemas, function(){
-			
-			console.log("removed temporary tables");
 			
 			if(Arbiter.Util.existsAndNotNull(onSuccess)){
 				onSuccess();
 			}
 		}, function(e){
-			
-			console.log("couldn't remove temporary tables");
 			
 			if(Arbiter.Util.existsAndNotNull(onFailure)){
 				onFailure(e);
@@ -321,20 +314,22 @@
 	prototype.startTileCache = function(){
 		var context = this;
 		
-		var olBounds = new OpenLayers.Bounds(this.bounds.getLeft(),
-				this.bounds.getBottom(),
-				this.bounds.getRight(),
-				this.bounds.getTop());
-		
-		console.log("startTileCache: " + JSON.stringify(olBounds));
+		this.initialize(function(){
 			
-		Arbiter.getTileUtil().cacheTiles(olBounds, function(){
-			
-			console.log("cached tiles");
-			
-			context.getNotifications();
+			var olBounds = new OpenLayers.Bounds(context.bounds.getLeft(),
+					context.bounds.getBottom(),
+					context.bounds.getRight(),
+					context.bounds.getTop());
+				
+			Arbiter.getTileUtil().cacheTiles(olBounds, function(){
+				
+				context.getNotifications();
+			}, function(e){
+				context.onSyncFailed("Sync failed to cache tiles: " + e);
+			});
 		}, function(e){
-			context.onSyncFailed("Sync failed to cache tiles: " + e);
+			
+			context.onSyncFailed(e);
 		});
 	};
 	

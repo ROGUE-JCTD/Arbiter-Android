@@ -1,9 +1,6 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
-import java.util.Iterator;
-
 import org.apache.cordova.CordovaInterface;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 

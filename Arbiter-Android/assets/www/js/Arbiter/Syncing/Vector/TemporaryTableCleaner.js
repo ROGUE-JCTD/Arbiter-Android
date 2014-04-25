@@ -51,6 +51,7 @@
 		var context = this;
 		
 		var layer = this.layers[layerIndex];
+		
 		var schema = this.schemas[layer[Arbiter.LayersHelper.layerId()]];
 		
 		var sql = "DROP TABLE IF EXISTS '" + Arbiter.Util.getTempFeatureTableName(schema.getFeatureType()) + "';";

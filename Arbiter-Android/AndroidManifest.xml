@@ -45,11 +45,13 @@
         <activity
             android:name="com.lmn.Arbiter_Android.Activities.AOIActivity"
             android:label="@string/app_name"
+            android:icon="@drawable/icon"
             android:configChanges="orientation|screenSize" >
         </activity>
         <activity
             android:name="com.lmn.Arbiter_Android.Activities.NotificationsActivity"
             android:label="@string/app_name"
+            android:icon="@drawable/icon"
             android:configChanges="orientation|screenSize" >
         </activity>
         <activity 

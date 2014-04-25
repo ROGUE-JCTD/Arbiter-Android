@@ -26,6 +26,8 @@ import com.lmn.Arbiter_Android.Dialog.Dialogs.InsertFeatureDialog;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Map.Map;
+import com.lmn.Arbiter_Android.OnReturnToMap.OnReturnToMap;
+import com.lmn.Arbiter_Android.OnReturnToMap.ReturnToMapJob;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 import android.os.Bundle;
@@ -41,6 +43,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ImageButton;
 
 public class MapActivity extends FragmentActivity implements CordovaInterface,
@@ -55,6 +58,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     private boolean menuPrepared;
     @SuppressWarnings("unused")
 	private SyncConnectivityListener syncConnectivityListener;
+    private NotificationBadge notificationBadge;
     
     // For CORDOVA
     private CordovaWebView cordovaWebView;
@@ -242,10 +246,20 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	super.onSaveInstanceState(outState);
     }
     
+    public NotificationBadge getNotificationBadge(){
+    	return this.notificationBadge;
+    }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_map, menu);
+        
+        Log.w("MapActivity", "MapActivity onCreateOptionsMenu");
+        
+        if(this.notificationBadge == null){
+        	this.notificationBadge = new NotificationBadge(this, menu);
+        }
         
         return true;
     }
@@ -330,7 +344,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         		}
         		
         		return true;
-    		
+        		
         	case R.id.action_about:
         		
         		new About(this).displayAboutDialog();;
@@ -351,6 +365,19 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
             return;
         } else if(this.isFinishing()){
             this.cordovaWebView.handlePause(this.keepRunning);
+        }
+    }
+    
+    private void executeOnReturnToMapJobs(){
+    	OnReturnToMap onReturnToMap = OnReturnToMap.getOnReturnToMap();
+        
+        ReturnToMapJob job = onReturnToMap.pop();
+        
+        while(job != null){
+        	
+        	job.run(this);
+        	
+        	job = onReturnToMap.pop();
         }
     }
     
@@ -376,6 +403,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
             }
         }
          
+        executeOnReturnToMapJobs();
+        
     	if(arbiterProject != null){
     		
     		getThreadPool().execute(new Runnable(){
@@ -451,6 +480,10 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	if(this.failedSyncHelper != null){
 			this.failedSyncHelper.dismiss();
 		}
+    	
+    	if(this.notificationBadge != null){
+    		this.notificationBadge.onDestroy();
+    	}
     }
     
     @Override

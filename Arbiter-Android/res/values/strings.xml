@@ -218,4 +218,6 @@
          for your area of interest.  Are you sure you want to continue?
     </string>
     <string name="type">Type</string>
+    <string name="notifications">Notifications</string>
+    <string name="clear">clear</string>
 </resources>

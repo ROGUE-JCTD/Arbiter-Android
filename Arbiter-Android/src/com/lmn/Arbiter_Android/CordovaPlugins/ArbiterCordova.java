@@ -11,7 +11,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
@@ -31,6 +33,7 @@ import com.lmn.Arbiter_Android.Dialog.Dialogs.FailedSyncHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
+import com.lmn.Arbiter_Android.Loaders.NotificationsLoader;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.Media.HandleZeroByteFiles;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
@@ -685,9 +688,12 @@ public class ArbiterCordova extends CordovaPlugin{
 		}catch(ClassCastException e){
 			e.printStackTrace();
 		}
+		
+		final SQLiteDatabase projectDb = ProjectDatabaseHelper.getHelper(fragActivity.getApplicationContext(),
+				projectPath, false).getWritableDatabase();
+		
 		FailedSyncHelper failedSyncHelper = new FailedSyncHelper(fragActivity,
-				ProjectDatabaseHelper.getHelper(fragActivity.getApplicationContext(),
-						projectPath, false).getWritableDatabase());
+				projectDb);
 		
 		failedSyncHelper.checkIncompleteSync();
 		
@@ -696,34 +702,37 @@ public class ArbiterCordova extends CordovaPlugin{
 			public void run(){
 				HandleZeroByteFiles handler = new HandleZeroByteFiles(mediaPath);
 				handler.deleteZeroByteFiles();
-			}
-		});
-		
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
 				
-				// If a sync completed and new project wasn't null,
-				// That means a project was just created.
-				if(arbiterProject.getNewProject() != null){
-					
-					arbiterProject.doneCreatingProject(
-							activity.getApplicationContext());
-				}
-				
-				SyncProgressDialog.dismiss(activity);
-				
-				try{
-					((Map.MapChangeListener) activity)
-						.getMapChangeHelper().onSyncCompleted();
-					
-				} catch(ClassCastException e){
-					e.printStackTrace();
-					throw new ClassCastException(activity.toString() 
-							+ " must be an instance of Map.MapChangeListener");
-				}
-				
-				callbackContext.success();
+				activity.runOnUiThread(new Runnable(){
+					@Override
+					public void run(){
+						
+						// If a sync completed and new project wasn't null,
+						// That means a project was just created.
+						if(arbiterProject.getNewProject() != null){
+							
+							arbiterProject.doneCreatingProject(
+									activity.getApplicationContext());
+						}
+						
+						LocalBroadcastManager.getInstance(activity.getApplicationContext()).sendBroadcast(
+								new Intent(NotificationsLoader.NOTIFICATIONS_UPDATED));
+						
+						SyncProgressDialog.dismiss(activity);
+						
+						try{
+							((Map.MapChangeListener) activity)
+								.getMapChangeHelper().onSyncCompleted();
+							
+						} catch(ClassCastException e){
+							e.printStackTrace();
+							throw new ClassCastException(activity.toString() 
+									+ " must be an instance of Map.MapChangeListener");
+						}
+						
+						callbackContext.success();
+					}
+				});
 			}
 		});
 	}

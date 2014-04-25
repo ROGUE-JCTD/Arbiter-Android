@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.BaseClasses.ColorMap;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
@@ -40,27 +41,6 @@ public class OverlayList extends CustomList<ArrayList<Layer>, Layer> {
 	private ArbiterProject arbiterProject;
 	private OrderLayersModel orderLayersModel;
 	private MapChangeListener mapChangeListener;
-	
-	private static final Map<String, String> COLOR_MAP;
-    static {
-        Map<String, String> aMap = new HashMap<String,String>();
-        aMap.put("teal","#008080");
-		aMap.put("maroon","#800000");
-		aMap.put("green","#008000");
-		aMap.put("purple","#800080");
-		aMap.put("fuchsia","#FF00FF");
-		aMap.put("lime","#00FF00");
-		aMap.put("red","#FF0000");
-		aMap.put("black","#000000");
-		aMap.put("navy","#000080");
-		aMap.put("aqua","#00FFFF");
-		aMap.put("grey","#808080");
-		aMap.put("olive","#808000");
-		aMap.put("yellow","#FFFF00");
-		aMap.put("silver","#C0C0C0");
-		aMap.put("white","#FFFFFF");
-		COLOR_MAP = Collections.unmodifiableMap(aMap);
-    }
     
 	public OverlayList(ViewGroup viewGroup, Activity activity, int itemLayout){
 		super(viewGroup);
@@ -115,7 +95,7 @@ public class OverlayList extends CustomList<ArrayList<Layer>, Layer> {
 				View layerColorView = view.findViewById(R.id.layerColor);
 				
 				if(layerColorView != null){
-					layerColorView.setBackgroundColor(Color.parseColor(COLOR_MAP.get(layer.getColor())));
+					layerColorView.setBackgroundColor(Color.parseColor(ColorMap.COLOR_MAP.get(layer.getColor())));
 				}
 			}
             TextView layerNameView = (TextView) view.findViewById(R.id.layerName);

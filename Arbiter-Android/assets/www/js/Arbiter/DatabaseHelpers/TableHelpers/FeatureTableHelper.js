@@ -51,6 +51,19 @@ Arbiter.FeatureTableHelper = (function(){
 			SYNCED: 1
 		},
 		
+		// Make sure the key in the feature table isn't there as metadata
+		isMetaKey: function(key){
+				
+			if(key === Arbiter.FeatureTableHelper.ID 
+					|| key === Arbiter.FeatureTableHelper.SYNC_STATE 
+					|| key === Arbiter.FeatureTableHelper.MODIFIED_STATE){
+				
+				return true;
+			}
+		
+			return false;
+		},
+		
 		/**
     	 * Create the table
     	 */

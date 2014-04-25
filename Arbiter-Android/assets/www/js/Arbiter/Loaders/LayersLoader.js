@@ -193,6 +193,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 		var olBaseLayer = null;
 		
 		if(!Arbiter.Util.existsAndNotNull(baseLayer) || (Arbiter.Util.existsAndNotNull(baseLayer) && baseLayer[Arbiter.BaseLayer.NAME] === "OpenStreetMap")){
+			
 			olBaseLayer = Arbiter.Layers.addDefaultLayer(true);
 		}
 		
@@ -264,6 +265,8 @@ Arbiter.Loaders.LayersLoader = (function(){
 				loadWFSLayer(key, schema, onSuccess);
 			}else{
 				layersToLoad--;
+				
+				isDone(onSuccess);
 			}
 		}
 		
@@ -368,7 +371,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 				Arbiter.LayersHelper.loadLayers(context, function(layers){
 					
 					Arbiter.PreferencesHelper.get(Arbiter.BASE_LAYER, context, function(baseLayer){
-
+						
 						if(Arbiter.Util.existsAndNotNull(baseLayer)){
 							try{
 								// base layer is stored as an array of json objects

@@ -1,5 +1,7 @@
-Arbiter.VectorSync = function(_map, _bounds, _onSuccess, _onFailure){
+Arbiter.VectorSync = function(db, _map, _bounds, _onSuccess, _onFailure){
 
+	this.db = db;
+	
 	this.map = _map;
 	
 	this.bounds = _bounds;
@@ -185,7 +187,7 @@ Arbiter.VectorSync.prototype.startNextDownload = function(){
 		var dataType = Arbiter.FailedSyncHelper.DATA_TYPES.VECTOR;
 		var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.DOWNLOAD;
 		
-		var downloader = new Arbiter.VectorDownloader(schema, this.bounds, function(){
+		var downloader = new Arbiter.VectorDownloader(this.db, schema, this.bounds, function(){
 			
 			Arbiter.FailedSyncHelper.remove(key, dataType, syncType, key, function(){
 				

@@ -216,4 +216,6 @@
           para su área de interés. ¿Está seguro que desea continuar?
     </string>
     <string name="type">Tipo</string>
+    <string name="notifications">Notificaciones</string>
+    <string name="clear">limpia</string>
 </resources>

@@ -80,19 +80,28 @@
 
 	prototype.removeTemporaryTables = function(onSuccess, onFailure){
 		
-		var tempTableCleaner = new Arbiter.TemporaryTableCleaner(this.featureDb, this.layers, this.schemas, function(){
-			
+		var success = function(){
 			if(Arbiter.Util.existsAndNotNull(onSuccess)){
 				onSuccess();
 			}
-		}, function(e){
-			
-			if(Arbiter.Util.existsAndNotNull(onFailure)){
-				onFailure(e);
-			}
-		});
+		};
 		
-		tempTableCleaner.cleanup();
+		if(Arbiter.Util.existsAndNotNull(this.schemas) && Arbiter.Util.existsAndNotNull(this.layers) && this.layers.length > 0){
+			
+			var tempTableCleaner = new Arbiter.TemporaryTableCleaner(this.featureDb, this.layers, this.schemas, function(){
+				
+				success();
+			}, function(e){
+				
+				if(Arbiter.Util.existsAndNotNull(onFailure)){
+					onFailure(e);
+				}
+			});
+			
+			tempTableCleaner.cleanup();
+		}else{
+			success();
+		}
 	};
 	
 	prototype.onSyncFailed = function(e){
@@ -326,8 +335,12 @@
 		
 		this.initialize(function(){
 			
+			console.log("getNotifications");
+			
 			// If the notification handler exists, then get the notifications for this layer
 			if(Arbiter.Util.existsAndNotNull(context.notificationHandler)){
+				
+				console.log("notificationHandler isn't null");
 				
 				// If the layerIndex hasn't been specified, set it to 0 to get the first layer
 				if(!Arbiter.Util.existsAndNotNull(layerIndex)){
@@ -351,9 +364,13 @@
 					return;
 				}
 				
+				console.log("before where i think its failing");
+				
 				// Get the schema corresponding to the current layer
 				var layer = context.layers[layerIndex];
 				var schema = context.schemas[layer[Arbiter.LayersHelper.layerId()]];
+				
+				console.log("after where i htink its failing");
 				
 				// If the schema exists and is editable, then get the notifications for the layer
 				if(Arbiter.Util.existsAndNotNull(schema) && schema.isEditable()){

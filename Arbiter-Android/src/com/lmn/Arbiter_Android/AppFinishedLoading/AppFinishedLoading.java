@@ -39,13 +39,16 @@ public class AppFinishedLoading {
 		
 		Log.w("AppFinishedLoading", "AppFinishedLoading - running jobs");
 		
-		AppFinishedLoadingJob job = jobs.remove(0);
-		
-		while(job != null){
+		if(jobs.size() > 0){
 			
-			job.run();
+			AppFinishedLoadingJob job = jobs.remove(0);
 			
-			job = jobs.remove(0);
+			while(job != null){
+				
+				job.run();
+				
+				job = jobs.remove(0);
+			}
 		}
 	}
 	

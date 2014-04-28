@@ -45,7 +45,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.ImageButton;
 
 public class MapActivity extends FragmentActivity implements CordovaInterface,
@@ -95,6 +94,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         
         mapChangeHelper = new MapChangeHelper(this, 
         		cordovaWebView, incompleteProjectHelper);
+        
+        checkNotificationsAreComputed();
     }
     
     private String getProjectPath(){
@@ -413,13 +414,6 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	    	});
     		}
     	});
-    }
-    
-    @Override
-    protected void onStart(){
-    	super.onStart();
-    	
-    	checkNotificationsAreComputed();
     }
     
     @Override 

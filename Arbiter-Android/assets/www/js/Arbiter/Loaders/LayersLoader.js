@@ -370,16 +370,9 @@ Arbiter.Loaders.LayersLoader = (function(){
 				// Load the layers from the database
 				Arbiter.LayersHelper.loadLayers(context, function(layers){
 					
-					Arbiter.PreferencesHelper.get(Arbiter.BASE_LAYER, context, function(baseLayer){
-						
-						if(Arbiter.Util.existsAndNotNull(baseLayer)){
-							try{
-								// base layer is stored as an array of json objects
-								baseLayer = JSON.parse(baseLayer)[0];
-							}catch(e){
-								console.log(e.stack);
-							}
-						}
+					var baseLayerLoader = new Arbiter.Loaders.BaseLayer();
+					
+					baseLayerLoader.load(function(baseLayer){
 						
 						// Load the layer schemas with layer data loaded from the db
 						Arbiter.FeatureTableHelper.loadLayerSchemas(layers, function(){

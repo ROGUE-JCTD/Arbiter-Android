@@ -9,8 +9,6 @@
 	prototype.load = function(onSuccess, onFailure){
 		Arbiter.PreferencesHelper.get(Arbiter.BASE_LAYER, this, function(baseLayer){
 			
-			console.log("loaded base layer = " + baseLayer);
-			
 			if(Arbiter.Util.existsAndNotNull(baseLayer)){
 				try{
 					// base layer is stored as an array of json objects
@@ -18,6 +16,16 @@
 				}catch(e){
 					console.log(e.stack);
 				}
+			}else{
+				var osm = "OpenStreetMap";
+				
+				baseLayer = {};
+				
+				baseLayer[Arbiter.BaseLayer.NAME] = "OpenStreetMap";
+				baseLayer[Arbiter.BaseLayer.URL] = null;
+				baseLayer[Arbiter.BaseLayer.SERVER_NAME] = "OpenStreetMap";
+				baseLayer[Arbiter.BaseLayer.SERVER_ID] = "OpenStreetMap";
+				baseLayer[Arbiter.BaseLayer.FEATURE_TYPE] = "";
 			}
 			
 			if(Arbiter.Util.existsAndNotNull(onSuccess)){

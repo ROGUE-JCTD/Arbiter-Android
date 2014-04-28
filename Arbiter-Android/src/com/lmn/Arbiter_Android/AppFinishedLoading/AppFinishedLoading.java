@@ -26,7 +26,6 @@ public class AppFinishedLoading {
 	}
 	
 	public void setFinishedLoading(boolean finishedLoading){
-		Log.w("AppFinishedLoading", "AppFinishedLoading - setFinishedLoading = " + finishedLoading);
 		
 		this.finishedLoading = finishedLoading;
 		
@@ -36,8 +35,6 @@ public class AppFinishedLoading {
 	}
 	
 	private void runJobs(){
-		
-		Log.w("AppFinishedLoading", "AppFinishedLoading - running jobs");
 		
 		if(jobs.size() > 0){
 			

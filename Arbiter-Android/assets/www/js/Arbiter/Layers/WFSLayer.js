@@ -100,7 +100,10 @@ Arbiter.Layers.WFSLayer = (function(){
         		OpenLayers.Feature.Vector.style["select"]);
 		
 		defaultStyleTable.pointRadius = 18;
+		defaultStyleTable.strokeWidth = 3;
+		
         selectStyleTable.pointRadius = 18;
+        selectStyleTable.strokeWidth = 3;
         
 		return new OpenLayers.StyleMap({
             'default': new OpenLayers.Style(defaultStyleTable),

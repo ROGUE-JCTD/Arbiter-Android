@@ -20,10 +20,14 @@ Arbiter.Controls.Select = function(onSelect, onUnselect){
 			onSelect: function(feature){
 				
 				if(Arbiter.Util.existsAndNotNull(selectedFeature) && (selectedFeature === feature)){
+					
 					if(Arbiter.Util.funcExists(onSelect)){
 						onSelect(feature);
 					}
+					
+					selectedFeature = null;
 				}else{
+					
 					selectedFeature = feature;
 				}
 			},
@@ -33,12 +37,13 @@ Arbiter.Controls.Select = function(onSelect, onUnselect){
 					
 					selectController.select(feature);
 				}else{
+					
 					if(Arbiter.Util.funcExists(onUnselect)){
 						onUnselect(feature);
 					}
+					
+					selectedFeature = null;
 				}
-				
-				selectedFeature = null;
 			}
 		});
 		

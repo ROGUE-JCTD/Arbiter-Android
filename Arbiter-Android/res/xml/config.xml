@@ -30,6 +30,9 @@
     <feature name="Globalization">
         <param name="android-package" value="org.apache.cordova.globalization.Globalization" />
     </feature>
+    <feature name="Device">
+        <param name="android-package" value="org.apache.cordova.device.Device" />
+    </feature>
     <feature name="ArbiterCordova">
         <param name="android-package" value="com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova" />
     </feature>

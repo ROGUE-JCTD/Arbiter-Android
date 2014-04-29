@@ -86,8 +86,6 @@
 			ids: []	
 		};
 		
-		console.log("getting current features");
-		
 		this.featureTx.executeSql(sql, [], function(_tx, res){
 			
 			var feature = null;
@@ -101,8 +99,6 @@
 				context.currentFeatures.ids.push(featureId);
 				context.currentFeatures[featureId] = feature;
 			}
-			
-			console.log("currentFeatures: ", context.currentFeatures);
 			
 			context._getPreviousFeatures();
 		}, function(_tx, e){
@@ -123,8 +119,6 @@
 			ids: []
 		};
 		
-		console.log("getting previous features");
-		
 		this.featureTx.executeSql(sql, [], function(_tx, res){
 			
 			var feature = null;
@@ -139,7 +133,6 @@
 				context.previousFeatures[feature[Arbiter.FeatureTableHelper.FID]] = feature;
 			}
 			
-			console.log("previousFeatures: ", context.previousFeatures);
 			context._compute();
 		}, function(_tx, e){
 			
@@ -156,8 +149,6 @@
 		var currentFeatureId = null;
 		var previousFeature = null;
 		var indexOfPreviousId = null;
-		
-		console.log("computing notifications");
 		
 		for(var i = 0; i < this.currentFeatures.ids.length; i++){
 			
@@ -177,8 +168,6 @@
 			indexOfPreviousId = this.previousFeatures.ids.indexOf(currentFeatureId);
 			this.previousFeatures.ids.splice(indexOfPreviousId, 1);
 			delete this.previousFeatures[currentFeatureId];
-			
-			console.log("currentFeature, previousFeature: ", currentFeature, previousFeature);
 			
 			// The feature didn't exist previously so it must've been added
 			if(!Arbiter.Util.existsAndNotNull(previousFeature)){
@@ -205,10 +194,6 @@
 					notification[construct.LAYER_ID] = this.schema.getLayerId();
 					notification[construct.SYNC_ID] = this.syncId;
 				}
-			}
-			
-			if(Arbiter.Util.existsAndNotNull(previousFeature)){
-				console.log("currentFeature hash: " + SHA1(JSON.stringify(currentFeature)) + ", previousFeature hash: " + SHA1(JSON.stringify(previousFeature)));
 			}
 			
 			if(Arbiter.Util.existsAndNotNull(notification)){
@@ -249,19 +234,13 @@
 			this.notifications.push(notification);
 		}
 		
-		console.log("notifications: ", this.notifications);
-		
 		this._saveNotifications();
 	};
 	
 	prototype._saveNotifications = function(){
 		var context = this;
 		
-		console.log('saveNotifications');
-		
 		this.projectDb.transaction(function(tx){
-			
-			console.log("got a transaction");
 			
 			context.projectTx = tx;
 			
@@ -275,8 +254,6 @@
 		
 		var notification = this.notifications.shift();
 		
-		console.log("notification", notification);
-		
 		if(!Arbiter.Util.existsAndNotNull(notification)){
 			
 			this.onComputeSuccess();
@@ -288,11 +265,7 @@
 		
 		var query = this._getInsertNotificationQuery(notification);
 		
-		console.log("insertQuery", query);
-		
 		this.projectTx.executeSql(query.sql, query.values, function(tx, res){
-			
-			console.log("successfully inserted notification: " + JSON.stringify(notification));
 			
 			context._saveNotification();
 		}, function(tx, e){

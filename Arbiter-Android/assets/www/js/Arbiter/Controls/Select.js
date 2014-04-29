@@ -11,21 +11,38 @@ Arbiter.Controls.Select = function(onSelect, onUnselect){
 	
 	var selectController = null;
 	
+	var selectedFeature = null;
+	
 	var initSelectController = function(){
 		selectController = new OpenLayers.Control.SelectFeature(vectorLayers, {
 			clickout: false,
 			toggle: true,
 			onSelect: function(feature){
-				if(Arbiter.Util.funcExists(onSelect)){
-					onSelect(feature);
+				
+				if(Arbiter.Util.existsAndNotNull(selectedFeature) && (selectedFeature === feature)){
+					if(Arbiter.Util.funcExists(onSelect)){
+						onSelect(feature);
+					}
+				}else{
+					selectedFeature = feature;
 				}
 			},
 			onUnselect: function(feature){
-				if(Arbiter.Util.funcExists(onUnselect)){
-					onUnselect(feature);
+				
+				if(Arbiter.Util.existsAndNotNull(selectedFeature) && (selectedFeature === feature)){
+					
+					selectController.select(feature);
+				}else{
+					if(Arbiter.Util.funcExists(onUnselect)){
+						onUnselect(feature);
+					}
 				}
+				
+				selectedFeature = null;
 			}
 		});
+		
+		selectController.handlers.feature.stopDown = false;
 	};
 	
 	var _attachToMap = function(){

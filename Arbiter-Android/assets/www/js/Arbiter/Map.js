@@ -18,6 +18,9 @@ Arbiter.Map = (function() {
 						new OpenLayers.Control.TouchNavigation({
 							dragPanOptions : {
 								enableKinetic : true
+							},
+							clickHandlerOptions: {
+								double: false
 							}
 						}) ],
 				layers : [ new OpenLayers.Layer.OSM("OpenStreetMap", null, {

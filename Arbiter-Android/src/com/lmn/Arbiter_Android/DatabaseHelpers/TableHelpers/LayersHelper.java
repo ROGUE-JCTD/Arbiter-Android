@@ -18,6 +18,7 @@ import com.lmn.Arbiter_Android.BaseClasses.GeometryColumn;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
+import com.lmn.Arbiter_Android.Loaders.NotificationsLoader;
 
 public class LayersHelper implements BaseColumns{
 	public static final String LAYERS_TABLE_NAME = "layers";
@@ -234,6 +235,7 @@ public class LayersHelper implements BaseColumns{
 				projectDb.setTransactionSuccessful();
 				
 				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
+				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(NotificationsLoader.NOTIFICATIONS_UPDATED));
 		//	}
 		} catch (Exception e){
 			e.printStackTrace();

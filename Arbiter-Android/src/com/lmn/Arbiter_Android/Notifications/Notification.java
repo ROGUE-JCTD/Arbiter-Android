@@ -129,8 +129,6 @@ public class Notification extends NotificationListItem {
 					@Override
 					public void run(){
 						
-						Log.w("Notification", "Notification: zoomToFeatureIfExists: featureExists = " + featureExists);
-						
 						if(featureExists){
 							
 							OnReturnToMap onReturnToMap = OnReturnToMap.getOnReturnToMap();

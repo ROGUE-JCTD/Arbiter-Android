@@ -6,6 +6,7 @@ import android.view.View;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
+import com.lmn.Arbiter_Android.Loaders.NotificationsLoader;
 import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 
 public class SwitchProjectDialog extends ArbiterDialogFragment{
@@ -33,6 +34,9 @@ public class SwitchProjectDialog extends ArbiterDialogFragment{
 		
 		LocalBroadcastManager.getInstance(getActivity().getApplicationContext())
 			.sendBroadcast(new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));
+		
+		LocalBroadcastManager.getInstance(getActivity().getApplicationContext())
+			.sendBroadcast(new Intent(NotificationsLoader.NOTIFICATIONS_UPDATED));
 		
 		this.getActivity().finish();
 	}

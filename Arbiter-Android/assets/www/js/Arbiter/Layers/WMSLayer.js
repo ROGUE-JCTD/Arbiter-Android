@@ -3,8 +3,6 @@ Arbiter.Layers.WMSLayer = (function(){
 	return {
 		create: function(key, schema){
 			
-			console.log("create wmsLayer for: " + schema.getPrefix() + ":" + schema.getFeatureType());
-			
 			var featureType = "";
 			
 			if(Arbiter.Util.existsAndNotNull(schema.getPrefix()) && schema.getPrefix() !== "null"){

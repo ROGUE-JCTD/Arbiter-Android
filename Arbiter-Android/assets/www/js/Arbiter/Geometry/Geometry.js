@@ -184,7 +184,7 @@ Arbiter.Geometry = (function(){
 		},
 		
 		getNativeWKT: function(feature, layerId){
-			console.log("getNativeWKT", feature, layerId);
+			
 			var srid = Arbiter.Map.getMap().projection.projCode;
 			
 			var schema = Arbiter.getLayerSchemas()[layerId];
@@ -201,7 +201,6 @@ Arbiter.Geometry = (function(){
 			if(this.isGeometryCollection(layerId) && wkt.substring(0, 18) !== "GEOMETRYCOLLECTION"){
 				wkt = "GEOMETRYCOLLECTION(" + wkt + ")";
 			}
-			console.log("getNativeWKT end: " + wkt);
 			
 			return wkt;
 		},

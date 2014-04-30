@@ -99,15 +99,36 @@ Arbiter.Layers.WFSLayer = (function(){
         var selectStyleTable = OpenLayers.Util.applyDefaults({},
         		OpenLayers.Feature.Vector.style["select"]);
 		
-		defaultStyleTable.pointRadius = 18;
-		defaultStyleTable.strokeWidth = 10;
+		defaultStyleTable.pointRadius = "18";
+		defaultStyleTable.strokeWidth = "${getStrokeWidth}";
 		
-        selectStyleTable.pointRadius = 18;
-        selectStyleTable.strokeWidth = 10;
+        selectStyleTable.pointRadius = "18";
+        selectStyleTable.strokeWidth = "${getStrokeWidth}";
         
+        var context = {
+        	getStrokeWidth: function(feature){
+        		var map = Arbiter.Map.getMap();
+        		
+        		if(map.zoom >= 21){
+        			return "30";
+        		}else if(map.zoom >= 18 && map.zoom < 21){
+        			return "20";
+        		}else if(map.zoom >= 16 && map.zoom < 18){
+        			return "10";
+        		}else if(map.zoom >= 13 && map.zoom < 16){
+        			return "5";
+        		}else if(map.zoom >= 10 && map.zoom < 13){
+        			return "3";
+        		}else if(map.zoom >= 7 && map.zoom < 10){
+        			return "2";
+        		}else{
+        			return "1";
+        		}
+        	}	
+        };
 		return new OpenLayers.StyleMap({
-            'default': new OpenLayers.Style(defaultStyleTable),
-            'select': new OpenLayers.Style(selectStyleTable)
+            'default': new OpenLayers.Style(defaultStyleTable, {context: context}),
+            'select': new OpenLayers.Style(selectStyleTable, {context: context})
 		});
 	};
 	

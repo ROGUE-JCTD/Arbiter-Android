@@ -469,8 +469,6 @@ Arbiter.FeatureTableHelper = (function(){
 				
 				var layerId = layer[layersHelper.layerId()];
 				
-				console.log("creating layer schema layerId = " + layerId);
-				
 				var schema = new Arbiter.Util.LayerSchema(layerId, url,
 						workspace, prefix, featureType, srid, geometryName,
 						geometryType, enumeration, attributes,

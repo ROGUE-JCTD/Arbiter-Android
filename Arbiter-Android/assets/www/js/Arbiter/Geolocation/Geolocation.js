@@ -9,7 +9,7 @@ Arbiter.Geolocation = function(context, lowAccuracyCallback, highAccuracyCallbac
 	this.executedFailureCallback = false;
 	
 	this.options = {
-		timeout: 10000,
+		timeout: 60000,
 		maximumAge: 3000
 	};
 };

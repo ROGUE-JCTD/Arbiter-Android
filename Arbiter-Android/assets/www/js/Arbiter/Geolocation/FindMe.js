@@ -1,4 +1,4 @@
-Arbiter.FindMe = function(olMap, olLayer, includeOOM){
+Arbiter.FindMe = function(olMap, olLayer, includeOOM, onSuccess, onFailure){
 	this.olMap = olMap;
 	this.gotHighAccuracy = false;
 	this.olLayer = olLayer;
@@ -24,6 +24,9 @@ Arbiter.FindMe = function(olMap, olLayer, includeOOM){
 	
 	this.bigRadius = 20;
 	this.smallRadius = 10;
+	
+	this.onFinishedGettingLocation = onSuccess;
+	this.onFailedGettingLocation = onFailure;
 	
 	this.lowAccuracyPointStyle = {
 		externalGraphic: this.smallBallLowAccuracy,
@@ -92,9 +95,21 @@ Arbiter.FindMe.prototype.addPoint = function(position, style){
 			
 			context.oom.clearSavedPoint(function(){
 				console.log("FindMe removed saved point");
+				
+				if(Arbiter.Util.existsAndNotNull(context.onFinishedGettingLocation)){
+					context.onFinishedGettingLocation();
+				}
 			}, function(e){
 				console.log("FindMe could not removed saved point: " + JSON.stringify(e));
+				
+				if(Arbiter.Util.existsAndNotNull(context.onFailedGettingLocation)){
+					context.onFailedGettingLocation(e);
+				}
 			});
+		}else{
+			if(Arbiter.Util.existsAndNotNull(context.onFinishedGettingLocation)){
+				context.onFinishedGettingLocation();
+			}
 		}
 	}, this.removePointTimeout);
 	
@@ -203,6 +218,10 @@ Arbiter.FindMe.prototype.onFailure = function(e){
 	var msg = "FindMe could not get location: " + JSON.stringify(e);
 	
 	console.log(msg);
+	
+	if(Arbiter.Util.existsAndNotNull(this.onFailedGettingLocation)){
+		this.onFailedGettingLocation(e);
+	}
 	
 	Arbiter.Cordova.alertGeolocationError(msg);
 };

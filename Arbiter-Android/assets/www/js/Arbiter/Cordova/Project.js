@@ -5,6 +5,8 @@ Arbiter.Cordova.Project = (function(){
 	
 	var syncInProgress = false;
 	
+	var gettingUsersLocation = false;
+	
 	var getSchemaHelper = function(specificSchemas, layerId){
 		
 		specificSchemas.push(Arbiter.getLayerSchemas()[layerId]);
@@ -291,20 +293,31 @@ Arbiter.Cordova.Project = (function(){
 		},
 		
 		zoomToCurrentPosition: function(onSuccess, onFailure){
-			try{
-				var map = Arbiter.Map.getMap();
-				
-				var aoiLayer = map.getLayersByName(Arbiter.AOI)[0];
-				
-				if(!Arbiter.Util.funcExists(aoiLayer)){
-					throw "AOI layer does not exist";
+			
+			if(!gettingUsersLocation){
+			
+				try{
+					var map = Arbiter.Map.getMap();
+					
+					var aoiLayer = map.getLayersByName(Arbiter.AOI)[0];
+					
+					if(!Arbiter.Util.funcExists(aoiLayer)){
+						throw "AOI layer does not exist";
+					}
+					
+					gettingUsersLocation = true;
+					
+					var findMe = new Arbiter.FindMe(map, aoiLayer, includeOOMWorkaround, function(position){
+						
+						gettingUsersLocation = false;
+					}, function(e){
+						gettingUsersLocation = false;
+					});
+					
+					findMe.findMe();
+				}catch(e){
+					console.log(e);
 				}
-				
-				var findMe = new Arbiter.FindMe(map, aoiLayer, includeOOMWorkaround);
-				
-				findMe.findMe();
-			}catch(e){
-				console.log(e);
 			}
 		},
 		

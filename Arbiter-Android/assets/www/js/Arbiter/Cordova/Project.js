@@ -307,11 +307,18 @@ Arbiter.Cordova.Project = (function(){
 					
 					gettingUsersLocation = true;
 					
-					var findMe = new Arbiter.FindMe(map, aoiLayer, includeOOMWorkaround, function(position){
+					var onDone = function(){
 						
 						gettingUsersLocation = false;
+						
+						Arbiter.Cordova.finishedGettingLocation();
+					};
+					
+					var findMe = new Arbiter.FindMe(map, aoiLayer, includeOOMWorkaround, function(position){
+						
+						onDone();
 					}, function(e){
-						gettingUsersLocation = false;
+						onDone();
 					});
 					
 					findMe.findMe();

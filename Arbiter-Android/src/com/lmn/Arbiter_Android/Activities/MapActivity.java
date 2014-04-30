@@ -45,6 +45,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 
 public class MapActivity extends FragmentActivity implements CordovaInterface,
@@ -192,12 +194,22 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     		}
     	});
     	
-    	ImageButton locationButton = (ImageButton) findViewById(R.id.locationButton);
+    	final ImageButton locationButton = (ImageButton) findViewById(R.id.locationButton);
     	
     	locationButton.setOnClickListener(new OnClickListener(){
     		@Override
     		public void onClick(View v){
-    			Map.getMap().zoomToCurrentPosition(cordovaWebView);
+    			
+    			if(locationButton.getAnimation() == null){
+    				
+    				Animation rotation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.button_rotate);
+        			
+        			rotation.setRepeatCount(Animation.INFINITE);
+        			
+        			locationButton.startAnimation(rotation);
+        			
+        			Map.getMap().zoomToCurrentPosition(cordovaWebView);
+    			}
     		}
     	});
     	

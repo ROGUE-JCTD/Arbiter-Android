@@ -168,6 +168,10 @@ Arbiter.Loaders.LayersLoader = (function(){
 		}
 		
 		map.addLayer(layer);
+		
+		// Make sure the aoi is the last layer and the highest
+		map.setLayerIndex(layer, (map.layers.length - 1));
+		layer.setZIndex(726);
 	};
 	
 	var loadAOILayer = function(){

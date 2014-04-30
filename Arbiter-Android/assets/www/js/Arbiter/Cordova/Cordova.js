@@ -52,6 +52,11 @@ Arbiter.Cordova = (function() {
 			cordova.exec(null, null, "ArbiterCordova", "gotNotifications", []);
 		},
 		
+		finishedGettingLocation: function(){
+			
+			cordova.exec(null, null, "ArbiterCordova", "finishedGettingLocation", []);
+		},
+		
 		/**
 		 * Save the current maps extent
 		 */

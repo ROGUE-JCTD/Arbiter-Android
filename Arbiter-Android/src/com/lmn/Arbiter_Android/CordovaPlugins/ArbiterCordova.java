@@ -15,6 +15,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.ImageButton;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
@@ -87,6 +88,23 @@ public class ArbiterCordova extends CordovaPlugin{
 			String aoi = args.getString(0);
 			
 			setNewProjectsAOI(aoi, callbackContext);
+			
+			return true;
+		}else if("finishedGettingLocation".equals(action)){
+			
+			final Activity activity = this.cordova.getActivity();
+			
+			activity.runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					
+					ImageButton locationButton = (ImageButton) activity.findViewById(R.id.locationButton);
+					
+					if(locationButton != null){
+						locationButton.clearAnimation();
+					}
+				}
+			});
 			
 			return true;
 		}else if("goToProjects".equals(action)){

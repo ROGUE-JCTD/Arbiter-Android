@@ -12,16 +12,15 @@ Arbiter.VectorSync = function(db, _map, _bounds, _onSuccess, _onFailure){
 	
 	this.index = -1;
 	
-	this.failedToUpload = null;
-	this.failedToDownload = null;
-	
 	this.onSuccess = _onSuccess;
 	this.onFailure = _onFailure;
-	
 	
 	this.finishedLayerDownloadCount = 0;
 	this.finishedLayoutUploadCount = 0;
 	this.totalLayerCount = this.getTotalLayerCount();
+	
+	// For keeping track of whether a layer failed to upload
+	this.failedOnUpload = {};
 };
 
 Arbiter.VectorSync.prototype.getTotalLayerCount = function(){
@@ -60,8 +59,7 @@ Arbiter.VectorSync.prototype.onUploadComplete = function(){
 Arbiter.VectorSync.prototype.onDownloadComplete = function(){
 	
 	if(Arbiter.Util.funcExists(this.onSuccess)){
-		this.onSuccess(this.failedToUpload,
-				this.failedToDownload);
+		this.onSuccess();
 	}
 };
 
@@ -85,25 +83,23 @@ Arbiter.VectorSync.prototype.startUpload = function(){
 	this.startNextUpload();
 };
 
-Arbiter.VectorSync.prototype.putFailedUpload = function(failed){
-	
-	if(failed !== null && failed !== undefined){
-		
-		if(this.failedToUpload === null || this.failedToUpload === undefined){
-			this.failedToUpload = [];
-		}
-		
-		this.failedToUpload.push(failed);
-	}
-};
-
 Arbiter.VectorSync.prototype.startNextUpload = function(){
 	var context = this;
 	var layer = this.pop();
 	
 	if(layer !== null && layer !== undefined){
 		
-		var callback = function(){
+		var key = Arbiter.Util.getLayerId(layer);
+		var dataType = Arbiter.FailedSyncHelper.DATA_TYPES.VECTOR;
+		var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.UPLOAD;
+		
+		var callback = function(succeeded){
+			
+			if(!succeeded){
+				
+				context.failedOnUpload[key] = layer;
+			}
+
 			Arbiter.Cordova.updateUploadingVectorDataProgress(
 					++context.finishedLayoutUploadCount,
 					context.totalLayerCount);
@@ -111,26 +107,20 @@ Arbiter.VectorSync.prototype.startNextUpload = function(){
 			context.startNextUpload();
 		};
 		
-		var key = Arbiter.Util.getLayerId(layer);
-		var dataType = Arbiter.FailedSyncHelper.DATA_TYPES.VECTOR;
-		var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.UPLOAD;
-		
 		var uploader = new Arbiter.VectorUploader(layer, function(){
 			
 			Arbiter.FailedSyncHelper.remove(key, dataType, 
 					syncType, key, function(){
 				
-				callback();
+				callback(true);
 			}, function(e){
 				console.log("Could not remove this layer from failed_sync - " + key, e);
 				
-				callback();
+				callback(true);
 			});
 		}, function(featureType){
 			
-			context.putFailedUpload(featureType);
-			
-			callback();
+			callback(false);
 		});
 		
 		uploader.upload();
@@ -144,18 +134,6 @@ Arbiter.VectorSync.prototype.startDownload = function(){
 	this.index = -1;
 	
 	this.startNextDownload();
-};
-
-Arbiter.VectorSync.prototype.putFailedDownload = function(failed){
-	
-	if(failed !== null && failed !== undefined){
-		
-		if(this.failedToDownload === null || this.failedToDownload === undefined){
-			this.failedToDownload = [];
-		}
-		
-		this.failedToDownload.push(failed);
-	}
 };
 
 Arbiter.VectorSync.prototype.startNextDownload = function(){
@@ -174,6 +152,11 @@ Arbiter.VectorSync.prototype.startNextDownload = function(){
 			schema = Arbiter.Util.getSchemaFromOlLayer(layer);
 		}
 		
+		var key = schema.getLayerId();
+		
+		var dataType = Arbiter.FailedSyncHelper.DATA_TYPES.VECTOR;
+		var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.DOWNLOAD;
+		
 		var callback = function(){
 			Arbiter.Cordova.updateDownloadingVectorDataProgress(
 					++context.finishedLayerDownloadCount,
@@ -182,10 +165,13 @@ Arbiter.VectorSync.prototype.startNextDownload = function(){
 			context.startNextDownload();
 		};
 		
-		var key = schema.getLayerId();
-		
-		var dataType = Arbiter.FailedSyncHelper.DATA_TYPES.VECTOR;
-		var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.DOWNLOAD;
+		// If the layer failed to upload, don't download
+		if(Arbiter.Util.existsAndNotNull(this.failedOnUpload[key])){
+			
+			callback();
+			
+			return;
+		}
 		
 		var downloader = new Arbiter.VectorDownloader(this.db, schema, this.bounds, function(){
 			
@@ -199,7 +185,6 @@ Arbiter.VectorSync.prototype.startNextDownload = function(){
 			});
 		}, function(featureType){
 			
-			context.putFailedDownload(featureType)
 			callback();
 		});
 		

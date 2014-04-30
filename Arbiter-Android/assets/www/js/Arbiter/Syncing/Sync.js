@@ -16,10 +16,6 @@
 		this.projectDb = projectDb;
 		this.featureDb = featureDb;
 		
-		// Arrays
-		this.failedVectorUploads = null;
-		this.failedVectorDownloads = null;
-		
 		// Object[layerId]
 		this.failedMediaUploads = null;
 		this.failedMediaDownloads = null;
@@ -250,15 +246,7 @@
 		var context = this;
 		
 		var vectorSync = new Arbiter.VectorSync(this.featureDb, this.map, this.bounds,
-				function(failedUploads, failedDownloads){
-			
-			context.failedVectorUploads = failedUploads;
-			context.failedVectorDownloads = failedDownloads;
-			
-			console.log("vector sync completed failedUploads = " 
-					+ JSON.stringify(failedUploads) 
-					+ ", failedDownloads = " 
-					+ JSON.stringify(failedDownloads));
+				function(){
 				
 			context.startMediaSync();
 			

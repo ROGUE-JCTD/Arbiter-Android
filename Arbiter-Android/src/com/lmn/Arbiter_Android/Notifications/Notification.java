@@ -18,6 +18,8 @@ import com.lmn.Arbiter_Android.OnReturnToMap.ReturnToMapJob;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.content.LocalBroadcastManager;
@@ -145,7 +147,13 @@ public class Notification extends NotificationListItem {
 							activity.finish();
 						}else{
 							
+							AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 							
+							builder.setTitle(activity.getResources().getString(R.string.feature_not_in_aoi));
+							builder.setMessage(activity.getResources().getString(R.string.feature_not_in_aoi_msg));
+							builder.setPositiveButton(R.string.close, null);
+			
+							builder.create().show();
 						}
 					}
 				});

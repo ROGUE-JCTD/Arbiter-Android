@@ -73,7 +73,5 @@ Arbiter.VectorUploader.prototype.upload = function(){
 		context.onSaveFailure(context.layer);
 	};
 	
-	console.log("calling save for " + Arbiter.Util.getLayerId(this.layer));
-	
 	this.layer.strategies[0].save();
 };

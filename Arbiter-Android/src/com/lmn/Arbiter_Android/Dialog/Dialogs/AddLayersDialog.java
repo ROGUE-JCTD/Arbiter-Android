@@ -164,7 +164,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 				public void run() {
 					ProjectDatabaseHelper helper = ProjectDatabaseHelper
 							.getHelper(context, ProjectStructure
-									.getProjectPath(projectName), false);
+									.getProjectPath(context, projectName), false);
 					
 					long[] layerIds = LayersHelper.getLayersHelper().
 								insert(helper.getWritableDatabase(), context, layers);

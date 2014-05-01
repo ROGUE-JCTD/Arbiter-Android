@@ -728,8 +728,8 @@ public class ArbiterCordova extends CordovaPlugin{
 		final Activity activity = cordova.getActivity();
 		
 		String projectName = arbiterProject.getOpenProject(activity);
-		final String mediaPath = ProjectStructure.getMediaPath(projectName);
-		String projectPath = ProjectStructure.getProjectPath(projectName);
+		final String mediaPath = ProjectStructure.getMediaPath(activity.getApplicationContext(), projectName);
+		String projectPath = ProjectStructure.getProjectPath(activity.getApplicationContext(), projectName);
 		
 		FragmentActivity fragActivity = null;
 		

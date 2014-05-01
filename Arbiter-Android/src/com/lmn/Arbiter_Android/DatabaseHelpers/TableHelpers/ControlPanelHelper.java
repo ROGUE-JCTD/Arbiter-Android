@@ -41,7 +41,7 @@ public class ControlPanelHelper {
 				.getOpenProject(activity);
 		
 		return ProjectDatabaseHelper.getHelper(context,
-				ProjectStructure.getProjectPath(projectName), false).getWritableDatabase();
+				ProjectStructure.getProjectPath(context, projectName), false).getWritableDatabase();
 	}
 	
 	public void clearControlPanel(){

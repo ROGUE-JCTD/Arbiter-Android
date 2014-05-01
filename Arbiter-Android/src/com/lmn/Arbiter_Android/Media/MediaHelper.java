@@ -23,7 +23,7 @@ public class MediaHelper {
 	
 	public String getMediaUri(String fileName){
 		
-		String uri = ProjectStructure.getMediaPath(ArbiterProject.getArbiterProject()
+		String uri = ProjectStructure.getMediaPath(activity.getApplicationContext(), ArbiterProject.getArbiterProject()
 				.getOpenProject(activity)) + File.separator
 				+ fileName;
 		

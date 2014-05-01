@@ -377,7 +377,7 @@ public class GeometryEditor {
 						String projectName = ArbiterProject.getArbiterProject().getOpenProject(activity);
 						
 						SQLiteDatabase db = FeatureDatabaseHelper.getHelper(activity.getApplicationContext(),
-								ProjectStructure.getProjectPath(projectName), false).getWritableDatabase();
+								ProjectStructure.getProjectPath(activity.getApplicationContext(), projectName), false).getWritableDatabase();
 						
 						if(featureId != null && featureId != "null"){
 							
@@ -445,7 +445,7 @@ public class GeometryEditor {
 						String projectName = ArbiterProject.getArbiterProject().getOpenProject(activity);
 						
 						SQLiteDatabase db = FeatureDatabaseHelper.getHelper(activity.getApplicationContext(),
-								ProjectStructure.getProjectPath(projectName), false).getWritableDatabase();
+								ProjectStructure.getProjectPath(activity.getApplicationContext(), projectName), false).getWritableDatabase();
 						
 						if(featureId == null || featureId.equals("null")){
 							feature = FeaturesHelper.getHelper().getNewFeature(db, featureType, wktGeometry);

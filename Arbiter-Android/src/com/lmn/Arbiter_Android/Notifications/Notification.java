@@ -185,7 +185,7 @@ public class Notification extends NotificationListItem {
 		
 		String projectName = ArbiterProject.getArbiterProject().getOpenProject(activity);
 		
-		String projectPath = ProjectStructure.getProjectPath(projectName);
+		String projectPath = ProjectStructure.getProjectPath(activity.getApplicationContext(), projectName);
 		
 		return ProjectDatabaseHelper.getHelper(activity.getApplicationContext(),
 				projectPath, false).getWritableDatabase();
@@ -195,7 +195,7 @@ public class Notification extends NotificationListItem {
 		
 		String projectName = ArbiterProject.getArbiterProject().getOpenProject(activity);
 		
-		String projectPath = ProjectStructure.getProjectPath(projectName);
+		String projectPath = ProjectStructure.getProjectPath(activity.getApplicationContext(), projectName);
 		
 		return FeatureDatabaseHelper.getHelper(activity.getApplicationContext(),
 				projectPath, false).getWritableDatabase();

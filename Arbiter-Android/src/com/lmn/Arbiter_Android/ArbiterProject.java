@@ -76,7 +76,7 @@ public class ArbiterProject {
     		
     		// If openProject is STILL -1, then there wasn't a previously opened project  
     		if(!openProjectHasBeenInitialized()){
-    			ProjectStructure.getProjectStructure().ensureProjectExists(activity);
+    			ProjectStructure.getProjectStructure(context).ensureProjectExists(activity);
     			openProjectName = context.getResources().getString(R.string.default_project_name);
     		}
     		
@@ -137,7 +137,7 @@ public class ArbiterProject {
 		builder.create().show();
 		
 		// Delete the corresponding project directory
-		ProjectStructure.getProjectStructure().deleteProject(activity, openProjectName);
+		ProjectStructure.getProjectStructure(activity.getApplicationContext()).deleteProject(activity, openProjectName);
 		
 		Map.CordovaMap cordovaMap;
 		

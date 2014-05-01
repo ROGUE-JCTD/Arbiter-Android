@@ -48,7 +48,7 @@ public class NotificationsLoader extends AsyncTaskLoader<ArrayList<NotificationL
 		
 		String projectName = ArbiterProject.getArbiterProject().getOpenProject(activity);
 		
-		String path = ProjectStructure.getProjectPath(projectName);
+		String path = ProjectStructure.getProjectPath(context, projectName);
 		
 		return ProjectDatabaseHelper.getHelper(context, path, false).getWritableDatabase();
 	}

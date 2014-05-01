@@ -26,7 +26,7 @@ public class MediaSyncHelper {
 		String projectName = ArbiterProject.getArbiterProject()
 				.getOpenProject(activity);
 		
-		String path = ProjectStructure.getProjectPath(projectName);
+		String path = ProjectStructure.getProjectPath(context, projectName);
 		
 		return ProjectDatabaseHelper.getHelper(context,
 				path, false).getWritableDatabase();

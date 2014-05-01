@@ -110,7 +110,7 @@ public class InsertProjectHelper {
 	
 	private ProjectDatabaseHelper getProjectDatabaseHelper(Context context, String projectName){
 		return ProjectDatabaseHelper.getHelper(context, 
-				ProjectStructure.getProjectPath(projectName), false);
+				ProjectStructure.getProjectPath(context, projectName), false);
 	}
 	
 	private void setOpenProject(Context context, Project newProject){
@@ -123,7 +123,7 @@ public class InsertProjectHelper {
 	
 	private void createProjectDirectory(Activity activity, String projectName){
 		// Create the project directory
-		ProjectStructure.getProjectStructure().
+		ProjectStructure.getProjectStructure(activity.getApplicationContext()).
 			createProject(activity, projectName, false);
 	}
 	

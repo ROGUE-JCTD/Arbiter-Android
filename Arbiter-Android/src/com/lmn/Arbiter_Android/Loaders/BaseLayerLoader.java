@@ -67,7 +67,7 @@ public class BaseLayerLoader extends AsyncTaskLoader<JSONArray> {
 	private SQLiteDatabase getDb(){
 		String projectName = ArbiterProject.getArbiterProject().getOpenProject(activity);
 		
-		return ProjectDatabaseHelper.getHelper(context, ProjectStructure.getProjectPath(projectName),false).getWritableDatabase();
+		return ProjectDatabaseHelper.getHelper(context, ProjectStructure.getProjectPath(context, projectName),false).getWritableDatabase();
 	}
 	
 	/**

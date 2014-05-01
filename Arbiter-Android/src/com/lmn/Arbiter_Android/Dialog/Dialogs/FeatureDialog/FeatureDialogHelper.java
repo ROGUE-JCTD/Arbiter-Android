@@ -197,7 +197,7 @@ public class FeatureDialogHelper {
 				.getOpenProject(activity);
 		
 		return FeatureDatabaseHelper.getHelper(context, 
-				ProjectStructure.getProjectPath(projectName), false).getWritableDatabase();
+				ProjectStructure.getProjectPath(context, projectName), false).getWritableDatabase();
 	}
 	
 	private String getNewMediaKey(){

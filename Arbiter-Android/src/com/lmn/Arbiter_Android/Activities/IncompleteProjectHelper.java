@@ -47,7 +47,7 @@ public class IncompleteProjectHelper {
 		String projectName = ArbiterProject.getArbiterProject()
 				.getOpenProject(activity);
 		
-		return ProjectStructure.getProjectPath(projectName);
+		return ProjectStructure.getProjectPath(context, projectName);
 	}
 	
 	private SQLiteDatabase getProjectDatabase(){

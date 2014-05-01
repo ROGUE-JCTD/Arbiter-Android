@@ -104,7 +104,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
 		String projectName = ArbiterProject.getArbiterProject()
 				.getOpenProject(this);
 		
-		return ProjectStructure.getProjectPath(projectName);
+		return ProjectStructure.getProjectPath(getApplicationContext(), projectName);
 	}
 	
 	private SQLiteDatabase getProjectDatabase(){
@@ -137,7 +137,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     }
     
     private void getProjectStructure(){
-    	ProjectStructure.getProjectStructure();
+    	ProjectStructure.getProjectStructure(getApplicationContext());
     }
     
     private void InitArbiterProject(){

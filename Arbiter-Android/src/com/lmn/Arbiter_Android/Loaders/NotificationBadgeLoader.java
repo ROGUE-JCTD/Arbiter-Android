@@ -44,7 +44,7 @@ public class NotificationBadgeLoader extends AsyncTaskLoader<Integer> {
 		
 		String projectName = ArbiterProject.getArbiterProject().getOpenProject(activity);
 		
-		String path = ProjectStructure.getProjectPath(projectName);
+		String path = ProjectStructure.getProjectPath(context, projectName);
 		
 		return ProjectDatabaseHelper.getHelper(context, path, false).getWritableDatabase();
 	}

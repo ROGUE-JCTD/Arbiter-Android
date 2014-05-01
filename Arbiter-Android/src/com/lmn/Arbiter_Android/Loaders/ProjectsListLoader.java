@@ -28,7 +28,7 @@ public class ProjectsListLoader extends AsyncTaskLoader<Project[]> {
 				getAll(appDbHelper.getWritableDatabase());*/
 		
 		Project[] projects = ProjectStructure.
-				getProjectStructure().getProjects();
+				getProjectStructure(context).getProjects(context);
 		
 		return projects;
 	}

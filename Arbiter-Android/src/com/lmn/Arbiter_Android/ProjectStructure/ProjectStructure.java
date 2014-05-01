@@ -11,7 +11,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Environment;
+import android.util.Log;
 
 public class ProjectStructure {
 	private ProjectAlerts alerts;
@@ -27,11 +27,12 @@ public class ProjectStructure {
 	
 	private static ProjectStructure projectStructure = null;
 	
-	public static ProjectStructure getProjectStructure(){
+	public static ProjectStructure getProjectStructure(Context context){
 		if(projectStructure == null){
 			projectStructure = new ProjectStructure();
-			new File(getApplicationRoot()).mkdir();
-			new File(getProjectsRoot()).mkdir();
+			new File(getFilesRoot(context)).mkdir();
+			new File(getApplicationRoot(context)).mkdir();
+			new File(getProjectsRoot(context)).mkdir();
 		}
 		
 		return projectStructure;
@@ -42,15 +43,17 @@ public class ProjectStructure {
 		final String defaultName = context.getResources().
 				getString(R.string.default_project_name);
 		
-		boolean projectExists = projectExists();
+		boolean projectExists = projectExists(context);
 		
 		// A project already exists so return.
 		if(projectExists){
 			return false;
 		}
 		
+		Log.w("ProjectStructure", "ProjectStructure ensureProjectExists - after create application root");
+		
 		// A project doesn't exist yet so create the root projects folder
-		createProjectsRoot();
+		createProjectsRoot(context);
 		
 		// A project doesn't exist yet so create the default project
 		boolean projectCreated = createProject(activity, defaultName, true);
@@ -67,7 +70,7 @@ public class ProjectStructure {
 	private void insertDefaultProjectInfo(Context context, String defaultProjectName){
 		ProjectDatabaseHelper helper = 
 				ProjectDatabaseHelper.getHelper(context,
-						getProjectPath(defaultProjectName), false);
+						getProjectPath(context, defaultProjectName), false);
 		
 		PreferencesHelper.getHelper().put(helper.getWritableDatabase(), 
 				context, ArbiterProject.AOI, DEFAULT_PROJECT_AOI);
@@ -76,15 +79,15 @@ public class ProjectStructure {
 				context, ArbiterProject.PROJECT_NAME, defaultProjectName);
 	}
 	
-	private boolean projectExists(){
-		Project[] projects = getProjects();
+	private boolean projectExists(Context context){
+		Project[] projects = getProjects(context);
 		
 		return (projects.length > 0); 
 	}
 	
 	public boolean createProject(Activity activity, String projectName, boolean ensureProjectExists){
 		Context context = activity.getApplicationContext();
-		String path = getProjectPath(projectName);
+		String path = getProjectPath(context, projectName);
 		
 		boolean createdNewProject = false;
 		
@@ -108,7 +111,7 @@ public class ProjectStructure {
 		String openProjectName = ArbiterProject.getArbiterProject()
 				.getOpenProject(activity);
 		
-		String path = getProjectPath(projectName);
+		String path = getProjectPath(activity.getApplicationContext(), projectName);
 		
 		deleteProjectFolder(activity, path);
 		
@@ -124,7 +127,7 @@ public class ProjectStructure {
 		String projectName = "";
 		
 		try {
-			projectName = getNextOpenProject();
+			projectName = getNextOpenProject(activity.getApplicationContext());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -138,8 +141,8 @@ public class ProjectStructure {
 	 * @return 
 	 * @throws Exception
 	 */
-	private String getNextOpenProject() throws Exception{
-		Project[] projects = getProjects();
+	private String getNextOpenProject(Context context) throws Exception{
+		Project[] projects = getProjects(context);
 		
 		if(projects.length > 0){
 			return projects[0].getProjectName();
@@ -172,24 +175,38 @@ public class ProjectStructure {
 		file.delete();
 	}
 	
-	private void createProjectsRoot(){
-		createDirectory(getProjectsRoot());
+	private void createProjectsRoot(Context context){
+		createDirectory(getProjectsRoot(context));
 	}
 	
-	public static String getApplicationRoot(){
-		return Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + ROOT_PATH ;
+	public static String getFilesRoot(Context context){
+		
+		String path = context.getFilesDir().toString() + File.separator + "files";
+		
+		Log.w("ProjectStructure", "ProjectStructure.getFilesRoot - " + path);
+		
+		return path;
 	}
 	
-	public static String getProjectsRoot(){
-		return getApplicationRoot() + File.separator + PROJECTS_PATH;
+	public static String getApplicationRoot(Context context){
+		
+		String path = getFilesRoot(context) + File.separator + ROOT_PATH;
+		
+		Log.w("ProjectStructure", "ProjectStructure.getApplicationRoot - " + path);
+		
+		return path;
 	}
 	
-	public static String getTileSetsRoot(){
-		return getApplicationRoot() + File.separator + TILESETS_PATH;
+	public static String getProjectsRoot(Context context){
+		return getApplicationRoot(context) + File.separator + PROJECTS_PATH;
 	}
 	
-	public static String getTileDir(String serverId, String featureType){
-		String path = getTileSetsRoot() + File.separator + serverId;
+	public static String getTileSetsRoot(Context context){
+		return getApplicationRoot(context) + File.separator + TILESETS_PATH;
+	}
+	
+	public static String getTileDir(Context context, String serverId, String featureType){
+		String path = getTileSetsRoot(context) + File.separator + serverId;
 		
 		String[] parts = featureType.split(":");
 		
@@ -200,22 +217,22 @@ public class ProjectStructure {
 		return path;
 	}
 	
-	public static String getProjectPath(String projectName){
-		return getProjectsRoot() + File.separator + projectName;
+	public static String getProjectPath(Context context, String projectName){
+		return getProjectsRoot(context) + File.separator + projectName;
 	}
 	
-	public static String getMediaPath(String projectName){
-		return getProjectPath(projectName) + File.separator + MEDIA_PATH;
+	public static String getMediaPath(Context context, String projectName){
+		return getProjectPath(context, projectName) + File.separator + MEDIA_PATH;
 	}
 	
 	private void createProjectDatabase(Context context, String projectName, boolean ensureProjectExists){
 		ProjectDatabaseHelper.getHelper(context, 
-				getProjectPath(projectName), ensureProjectExists);
+				getProjectPath(context, projectName), ensureProjectExists);
 	}
 	
 	private void createFeatureDatabase(Context context, String projectName, boolean ensureProjectExists){
 		FeatureDatabaseHelper.getHelper(context, 
-				getProjectPath(projectName), ensureProjectExists);
+				getProjectPath(context, projectName), ensureProjectExists);
 	}
 	
 	private boolean createProjectDirectory(Activity activity, String path){
@@ -238,8 +255,8 @@ public class ProjectStructure {
 		return project.exists();
 	}
 	
-	public Project[] getProjects(){
-		File rootDir = new File(getProjectsRoot());
+	public Project[] getProjects(Context context){
+		File rootDir = new File(getProjectsRoot(context));
 		String[] list = rootDir.list();
 		
 		if(list == null){

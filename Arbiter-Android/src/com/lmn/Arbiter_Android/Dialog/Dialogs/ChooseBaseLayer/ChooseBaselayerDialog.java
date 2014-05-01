@@ -135,7 +135,7 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 					public void run() {
 						ProjectDatabaseHelper helper = ProjectDatabaseHelper
 								.getHelper(context, ProjectStructure
-										.getProjectPath(projectName), false);
+										.getProjectPath(context, projectName), false);
 						
 						try {
 							PreferencesHelper.getHelper().put(helper.getWritableDatabase(),

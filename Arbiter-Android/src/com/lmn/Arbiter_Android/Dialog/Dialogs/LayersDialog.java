@@ -232,7 +232,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 				.getOpenProject(getActivity());
 		
 		return ProjectDatabaseHelper.getHelper(getActivity().getApplicationContext(),
-				ProjectStructure.getProjectPath(projectName), false).getWritableDatabase();
+				ProjectStructure.getProjectPath(getActivity().getApplicationContext(), projectName), false).getWritableDatabase();
 	}
 	
 	private void saveLayersOrder(final Runnable onSaveComplete){

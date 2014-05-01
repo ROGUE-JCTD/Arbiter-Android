@@ -91,7 +91,7 @@ public class Sync extends NotificationListItem{
 				
 				String projectName = ArbiterProject.getArbiterProject().getOpenProject(activity);
 				
-				String projectPath = ProjectStructure.getProjectPath(projectName);
+				String projectPath = ProjectStructure.getProjectPath(activity.getApplicationContext(), projectName);
 				
 				SQLiteDatabase db = ProjectDatabaseHelper.getHelper(activity.getApplicationContext(), projectPath, false).getWritableDatabase();
 				

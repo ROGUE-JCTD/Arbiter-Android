@@ -115,7 +115,7 @@ public class InsertFeaturesListAdapter extends BaseAdapter implements ArbiterAda
 				.getOpenProject(dialog.getActivity());
 		
 		return FeatureDatabaseHelper.getHelper(context,
-				ProjectStructure.getProjectPath(projectName),
+				ProjectStructure.getProjectPath(context, projectName),
 				false).getWritableDatabase();
 	}
 	

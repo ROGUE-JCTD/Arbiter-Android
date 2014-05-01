@@ -209,7 +209,7 @@ public class OverlayList extends CustomList<ArrayList<Layer>, Layer> {
 			public void run(){
 				ProjectDatabaseHelper helper = ProjectDatabaseHelper.
 						getHelper(context, ProjectStructure
-								.getProjectPath(projectName), false);
+								.getProjectPath(context, projectName), false);
 				
 				LayersHelper.getLayersHelper().updateAttributeValues(helper.getWritableDatabase(), context, layerId, values, new Runnable(){
 					@Override
@@ -230,7 +230,7 @@ public class OverlayList extends CustomList<ArrayList<Layer>, Layer> {
 			@Override
 			public void run() {
 				
-				String path = ProjectStructure.getProjectPath(projectName);
+				String path = ProjectStructure.getProjectPath(context, projectName);
 				
 				ProjectDatabaseHelper projectHelper = ProjectDatabaseHelper.
 						getHelper(context, path, false);

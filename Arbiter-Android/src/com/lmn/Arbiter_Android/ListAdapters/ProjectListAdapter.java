@@ -106,7 +106,7 @@ public class ProjectListAdapter extends BaseAdapter implements ArbiterAdapter<Pr
 							@Override
 							public void run() {
 								// Delete the corresponding project directory
-								ProjectStructure.getProjectStructure().deleteProject(activity, project.getProjectName());
+								ProjectStructure.getProjectStructure(activity.getApplicationContext()).deleteProject(activity, project.getProjectName());
 								
 								// Make sure the Project list updates.
 								LocalBroadcastManager.getInstance(activity.getApplicationContext())

@@ -17,7 +17,7 @@ public class ApplicationDatabaseHelper extends SQLiteOpenHelper {
 	private static int DATABASE_VERSION = 3;
 	
 	private ApplicationDatabaseHelper(Context context){
-		super(context, ProjectStructure.getApplicationRoot() + File.separator + DATABASE_NAME, null, DATABASE_VERSION);
+		super(context, ProjectStructure.getApplicationRoot(context) + File.separator + DATABASE_NAME, null, DATABASE_VERSION);
 	}
 	
 	private static ApplicationDatabaseHelper helper = null;

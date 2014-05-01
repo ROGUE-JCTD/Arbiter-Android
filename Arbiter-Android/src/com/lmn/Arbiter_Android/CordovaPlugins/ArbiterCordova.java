@@ -70,7 +70,12 @@ public class ArbiterCordova extends CordovaPlugin{
 			return true;
 		}else if("appFinishedLoading".equals(action)){
 			
-			AppFinishedLoading.getInstance().setFinishedLoading(true);
+			cordova.getActivity().runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					AppFinishedLoading.getInstance().setFinishedLoading(true);
+				}
+			});
 			
 			return true;
 		}else if("resetWebApp".equals(action)){

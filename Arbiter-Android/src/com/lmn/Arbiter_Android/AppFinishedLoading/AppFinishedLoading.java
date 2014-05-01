@@ -44,7 +44,11 @@ public class AppFinishedLoading {
 				
 				job.run();
 				
-				job = jobs.remove(0);
+				if(jobs.size() > 0){
+					job = jobs.remove(0);
+				}else{
+					job = null;
+				}
 			}
 		}
 	}

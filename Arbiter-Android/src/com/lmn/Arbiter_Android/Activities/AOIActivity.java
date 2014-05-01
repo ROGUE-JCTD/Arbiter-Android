@@ -16,7 +16,6 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 
@@ -83,13 +82,6 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface,
         });
 	}
 	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.aoi, menu);
-		return true;
-	}
-
 	@Override
     protected void onPause() {
             super.onPause();

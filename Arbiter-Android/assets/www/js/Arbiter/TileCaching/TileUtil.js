@@ -8,7 +8,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	
 	var registerOnLayerAdded = function(){
 		
-		map.events.register("addlayer", TileUtil, function(event){
+		map.events.register("preaddlayer", TileUtil, function(event){
 			if(event && event.layer 
 					&& event.layer.getURL){
 				

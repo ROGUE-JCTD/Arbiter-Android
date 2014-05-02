@@ -221,21 +221,12 @@ Arbiter.Loaders.LayersLoader = (function(){
 		var editableLayers = 0;
 		var featureType = null;
 		var serverType = null;
+		var isBaseLayer = false;
 		
 		for(var i = 0; i < dbLayers.length; i++){
 			key = dbLayers[i][Arbiter.LayersHelper.layerId()];
 			
 			schema = layerSchemas[key];
-			
-			serverType = schema.getServerType();
-			
-			if(serverType === "WMS"){
-				layer = loadWMSLayer(key, schema);
-			}else if(serverType === "TMS"){
-				layer = loadTMSLayer(key, schema);
-			}else{
-				console.log("Invalid server type: " + serverType);
-			}
 			
 			featureType = "";
 			
@@ -246,10 +237,24 @@ Arbiter.Loaders.LayersLoader = (function(){
 			featureType += schema.getFeatureType();
 			
 			if(Arbiter.Util.existsAndNotNull(baseLayer) && (featureType === baseLayer[Arbiter.BaseLayer.FEATURE_TYPE])){
+				isBaseLayer = true;
+			}
+			
+			serverType = schema.getServerType();
+			
+			if(serverType === "WMS"){
+				layer = loadWMSLayer(key, schema, isBaseLayer);
+			}else if(serverType === "TMS"){
+				layer = loadTMSLayer(key, schema, isBaseLayer);
+			}else{
+				console.log("Invalid server type: " + serverType);
+			}
+			
+			if(isBaseLayer === true){
 				olBaseLayer = layer;
+				isBaseLayer = false;
 				dbLayers.splice(i--, 1);
 			}else{
-				
 				if(serverType === "WMS"){
 					layersToLoad++;
 				}

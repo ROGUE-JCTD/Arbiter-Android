@@ -63,6 +63,12 @@ Arbiter.Layers = (function() {
 		        transitionEffect: 'resize'
 		    });
 			
+			if(Arbiter.Util.existsAndNotNull(osmLayer.metadata)){
+				osmLayer.metadata = {};
+			}
+			
+			osmLayer.metadata.isBaseLayer = true;
+			
 			this.addLayer(osmLayer);
 
 			osmLayer.setVisibility(visibility);

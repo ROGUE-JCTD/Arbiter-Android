@@ -9,6 +9,7 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 
+import android.webkit.CookieManager;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.InsertProjectHelper;
@@ -80,6 +81,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     	Config.init(this);
+    	
+    	CookieManager.setAcceptFileSchemeCookies(true);
     	
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);

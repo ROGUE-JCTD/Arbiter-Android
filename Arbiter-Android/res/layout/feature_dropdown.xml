@@ -2,24 +2,24 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal" >
+    android:orientation="vertical" >
         
 	    <TextView
 	        android:id="@+id/attributeLabel"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_marginLeft="14dp"
+	        android:layout_marginRight="14dp"
 	        android:layout_marginTop="20dp"
 	        android:textStyle="bold"
 	        android:text="@string/error_loading_features" />
 
 	    <Spinner
 	        android:id="@+id/spinner"
-	        android:layout_width="0dp"
-	        android:layout_height="wrap_content"
+	        android:layout_width="match_parent"
+	        android:layout_height="0dp"
 	        android:layout_marginLeft="14dp"
-	        android:layout_marginRight="10dp"
-	        android:layout_marginTop="20dp"
+	        android:layout_marginRight="14dp"
 	        android:layout_weight="1" />
 
 </LinearLayout>

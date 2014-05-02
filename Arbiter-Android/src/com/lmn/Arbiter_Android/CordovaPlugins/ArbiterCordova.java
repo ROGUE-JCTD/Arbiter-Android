@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -35,6 +36,7 @@ import com.lmn.Arbiter_Android.Dialog.Dialogs.FailedSyncHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
+import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
 import com.lmn.Arbiter_Android.Loaders.NotificationsLoader;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.Media.HandleZeroByteFiles;
@@ -74,6 +76,51 @@ public class ArbiterCordova extends CordovaPlugin{
 				@Override
 				public void run(){
 					AppFinishedLoading.getInstance().setFinishedLoading(true);
+				}
+			});
+			
+			return true;
+		}else if("layersAlreadyInProject".equals(action)){
+			
+			final JSONArray layersAlreadyInProject = args.getJSONArray(0);
+			
+			final Activity activity = cordova.getActivity();
+			
+			activity.runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					
+					if(layersAlreadyInProject != null && layersAlreadyInProject.length() > 0){
+						
+						LocalBroadcastManager.getInstance(activity.getApplicationContext())
+							.sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
+						
+						String message = activity.getResources().getString(R.string.layers_already_in_project);
+						
+						for(int i = 0, count = layersAlreadyInProject.length(); i < count; i++){
+							
+							if(i == 0){
+								message += "\n";
+							}
+							
+							try {
+								message += "\n" + layersAlreadyInProject.getString(i);
+							} catch (JSONException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						
+						AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+						
+						builder.setTitle(activity.getResources().getString(R.string.warning));
+						
+						builder.setMessage(message);
+						
+						builder.setPositiveButton(R.string.close, null);
+						
+						builder.create().show();
+					}
 				}
 			});
 			

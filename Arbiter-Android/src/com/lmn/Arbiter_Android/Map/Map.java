@@ -211,6 +211,7 @@ public class Map{
 			jsonLayer.put(LayersHelper.FEATURE_TYPE, layer.getFeatureType());
 			jsonLayer.put(LayersHelper.SERVER_ID, layer.getServerId());
 			jsonLayer.put(LayersHelper.LAYER_VISIBILITY, layer.isChecked());
+			jsonLayer.put(LayersHelper.LAYER_TITLE, layer.getLayerTitle());
 			
 			jsonArray.put(jsonLayer);
 		}

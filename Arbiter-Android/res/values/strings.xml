@@ -223,4 +223,5 @@
     <string name="close">close</string>
     <string name="feature_not_in_aoi">Feature not available</string>
     <string name="feature_not_in_aoi_msg">The feature has been deleted or moved to a location outside of the area of interest.</string>
+    <string name="layers_already_in_project">Could not add the following layers to the project because layers with the same feature types already exist:</string>
 </resources>

@@ -121,6 +121,32 @@ Arbiter.LayersHelper = (function(){
 			});
 		},
 		
+		deleteLayer: function(layerId, onSuccess, onFailure){
+			
+			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
+			
+			var fail = function(e){
+				
+				if(Arbiter.Util.existsAndNotNull(onFailure)){
+					onFailure(e);
+				}
+			};
+			
+			db.transaction(function(tx){
+				
+				var sql = "DELETE FROM " + LAYERS_TABLE_NAME + " WHERE " + LAYER_ID + "=?;";
+				
+				tx.executeSql(sql, [layerId], function(tx, res){
+					
+					if(Arbiter.Util.existsAndNotNull(onSuccess)){
+						onSuccess();
+					}
+				}, function(tx, e){
+					fail(e);
+				});
+			}, fail);
+		},
+		
 		layerId: function(){
 			return LAYER_ID;
 		},

@@ -6,13 +6,27 @@ Arbiter.SchemaDownloader = function(_layers, _wfsVersion, _onSuccess, _onFailure
 	this.onFailure = _onFailure;
 	this.index = -1;
 	this.failedLayers = [];
+	this.layersAlreadyInProject = [];
 	
 	this.queuedCount = this.layers.length;
 	this.finishedCount = 0;
 };
 
 Arbiter.SchemaDownloader.prototype.pop = function(){
-	return this.layers[++this.index];
+	var index = ++this.index;
+	
+	var layer = this.layers[index];
+	
+	var obj = null;
+	
+	if(Arbiter.Util.existsAndNotNull(layer)){
+		obj = {
+			layer: layer,
+			index: index
+		};
+	}
+	
+	return obj;
 };
 
 Arbiter.SchemaDownloader.prototype.onDownloadComplete = function(){
@@ -23,7 +37,7 @@ Arbiter.SchemaDownloader.prototype.onDownloadComplete = function(){
 	
 	if(Arbiter.Util.funcExists(this.onSuccess)){
 		
-		this.onSuccess(this.failedLayers);
+		this.onSuccess(this.layersAlreadyInProject, this.failedLayers);
 	}
 };
 
@@ -38,18 +52,18 @@ Arbiter.SchemaDownloader.prototype.startDownload = function(){
 
 Arbiter.SchemaDownloader.prototype.startNextDownload = function(){
 	
-	var layer = this.pop();
+	var obj = this.pop();
 	
-	if(layer !== undefined){
+	if(Arbiter.Util.existsAndNotNull(obj)){
 		
-		this.download(layer);
+		this.download(obj);
 	}else{
 		
 		this.onDownloadComplete();
 	}
 };
 
-Arbiter.SchemaDownloader.prototype.download = function(layer){
+Arbiter.SchemaDownloader.prototype.download = function(obj){
 	var context = this;
 	
 	var callback = function(){
@@ -60,7 +74,13 @@ Arbiter.SchemaDownloader.prototype.download = function(layer){
 		context.startNextDownload();
 	};
 	
-	var downloaderHelper = new Arbiter.SchemaDownloaderHelper(layer, this.wfsVersion, function(){
+	var downloaderHelper = new Arbiter.SchemaDownloaderHelper(obj.layer, this.wfsVersion, function(alreadyInProject){
+		
+		if(alreadyInProject){
+			
+			context.layersAlreadyInProject.push(obj.layer[Arbiter.LayersHelper.layerTitle()]);
+			context.layers.splice(obj.index, 1);
+		}
 		
 		callback();
 	}, function(featureType){

@@ -12,6 +12,9 @@ Arbiter.Cordova.Project = (function(){
 		specificSchemas.push(Arbiter.getLayerSchemas()[layerId]);
 	};
 	
+	// This is awful, but for the sake of time...
+	var layersAlreadyInProject = null;
+	
 	var getSchemasFromDbLayers = function(dbLayers){
 		var specificSchemas = [];
 		
@@ -55,7 +58,9 @@ Arbiter.Cordova.Project = (function(){
 	
 	var storeFeatureData = function(layers, bounds, cacheTiles, onSuccess, onFailure){
 		
-		var schemaDownloader = new Arbiter.SchemaDownloader(layers, Arbiter.WFS_DFT_VERSION, function(failedLayers){
+		var schemaDownloader = new Arbiter.SchemaDownloader(layers, Arbiter.WFS_DFT_VERSION, function(_layersAlreadyInProject){
+			
+			layersAlreadyInProject = _layersAlreadyInProject;
 			
 			prepareSync(layers, bounds, cacheTiles, onSuccess, onFailure);
 		}, function(e){
@@ -216,12 +221,21 @@ Arbiter.Cordova.Project = (function(){
 			Arbiter.Cordova.setState(Arbiter.Cordova.STATES.UPDATING);
 			
 			var onSuccess = function(){
+				
+				if(Arbiter.Util.existsAndNotNull(layersAlreadyInProject) && layersAlreadyInProject.length > 0){
+					Arbiter.Cordova.layersAlreadyInProject(layersAlreadyInProject);
+				}
+				
+				layersAlreadyInProject = null;
+				
 				Arbiter.Cordova.syncCompleted();
 			};
 			
 			var onFailure = function(e){
 			//	Arbiter.Cordova.errorAddingLayers(e);
 				Arbiter.Cordova.syncCompleted();
+				
+				layersAlreadyInProject = null;
 			};
 			
 			Arbiter.PreferencesHelper.get(Arbiter.AOI, context, function(_aoi){

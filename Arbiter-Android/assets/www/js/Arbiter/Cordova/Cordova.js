@@ -42,6 +42,13 @@ Arbiter.Cordova = (function() {
 			
 		},
 		
+		layersAlreadyInProject: function(layersAlreadyInProject){
+			
+			console.log("layersAlreadyInProject: " + JSON.stringify(layersAlreadyInProject));
+			
+			cordova.exec(null, null, "ArbiterCordova", "layersAlreadyInProject", [layersAlreadyInProject]);
+		},
+		
 		appFinishedLoading: function(){
 			
 			cordova.exec(null, null, "ArbiterCordova", "appFinishedLoading", []);

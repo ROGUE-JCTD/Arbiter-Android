@@ -221,4 +221,5 @@
     <string name="close">cierra</string>
     <string name="feature_not_in_aoi">Elemento no disponible</string>
     <string name="feature_not_in_aoi_msg">El elemento se haya eliminado o movido a un lugar fuera de la zona de interés.</string>
+    <string name="layers_already_in_project">No se pudo agregar las siguientes capas porque capas con los mismos tipos de características ya existe:</string>
 </resources>

@@ -127,11 +127,17 @@ Arbiter.Layers = (function() {
 
 		toggleWMSLayers : function(visibility){
 			var map = Arbiter.Map.getMap();
-			
+			var layer = null;
 			var wmsLayers = map.getLayersByClass("OpenLayers.Layer.WMS");
 			
 			for(var i = 0; i < wmsLayers.length; i++){
-				wmsLayers[i].setVisibility(visibility);
+				
+				layer = wmsLayers[i];
+				
+				// Making sure that the baseLayer doesn't get toggled
+				if(!(Arbiter.Util.existsAndNotNull(layer.metadata) && layer.metadata.isBaseLayer)){
+					layer.setVisibility(visibility);
+				}
 			}
 			
 		},

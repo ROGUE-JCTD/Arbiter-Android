@@ -136,8 +136,6 @@ var app = (function() {
 	
 	var onOnline = function(){
 		app.waitForArbiterInit(function(){
-			Arbiter.Layers.toggleWMSLayers(true);
-			
 			Arbiter.isOnline(true);
 		});
 	};
@@ -204,6 +202,36 @@ var app = (function() {
 				feature.renderIntent = "select";
 				
 				layer.drawFeature(feature);
+			}
+		},
+		
+		showWMSLayersForServer: function(serverId){
+			
+			console.log("showWMSLayersForServer: serverId = " + serverId);
+			
+			var schemas = Arbiter.getLayerSchemas();
+			var schema = null;
+			var layer = null;
+			
+			for(var key in schemas){
+				
+				schema = schemas[key];
+				
+				console.log("schema.getServerId() = " + schema.getServerId() + ", serverId = " + serverId);
+				
+				if(schema.getServerId() == serverId){
+					
+					console.log("they're equal");
+					
+					layer = Arbiter.Layers.getLayerById(schema.getLayerId(), Arbiter.Layers.type.WMS);
+					
+					if(Arbiter.Util.existsAndNotNull(layer)){
+						
+						console.log("toggle layer", layer.name);
+						
+						layer.setVisibility(true);
+					}
+				}
 			}
 		}
 	};

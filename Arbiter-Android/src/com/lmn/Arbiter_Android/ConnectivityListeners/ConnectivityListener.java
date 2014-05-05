@@ -9,9 +9,11 @@ import android.net.NetworkInfo;
 
 public class ConnectivityListener extends BroadcastReceiver{
 	private boolean isConnected;
+	private Context context;
 	
 	public ConnectivityListener(Context context){
 		this.isConnected = false;
+		this.context = context;
 		
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -41,5 +43,10 @@ public class ConnectivityListener extends BroadcastReceiver{
 	
 	public boolean isConnected(){
 		return this.isConnected;
+	}
+	
+	public void onDestroy(){
+		
+		context.unregisterReceiver(this);
 	}
 }

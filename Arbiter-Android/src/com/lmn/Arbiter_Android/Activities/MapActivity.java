@@ -9,13 +9,13 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 
-import android.webkit.CookieManager;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.InsertProjectHelper;
 import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.About.About;
+import com.lmn.Arbiter_Android.ConnectivityListeners.CookieConnectivityListener;
 import com.lmn.Arbiter_Android.ConnectivityListeners.SyncConnectivityListener;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
@@ -62,6 +62,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     private boolean menuPrepared;
     @SuppressWarnings("unused")
 	private SyncConnectivityListener syncConnectivityListener;
+    private CookieConnectivityListener cookieConnectivityListener;
     private NotificationBadge notificationBadge;
     
     // For CORDOVA
@@ -81,8 +82,6 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     	Config.init(this);
-    	
-    	CookieManager.setAcceptFileSchemeCookies(true);
     	
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
@@ -187,6 +186,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	});
     	
     	syncConnectivityListener = new SyncConnectivityListener(getApplicationContext(), syncButton);
+    	cookieConnectivityListener = new CookieConnectivityListener(this, this, this);
     	
     	ImageButton aoiButton = (ImageButton) findViewById(R.id.AOIButton);
     	
@@ -528,6 +528,14 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	
     	if(this.notificationBadge != null){
     		this.notificationBadge.onDestroy();
+    	}
+    	
+    	if(this.syncConnectivityListener != null){
+    		this.syncConnectivityListener.onDestroy();
+    	}
+    	
+    	if(this.cookieConnectivityListener != null){
+    		this.cookieConnectivityListener.onDestroy();
     	}
     }
     

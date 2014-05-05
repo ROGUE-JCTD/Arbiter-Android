@@ -520,16 +520,26 @@ public class Map{
 	
 	public void getNotifications(final CordovaWebView webview, final String syncId){
 		
-		Log.w("Map", "Map.getNotifications syncId = " + syncId);
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Cordova.Project.getNotifications(\"" + syncId + "\")'))";
+			
+				webview.loadUrl(url);
+			}
+		});
+	}
+	
+	public void showWMSLayersForServer(final CordovaWebView webview, final String serverId){
 		
 		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
 			@Override
 			public void run(){
 				
-				Log.w("Map", "Map.getNotifications executing syncId = " + syncId);
-				
 				String url = "javascript:app.waitForArbiterInit(new Function('"
-						+ "Arbiter.Cordova.Project.getNotifications(\"" + syncId + "\")'))";
+						+ "app.showWMSLayersForServer(\"" + serverId + "\")'))";
 			
 				webview.loadUrl(url);
 			}

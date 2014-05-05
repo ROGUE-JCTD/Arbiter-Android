@@ -1,19 +1,10 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.ClientPNames;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HTTP;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -26,8 +17,6 @@ import android.text.Selection;
 import android.util.Base64;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.CheckBox;
@@ -37,6 +26,7 @@ import android.widget.Spinner;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
+import com.lmn.Arbiter_Android.CookieManager.ArbiterCookieManager;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
@@ -135,28 +125,11 @@ public class AddServerDialog extends ArbiterDialogFragment{
 						int code = response.getStatusLine().getStatusCode();
 						switch (code) {
 						case 200:
-							final DefaultHttpClient postClient = new DefaultHttpClient();
-							params = postClient.getParams();
-							params.setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false);
-							HttpPost postRequest = new HttpPost(urlField.getText().toString().replace("/wms", "/j_spring_security_check"));
-							List <NameValuePair> postParams = new ArrayList<NameValuePair>();
-							postParams.add(new BasicNameValuePair("username", usernameField.getText().toString()));
-							postParams.add(new BasicNameValuePair("password", passwordField.getText().toString()));
-
-							postRequest.setEntity(new UrlEncodedFormEntity(postParams, HTTP.UTF_8));
 							
-							response = postClient.execute(postRequest);
-							CookieSyncManager.createInstance(getActivity());
-							CookieManager cookieManager = CookieManager.getInstance();
-							List<Cookie> cookies = postClient.getCookieStore().getCookies();
-							for (int i = 0; i < cookies.size(); i++) {
-								Cookie sessionCookie = cookies.get(i);
-								if (sessionCookie != null) {
-								    String cookieString = sessionCookie.getName() + "=" + sessionCookie.getValue() + "; domain=" + sessionCookie.getDomain();
-								    cookieManager.setCookie(urlField.getText().toString().replace("/geoserver/wms", ""), cookieString);
-								}   
-							}
-						    CookieSyncManager.getInstance().sync();
+							new ArbiterCookieManager(getActivity().getApplicationContext()).getCookieForServer(
+									urlField.getText().toString(), 
+									usernameField.getText().toString(),
+									passwordField.getText().toString());
 							
 							putServer(progressDialog);
 							

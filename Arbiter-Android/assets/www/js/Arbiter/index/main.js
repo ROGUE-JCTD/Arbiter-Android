@@ -207,8 +207,6 @@ var app = (function() {
 		
 		showWMSLayersForServer: function(serverId){
 			
-			console.log("showWMSLayersForServer: serverId = " + serverId);
-			
 			var schemas = Arbiter.getLayerSchemas();
 			var schema = null;
 			var layer = null;
@@ -217,17 +215,11 @@ var app = (function() {
 				
 				schema = schemas[key];
 				
-				console.log("schema.getServerId() = " + schema.getServerId() + ", serverId = " + serverId);
-				
 				if(schema.getServerId() == serverId){
-					
-					console.log("they're equal");
 					
 					layer = Arbiter.Layers.getLayerById(schema.getLayerId(), Arbiter.Layers.type.WMS);
 					
 					if(Arbiter.Util.existsAndNotNull(layer)){
-						
-						console.log("toggle layer", layer.name);
 						
 						layer.setVisibility(true);
 					}

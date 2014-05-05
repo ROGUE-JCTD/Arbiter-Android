@@ -38,6 +38,7 @@ import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
 import com.lmn.Arbiter_Android.Loaders.NotificationsLoader;
+import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.Media.HandleZeroByteFiles;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
@@ -814,6 +815,9 @@ public class ArbiterCordova extends CordovaPlugin{
 						
 						LocalBroadcastManager.getInstance(activity.getApplicationContext()).sendBroadcast(
 								new Intent(NotificationsLoader.NOTIFICATIONS_UPDATED));
+						
+						LocalBroadcastManager.getInstance(activity.getApplicationContext()).sendBroadcast(
+								new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));
 						
 						SyncProgressDialog.dismiss(activity);
 						

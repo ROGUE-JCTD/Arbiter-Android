@@ -15,6 +15,7 @@ import com.lmn.Arbiter_Android.InsertProjectHelper;
 import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.About.About;
+import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.ConnectivityListeners.CookieConnectivityListener;
 import com.lmn.Arbiter_Android.ConnectivityListeners.SyncConnectivityListener;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
@@ -471,7 +472,12 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
 				    		if(ArbiterState.getArbiterState().isCreatingProject()){
 				    			
 				    			SyncProgressDialog.show(getActivity());
-				    			insertHelper = new InsertProjectHelper(getActivity());
+				    			
+				    			Project newProject = arbiterProject.getNewProject();
+				    			
+				    			arbiterProject.doneCreatingProject(getApplicationContext());
+				    			
+				    			insertHelper = new InsertProjectHelper(getActivity(), newProject);
 				    			insertHelper.insert();
 				    		}
 				    		// Setting the aoi

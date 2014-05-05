@@ -4,9 +4,7 @@ import org.json.JSONException;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.BaseClasses.BaseLayer;
@@ -15,7 +13,6 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
-import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
@@ -23,9 +20,11 @@ public class InsertProjectHelper {
 	private ArbiterProject arbiterProject;
 	private Activity activity;
 	private Map.CordovaMap cordovaMap;
+	private Project newProject;
 	
-	public InsertProjectHelper(Activity activity){
+	public InsertProjectHelper(Activity activity, Project newProject){
 		this.arbiterProject = ArbiterProject.getArbiterProject();
+		this.newProject = newProject;
 		this.activity = activity;
 		
 		try {
@@ -40,7 +39,7 @@ public class InsertProjectHelper {
 		CommandExecutor.runProcess(new Runnable(){
 			@Override
 			public void run(){
-				final long[] layerIds = insertNewProject(activity);
+				final long[] layerIds = insertNewProject();
 				
 				activity.runOnUiThread(new Runnable(){
 					@Override
@@ -62,13 +61,11 @@ public class InsertProjectHelper {
 	 */
 	private void performFeatureDbWork(long[] layerIds){
 		Map.getMap().createProject(cordovaMap.getWebView(), 
-				arbiterProject.getNewProject().getLayers(), layerIds);
+				newProject.getLayers(), layerIds);
 	}
 	
-	private long[] insertNewProject(final Activity activity){
+	private long[] insertNewProject(){
 		Context context = activity.getApplicationContext();
-		
-		Project newProject = arbiterProject.getNewProject();
 		
 		String projectName = newProject.getProjectName();
 		

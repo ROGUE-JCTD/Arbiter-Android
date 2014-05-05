@@ -224,4 +224,7 @@
     <string name="feature_not_in_aoi">Feature not available</string>
     <string name="feature_not_in_aoi_msg">The feature has been deleted or moved to a location outside of the area of interest.</string>
     <string name="layers_already_in_project">Could not add the following layers to the project because layers with the same feature types already exist:</string>
+    <string name="invalid_url">Invalid url</string>
+    <string name="invalid_url_slash_wms">\"WMS\" server urls must end with \"/wms\"</string>
+    <string name="invalid_url_slash_tms">\"TMS\" server urls end with \"/hot/1.0.0/\"</string>
 </resources>

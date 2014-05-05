@@ -9,6 +9,7 @@ import org.apache.http.params.HttpParams;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
@@ -193,12 +194,59 @@ public class AddServerDialog extends ArbiterDialogFragment{
 		String type = (String) this.serverTypeSpinner.getSelectedItem();
 		
 		if(type.equals(ServerTypesAdapter.Types.WMS)){
-			attemptAuthentication(progressDialog);
+			
+			String url = urlField.getText().toString();
+			int urlLength = url.length();
+			
+			if(url.substring(urlLength - 4, urlLength).equals("/wms")){
+				attemptAuthentication(progressDialog);
+			}else{
+				displaySlashWMSError(progressDialog);
+			}
 		}else{
-			putServer(progressDialog);
+			
+			String url = urlField.getText().toString();
+			int urlLength = url.length();
+			
+			if(url.substring(urlLength - 11, urlLength).equals("/hot/1.0.0/")){
+				
+				putServer(progressDialog);
+			}else{
+				
+				displaySlashTMSError(progressDialog);
+			}
 		}
 	}
 	
+	private void displaySlashWMSError(ProgressDialog progressDialog){
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		
+		builder.setTitle(getActivity().getResources().getString(R.string.invalid_url));
+		
+		builder.setMessage(getActivity().getResources().getString(R.string.invalid_url_slash_wms));
+		
+		builder.setPositiveButton(getActivity().getResources().getString(R.string.close), null);
+		
+		builder.create().show();
+		
+		progressDialog.dismiss();
+	}
+	
+	private void displaySlashTMSError(ProgressDialog progressDialog){
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		
+		builder.setTitle(getActivity().getResources().getString(R.string.invalid_url));
+		
+		builder.setMessage(getActivity().getResources().getString(R.string.invalid_url_slash_tms));
+		
+		builder.setPositiveButton(getActivity().getResources().getString(R.string.close), null);
+		
+		builder.create().show();
+		
+		progressDialog.dismiss();
+	}	
 	private void setFields(Server server){
 		serverTypeSpinner.setSelection(serverTypeAdapter.getPositionFromType(server.getType()));
 		nameField.setText(server.getName());

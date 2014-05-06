@@ -1013,7 +1013,7 @@ public class ArbiterCordova extends CordovaPlugin{
 				activity.runOnUiThread(new Runnable(){
 					@Override
 					public void run(){
-		                
+						AppFinishedLoading.getInstance().setFinishedLoading(false);
 						webview.loadUrl("about:blank");
 					}
 				});

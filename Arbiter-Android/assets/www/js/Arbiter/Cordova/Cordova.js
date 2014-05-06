@@ -188,7 +188,6 @@ Arbiter.Cordova = (function() {
 						    Arbiter.FeatureTableHelper.ID];
 					}
 					
-					console.log("selectedFeature updatedGeometry : ", selectedFeature);
 					var layerId = Arbiter.Util.getLayerId(selectedFeature.layer);
 					
 					console.log("layerId = " + layerId);

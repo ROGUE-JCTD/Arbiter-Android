@@ -270,9 +270,14 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 			var context = this;
 			
 			if(Arbiter.Util.existsAndNotNull(geometryAdder)){
-				geometryAdder.finish();
 				
-				geometryAdder = null;
+				try{
+					geometryAdder.finish();
+					
+					geometryAdder = null;
+				}catch(e){
+					console.log(e.stack);
+				}
 			}
 			
 			var features = modifyLayer.features;

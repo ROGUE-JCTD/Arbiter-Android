@@ -56,9 +56,11 @@ public class Layer extends NotificationListItem{
 	// and for the layers visibility
 	private boolean checked;
 	
+	private boolean readOnly;
+	
 	
 	public Layer(int layerId, String featureType, String workspace, int serverId, String serverName, String serverUrl,
-			String title, String boundingBox, String color, int layerOrder, boolean checked){
+			String title, String boundingBox, String color, int layerOrder, boolean checked, boolean readOnly){
 		this.layerId = layerId;
 		this.featureType = featureType;
 		this.serverName = serverName;
@@ -71,6 +73,7 @@ public class Layer extends NotificationListItem{
 		this.workspace = workspace;
 		this.layerOrder = layerOrder;
 		this.syncId = -1;
+		this.readOnly = readOnly;
 		
 		setChecked(checked);
 	}

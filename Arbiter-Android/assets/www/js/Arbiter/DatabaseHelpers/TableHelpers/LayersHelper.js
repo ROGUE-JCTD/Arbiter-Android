@@ -10,6 +10,7 @@ Arbiter.LayersHelper = (function(){
 	var COLOR = "color";
 	var LAYER_VISIBILITY = "visibility";
 	var LAYER_ORDER = "layerOrder";
+	var READ_ONLY = "readOnly";
 	
 	var getLayersArray = function(res){
 		var layers = [];
@@ -29,6 +30,7 @@ Arbiter.LayersHelper = (function(){
 			layer[BOUNDING_BOX] = item[BOUNDING_BOX];
 			layer[COLOR] = item[COLOR];
 			layer[LAYER_TITLE] = item[LAYER_TITLE];
+			layer[READ_ONLY] = item[READ_ONLY];
 			
 			layers.push(layer);
 		}
@@ -181,6 +183,10 @@ Arbiter.LayersHelper = (function(){
 		
 		layerVisibility: function(){
 			return LAYER_VISIBILITY;
+		},
+		
+		readOnly: function(){
+			return READ_ONLY;
 		}
 		
 	};

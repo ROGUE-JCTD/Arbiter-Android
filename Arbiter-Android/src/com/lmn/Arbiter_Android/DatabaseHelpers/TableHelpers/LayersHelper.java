@@ -31,6 +31,7 @@ public class LayersHelper implements BaseColumns{
 	public static final String LAYER_VISIBILITY = "visibility";
 	public static final String WORKSPACE = "workspace";
 	public static final String LAYER_ORDER = "layerOrder";
+	public static final String READ_ONLY = "readOnly";
 	
 	private LayersHelper(){}
 	
@@ -55,7 +56,8 @@ public class LayersHelper implements BaseColumns{
 					LAYER_VISIBILITY + " TEXT, " +
 					WORKSPACE + " TEXT, " +
 					SERVER_ID + " INTEGER, " + 
-					LAYER_ORDER + " INTEGER);";
+					LAYER_ORDER + " INTEGER, " +
+					READ_ONLY + " BOOLEAN);";
 		
 		db.execSQL(sql);
 		
@@ -88,7 +90,8 @@ public class LayersHelper implements BaseColumns{
 			BOUNDING_BOX, // 5
 			COLOR, // 6
 			LAYER_ORDER, // 7
-			LAYER_VISIBILITY // 8
+			LAYER_VISIBILITY, // 8
+			READ_ONLY // 9
 		};
 		
 		// get all of the layers and 
@@ -126,7 +129,8 @@ public class LayersHelper implements BaseColumns{
 			BOUNDING_BOX, // 5
 			COLOR, // 6
 			LAYER_ORDER, // 7
-			LAYER_VISIBILITY // 8
+			LAYER_VISIBILITY, // 8
+			READ_ONLY // 9
 			
 		};
 		

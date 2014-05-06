@@ -49,16 +49,74 @@
 			this.onFailure(this.featureType);
 		}
 	};
-
-	prototype.downloadSchema = function(){
-		var context = this;
-		
+	
+	prototype.downloadSchema = function() {
 		if(this.serverType === "TMS"){
 			
 			this.onDownloadSuccess(false);
 			
 			return;
 		}
+		this.checkReadOnly();
+	};
+	
+	prototype.checkReadOnly = function() {
+		var context = this;
+		
+		var gotRequestBack = false;
+		
+		var url = this.url.substring(0, this.url.length - 4);
+		
+		var request = new OpenLayers.Request.POST({
+			url: url + "/wfs/WfsDispatcher",
+			data: '<?xml version="1.0" encoding="UTF-8"?> ' +
+            '<wfs:Transaction xmlns:wfs="http://www.opengis.net/wfs" ' +
+            'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
+            'service="WFS" version="1.0.0" ' +
+            'xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/wfs.xsd"> ' +
+            '<wfs:Update xmlns:feature="http://www.geonode.org/" typeName="' +
+            context.featureType + '">' +
+            '<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">' +
+            '<ogc:FeatureId fid="garbage_id" />' +
+            '</ogc:Filter></wfs:Update>' +
+            '</wfs:Transaction>'
+			headers: {
+				Authorization: 'Basic ' + context.credentials
+			},
+			success: function(response){
+				gotRequestBack = true;
+				var gmlReader = new OpenLayers.Format.GML.v2({
+					extractAttributes: true
+			    });
+				var json = gmlReader.read(response.responseText);
+				if (Arbiter.Util.existsAndNotNull(json.ServiceExceptionReport) &&
+					Arbiter.Util.existsAndNotNull(json.ServiceExceptionReport.ServiceException) &&
+		            json.ServiceExceptionReport.ServiceException.indexOf('read-only') >= 0) {
+		            	layer.get('metadata').readOnly = true;
+		        }
+				context.checkSchema();
+			},
+			failure: function(response){
+				gotRequestBack = true;
+				
+				context.onDownloadFailure();
+			}
+		});
+		
+		// Couldn't find a way to set timeout for an openlayers
+		// request, so I did this to abort the request after
+		// 15 seconds of not getting a response
+		window.setTimeout(function(){
+			if(!gotRequestBack){
+				request.abort();
+				
+				context.onDownloadFailure();
+			}
+		}, 30000);
+	}
+
+	prototype.checkSchema = function(){
+		var context = this;
 		
 		var gotRequestBack = false;
 		

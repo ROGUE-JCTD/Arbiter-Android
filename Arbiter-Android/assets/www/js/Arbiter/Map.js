@@ -46,11 +46,24 @@ Arbiter.Map = (function() {
 				zoom : 3
 			});
 
+			//Arbiter.Map.setOSMLink();
+			
 			if (callback !== null && callback !== undefined) {
 				callback.call();
 			}
 		},
 
+		setOSMLink: function(){
+			
+			var olControlAttribution = $('.olControlAttribution');
+			
+			olControlAttribution.find('a').attr('href', '#');
+
+			olControlAttribution.click(function(){
+				console.log("olControlAttribution clicked");
+			});
+		},
+		
 		getMap : function() {
 			return map;
 		},

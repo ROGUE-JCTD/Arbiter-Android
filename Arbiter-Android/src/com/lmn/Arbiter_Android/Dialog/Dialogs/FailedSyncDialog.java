@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.Map.Map;
 
 import android.app.AlertDialog;
@@ -109,6 +110,8 @@ public class FailedSyncDialog extends DialogFragment {
 		this.getActivity().runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
+				SyncProgressDialog.show(getActivity());
+				
 				Map.getMap().sync(cordovaMap.getWebView());
 			}
 		});

@@ -12,7 +12,7 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class MediaHelper {
-	public static final String MEDIA = "media";
+	public static final String MEDIA = "photos";
 	public static final String FOTOS = "fotos";
 	
 	private Activity activity;

@@ -61,7 +61,7 @@ Arbiter.Util.LayerSchema = function(){
 					attribute = new Arbiter.Util.Attribute(property.name,
 							property.type.substr(4), property.nillable);
 					
-					if(property.name === "media" || property.name === "fotos"){
+					if(property.name === "photos" || property.name === "fotos"){
 						mediaColumn = property.name;
 					}
 					

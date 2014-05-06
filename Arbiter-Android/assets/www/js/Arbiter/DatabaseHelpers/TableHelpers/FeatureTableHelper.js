@@ -458,7 +458,7 @@ Arbiter.FeatureTableHelper = (function(){
 					row = res.rows.item(i);
 					
 					if(row.name !== context.ID && row.name !== geometryName){
-						if(row.name === "media" || row.name === "fotos"){
+						if(row.name === "photos" || row.name === "fotos"){
 							mediaColumn = row.name;
 						}
 						

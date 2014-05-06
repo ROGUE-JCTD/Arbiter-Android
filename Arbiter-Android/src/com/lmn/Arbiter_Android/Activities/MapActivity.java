@@ -308,7 +308,9 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	
     	DialogFragment frag = InsertFeatureDialog.newInstance(title, cancel);
     	
-    	frag.show(getSupportFragmentManager(), InsertFeatureDialog.TAG);
+    	if(frag != null) {
+    		frag.show(getSupportFragmentManager(), InsertFeatureDialog.TAG);
+    	}
     }
     
     private void startAOIActivity(){

@@ -7,6 +7,11 @@
 		this.onFailure = _onFailure;
 		this.db = db;
 		
+		this.gotResponse = false;
+	    this.timedOut = false;
+		this.succeeded = false;
+	    this.abortSync = false;
+	    
 		var serverId = this.schema.getServerId();
 		
 		var server = Arbiter.Util.Servers.getServer(serverId);
@@ -19,15 +24,18 @@
 	
 	prototype.onDownloadFailure = function(){
 		
-		if(Arbiter.Util.funcExists(this.onFailure)){
-			this.onFailure(this.schema.getFeatureType());
+		this.gotResponse = true;
+	    this.succeeded = false;
+	    
+		if(Arbiter.Util.funcExists(this.onFailure) && !this.timedOut){
+			this.onFailure(this.schema.getFeatureType(), this.abortSync);
 		}
 	};
 
 	prototype.onDownloadComplete = function(){
 		
 		if(Arbiter.Util.funcExists(this.onSuccess)){
-			this.onSuccess();
+			this.onSuccess(this.abortSync);
 		}
 	};
 
@@ -57,18 +65,48 @@
 			
 			context.onDownloadFailure();
 		});
+		
+		var timeoutDialogCallback = function() {
+	        if(context.gotResponse) {
+	            if(context.succeeded){
+	                if(Arbiter.Util.funcExists(context.onSuccess)) {
+	                    context.onSuccess(context.abortSync);
+	                }
+	            } else {
+	                if(Arbiter.Util.funcExists(context.onFailure)) {
+	                    context.onFailure(context.schema.getFeatureType(), context.abortSync);
+	                }
+	            }
+	        } else {
+	            context.timedOut = false;
+	        }
+	    }
+	    
+	    window.setTimeout(function(){
+	        if(!context.gotResponse) {
+	            context.timedOut = true;
+	            
+	            Arbiter.Cordova.showSyncTimeOutDialog(timeoutDialogCallback, function() {
+	                context.abortSync = true;
+	                timeoutDialogCallback();
+	            });
+	        }
+	    }, 20000);
 	};
 
 	prototype.onDownloadSuccess = function(features){
 		var context = this;
 		
+		this.gotResponse = true;
+	    this.succeeded = true;
+		
 		var downloadedFeaturesHandler = new Arbiter.DownloadedFeaturesHandler(this.db, this.schema, features, function(){
 			
 			var storeMediaForSchema = new Arbiter.StoreFeaturesMediaToDownload(
 					context.schema, features, function(failedToStore){
-				
-				if(Arbiter.Util.funcExists(context.onSuccess)){
-					context.onSuccess();
+					
+				if(Arbiter.Util.funcExists(context.onSuccess) && !context.timedOut){
+					context.onSuccess(context.abortSync);
 				}
 				
 			}, function(e){
@@ -76,8 +114,8 @@
 				//TODO: handle error
 				console.log("VectorDownloader download error - " + JSON.stringify(e));
 				
-				if(Arbiter.Util.funcExists(context.onSuccess)){
-					context.onSuccess();
+				if(Arbiter.Util.funcExists(context.onSuccess) && !context.timedOut){
+					context.onSuccess(context.abortSync);
 				}
 			});
 			
@@ -86,7 +124,7 @@
 			
 			console.log("Failed to insert features into " 
 					+ context.schema.getFeatureType(), e);
-			
+
 			context.onDownloadFailure();
 		});
 		

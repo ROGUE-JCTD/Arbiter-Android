@@ -401,6 +401,16 @@ Arbiter.Cordova = (function() {
 		
 		reportLayersWithUnsupportedCRS: function(layers){
 			cordova.exec(null, null, "ArbiterCordova", "reportLayersWithUnsupportedCRS", [layers]);
-		}
+		},
+        
+        dismissSyncProgressDialog: function(){
+            cordova.exec(null, null, "ArbiterCordova",
+                    "dismissSyncProgressDialog", []);
+        },
+        
+        showSyncTimeOutDialog: function(keepWaitingCallback, cancelSyncCallback){
+            cordova.exec(keepWaitingCallback, cancelSyncCallback, "ArbiterCordova",
+                    "showSyncTimeOutDialog", []);
+        }
 	};
 })();

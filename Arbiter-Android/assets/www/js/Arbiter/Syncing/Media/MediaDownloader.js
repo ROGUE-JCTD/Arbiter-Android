@@ -32,6 +32,8 @@ Arbiter.MediaDownloader = function(_featureDb, _schema, _server,
 	this.totalFeatures = 0;
 	this.finishedLayers = _finishedLayers;
 	this.totalLayers = _totalLayers;
+	
+	this.abortSync = false;
 };
 
 Arbiter.MediaDownloader.prototype.pop = function(){
@@ -67,7 +69,7 @@ Arbiter.MediaDownloader.prototype.startDownload = function(onSuccess){
 			}
 			
 			if(Arbiter.Util.funcExists(context.onDownloadComplete)){
-				context.onDownloadComplete(context.failedOnDownload);
+				context.onDownloadComplete(context.failedOnDownload, context.abortSync);
 			}
 			
 			return;
@@ -79,7 +81,7 @@ Arbiter.MediaDownloader.prototype.startDownload = function(onSuccess){
 		console.log(e);
 		
 		if(Arbiter.Util.funcExists(context.onDownloadComplete)){
-			context.onDownloadComplete(context.failedOnDownload);
+			context.onDownloadComplete(context.failedOnDownload, context.abortSync);
 		}
 	});
 };
@@ -138,7 +140,7 @@ Arbiter.MediaDownloader.prototype.startDownloadingNext = function(){
 				this.finishedFeatures, this.totalFeatures,
 				this.finishedLayers, this.totalLayers);
 		
-		mediaDownloaderHelper.startDownload(function(_finishedMediaCount, _failedMedia){
+		mediaDownloaderHelper.startDownload(function(_finishedMediaCount, _failedMedia, _abortSync){
 			
 			++context.finishedFeatures;
 			
@@ -147,15 +149,22 @@ Arbiter.MediaDownloader.prototype.startDownloadingNext = function(){
 			var key = feature[Arbiter.FeatureTableHelper.ID];
 			
 			if(_failedMedia !== null && _failedMedia !== undefined){
-				context.putDownloadFailure(key, _failedMedia)
+				context.putDownloadFailure(key, _failedMedia);
 			}
 			
-			context.startDownloadingNext();
+			context.abortSync = _abortSync;
+			if(!context.abortSync) {
+			    console.log("downloadHelper callback starting next download");
+			    context.startDownloadingNext();
+			} else {
+			    console.log("downloadHelper callback complete context.abortSync");
+			    context.onDownloadComplete(context.failedOnDownload, context.abortSync);
+			}
 		});
 	}else{
 		
 		if(Arbiter.Util.funcExists(this.onDownloadComplete)){
-			this.onDownloadComplete(this.failedOnDownload);
+			this.onDownloadComplete(this.failedOnDownload, this.abortSync);
 		}
 	}
 };

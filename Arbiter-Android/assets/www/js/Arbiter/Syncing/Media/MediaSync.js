@@ -13,6 +13,8 @@ Arbiter.MediaSync = function(_dbLayers, _layerSchemas, _mediaDir, _mediaToSend){
 	this.finishedLayersDownloading = 0;
 	this.finishedLayersUploading = 0;
 	
+	this.abortSync = false;
+	
 	this.onSyncComplete = null;
 };
 
@@ -50,7 +52,11 @@ Arbiter.MediaSync.prototype.onUploadComplete = function(){
 	
 	this.index = -1;
 	
-	this.startDownloadForNext();
+	if(!this.abortSync) { 
+	    this.startDownloadForNext();
+	} else {
+	    this.onDownloadComplete();
+	}
 };
 
 Arbiter.MediaSync.prototype.onDownloadComplete = function(){
@@ -71,7 +77,6 @@ Arbiter.MediaSync.prototype.startUploadForNext = function(){
 	
 	if(layer !== undefined && (this.mediaToSend !== null 
 			&& this.mediaToSend !== undefined)){
-		
 		this.uploadMedia(layer);
 	}else{
 		this.onUploadComplete();
@@ -84,7 +89,6 @@ Arbiter.MediaSync.prototype.startDownloadForNext = function(){
 	var layer = this.pop();
 	
 	if(layer !== undefined){
-		
 		this.downloadMedia(layer);
 	}else{
 		this.onDownloadComplete();
@@ -153,13 +157,18 @@ Arbiter.MediaSync.prototype.uploadMedia = function(layer){
 			server, context.mediaDir,
 			this.finishedLayersUploading, this.totalLayers);
 	
-	mediaUploader.startUpload(function(failedMedia){
+	mediaUploader.startUpload(function(failedMedia, syncAborted){
+        context.abortSync = syncAborted;
 		
 		++context.finishedLayersUploading;
 		
 		context.putFailedUpload(layerId, failedMedia);
-		
-		context.startUploadForNext();
+
+		if(!context.syncAborted) {
+	        context.startUploadForNext();
+		} else {
+		    context.onUploadComplete();
+		}
 	});
 };
 
@@ -202,12 +211,16 @@ Arbiter.MediaSync.prototype.downloadMedia = function(layer){
 			schema, server, this.mediaDir,
 			this.finishedLayersDownloading, this.totalLayers);
 	
-	mediaDownloader.startDownload(function(failedMedia){
-		
+	mediaDownloader.startDownload(function(failedMedia, _abortSync){
+		context.abortSync = _abortSync;
 		++context.finishedLayersDownloading;
 		
 		context.putFailedDownload(layerId, failedMedia);
 		
-		context.startDownloadForNext();
+		if(!context.abortSync) {
+		    context.startDownloadForNext();
+		} else {
+		    context.onDownloadComplete();
+		}
 	});
 };

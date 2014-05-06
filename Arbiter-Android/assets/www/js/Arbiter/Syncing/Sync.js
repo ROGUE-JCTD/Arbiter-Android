@@ -29,6 +29,7 @@
 		this.schemas = null;
 		
 		this.syncInProgress = false;
+		this.syncAborted = false;
 		
 		if(!this.downloadOnly){
 			this.notificationHandler = new Arbiter.NotificationHandler(this.projectDb);
@@ -238,7 +239,7 @@
 			
 			context.startVectorSync();
 		});
-		
+	
 		storeMediaToDownload.startStoring();
 	};
 
@@ -247,8 +248,12 @@
 		
 		var vectorSync = new Arbiter.VectorSync(this.featureDb, this.map, this.bounds,
 				function(){
-				
-			context.startMediaSync();
+			
+			if(!context.syncAborted){
+				context.startMediaSync();
+			}else{
+				Arbiter.Cordova.dismissSyncProgressDialog();
+			}
 			
 		}, function(e){
 			context.onSyncFailed(e);

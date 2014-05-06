@@ -3,15 +3,16 @@ Arbiter.VectorSync = function(db, _map, _bounds, _onSuccess, _onFailure){
 	this.db = db;
 	
 	this.map = _map;
-	
 	this.bounds = _bounds;
-	
 	this.layers = this.map.getLayersByClass("OpenLayers.Layer.Vector");
 	
 	this.usingSpecificSchemas = false;
 	
 	this.index = -1;
 	
+    //this will be set to true if a request times out and will cancel the rest of the sync
+    this.syncTimedOut = false;
+    
 	this.onSuccess = _onSuccess;
 	this.onFailure = _onFailure;
 	
@@ -52,12 +53,21 @@ Arbiter.VectorSync.prototype.setSpecificSchemas = function(_schemas){
 };
 
 Arbiter.VectorSync.prototype.onUploadComplete = function(){
-	
-	this.startDownload();
+    if(this.syncTimedOut) {
+        this.index = -1;
+        if(Arbiter.Util.funcExists(this.onFailure)){
+            this.onFailure('Connection timed out');
+        }
+     } else {
+         this.startDownload();
+     }
 };
 
 Arbiter.VectorSync.prototype.onDownloadComplete = function(){
-	
+
+    if(this.syncTimedOut && Arbiter.Util.funcExists(this.onFailure)){
+        this.onFailure('Connection timed out');
+    }
 	if(Arbiter.Util.funcExists(this.onSuccess)){
 		this.onSuccess();
 	}
@@ -65,7 +75,6 @@ Arbiter.VectorSync.prototype.onDownloadComplete = function(){
 
 Arbiter.VectorSync.prototype.pop = function(){
 	var layer = this.layers[++this.index];
-	
 	// Skip the aoi layer
 	if((this.usingSpecificSchemas !== true 
 			&& this.usingSpecificSchemas !== "true" )
@@ -99,16 +108,21 @@ Arbiter.VectorSync.prototype.startNextUpload = function(){
 				
 				context.failedOnUpload[key] = layer;
 			}
-
-			Arbiter.Cordova.updateUploadingVectorDataProgress(
+			
+		    console.log("vector upload callback");
+			if(!context.syncTimedOut) {
+			    Arbiter.Cordova.updateUploadingVectorDataProgress(
 					++context.finishedLayoutUploadCount,
 					context.totalLayerCount);
-			
-			context.startNextUpload();
+			    context.startNextUpload();
+			} else {
+			    context.onUploadComplete();
+			}
 		};
 		
-		var uploader = new Arbiter.VectorUploader(layer, function(){
-			
+		var uploader = new Arbiter.VectorUploader(layer, function(cancelSync){
+            context.syncTimedOut = cancelSync;
+            
 			Arbiter.FailedSyncHelper.remove(key, dataType, 
 					syncType, key, function(){
 				
@@ -118,7 +132,9 @@ Arbiter.VectorSync.prototype.startNextUpload = function(){
 				
 				callback(true);
 			});
-		}, function(featureType){
+		}, function(featureType, cancelSync){
+			
+			context.syncTimedOut = cancelSync;
 			
 			callback(false);
 		});
@@ -158,11 +174,15 @@ Arbiter.VectorSync.prototype.startNextDownload = function(){
 		var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.DOWNLOAD;
 		
 		var callback = function(){
-			Arbiter.Cordova.updateDownloadingVectorDataProgress(
-					++context.finishedLayerDownloadCount,
-					context.totalLayerCount);
-			
-			context.startNextDownload();
+            if(!context.syncTimedOut) {
+                Arbiter.Cordova.updateDownloadingVectorDataProgress(
+                        ++context.finishedLayerDownloadCount,
+                        context.totalLayerCount);
+                
+                context.startNextDownload();
+            } else {
+                context.onDownloadComplete();
+            }
 		};
 		
 		// If the layer failed to upload, don't download
@@ -173,8 +193,10 @@ Arbiter.VectorSync.prototype.startNextDownload = function(){
 			return;
 		}
 		
-		var downloader = new Arbiter.VectorDownloader(this.db, schema, this.bounds, function(){
+		var downloader = new Arbiter.VectorDownloader(this.db, schema, this.bounds, function(cancelSync){
 			
+		    context.syncTimedOut = cancelSync;
+		    
 			Arbiter.FailedSyncHelper.remove(key, dataType, syncType, key, function(){
 				
 				callback();
@@ -183,8 +205,10 @@ Arbiter.VectorSync.prototype.startNextDownload = function(){
 				
 				callback();
 			});
-		}, function(featureType){
 			
+		}, function(featureType, cancelSync){
+		    context.syncTimedOut = cancelSync;
+		    
 			callback();
 		});
 		

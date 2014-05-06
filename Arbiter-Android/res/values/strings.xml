@@ -172,6 +172,13 @@
     <string name="failed_media_download">The following media items failed to download:</string>
     <string name="retry_sync">Try again?</string>
     
+    <string name="sync_time_out_title">Sync Timed Out</string>
+    <string name="sync_time_out_alert">This sync is taking too long to complete. \nWould you like to continue waiting or cancel the sync?</string>
+    <string name="sync_time_out_wait">Keep waiting</string>
+    <string name="sync_time_out_cancel">Cancel sync</string>
+    <string name="sync_cancelling">Cancelling sync</string>
+    
+    
     <string name="vector_upload_errors_label">Vector layers that failed on upload:</string>
     <string name="vector_download_errors_label">Vector layers that failed to download:</string>
     <string name="media_upload_errors_label">Media that failed to upload:</string>

@@ -3,6 +3,11 @@ Arbiter.VectorUploader = function(_layer, _onSuccess, _onFailure){
 	this.schema = Arbiter.Util.getSchemaFromOlLayer(_layer);
 	this.onSuccess = _onSuccess;
 	this.onFailure = _onFailure;
+	
+	this.gotResponse = false;
+	this.timedOut = false;
+	this.succeeded = false;
+	this.abortSync = false;
 };
 
 Arbiter.VectorUploader.prototype.clearSaveCallbacks = function(layer){
@@ -13,7 +18,8 @@ Arbiter.VectorUploader.prototype.clearSaveCallbacks = function(layer){
 
 Arbiter.VectorUploader.prototype.onSaveSuccess = function(layer){
 	console.log("Arbiter.VectorUploader.onSaveSuccess");
-	
+	this.gotResponse = true;
+    this.succeeded = true;
 	this.updateSyncStatus(layer);
 };
 
@@ -24,8 +30,8 @@ Arbiter.VectorUploader.prototype.updateSyncStatus = function(layer){
 		
 		context.clearSaveCallbacks(layer);
 		
-		if(Arbiter.Util.funcExists(context.onSuccess)){
-			context.onSuccess();
+		if(Arbiter.Util.funcExists(context.onSuccess) && !context.timedOut){
+			context.onSuccess(context.abortSync);
 		}
 	}, function(e){
 		console.log("Could not update sync status for: " + context.schema.getFeatureType());
@@ -36,11 +42,12 @@ Arbiter.VectorUploader.prototype.updateSyncStatus = function(layer){
 
 Arbiter.VectorUploader.prototype.onSaveFailure = function(layer){
 	console.log("Arbiter.VectorUploader.onSaveFailure");
-	
+
+	this.gotResponse = true;
 	this.clearSaveCallbacks(layer);
 	
-	if(Arbiter.Util.funcExists(this.onFailure)){
-		this.onFailure(this.schema.getFeatureType());
+	if(Arbiter.Util.funcExists(this.onFailure) && !this.timedOut){
+		this.onFailure(this.schema.getFeatureType(), this.abortSync);
 	}
 };
 
@@ -49,7 +56,7 @@ Arbiter.VectorUploader.prototype.upload = function(){
 	if(this.schema.isEditable() === false){
 		
 		if(Arbiter.Util.funcExists(this.onSuccess)){
-			this.onSuccess();
+			this.onSuccess(this.abortSync);
 		}
 		
 		return;
@@ -68,10 +75,38 @@ Arbiter.VectorUploader.prototype.upload = function(){
 		context.onSaveSuccess(context.layer);
 	};
 	
-	metadata["onSaveFailure"] = function(){
-		console.log("my onSaveFailure");
+	metadata["onSaveFailure"] = function(event){
+		console.log("my onSaveFailure", event);
 		context.onSaveFailure(context.layer);
 	};
 	
 	this.layer.strategies[0].save();
+	
+	var timeoutDialogCallback = function() {
+        if(context.gotResponse) {
+            if(context.succeeded){
+                if(Arbiter.Util.funcExists(context.onSuccess)) {
+                    context.onSuccess(context.abortSync);
+                }
+            } else {
+                if(Arbiter.Util.funcExists(context.onFailure)) {
+                    context.onFailure(context.schema.getFeatureType());
+                }
+            }
+        } else {
+            context.timedOut = false;
+        }
+    };
+	
+	window.setTimeout(function(){
+	    //prompt user to abort sync or wait
+        if(!context.gotResponse) {
+            context.timedOut = true;
+            Arbiter.Cordova.showSyncTimeOutDialog(timeoutDialogCallback, function() {
+                //add parameter to failure callback
+                context.abortSync = true;
+                timeoutDialogCallback();
+            });
+        }
+    }, 30000);
 };

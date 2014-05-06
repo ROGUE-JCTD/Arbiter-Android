@@ -172,6 +172,12 @@
     <string name="failed_media_download">Las siguientes fotos no pudieron descargarse:</string>
     <string name="retry_sync">Inténtelo de nuevo?</string>
     
+    <string name="sync_time_out_title">Sincronización tiempo de espera agotado</string>
+    <string name="sync_time_out_alert">Sincronización está tomando demasiado tiempo para completar. \n¿Le gustaría seguir esperando o cancelar la sincronización?</string>
+    <string name="sync_time_out_wait">Esperar</string>
+    <string name="sync_time_out_cancel">Cancelar sincronización</string>
+    <string name="sync_cancelling">Sincronización cancelando</string>
+    
     <string name="vector_upload_errors_label">Capas vectoriales que fallaron en la carga:</string>
     <string name="vector_download_errors_label">Capas vectoriales que fallaron para descargar:</string>
     <string name="media_upload_errors_label">Fotos que no se pudieron cargar:</string>

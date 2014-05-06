@@ -5,23 +5,31 @@ import com.lmn.Arbiter_Android.Media.MediaHelper;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 
 public class MediaDialog extends DialogFragment {
 	private String uri;
 	private int layout;
+	private static MediaDialog dialog = null;
 	
 	public static MediaDialog newInstance(String uri){
-		MediaDialog dialog = new MediaDialog();
-		
+		if (dialog != null) {
+			return null;
+		}
+		dialog = new MediaDialog();
 		dialog.uri = uri;
 		dialog.layout = R.layout.media_dialog;
 		
@@ -33,6 +41,12 @@ public class MediaDialog extends DialogFragment {
 		super.onCreate(savedInstanceState);
 		
 		setRetainInstance(true);
+	}
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		dialog = null;
 	}
 	
 	private Bitmap getWarningBitmap(){
@@ -50,8 +64,12 @@ public class MediaDialog extends DialogFragment {
 		Bitmap bitmap = null;
 		
 		MediaHelper helper = new MediaHelper(getActivity());
+		WindowManager wm = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
+		Display display = wm.getDefaultDisplay();
+		DisplayMetrics displayMetrics = new DisplayMetrics();
+		display.getMetrics(displayMetrics);
 		
-		bitmap = helper.getImageBitmap(uri, null, null);
+		bitmap = helper.getImageBitmap(uri, displayMetrics.widthPixels, displayMetrics.heightPixels);
 		
 		return bitmap;
 	}
@@ -66,6 +84,7 @@ public class MediaDialog extends DialogFragment {
 		}
 		
 		imageView.setImageBitmap(bitmap);
+		imageView.setScaleType(ScaleType.FIT_CENTER);
 	}
 	
 	@Override

@@ -105,8 +105,10 @@ public class MediaLoader {
 	}
 	
 	private void onMediaClick(String imageUri){
-		MediaDialog.newInstance(imageUri).show(fragActivity
-				.getSupportFragmentManager(), "MediaDialog");;
+		MediaDialog dialog = MediaDialog.newInstance(imageUri);
+		if(dialog != null) {
+			dialog.show(fragActivity.getSupportFragmentManager(), "MediaDialog");
+		}
 	}
 	
 	public void loadMedia() throws JSONException{

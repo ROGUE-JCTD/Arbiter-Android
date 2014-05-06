@@ -25,7 +25,15 @@ Arbiter.FindMe = function(olMap, olLayer, includeOOM, onSuccess, onFailure){
 	this.bigRadius = 20;
 	this.smallRadius = 10;
 	
-	this.onFinishedGettingLocation = onSuccess;
+	this.onFinishedGettingLocation = function(){
+		
+		if(Arbiter.Util.existsAndNotNull(onSuccess)){
+			onSuccess();
+		}
+		
+		Arbiter.Cordova.finishedGettingLocation();
+	};
+	
 	this.onFailedGettingLocation = onFailure;
 	
 	this.lowAccuracyPointStyle = {
@@ -96,9 +104,7 @@ Arbiter.FindMe.prototype.addPoint = function(position, style){
 			context.oom.clearSavedPoint(function(){
 				console.log("FindMe removed saved point");
 				
-				if(Arbiter.Util.existsAndNotNull(context.onFinishedGettingLocation)){
-					context.onFinishedGettingLocation();
-				}
+				context.onFinishedGettingLocation();
 			}, function(e){
 				console.log("FindMe could not removed saved point: " + JSON.stringify(e));
 				
@@ -107,10 +113,9 @@ Arbiter.FindMe.prototype.addPoint = function(position, style){
 				}
 			});
 		}else{
-			if(Arbiter.Util.existsAndNotNull(context.onFinishedGettingLocation)){
-				context.onFinishedGettingLocation();
-			}
+			context.onFinishedGettingLocation();
 		}
+		
 	}, this.removePointTimeout);
 	
 	this.styleChangeIntervalId = window.setInterval(function(){

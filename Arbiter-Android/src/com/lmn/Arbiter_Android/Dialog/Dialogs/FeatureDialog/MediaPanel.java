@@ -108,7 +108,7 @@ public class MediaPanel {
 			});
 			
 			// Default start not in edit mode
-			takePictureBtn.setEnabled(startInEditMode);
+			takePictureBtn.setVisibility(startInEditMode ? View.VISIBLE : View.GONE);
 		}
 		
 		// Append the mediaLayout to the dialog
@@ -138,9 +138,9 @@ public class MediaPanel {
 	}
 	
 	public void setEditMode(boolean editMode){
-		if(takePictureBtn != null){
+		if(takePictureBtn != null && cameraExists()){
 			//takePictureBtn.setEnabled(!takePictureBtn.isEnabled());
-			takePictureBtn.setEnabled(editMode);
+			takePictureBtn.setVisibility(editMode ? View.VISIBLE : View.GONE);
 		}
 	}
 	

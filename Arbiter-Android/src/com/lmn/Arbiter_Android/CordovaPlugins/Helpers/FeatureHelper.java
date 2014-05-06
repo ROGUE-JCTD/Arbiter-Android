@@ -28,6 +28,8 @@ public class FeatureHelper {
 		
 		FragmentManager manager = activity.getSupportFragmentManager();
 		
-		dialog.show(manager, FeatureDialog.TAG);
+		if(dialog != null) {
+			dialog.show(manager, FeatureDialog.TAG);
+		}
 	}
 }

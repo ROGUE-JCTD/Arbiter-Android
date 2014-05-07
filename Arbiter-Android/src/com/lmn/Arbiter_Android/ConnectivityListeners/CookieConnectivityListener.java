@@ -2,7 +2,6 @@ package com.lmn.Arbiter_Android.ConnectivityListeners;
 
 import java.io.IOException;
 
-import org.apache.cordova.CordovaWebView;
 import org.apache.http.client.ClientProtocolException;
 
 import com.lmn.Arbiter_Android.Activities.HasThreadPool;
@@ -13,9 +12,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 import com.lmn.Arbiter_Android.Map.Map;
 
 import android.app.Activity;
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 import android.util.SparseArray;
 
 public class CookieConnectivityListener extends ConnectivityListener{
@@ -52,17 +49,20 @@ public class CookieConnectivityListener extends ConnectivityListener{
 						
 						server = servers.valueAt(i);
 						
-						try {
-							cookieManager.getCookieForServer(server.getUrl(),
-									server.getUsername(), server.getPassword());
+						if(!"".equals(server.getUsername()) && !"".equals(server.getPassword())){
 							
-							showLayersForServer(Integer.toString(server.getId()));
-						} catch (ClientProtocolException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							try {
+								cookieManager.getCookieForServer(server.getUrl(),
+										server.getUsername(), server.getPassword());
+								
+								showLayersForServer(Integer.toString(server.getId()));
+							} catch (ClientProtocolException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 						}
 					}
 				}

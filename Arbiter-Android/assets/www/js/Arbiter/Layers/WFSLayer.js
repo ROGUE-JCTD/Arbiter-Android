@@ -5,17 +5,23 @@ Arbiter.Layers.WFSLayer = (function(){
 
 		url = url.substring(0, url.length - 3) + "wfs";
 		
-		var protocol = new OpenLayers.Protocol.WFS({
+		var options = {
 			version : "1.0.0",
 			url : url,
 			featureNS : featureNamespace,
 			geometryName : geometryName,
 			featureType : featureType,
-			srsName : srid,
-			headers : {
+			srsName : srid
+		};
+		
+		if(Arbiter.Util.existsAndNotNull(encodedCredentials)){
+			
+			options.headers = {
 				Authorization : 'Basic ' + encodedCredentials
-			}
-		});
+			};
+		}
+		
+		var protocol = new OpenLayers.Protocol.WFS(options);
 		
 		protocol.format.geometryTypes["OpenLayers.Geometry.Collection"] = "MultiGeometry";
 		
@@ -30,12 +36,10 @@ Arbiter.Layers.WFSLayer = (function(){
 		return protocol;
 	};
 	
-	var getSaveStrategy = function(key, encodedCredentials) {
+	var getSaveStrategy = function(key) {
 		var saveStrategy = new OpenLayers.Strategy.Save();
 		
 		saveStrategy.events.register("start", this, function(event) {
-			//Arbiter.Layers.SyncHelper.onSaveSuccess(key, event.object.layer,
-			//		encodedCredentials);
 			
 			var layer = saveStrategy.layer;
 			
@@ -142,8 +146,6 @@ Arbiter.Layers.WFSLayer = (function(){
 				Arbiter.Util.getEncodedCredentials(
 						server.getUsername(), 
 						server.getPassword());
-			
-			var saveStrategy = getSaveStrategy(key, encodedCredentials);
 
 			var srid = schema.getSRID();
 			
@@ -158,7 +160,7 @@ Arbiter.Layers.WFSLayer = (function(){
 			var name = Arbiter.Layers.getLayerName(key, Arbiter.Layers.type.WFS);
 			
 			var options = {
-				strategies : [ getSaveStrategy(key, encodedCredentials) ],
+				strategies : [ getSaveStrategy(key) ],
 				projection : new OpenLayers.Projection(srid),
 				protocol : wfsProtocol
 			};

@@ -199,7 +199,12 @@ public class AddServerDialog extends ArbiterDialogFragment{
 			int urlLength = url.length();
 			
 			if(url.substring(urlLength - 4, urlLength).equals("/wms")){
-				attemptAuthentication(progressDialog);
+				
+				if(!usernameField.getText().toString().equals("") && !passwordField.getText().toString().equals("")){
+					attemptAuthentication(progressDialog);
+				}else{
+					putServer(progressDialog);
+				}
 			}else{
 				displaySlashWMSError(progressDialog);
 			}

@@ -16,9 +16,14 @@ Arbiter.MediaUploader = function(_schema, _mediaToSend, _server, _mediaDir, _fin
 	
     this.url = Arbiter.Util.getFileServiceURL(this.server.getUrl()) + "upload";
     
-	this.header = {
-		Authorization: 'Basic ' + credentials	
-	};
+    this.header = null;
+    
+    if(Arbiter.Util.existsAndNotNull(credentials)){
+    	
+    	this.header = {
+    		Authorization: 'Basic ' + credentials	
+    	};
+    }
 	
 	this.onUploadSuccess = null;
 	
@@ -162,7 +167,11 @@ Arbiter.MediaUploader.prototype.uploadNext = function(next){
         options.fileKey="file";
         options.fileName=fileEntry.name;
         options.mimeType="image/jpeg";
-        options.headers= context.header;
+        
+        if(Arbiter.Util.existsAndNotNull(context.header)){
+        	
+        	options.headers = context.header;
+        }
                                 
         var params = {};
         

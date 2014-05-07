@@ -165,6 +165,12 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
                 
                 var uri = encodeURI(context.url + media);
                 
+                var options = {};
+                
+                if(Arbiter.Util.existsAndNotNull(context.header)){
+                	options.headers = context.header;
+                }
+                
                 fileTransfer.download(uri, context.mediaDir.toURL() + "/" + media, function(result) {
                         console.log("download complete: " + result.toURL());
                         
@@ -186,9 +192,7 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
                         if(transferError.code !== FileTransferError.ABORT_ERR){
                         	onFailure(transferError);
                         }
-                    }, undefined, {
-                            headers: context.header
-                    });
+                    }, undefined, options);
         	}else{
         		onFailure(error);
         	}

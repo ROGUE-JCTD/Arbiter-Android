@@ -39,6 +39,11 @@ Arbiter.Cordova = (function() {
 				OUTSIDE_AOI_WARNING: 3
 		},
 		
+		osmLinkClicked: function(){
+			
+			cordova.exec(null, null, "ArbiterCordova", "osmLinkClicked", []);
+		},
+		
 		featureNotInAOI: function(insertFeature, cancelInsertFeature){
 			
 			Arbiter.Cordova.setState(Arbiter.Cordova.STATES.OUTSIDE_AOI_WARNING);

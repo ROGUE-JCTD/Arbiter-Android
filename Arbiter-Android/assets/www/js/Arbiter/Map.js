@@ -46,7 +46,7 @@ Arbiter.Map = (function() {
 				zoom : 3
 			});
 
-			//Arbiter.Map.setOSMLink();
+			Arbiter.Map.setOSMLink();
 			
 			if (callback !== null && callback !== undefined) {
 				callback.call();
@@ -57,10 +57,11 @@ Arbiter.Map = (function() {
 			
 			var olControlAttribution = $('.olControlAttribution');
 			
-			olControlAttribution.find('a').attr('href', '#');
-
-			olControlAttribution.click(function(){
-				console.log("olControlAttribution clicked");
+			olControlAttribution.click(function(evt){
+				
+				evt.preventDefault();
+				
+				Arbiter.Cordova.osmLinkClicked();
 			});
 		},
 		

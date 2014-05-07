@@ -13,6 +13,7 @@ import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -69,6 +70,12 @@ public class ArbiterCordova extends CordovaPlugin{
 			String tileCount = args.getString(1);
 			
 			setProjectsAOI(aoi, tileCount);
+			
+			return true;
+		}else if("osmLinkClicked".equals(action)){
+			
+			Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.openstreetmap.org/copyright"));
+			cordova.getActivity().startActivity(browserIntent);
 			
 			return true;
 		}else if("featureNotInAOI".equals(action)){

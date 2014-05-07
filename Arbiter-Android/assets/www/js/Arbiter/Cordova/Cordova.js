@@ -35,11 +35,25 @@ Arbiter.Cordova = (function() {
 		STATES : {
 				NEUTRAL: 0,
 				CREATING_PROJECT: 1,
-				UPDATING: 2
+				UPDATING: 2,
+				OUTSIDE_AOI_WARNING: 3
 		},
 		
-		SYNC_MESSAGE_ID : {
+		featureNotInAOI: function(insertFeature, cancelInsertFeature){
 			
+			Arbiter.Cordova.setState(Arbiter.Cordova.STATES.OUTSIDE_AOI_WARNING);
+			
+			cordova.exec(function(){
+				insertFeature();
+				
+				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.NEUTRAL);
+				
+			}, function(){
+				
+				cancelInsertFeature();
+				
+				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.NEUTRAL);
+			}, "ArbiterCordova", "featureNotInAOI", []);
 		},
 		
 		layersAlreadyInProject: function(layersAlreadyInProject){

@@ -71,6 +71,11 @@ public class ArbiterCordova extends CordovaPlugin{
 			setProjectsAOI(aoi, tileCount);
 			
 			return true;
+		}else if("featureNotInAOI".equals(action)){
+			
+			showFeatureNotInAOIWarning(callbackContext);
+			
+			return true;
 		}else if("appFinishedLoading".equals(action)){
 			
 			cordova.getActivity().runOnUiThread(new Runnable(){
@@ -401,6 +406,50 @@ public class ArbiterCordova extends CordovaPlugin{
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
+	}
+	
+	private void showFeatureNotInAOIWarning(final CallbackContext callbackContext){
+		
+		final Activity activity = cordova.getActivity();
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				
+				AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+				
+				builder.setTitle(activity.getResources().getString(R.string.warning));
+				
+				builder.setMessage(activity.getResources().getString(R.string.feature_outside_aoi_warning));
+				
+				builder.setPositiveButton(R.string.insert, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+						callbackContext.success();
+					}
+				});
+				
+				builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener(){
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+						try{
+							((Map.MapChangeListener) activity).getMapChangeHelper().setEditMode(GeometryEditor.Mode.OFF);
+							callbackContext.error(0);
+						}catch(ClassCastException e){
+							e.printStackTrace();
+						}
+					}
+				});
+				
+				builder.setCancelable(false);
+				
+				builder.create().show();
+			}
+		});
 	}
 	
 	private void reportLayersWithUnsupportedCRS(final JSONArray layers){

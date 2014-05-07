@@ -24,6 +24,51 @@ Arbiter.Controls.ControlPanel = (function(){
 		}
 	};
 	
+	var checkFeatureAddedInsideAOI = function(feature){
+		
+		console.log("onFeatureAddedOutsideAOI", feature);
+		
+		var map = Arbiter.Map.getMap();
+		
+		var aoiLayer = map.getLayersByName(Arbiter.AOI);
+		
+		if(Arbiter.Util.existsAndNotNull(aoiLayer) && aoiLayer.length > 0){
+			aoiLayer = aoiLayer[0];
+		}
+		
+		if(Arbiter.Util.existsAndNotNull(aoiLayer)){
+			
+			if(Arbiter.Util.existsAndNotNull(feature)){
+				
+				feature.geometry.calculateBounds();
+				
+				var featureBounds = feature.geometry.getBounds();
+				
+				var aoiFeature = null;
+				
+				if(aoiLayer.features.length > 0){
+					aoiFeature = aoiLayer.features[0];
+				}
+				
+				if(Arbiter.Util.existsAndNotNull(aoiFeature)){
+					
+					aoiFeature.geometry.calculateBounds();
+					
+					var aoiBounds = aoiFeature.geometry.getBounds();
+					
+					if(featureBounds.intersectsBounds(aoiBounds)){
+						
+						console.log("inside the aoi!");
+						
+						return true;
+					}
+						
+					return false;
+				}
+			}
+		}
+	};
+	
 	var _startInsertMode = function(layerId, _geometryType){
 		
 		var olLayer = Arbiter.Layers.getLayerById(
@@ -47,26 +92,54 @@ Arbiter.Controls.ControlPanel = (function(){
 			insertControl = new Arbiter.Controls.Insert(olLayer, map,
 					geometryType, function(feature){
 				
-				if(geometryType === Arbiter.Geometry.type.MULTIPOINT 
-						|| geometryType === Arbiter.Geometry.type.MULTILINE
-						|| geometryType === Arbiter.Geometry.type.MULTIPOLYGON){
-					
-					if(!Arbiter.Util.existsAndNotNull(feature.metadata)){
-						feature.metadata = {};
+				var isInsideAOI = checkFeatureAddedInsideAOI(feature);
+				
+				var insertFeature = function(){
+					if(geometryType === Arbiter.Geometry.type.MULTIPOINT 
+							|| geometryType === Arbiter.Geometry.type.MULTILINE
+							|| geometryType === Arbiter.Geometry.type.MULTIPOLYGON){
+						
+						if(!Arbiter.Util.existsAndNotNull(feature.metadata)){
+							feature.metadata = {};
+						}
+						
+						feature.metadata[Arbiter.FeatureTableHelper.PART_OF_MULTI] = true; 
+					}else{
+						_endInsertMode();
 					}
 					
-					feature.metadata[Arbiter.FeatureTableHelper.PART_OF_MULTI] = true; 
+					mode = Arbiter.ControlPanelHelper.prototype.CONTROLS.INSERT;
+					
+					selectControl.select(feature);
+					
+					selectedFeature = feature;
+					
+					Arbiter.Cordova.getUpdatedGeometry();
+				};
+				
+				if(isInsideAOI){
+					
+					console.log("isInsideAOI");
+					
+					insertFeature();
 				}else{
-					_endInsertMode();
+					
+					console.log("isOutsideAOI");
+					
+					Arbiter.Cordova.featureNotInAOI(insertFeature, function(){
+						
+						controlPanelHelper.clear(function(){
+							
+							console.log("Cleared control panel k/v pairs");
+							
+							olLayer.removeFeatures([feature]);
+							
+							_endInsertMode();
+						}, function(e){
+							console.log("Couldn't clear control panel k/v pairs");
+						});
+					});
 				}
-				
-				mode = Arbiter.ControlPanelHelper.prototype.CONTROLS.INSERT;
-				
-				selectControl.select(feature);
-				
-				selectedFeature = feature;
-				
-				Arbiter.Cordova.getUpdatedGeometry();
 			});
 		}, function(e){
 			console.log("start insert mode error", e.stack);

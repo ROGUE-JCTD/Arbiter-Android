@@ -45,6 +45,11 @@ Arbiter.Cordova = (function() {
 			cordova.exec(null, null, "ArbiterCordova", "osmLinkClicked", []);
 		},
 		
+		isAddingGeometryPart: function(isAddingPart){
+			
+			cordova.exec(null, null, "ArbiterCordova", "isAddingGeometryPart", [isAddingPart]);
+		},
+		
 		gotPicture: function(){
 			
 			cordova.exec(null, null, "ArbiterCordova", "gotPicture", []);

@@ -447,6 +447,14 @@ Arbiter.Controls.ControlPanel = (function(){
 			return cancel;
 		},
 		
+		isAddingPart: function(){
+			
+			if(Arbiter.Util.existsAndNotNull(modifyControl)){
+				
+				Arbiter.Cordova.isAddingGeometryPart(modifyControl.isAddingPart());
+			}
+		},
+		
 		addPart: function(){
 			console.log("ControlPanel.addPart");
 			

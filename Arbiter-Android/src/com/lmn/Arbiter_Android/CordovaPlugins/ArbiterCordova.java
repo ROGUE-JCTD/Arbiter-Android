@@ -45,6 +45,7 @@ import com.lmn.Arbiter_Android.Loaders.NotificationsLoader;
 import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.Media.HandleZeroByteFiles;
+import com.lmn.Arbiter_Android.OnAddingGeometryPart.OnAddingGeometryPart;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ArbiterCordova extends CordovaPlugin{
@@ -73,6 +74,13 @@ public class ArbiterCordova extends CordovaPlugin{
 			String tileCount = args.getString(1);
 			
 			setProjectsAOI(aoi, tileCount);
+			
+			return true;
+		}else if("isAddingGeometryPart".equals(action)){
+			
+			boolean isAddingPart = args.getBoolean(0);
+			
+			OnAddingGeometryPart.getInstance().checked(isAddingPart);
 			
 			return true;
 		}else if("osmLinkClicked".equals(action)){

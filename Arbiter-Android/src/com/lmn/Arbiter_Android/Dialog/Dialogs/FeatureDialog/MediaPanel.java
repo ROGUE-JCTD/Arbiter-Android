@@ -7,7 +7,6 @@ import org.apache.cordova.CordovaWebView;
 import org.json.JSONException;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.provider.MediaStore;
 import android.view.View;
@@ -20,6 +19,7 @@ import android.view.LayoutInflater;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
+import com.lmn.Arbiter_Android.Dialog.ProgressDialog.PictureProgressDialog;
 import com.lmn.Arbiter_Android.Map.Map;
 
 public class MediaPanel {
@@ -146,6 +146,8 @@ public class MediaPanel {
 	
 	public void addMediaToSend(String fileName){
 		mediaToSend.add(fileName);
+		
+		PictureProgressDialog.dismiss(activity);
 	}
 	
 	public void clearMediaToSend(){

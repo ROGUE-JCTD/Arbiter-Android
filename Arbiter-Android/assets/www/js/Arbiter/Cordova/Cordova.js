@@ -36,12 +36,18 @@ Arbiter.Cordova = (function() {
 				NEUTRAL: 0,
 				CREATING_PROJECT: 1,
 				UPDATING: 2,
-				OUTSIDE_AOI_WARNING: 3
+				OUTSIDE_AOI_WARNING: 3,
+				TAKING_PICTURE: 4
 		},
 		
 		osmLinkClicked: function(){
 			
 			cordova.exec(null, null, "ArbiterCordova", "osmLinkClicked", []);
+		},
+		
+		gotPicture: function(){
+			
+			cordova.exec(null, null, "ArbiterCordova", "gotPicture", []);
 		},
 		
 		featureNotInAOI: function(insertFeature, cancelInsertFeature){
@@ -352,6 +358,8 @@ Arbiter.Cordova = (function() {
 			
 			cordova.exec(null , null, "ArbiterCordova",
 					"addMediaToFeature", [key, media, fileName]);
+			
+			Arbiter.Cordova.setState(Arbiter.Cordova.STATES.NEUTRAL);
 		},
 		
 		updateUploadingVectorDataProgress: function(finished, total){

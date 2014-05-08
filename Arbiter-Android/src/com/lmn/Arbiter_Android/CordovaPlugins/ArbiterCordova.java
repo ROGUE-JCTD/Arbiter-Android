@@ -37,6 +37,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FailedSyncHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
+import com.lmn.Arbiter_Android.Dialog.ProgressDialog.PictureProgressDialog;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
@@ -78,6 +79,11 @@ public class ArbiterCordova extends CordovaPlugin{
 			
 			Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.openstreetmap.org/copyright"));
 			cordova.getActivity().startActivity(browserIntent);
+			
+			return true;
+		}else if("gotPicture".equals(action)){
+			
+			PictureProgressDialog.show(cordova.getActivity());
 			
 			return true;
 		}else if("featureNotInAOI".equals(action)){

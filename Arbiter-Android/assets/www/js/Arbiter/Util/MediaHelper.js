@@ -107,6 +107,8 @@ Arbiter.MediaHelper = (function(){
 	    
 	    takePicture: function(key, media){
 	    	
+	    	Arbiter.Cordova.setState(Arbiter.Cordova.STATES.TAKING_PICTURE);
+	    	
 	    	var cameraOptions = { 
     			quality: 20, 
     			allowEdit: false,
@@ -116,6 +118,9 @@ Arbiter.MediaHelper = (function(){
     	    };
 	    	
 	    	navigator.camera.getPicture(function(imageUri){
+	    		
+	    		Arbiter.Cordova.gotPicture();
+	    		
 	    		onPictureTaken(imageUri, key, media);
 	    	}, function(e){
 	    		console.log("Failed to take picture - ", e);

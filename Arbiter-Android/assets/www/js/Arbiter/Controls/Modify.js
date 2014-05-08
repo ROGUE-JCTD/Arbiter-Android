@@ -397,6 +397,10 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 		
 		removePart: function(){
 			
+			if(addingGeometryPart){
+				return;
+			}
+			
 			if(Arbiter.Util.existsAndNotNull(geometryPart)){
 				
 				modifyController.deactivate();
@@ -420,6 +424,10 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 		},
 		
 		removeGeometry: function(){
+			
+			if(addingGeometryPart){
+				return;
+			}
 			
 			if(Arbiter.Util.existsAndNotNull(geometryPart)){
 				

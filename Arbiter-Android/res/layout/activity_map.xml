@@ -211,4 +211,13 @@
 	        android:padding="8dp"/>
     </RelativeLayout>
     
+    <View
+        android:id="@+id/mapOverlay"
+    	android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000"
+        android:alpha="0.0"
+        android:clickable="true"
+        android:visibility="gone"/>
+    
 </RelativeLayout>

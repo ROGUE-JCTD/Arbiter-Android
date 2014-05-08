@@ -17,6 +17,7 @@ import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageButton;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
@@ -28,6 +29,7 @@ import com.lmn.Arbiter_Android.Activities.MapChangeHelper;
 import com.lmn.Arbiter_Android.Activities.ProjectsActivity;
 import com.lmn.Arbiter_Android.Activities.TileConfirmation;
 import com.lmn.Arbiter_Android.AppFinishedLoading.AppFinishedLoading;
+import com.lmn.Arbiter_Android.AppFinishedLoading.AppFinishedLoadingJob;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.GeometryColumnsHelper;
@@ -1057,6 +1059,7 @@ public class ArbiterCordova extends CordovaPlugin{
 		
 		final Activity activity = this.cordova.getActivity();
 		final CordovaWebView webview = this.webView;
+		final View overlay = (View) activity.findViewById(R.id.mapOverlay);
 		final boolean isCreatingProject = ArbiterState
 				.getArbiterState().isCreatingProject();
 		
@@ -1070,7 +1073,18 @@ public class ArbiterCordova extends CordovaPlugin{
 					@Override
 					public void run(){
 						AppFinishedLoading.getInstance().setFinishedLoading(false);
+						if (overlay != null){
+							overlay.setVisibility(View.VISIBLE);
+						}
 						webview.loadUrl("about:blank");
+						if (overlay != null){
+							AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+								@Override
+								public void run() {
+									overlay.setVisibility(View.GONE);
+								}
+							});
+						}
 					}
 				});
 			}

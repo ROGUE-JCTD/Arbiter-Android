@@ -23,6 +23,7 @@ var app = (function() {
 	 * On device ready
 	 */
 	var onDeviceReady = function() {
+		Arbiter.isOnline('onLine' in navigator && navigator.onLine);
 		Arbiter.Init(function() {
 			
 			// Get the file system for use in TileUtil.js

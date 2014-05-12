@@ -30,6 +30,8 @@ import com.lmn.Arbiter_Android.Activities.ProjectsActivity;
 import com.lmn.Arbiter_Android.Activities.TileConfirmation;
 import com.lmn.Arbiter_Android.AppFinishedLoading.AppFinishedLoading;
 import com.lmn.Arbiter_Android.AppFinishedLoading.AppFinishedLoadingJob;
+import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
+import com.lmn.Arbiter_Android.ConnectivityListeners.HasConnectivityListener;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.GeometryColumnsHelper;
@@ -852,9 +854,11 @@ public class ArbiterCordova extends CordovaPlugin{
 		String projectPath = ProjectStructure.getProjectPath(projectName);
 		
 		FragmentActivity fragActivity = null;
+		ConnectivityListener connectivityListener = null;
 		
 		try{
 			fragActivity = (FragmentActivity) activity;
+			connectivityListener = ((HasConnectivityListener) activity).getListener();
 		}catch(ClassCastException e){
 			e.printStackTrace();
 		}
@@ -863,7 +867,7 @@ public class ArbiterCordova extends CordovaPlugin{
 				projectPath, false).getWritableDatabase();
 		
 		FailedSyncHelper failedSyncHelper = new FailedSyncHelper(fragActivity,
-				projectDb);
+				projectDb, connectivityListener);
 		
 		failedSyncHelper.checkIncompleteSync();
 		

@@ -16,7 +16,9 @@ import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.About.About;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
+import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.ConnectivityListeners.CookieConnectivityListener;
+import com.lmn.Arbiter_Android.ConnectivityListeners.HasConnectivityListener;
 import com.lmn.Arbiter_Android.ConnectivityListeners.SyncConnectivityListener;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
@@ -52,7 +54,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 
 public class MapActivity extends FragmentActivity implements CordovaInterface,
-		Map.MapChangeListener, Map.CordovaMap, HasThreadPool{
+		Map.MapChangeListener, Map.CordovaMap, HasThreadPool, HasConnectivityListener{
 	
     private ArbiterDialogs dialogs;
     private String TAG = "MAP_ACTIVITY";
@@ -122,8 +124,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         setListeners();
         clearControlPanelKVP();
         
-        this.failedSyncHelper = 
-        		new FailedSyncHelper(this, getProjectDatabase());
+        this.failedSyncHelper = new FailedSyncHelper(this, 
+        		getProjectDatabase(), this.syncConnectivityListener);
         
         this.failedSyncHelper.checkIncompleteSync();
     }
@@ -664,5 +666,11 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         }
         return p.booleanValue();
     }
+
+	@Override
+	public ConnectivityListener getListener() {
+		
+		return this.syncConnectivityListener;
+	}
 }
 

@@ -7,23 +7,20 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
+import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.Map.Map;
 
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.TextView;
 
-public class FailedSyncDialog extends DialogFragment {
+public class FailedSyncDialog extends ArbiterDialogFragment {
 	public static final String TAG = "FailedSyncDialog";
 	
 	protected String title;
@@ -31,26 +28,29 @@ public class FailedSyncDialog extends DialogFragment {
 	protected String cancel;
 	protected int layout;
 	protected OnClickListener validatingClickListener = null;
-	private AlertDialog myDialog;
 	
 	private String[] failedVectorUploads;
 	private String[] failedVectorDownloads;
 	private JSONObject failedMediaUploads;
 	private String[] failedMediaDownloads;
 	private Map.CordovaMap cordovaMap;
+	private ConnectivityListener connectivityListener;
 	
 	public FailedSyncDialog(){}
 	
 	public static FailedSyncDialog newInstance(
 			String[] failedVectorUploads, String[] failedVectorDownloads,
-			JSONObject failedMediaUploads, String[] failedMediaDownloads){
+			JSONObject failedMediaUploads, String[] failedMediaDownloads,
+			ConnectivityListener connectivityListener){
 		
-		FailedSyncDialog dialog = new FailedSyncDialog();
+		final FailedSyncDialog dialog = new FailedSyncDialog();
 		
 		dialog.failedVectorUploads = failedVectorUploads;
 		dialog.failedVectorDownloads = failedVectorDownloads;
 		dialog.failedMediaUploads = failedMediaUploads;
 		dialog.failedMediaDownloads = failedMediaDownloads;
+		
+		dialog.connectivityListener = connectivityListener;
 		
 		return dialog;
 	}
@@ -59,13 +59,28 @@ public class FailedSyncDialog extends DialogFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		Activity activity = getActivity();
+		
+		setTitle(activity.getResources().getString(R.string.failed_to_sync));
+		setOk(activity.getResources().getString(R.string.retry));
+		setCancel(activity.getResources().getString(R.string.close));
+		setLayout(R.layout.failed_sync);
+		
+		setValidatingClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				onPositiveClick();
+			}
+		});
+		
 		setRetainInstance(true);
 	}
 	
 	@Override
 	public void onStart(){
 		super.onStart();
-		myDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
 		
 		try{
 			
@@ -73,48 +88,6 @@ public class FailedSyncDialog extends DialogFragment {
 		}catch(ClassCastException e){
 			e.printStackTrace();
 		}
-
-		if(validatingClickListener != null) {
-			Button positiveButton = myDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-	        positiveButton.setOnClickListener(validatingClickListener);
-		}
-	}
-	
-	@Override
-	public Dialog onCreateDialog(Bundle savedInstanceState){
-		LayoutInflater inflater = getActivity().getLayoutInflater();
-		View view = inflater.inflate(R.layout.failed_sync, null);
-		
-		populateView(view);
-		
-		AlertDialog dialog = new AlertDialog.Builder(getActivity())
-			.setIcon(R.drawable.icon)
-			.setTitle(R.string.failed_to_sync)
-			.setView(view)
-			.setPositiveButton(R.string.retry,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                        	onPositiveClick();
-                        }
-                    }
-                )
-                .setNegativeButton(android.R.string.no, null).create();
-		
-		this.myDialog = dialog;
-		
-		return dialog;
-	}
-	
-	private void onPositiveClick(){
-		
-		this.getActivity().runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				SyncProgressDialog.show(getActivity());
-				
-				Map.getMap().sync(cordovaMap.getWebView());
-			}
-		});
 	}
 	
 	private void populateView(View view){
@@ -251,5 +224,57 @@ public class FailedSyncDialog extends DialogFragment {
 		}
 		
 		return false;
+	}
+
+	@Override
+	public void beforeCreateDialog(View view) {
+		
+		populateView(view);
+	}
+
+	@Override
+	public void onPositiveClick() {
+		
+		if(this.connectivityListener != null){
+			
+			final Activity activity = getActivity();
+			
+			if(this.connectivityListener.isConnected()){
+				
+				activity.runOnUiThread(new Runnable(){
+					@Override
+					public void run(){
+						SyncProgressDialog.show(activity);
+						
+						Map.getMap().sync(cordovaMap.getWebView());
+						
+						dismiss();
+					}
+				});
+			}else{
+				
+				activity.runOnUiThread(new Runnable(){
+					@Override
+					public void run(){
+						
+						AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+						
+						builder.setTitle(R.string.no_network);
+						
+						builder.setMessage(R.string.check_network_connection);
+						
+						builder.setPositiveButton(R.string.close, null);
+						
+						builder.create().show();
+					}
+				});
+			}
+		}
+	}
+
+	@Override
+	public void onNegativeClick() {
+		// TODO Auto-generated method stub
+		
 	}
 }

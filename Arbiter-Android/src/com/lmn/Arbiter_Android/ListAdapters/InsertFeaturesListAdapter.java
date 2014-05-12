@@ -135,12 +135,15 @@ public class InsertFeaturesListAdapter extends BaseAdapter implements ArbiterAda
 				
 				Log.w("InsertFeaturesListAdapter", "InsertFeaturesListAdapter geometryType = " + geometryType);
 				
-				if(geometryType.contains("MultiCurve")
-						|| geometryType.contains("MultiGeometry") 
-						|| geometryType.contains("Geometry")){
-					showGeometryTypeChooser(featureType, layerId, geometryType);
-				}else{
-					startInsertMode(featureType, layerId, geometryType);
+				if(geometryType != null){
+					
+					if(geometryType.contains("MultiCurve")
+							|| geometryType.contains("MultiGeometry") 
+							|| geometryType.contains("Geometry")){
+						showGeometryTypeChooser(featureType, layerId, geometryType);
+					}else{
+						startInsertMode(featureType, layerId, geometryType);
+					}
 				}
 				
 				dismissProgressDialog(progressDialog);

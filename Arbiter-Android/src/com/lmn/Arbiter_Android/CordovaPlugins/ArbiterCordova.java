@@ -22,14 +22,17 @@ import android.widget.ImageButton;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
+import com.lmn.Arbiter_Android.InsertProjectHelper;
 import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
+import com.lmn.Arbiter_Android.Activities.MapActivity;
 import com.lmn.Arbiter_Android.Activities.MapChangeHelper;
 import com.lmn.Arbiter_Android.Activities.ProjectsActivity;
 import com.lmn.Arbiter_Android.Activities.TileConfirmation;
 import com.lmn.Arbiter_Android.AppFinishedLoading.AppFinishedLoading;
 import com.lmn.Arbiter_Android.AppFinishedLoading.AppFinishedLoadingJob;
+import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.ConnectivityListeners.HasConnectivityListener;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
@@ -48,6 +51,8 @@ import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.Media.HandleZeroByteFiles;
 import com.lmn.Arbiter_Android.OnAddingGeometryPart.OnAddingGeometryPart;
+import com.lmn.Arbiter_Android.OnReturnToMap.OnReturnToMap;
+import com.lmn.Arbiter_Android.OnReturnToMap.ReturnToMapJob;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ArbiterCordova extends CordovaPlugin{
@@ -1023,6 +1028,28 @@ public class ArbiterCordova extends CordovaPlugin{
 	private void setNewProjectsAOI(final String aoi, final CallbackContext callbackContext){
 		//ArbiterState.getState().setNewAOI(aoi);
 		ArbiterProject.getArbiterProject().getNewProject().setAOI(aoi);
+		
+		OnReturnToMap.getOnReturnToMap().push(new ReturnToMapJob(){
+
+			@Override
+			public void run(final MapActivity activity) {
+				
+				activity.runOnUiThread(new Runnable(){
+					@Override
+					public void run(){
+						
+						SyncProgressDialog.show(activity);
+		    			
+		    			Project newProject = ArbiterProject.getArbiterProject().getNewProject();
+		    			
+		    			ArbiterProject.getArbiterProject().doneCreatingProject(activity.getApplicationContext());
+		    			
+		    			InsertProjectHelper insertHelper = new InsertProjectHelper(activity, newProject);
+		    			insertHelper.insert();
+					}
+				});
+			}
+		});
 		
 		callbackContext.success();
 		

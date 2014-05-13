@@ -9,7 +9,6 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -26,7 +25,6 @@ import com.lmn.Arbiter_Android.InsertProjectHelper;
 import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
-import com.lmn.Arbiter_Android.Activities.MapActivity;
 import com.lmn.Arbiter_Android.Activities.MapChangeHelper;
 import com.lmn.Arbiter_Android.Activities.ProjectsActivity;
 import com.lmn.Arbiter_Android.Activities.TileConfirmation;
@@ -51,9 +49,10 @@ import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.Media.HandleZeroByteFiles;
 import com.lmn.Arbiter_Android.OnAddingGeometryPart.OnAddingGeometryPart;
-import com.lmn.Arbiter_Android.OnReturnToMap.OnReturnToMap;
-import com.lmn.Arbiter_Android.OnReturnToMap.ReturnToMapJob;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
+import com.lmn.Arbiter_Android.ReturnQueues.OnReturnToMap;
+import com.lmn.Arbiter_Android.ReturnQueues.OnReturnToProjects;
+import com.lmn.Arbiter_Android.ReturnQueues.ReturnToActivityJob;
 
 public class ArbiterCordova extends CordovaPlugin{
 	private static final String TAG = "ArbiterCordova";
@@ -1029,10 +1028,10 @@ public class ArbiterCordova extends CordovaPlugin{
 		//ArbiterState.getState().setNewAOI(aoi);
 		ArbiterProject.getArbiterProject().getNewProject().setAOI(aoi);
 		
-		OnReturnToMap.getOnReturnToMap().push(new ReturnToMapJob(){
+		OnReturnToMap.getInstance().push(new ReturnToActivityJob(){
 
 			@Override
-			public void run(final MapActivity activity) {
+			public void run(final Activity activity) {
 				
 				activity.runOnUiThread(new Runnable(){
 					@Override
@@ -1048,6 +1047,16 @@ public class ArbiterCordova extends CordovaPlugin{
 		    			insertHelper.insert();
 					}
 				});
+			}
+		});
+		
+		OnReturnToProjects.getInstance().push(new ReturnToActivityJob(){
+			
+			@Override
+			public void run(Activity activity){
+				
+				// Finish the projects activity to jump back to the map.
+				activity.finish();
 			}
 		});
 		

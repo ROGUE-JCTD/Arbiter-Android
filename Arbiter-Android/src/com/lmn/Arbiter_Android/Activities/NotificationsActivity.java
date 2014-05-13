@@ -3,7 +3,6 @@ package com.lmn.Arbiter_Android.Activities;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.ConnectivityListeners.CreateProjectConnectivityListener;
 import com.lmn.Arbiter_Android.ListAdapters.NotificationsAdapter;
@@ -43,15 +42,6 @@ public class NotificationsActivity extends FragmentActivity implements HasThread
 		super.onDestroy();
 		
 		getSupportLoaderManager().destroyLoader(R.id.loader_notifications);
-	}
-	
-	@Override
-	public void onResume(){
-		super.onResume();
-		
-		if(ArbiterState.getArbiterState().isCreatingProject()){
-			finish();
-		}
 	}
 
 	@Override

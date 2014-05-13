@@ -30,9 +30,8 @@ import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.Notifications.Sync;
-import com.lmn.Arbiter_Android.OnReturnToMap.OnReturnToMap;
-import com.lmn.Arbiter_Android.OnReturnToMap.ReturnToMapJob;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
+import com.lmn.Arbiter_Android.ReturnQueues.OnReturnToMap;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -388,19 +387,6 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         }
     }
     
-    private void executeOnReturnToMapJobs(){
-    	OnReturnToMap onReturnToMap = OnReturnToMap.getOnReturnToMap();
-        
-        ReturnToMapJob job = onReturnToMap.pop();
-        
-        while(job != null){
-        	
-        	job.run(this);
-        	
-        	job = onReturnToMap.pop();
-        }
-    }
-    
     private void checkNotificationsAreComputed(){
     	
     	final Activity activity = this;
@@ -483,7 +469,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
 			        			incompleteProjectHelper.checkForAOI();
 				    		}
 				    		
-				    		executeOnReturnToMapJobs();
+				    		OnReturnToMap.getInstance().executeJobs(getActivity());
     					}
     				});
 				}

@@ -26,8 +26,8 @@ import com.lmn.Arbiter_Android.Media.MediaHelper;
 
 public class MediaLoader {
 	// The width and height of the media image view in dp
-	public static final int IMAGE_VIEW_WIDTH = 180;
-	public static final int IMAGE_VIEW_HEIGHT = 180;
+	public static final int IMAGE_VIEW_WIDTH = 90;
+	public static final int IMAGE_VIEW_HEIGHT = 90;
 		
 	private Activity activity;
 	private String key;
@@ -105,8 +105,10 @@ public class MediaLoader {
 	}
 	
 	private void onMediaClick(String imageUri){
-		MediaDialog.newInstance(imageUri).show(fragActivity
-				.getSupportFragmentManager(), "MediaDialog");;
+		MediaDialog dialog = MediaDialog.newInstance(imageUri);
+		if(dialog != null) {
+			dialog.show(fragActivity.getSupportFragmentManager(), "MediaDialog");
+		}
 	}
 	
 	public void loadMedia() throws JSONException{

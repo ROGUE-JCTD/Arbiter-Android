@@ -30,6 +30,8 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 	
 	var geometryAdder = null;
 	
+	var addingGeometryPart = false;
+	
 	var saveControlPanelInfo = function(geometryPart){
 		var featureId = featureOfInterest.metadata[Arbiter.FeatureTableHelper.ID];
 		var layerId = schema.getLayerId();
@@ -270,9 +272,14 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 			var context = this;
 			
 			if(Arbiter.Util.existsAndNotNull(geometryAdder)){
-				geometryAdder.finish();
 				
-				geometryAdder = null;
+				try{
+					geometryAdder.finish();
+					
+					geometryAdder = null;
+				}catch(e){
+					console.log(e.stack);
+				}
 			}
 			
 			var features = modifyLayer.features;
@@ -327,6 +334,12 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 		
 		beginAddPart: function(){
 			
+			if(addingGeometryPart){
+				return;
+			}
+			
+			addingGeometryPart = true;
+			
 			var geometryType = null;
 			
 			if(geometryPart.type === "OpenLayers.Geometry.Point"){
@@ -346,10 +359,23 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 				geometryPart.addPart(geometryPart.type, feature, geometryPart.parent);
 				
 				modifyController.activate();
+				
+				addingGeometryPart = false;
 			});
 		},
 		
+		isAddingPart: function(){
+			
+			return addingGeometryPart;
+		},
+		
 		beginAddGeometry: function(_geometryType){
+			
+			if(addingGeometryPart){
+				return;
+			}
+			
+			addingGeometryPart = true;
 			
 			var geometryType = Arbiter.Geometry.getGeometryType(null, _geometryType);
 			
@@ -364,10 +390,16 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 				}
 				
 				modifyController.activate();
+				
+				addingGeometryPart = false;
 			});
 		},
 		
 		removePart: function(){
+			
+			if(addingGeometryPart){
+				return;
+			}
 			
 			if(Arbiter.Util.existsAndNotNull(geometryPart)){
 				
@@ -392,6 +424,10 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 		},
 		
 		removeGeometry: function(){
+			
+			if(addingGeometryPart){
+				return;
+			}
 			
 			if(Arbiter.Util.existsAndNotNull(geometryPart)){
 				

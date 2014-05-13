@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FailedSync;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.MediaSyncHelper;
@@ -20,11 +21,14 @@ public class FailedSyncHelper {
 	private SQLiteDatabase projectDb;
 	private CordovaInterface threadPoolSupplier;
 	private ProgressDialog checkForFailedSync;
+	private ConnectivityListener connectivityListener;
 	
-	public FailedSyncHelper(FragmentActivity activity, SQLiteDatabase projectDb){
+	public FailedSyncHelper(FragmentActivity activity, SQLiteDatabase projectDb,
+			ConnectivityListener connectivityListener){
 		this.activity = activity;
 		
 		this.projectDb = projectDb;
+		this.connectivityListener = connectivityListener;
 		
 		try{
 			
@@ -55,7 +59,7 @@ public class FailedSyncHelper {
 				final String[] failedMediaDownloads = getFailedMediaDownloads();
 				
 				final FailedSyncDialog dialog = FailedSyncDialog.newInstance(failedVectorUploads, failedVectorDownloads,
-						failedMediaUploads, failedMediaDownloads);
+						failedMediaUploads, failedMediaDownloads, connectivityListener);
 				
 				final boolean isFailedVectorUploads = dialog.isFailed(failedVectorUploads);
 				final boolean isFailedVectorDownloads = dialog.isFailed(failedVectorDownloads);

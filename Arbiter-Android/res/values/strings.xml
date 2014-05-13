@@ -227,4 +227,7 @@
     <string name="invalid_url">Invalid url</string>
     <string name="invalid_url_slash_wms">\"WMS\" server urls must end with \"/wms\"</string>
     <string name="invalid_url_slash_tms">\"TMS\" server urls end with \"/hot/1.0.0/\"</string>
+    <string name="insert">insert</string>
+    <string name="feature_outside_aoi_warning">You have inserted a feature outside of your selected area of interest.  After syncing this feature, it will no longer
+         be on the device.</string>
 </resources>

@@ -17,8 +17,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginLeft="14dp"
-		android:layout_marginTop="20dp"
-		android:layout_toRightOf="@id/attributeLabel">
+		android:layout_below="@id/attributeLabel">
         
 	    <LinearLayout
 	        android:id="@+id/mediaList"
@@ -26,7 +25,6 @@
 	        android:layout_height="match_parent"
 	        android:orientation="horizontal"
 	        android:layout_marginLeft="14dp"
-			android:layout_marginTop="20dp"
 			android:paddingRight="20dp" >
 	    </LinearLayout>
     </HorizontalScrollView>
@@ -42,5 +40,14 @@
         android:layout_marginRight="40dp"
         android:src="@drawable/camera"
         android:contentDescription="@string/take_picture" />
+    
+    <View 
+        android:layout_below="@id/takePicture"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent" 
+        android:padding="50dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp" />
     
 </RelativeLayout>

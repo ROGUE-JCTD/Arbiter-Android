@@ -114,7 +114,12 @@ public class AddServerDialog extends ArbiterDialogFragment{
 					DefaultHttpClient client = new DefaultHttpClient();
 					HttpParams params = client.getParams();
 					params.setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false);
-					HttpGet request = new HttpGet(urlField.getText().toString().replace("/wms", "/rest"));
+					
+					// THIS URL IS ONLY BEING USED TEMPORARILY.  THE REST ENDPOINT IS LOCKED DOWN SO THAT '/rest' REQUIRES ADMIN PRIVILEGES,
+					// BUT WE WANT ANY REGISTERED USER.  AT THE TIME I WROTE THIS (5/7/2014), THIS WAS ONE WAY TO CHECK.  COMPLETE HACK, BUT
+					// IT GOT THE JOB DONE.  IN THE FUTURE, THIS MAY NOT BE A VIABLE ENDPOINT AND SHOULD BE CHANGED TO SOME ENDPOINT THAT ONLY
+					// REGISTERED USERS CAN ACCESS.
+					HttpGet request = new HttpGet(urlField.getText().toString().replace("/wms", "/rest/process/batchdownload/arbiterAuthenticatedUserLoginTest"));
 					
 					String credentials = usernameField.getText().toString() + ":" + passwordField.getText().toString();
 					credentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
@@ -126,6 +131,16 @@ public class AddServerDialog extends ArbiterDialogFragment{
 						int code = response.getStatusLine().getStatusCode();
 						switch (code) {
 						case 200:
+							
+							new ArbiterCookieManager(getActivity().getApplicationContext()).getCookieForServer(
+									urlField.getText().toString(), 
+									usernameField.getText().toString(),
+									passwordField.getText().toString());
+							
+							putServer(progressDialog);
+							
+							break;
+						case 404:
 							
 							new ArbiterCookieManager(getActivity().getApplicationContext()).getCookieForServer(
 									urlField.getText().toString(), 
@@ -199,7 +214,12 @@ public class AddServerDialog extends ArbiterDialogFragment{
 			int urlLength = url.length();
 			
 			if(url.substring(urlLength - 4, urlLength).equals("/wms")){
-				attemptAuthentication(progressDialog);
+				
+				if(!usernameField.getText().toString().equals("") && !passwordField.getText().toString().equals("")){
+					attemptAuthentication(progressDialog);
+				}else{
+					putServer(progressDialog);
+				}
 			}else{
 				displaySlashWMSError(progressDialog);
 			}

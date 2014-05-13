@@ -37,7 +37,6 @@ public class EditHandler {
 		}
 		
 		if(activity != null){
-			Log.w("EditHandler", "EditHandler cancelling");
 			
 			// Restore the geometry of the selectedFeature
 			Feature selectedFeature = ArbiterState.getArbiterState().isEditingFeature();

@@ -53,10 +53,13 @@ public class GetCapabilities {
 			HttpClient client = new DefaultHttpClient();
 			HttpGet request = new HttpGet(url);
 			
-			String credentials = server.getUsername() + ":" + server.getPassword();
-			credentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
-			
-			request.addHeader("Authorization", "Basic " + credentials);
+			if(!"".equals(server.getUsername()) && !"".equals(server.getPassword())){
+				
+				String credentials = server.getUsername() + ":" + server.getPassword();
+				credentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+				
+				request.addHeader("Authorization", "Basic " + credentials);
+			}
 			
 			Log.w("GetCapabilities", "GetCapabilities: " + url);
 			HttpResponse response = null;

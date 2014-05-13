@@ -130,7 +130,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 		
 		Arbiter.Layers.addLayer(olLayer);
 		
-		olLayer.setVisibility(schema.isVisible());
+		olLayer.setVisibility(schema.isVisible() && Arbiter.isOnline());
 		
 		return olLayer;
 	};

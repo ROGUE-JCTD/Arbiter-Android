@@ -2,6 +2,11 @@ Arbiter.Util = (function(){
 	
 	return {
 		getEncodedCredentials: function(username, password){
+			
+			if(username === "" && password === ""){
+				return null;
+			}
+			
 			return $.base64.encode(username + ":" + password);
 		},
 		

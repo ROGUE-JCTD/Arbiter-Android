@@ -62,7 +62,7 @@ public class MediaHelper {
 				int photoHeight = bmOptions.outHeight;
 				
 				// Determine how much to scale down the image
-				int scaleFactor = Math.min(photoWidth/scaleWidth, photoHeight/scaleHeight);
+				int scaleFactor = Math.min((photoWidth + scaleWidth - 1)/scaleWidth, (photoHeight + scaleHeight - 1)/scaleHeight);
 				
 				// Decode the image file scaled to the width and height
 				bmOptions.inJustDecodeBounds = false;

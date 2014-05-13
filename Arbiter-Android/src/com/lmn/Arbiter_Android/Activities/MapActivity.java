@@ -11,12 +11,12 @@ import org.apache.cordova.CordovaWebView;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
-import com.lmn.Arbiter_Android.InsertProjectHelper;
 import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.About.About;
-import com.lmn.Arbiter_Android.BaseClasses.Project;
+import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.ConnectivityListeners.CookieConnectivityListener;
+import com.lmn.Arbiter_Android.ConnectivityListeners.HasConnectivityListener;
 import com.lmn.Arbiter_Android.ConnectivityListeners.SyncConnectivityListener;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
@@ -30,9 +30,8 @@ import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.Notifications.Sync;
-import com.lmn.Arbiter_Android.OnReturnToMap.OnReturnToMap;
-import com.lmn.Arbiter_Android.OnReturnToMap.ReturnToMapJob;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
+import com.lmn.Arbiter_Android.ReturnQueues.OnReturnToMap;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -52,16 +51,14 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 
 public class MapActivity extends FragmentActivity implements CordovaInterface,
-		Map.MapChangeListener, Map.CordovaMap, HasThreadPool{
+		Map.MapChangeListener, Map.CordovaMap, HasThreadPool, HasConnectivityListener{
 	
     private ArbiterDialogs dialogs;
     private String TAG = "MAP_ACTIVITY";
     private ArbiterProject arbiterProject;
-    private InsertProjectHelper insertHelper;
     private MapChangeHelper mapChangeHelper;
     private IncompleteProjectHelper incompleteProjectHelper;
     private boolean menuPrepared;
-    @SuppressWarnings("unused")
 	private SyncConnectivityListener syncConnectivityListener;
     private CookieConnectivityListener cookieConnectivityListener;
     private NotificationBadge notificationBadge;
@@ -122,8 +119,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         setListeners();
         clearControlPanelKVP();
         
-        this.failedSyncHelper = 
-        		new FailedSyncHelper(this, getProjectDatabase());
+        this.failedSyncHelper = new FailedSyncHelper(this, 
+        		getProjectDatabase(), this.syncConnectivityListener);
         
         this.failedSyncHelper.checkIncompleteSync();
     }
@@ -175,18 +172,19 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	
     	ImageButton syncButton = (ImageButton) findViewById(R.id.syncButton);
 		
+    	syncConnectivityListener = new SyncConnectivityListener(getApplicationContext(), syncButton);
+    	
     	syncButton.setOnClickListener(new OnClickListener(){
     		@Override
     		public void onClick(View v){
     			
-    			if(makeSureNotEditing()){
+    			if(syncConnectivityListener.isConnected() && makeSureNotEditing()){
     				SyncProgressDialog.show(activity);
             		Map.getMap().sync(cordovaWebView);
     			}
     		}
     	});
     	
-    	syncConnectivityListener = new SyncConnectivityListener(getApplicationContext(), syncButton);
     	cookieConnectivityListener = new CookieConnectivityListener(this, this, this);
     	
     	ImageButton aoiButton = (ImageButton) findViewById(R.id.AOIButton);
@@ -308,7 +306,9 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     	
     	DialogFragment frag = InsertFeatureDialog.newInstance(title, cancel);
     	
-    	frag.show(getSupportFragmentManager(), InsertFeatureDialog.TAG);
+    	if(frag != null) {
+    		frag.show(getSupportFragmentManager(), InsertFeatureDialog.TAG);
+    	}
     }
     
     private void startAOIActivity(){
@@ -387,19 +387,6 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         }
     }
     
-    private void executeOnReturnToMapJobs(){
-    	OnReturnToMap onReturnToMap = OnReturnToMap.getOnReturnToMap();
-        
-        ReturnToMapJob job = onReturnToMap.pop();
-        
-        while(job != null){
-        	
-        	job.run(this);
-        	
-        	job = onReturnToMap.pop();
-        }
-    }
-    
     private void checkNotificationsAreComputed(){
     	
     	final Activity activity = this;
@@ -453,8 +440,6 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
                 this.activityResultKeepRunning = false;
             }
         }
-         
-        executeOnReturnToMapJobs();
         
     	if(arbiterProject != null){
     		
@@ -468,36 +453,23 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     					@Override
     					public void run(){
     						
-				    		// Creating a project
-				    		if(ArbiterState.getArbiterState().isCreatingProject()){
-				    			
-				    			SyncProgressDialog.show(getActivity());
-				    			
-				    			Project newProject = arbiterProject.getNewProject();
-				    			
-				    			arbiterProject.doneCreatingProject(getApplicationContext());
-				    			
-				    			insertHelper = new InsertProjectHelper(getActivity(), newProject);
-				    			insertHelper.insert();
-				    		}
 				    		// Setting the aoi
-				    		else if(ArbiterState.getArbiterState().isSettingAOI()){
+				    		if(ArbiterState.getArbiterState().isSettingAOI()){
 				    			Log.w(TAG, TAG + ".onResume() setting aoi");
 								SyncProgressDialog.show(getActivity());
 				    			updateProjectAOI();
-				    		}else{
-				    			// Project changed
-				    			if(!arbiterProject.isSameProject(getApplicationContext())){
+				    		}else if(!arbiterProject.isSameProject(getApplicationContext())){
 				    				
-				    				arbiterProject.makeSameProject();
-									
-									Map.getMap().resetWebApp(cordovaWebView);
-									
-									// If the user changed projects, check to 
-				        			// see if the project has an aoi or not
-				        			incompleteProjectHelper.checkForAOI();			
-				        		}
+			    				arbiterProject.makeSameProject();
+								
+								Map.getMap().resetWebApp(cordovaWebView);
+								
+								// If the user changed projects, check to 
+			        			// see if the project has an aoi or not
+			        			incompleteProjectHelper.checkForAOI();
 				    		}
+				    		
+				    		OnReturnToMap.getInstance().executeJobs(getActivity());
     					}
     				});
 				}
@@ -661,5 +633,11 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         }
         return p.booleanValue();
     }
+
+	@Override
+	public ConnectivityListener getListener() {
+		
+		return this.syncConnectivityListener;
+	}
 }
 

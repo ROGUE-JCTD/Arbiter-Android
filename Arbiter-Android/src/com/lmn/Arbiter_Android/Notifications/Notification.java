@@ -13,9 +13,9 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.NotificationsTableHelper;
 import com.lmn.Arbiter_Android.Loaders.NotificationsLoader;
 import com.lmn.Arbiter_Android.Map.Map;
-import com.lmn.Arbiter_Android.OnReturnToMap.OnReturnToMap;
-import com.lmn.Arbiter_Android.OnReturnToMap.ReturnToMapJob;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
+import com.lmn.Arbiter_Android.ReturnQueues.OnReturnToMap;
+import com.lmn.Arbiter_Android.ReturnQueues.ReturnToActivityJob;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -131,14 +131,19 @@ public class Notification extends NotificationListItem {
 						
 						if(featureExists){
 							
-							OnReturnToMap onReturnToMap = OnReturnToMap.getOnReturnToMap();
+							OnReturnToMap onReturnToMap = OnReturnToMap.getInstance();
 							
-							onReturnToMap.push(new ReturnToMapJob(){
+							onReturnToMap.push(new ReturnToActivityJob(){
 
 								@Override
-								public void run(MapActivity activity) {
+								public void run(Activity activity) {
 									
-									Map.getMap().zoomToFeature(activity.getWebView(), Integer.toString(layerId), fid);
+									try{
+										
+										Map.getMap().zoomToFeature(((MapActivity)activity).getWebView(), Integer.toString(layerId), fid);
+									}catch(ClassCastException e){
+										e.printStackTrace();
+									}
 								}
 							});
 							

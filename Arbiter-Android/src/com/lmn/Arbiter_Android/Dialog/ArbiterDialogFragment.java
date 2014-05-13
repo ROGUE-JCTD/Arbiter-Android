@@ -68,6 +68,7 @@ public abstract class ArbiterDialogFragment extends DialogFragment {
                 .create();
 		
 		this.myDialog = dialog;
+		this.myDialog.setCanceledOnTouchOutside(false);
 		
 		return dialog;
 	}

@@ -122,11 +122,8 @@
 		
 		var url = this.url.substring(0, this.url.length - 4);
 		
-		var request = new OpenLayers.Request.GET({
+		var options = {
 			url: url + "/wfs?service=wfs&version=" + context.wfsVersion + "&request=DescribeFeatureType&typeName=" + context.featureType,
-			headers: {
-				Authorization: 'Basic ' + context.credentials
-			},
 			success: function(response){
 				gotRequestBack = true;
 				
@@ -159,7 +156,15 @@
 				
 				context.onDownloadFailure();
 			}
-		});
+		};
+		
+		if(Arbiter.Util.existsAndNotNull(context.credentials)){
+			options.headers = {
+				Authorization: 'Basic ' + context.credentials
+			};
+		}
+		
+		var request = new OpenLayers.Request.GET(options);
 		
 		// Couldn't find a way to set timeout for an openlayers
 		// request, so I did this to abort the request after

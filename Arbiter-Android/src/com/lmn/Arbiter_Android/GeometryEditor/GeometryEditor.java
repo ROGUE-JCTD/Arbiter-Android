@@ -17,6 +17,8 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.GeometryColumnsHelpe
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseGeometryTypeDialog;
 import com.lmn.Arbiter_Android.ListAdapters.ChooseGeometryTypeAdapter;
 import com.lmn.Arbiter_Android.Map.Map;
+import com.lmn.Arbiter_Android.OnAddingGeometryPart.OnAddingGeometryPart;
+import com.lmn.Arbiter_Android.OnAddingGeometryPart.OnAddingGeometryPartJob;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 import android.app.Activity;
@@ -162,7 +164,18 @@ public class GeometryEditor {
 				@Override
 				public void onClick(View v) {
 					
-					showAddGeometryChooser();
+					OnAddingGeometryPart.getInstance().add(new OnAddingGeometryPartJob(){
+
+						@Override
+						public void run(boolean isAddingPartAlready) {
+							
+							if(!isAddingPartAlready){
+								showAddGeometryChooser();
+							}
+						}
+					});
+					
+					Map.getMap().checkIsAlreadyAddingGeometryPart(webview);
 				}
 			});
 			

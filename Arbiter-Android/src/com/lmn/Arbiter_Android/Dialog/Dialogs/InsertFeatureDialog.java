@@ -7,7 +7,7 @@ import android.widget.ListView;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.ListAdapters.InsertFeaturesListAdapter;
-import com.lmn.Arbiter_Android.LoaderCallbacks.LayerLoaderCallbacks;
+import com.lmn.Arbiter_Android.LoaderCallbacks.InsertFeatureLayersLoaderCallbacks;
 
 public class InsertFeatureDialog extends ArbiterDialogFragment{
 	public static final String TAG = "InsertFeatureDialog";
@@ -15,7 +15,7 @@ public class InsertFeatureDialog extends ArbiterDialogFragment{
 	private ListView listView;
 	private InsertFeaturesListAdapter layersAdapter;
 	@SuppressWarnings("unused")
-	private LayerLoaderCallbacks layerLoaderCallbacks;
+	private InsertFeatureLayersLoaderCallbacks layerLoaderCallbacks;
 	
 	public static InsertFeatureDialog newInstance(String title, String cancel){
 		InsertFeatureDialog frag = new InsertFeatureDialog();
@@ -73,7 +73,7 @@ public class InsertFeatureDialog extends ArbiterDialogFragment{
 		
 		this.listView.setAdapter(this.layersAdapter);
 		
-		this.layerLoaderCallbacks = new LayerLoaderCallbacks(this.getActivity(),
+		this.layerLoaderCallbacks = new InsertFeatureLayersLoaderCallbacks(this.getActivity(),
 				this.layersAdapter, R.id.loader_insert_feature_dialog);
 	}
 }

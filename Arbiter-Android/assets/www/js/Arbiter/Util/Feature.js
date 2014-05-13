@@ -120,12 +120,11 @@ Arbiter.Util.Feature = (function(){
             
             var gotRequestBack = false;
             
-            var request = new OpenLayers.Request.POST({
+            var options = {
                 url: schema.getUrl() + "/wfs",
                 data: getFeatureRequest,
                 headers: {
                         'Content-Type': 'text/xml;charset=utf-8',
-                        'Authorization': 'Basic ' + encodedCredentials
                 },
                 success: function(response){
                 	gotRequestBack = true;
@@ -146,7 +145,13 @@ Arbiter.Util.Feature = (function(){
     					onFailure();
     				}
                 }
-            });
+            };
+            
+            if(Arbiter.Util.existsAndNotNull(encodedCredentials)){
+            	options.headers['Authorization'] = 'Basic ' + encodedCredentials;
+            }
+            
+            var request = new OpenLayers.Request.POST(options);
             
             // Couldn't find a way to set timeout for an openlayers
     		// request, so I did this to abort the request after

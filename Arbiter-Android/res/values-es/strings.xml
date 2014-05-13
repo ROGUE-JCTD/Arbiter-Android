@@ -225,4 +225,7 @@
     <string name="invalid_url">URL Inválida</string>
     <string name="invalid_url_slash_wms">Las urls de los servidores \"WMS\" deben terminar con \"/wms\"</string>
     <string name="invalid_url_slash_tms">Las urls de los servidores \"TMS\" deben terminar con \"/hot/1.0.0/\"</string>
+    <string name="insert">inserta</string>
+    <string name="feature_outside_aoi_warning">Ha insertado un elemento fuera de su área de interés seleccionada.  Después de la sincronización
+         de esto elemento, el elemento no estará en el dispositivo.</string>
 </resources>

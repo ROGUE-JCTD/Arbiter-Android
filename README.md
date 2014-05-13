@@ -17,3 +17,5 @@ Try it out!
 
 [Latest dev build](http://goo.gl/8sZI2u)
 
+[Arbiter User Doc Download](https://github.com/ROGUE-JCTD/Arbiter-Android/blob/master/How_to_Use_Arbiter.pdf?raw=true)
+

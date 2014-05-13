@@ -5,6 +5,8 @@ Arbiter.GeometryAdder = function(map, modifyLayer, geometryType, featureAddedHan
 	this.featureAddedHandler = featureAddedHandler;
 	
 	this.sketchStarted = false;
+	this.sketchCompleted = false;
+	
 	this.vertexCount = 0;
 	
 	this.insertController = null;
@@ -17,6 +19,7 @@ Arbiter.GeometryAdder = function(map, modifyLayer, geometryType, featureAddedHan
 Arbiter.GeometryAdder.prototype.registerEvents = function(){
 	this.modifyLayer.events.register("sketchstarted", this, this.onSketchStarted);
 	this.modifyLayer.events.register("sketchmodified", this, this.onSketchModified);
+	this.modifyLayer.events.register("sketchcomplete", this, this.onSketchComplete);
 	this.modifyLayer.events.register("featureadded", this, this.onFeatureAdded);
 };
 
@@ -52,6 +55,12 @@ Arbiter.GeometryAdder.prototype.onSketchModified = function(){
 		
 		Arbiter.Cordova.enableDoneEditingBtn();
 	}
+};
+
+Arbiter.GeometryAdder.prototype.onSketchComplete = function(){
+	
+	console.log("onSketchComplete");
+	this.sketchCompleted = true;
 };
 
 Arbiter.GeometryAdder.prototype.addInsertController = function(){
@@ -132,7 +141,7 @@ Arbiter.GeometryAdder.prototype.removeInsertController = function(){
 
 Arbiter.GeometryAdder.prototype.finish = function(){
 	
-	if(Arbiter.Util.existsAndNotNull(this.insertController)
+	if(!this.sketchCompleted && Arbiter.Util.existsAndNotNull(this.insertController)
 			&& (this.geometryType !== Arbiter.Geometry.type.POINT
 			&& this.geometryType !== Arbiter.Geometry.type.MULTIPOINT)){
 	

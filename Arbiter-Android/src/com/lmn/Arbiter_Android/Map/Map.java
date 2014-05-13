@@ -545,4 +545,18 @@ public class Map{
 			}
 		});
 	}
+	
+	public void checkIsAlreadyAddingGeometryPart(final CordovaWebView webview){
+		
+		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+			@Override
+			public void run(){
+				
+				String url = "javascript:app.waitForArbiterInit(new Function('"
+						+ "Arbiter.Controls.ControlPanel.isAddingPart()'))";
+			
+				webview.loadUrl(url);
+			}
+		});
+	}
 }

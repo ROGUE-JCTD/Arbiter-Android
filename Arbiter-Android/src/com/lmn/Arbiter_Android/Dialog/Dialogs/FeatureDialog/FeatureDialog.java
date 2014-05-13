@@ -22,22 +22,27 @@ public class FeatureDialog extends ArbiterDialogFragment{
 	private Button deleteButton;
 	private Button cancelButton;
 	
+	private static FeatureDialog dialog = null;
+	
 	public static String TAG = "FeatureDialog";
 	
 	public static FeatureDialog newInstance(String title, int layout, 
 			Feature feature, String layerId, boolean startInEditMode){
+		if (dialog != null) {
+			return null;
+		}
 		
-		FeatureDialog frag = new FeatureDialog();
+		dialog = new FeatureDialog();
 		
 		Log.w(TAG, TAG + " layerId = " + layerId);
 		
-		frag.setTitle(title);
-		frag.setLayout(layout);
-		frag.startInEditMode = startInEditMode;
-		frag.feature = feature;
-		frag.layerId = layerId;
+		dialog.setTitle(title);
+		dialog.setLayout(layout);
+		dialog.startInEditMode = startInEditMode;
+		dialog.feature = feature;
+		dialog.layerId = layerId;
 		
-		return frag;
+		return dialog;
 	}
 	
 	@Override
@@ -45,6 +50,12 @@ public class FeatureDialog extends ArbiterDialogFragment{
 		super.onCreate(savedInstanceState);
 		
 		setRetainInstance(true);
+	}
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		dialog = null;
 	}
 	
 	@Override

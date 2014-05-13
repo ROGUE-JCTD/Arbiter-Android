@@ -9,17 +9,19 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageButton;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
+import com.lmn.Arbiter_Android.InsertProjectHelper;
 import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
@@ -27,6 +29,10 @@ import com.lmn.Arbiter_Android.Activities.MapChangeHelper;
 import com.lmn.Arbiter_Android.Activities.ProjectsActivity;
 import com.lmn.Arbiter_Android.Activities.TileConfirmation;
 import com.lmn.Arbiter_Android.AppFinishedLoading.AppFinishedLoading;
+import com.lmn.Arbiter_Android.AppFinishedLoading.AppFinishedLoadingJob;
+import com.lmn.Arbiter_Android.BaseClasses.Project;
+import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
+import com.lmn.Arbiter_Android.ConnectivityListeners.HasConnectivityListener;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.GeometryColumnsHelper;
@@ -34,6 +40,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FailedSyncHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.FeatureDialog;
+import com.lmn.Arbiter_Android.Dialog.ProgressDialog.PictureProgressDialog;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
@@ -41,7 +48,11 @@ import com.lmn.Arbiter_Android.Loaders.NotificationsLoader;
 import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.Media.HandleZeroByteFiles;
+import com.lmn.Arbiter_Android.OnAddingGeometryPart.OnAddingGeometryPart;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
+import com.lmn.Arbiter_Android.ReturnQueues.OnReturnToMap;
+import com.lmn.Arbiter_Android.ReturnQueues.OnReturnToProjects;
+import com.lmn.Arbiter_Android.ReturnQueues.ReturnToActivityJob;
 
 public class ArbiterCordova extends CordovaPlugin{
 	private static final String TAG = "ArbiterCordova";
@@ -69,6 +80,29 @@ public class ArbiterCordova extends CordovaPlugin{
 			String tileCount = args.getString(1);
 			
 			setProjectsAOI(aoi, tileCount);
+			
+			return true;
+		}else if("isAddingGeometryPart".equals(action)){
+			
+			boolean isAddingPart = args.getBoolean(0);
+			
+			OnAddingGeometryPart.getInstance().checked(isAddingPart);
+			
+			return true;
+		}else if("osmLinkClicked".equals(action)){
+			
+			Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.openstreetmap.org/copyright"));
+			cordova.getActivity().startActivity(browserIntent);
+			
+			return true;
+		}else if("gotPicture".equals(action)){
+			
+			PictureProgressDialog.show(cordova.getActivity());
+			
+			return true;
+		}else if("featureNotInAOI".equals(action)){
+			
+			showFeatureNotInAOIWarning(callbackContext);
 			
 			return true;
 		}else if("appFinishedLoading".equals(action)){
@@ -401,6 +435,50 @@ public class ArbiterCordova extends CordovaPlugin{
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
+	}
+	
+	private void showFeatureNotInAOIWarning(final CallbackContext callbackContext){
+		
+		final Activity activity = cordova.getActivity();
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				
+				AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+				
+				builder.setTitle(activity.getResources().getString(R.string.warning));
+				
+				builder.setMessage(activity.getResources().getString(R.string.feature_outside_aoi_warning));
+				
+				builder.setPositiveButton(R.string.insert, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+						callbackContext.success();
+					}
+				});
+				
+				builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener(){
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+						try{
+							((Map.MapChangeListener) activity).getMapChangeHelper().setEditMode(GeometryEditor.Mode.OFF);
+							callbackContext.error(0);
+						}catch(ClassCastException e){
+							e.printStackTrace();
+						}
+					}
+				});
+				
+				builder.setCancelable(false);
+				
+				builder.create().show();
+			}
+		});
 	}
 	
 	private void reportLayersWithUnsupportedCRS(final JSONArray layers){
@@ -780,9 +858,11 @@ public class ArbiterCordova extends CordovaPlugin{
 		String projectPath = ProjectStructure.getProjectPath(projectName);
 		
 		FragmentActivity fragActivity = null;
+		ConnectivityListener connectivityListener = null;
 		
 		try{
 			fragActivity = (FragmentActivity) activity;
+			connectivityListener = ((HasConnectivityListener) activity).getListener();
 		}catch(ClassCastException e){
 			e.printStackTrace();
 		}
@@ -791,7 +871,7 @@ public class ArbiterCordova extends CordovaPlugin{
 				projectPath, false).getWritableDatabase();
 		
 		FailedSyncHelper failedSyncHelper = new FailedSyncHelper(fragActivity,
-				projectDb);
+				projectDb, connectivityListener);
 		
 		failedSyncHelper.checkIncompleteSync();
 		
@@ -948,6 +1028,38 @@ public class ArbiterCordova extends CordovaPlugin{
 		//ArbiterState.getState().setNewAOI(aoi);
 		ArbiterProject.getArbiterProject().getNewProject().setAOI(aoi);
 		
+		OnReturnToMap.getInstance().push(new ReturnToActivityJob(){
+
+			@Override
+			public void run(final Activity activity) {
+				
+				activity.runOnUiThread(new Runnable(){
+					@Override
+					public void run(){
+						
+						SyncProgressDialog.show(activity);
+		    			
+		    			Project newProject = ArbiterProject.getArbiterProject().getNewProject();
+		    			
+		    			ArbiterProject.getArbiterProject().doneCreatingProject(activity.getApplicationContext());
+		    			
+		    			InsertProjectHelper insertHelper = new InsertProjectHelper(activity, newProject);
+		    			insertHelper.insert();
+					}
+				});
+			}
+		});
+		
+		OnReturnToProjects.getInstance().push(new ReturnToActivityJob(){
+			
+			@Override
+			public void run(Activity activity){
+				
+				// Finish the projects activity to jump back to the map.
+				activity.finish();
+			}
+		});
+		
 		callbackContext.success();
 		
 		cordova.getActivity().finish();
@@ -1001,6 +1113,7 @@ public class ArbiterCordova extends CordovaPlugin{
 		
 		final Activity activity = this.cordova.getActivity();
 		final CordovaWebView webview = this.webView;
+		final View overlay = (View) activity.findViewById(R.id.mapOverlay);
 		final boolean isCreatingProject = ArbiterState
 				.getArbiterState().isCreatingProject();
 		
@@ -1013,8 +1126,19 @@ public class ArbiterCordova extends CordovaPlugin{
 				activity.runOnUiThread(new Runnable(){
 					@Override
 					public void run(){
-		                
+						AppFinishedLoading.getInstance().setFinishedLoading(false);
+						if (overlay != null){
+							overlay.setVisibility(View.VISIBLE);
+						}
 						webview.loadUrl("about:blank");
+						if (overlay != null){
+							AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+								@Override
+								public void run() {
+									overlay.setVisibility(View.GONE);
+								}
+							});
+						}
 					}
 				});
 			}

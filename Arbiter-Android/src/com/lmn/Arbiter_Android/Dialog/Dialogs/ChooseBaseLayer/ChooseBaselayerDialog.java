@@ -154,7 +154,7 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 								
 								mapChangeListener.getMapChangeHelper().cacheBaseLayer();
 								
-								SyncProgressDialog.show(getActivity());
+								SyncProgressDialog.show(activity);
 							}
 						});
 					}

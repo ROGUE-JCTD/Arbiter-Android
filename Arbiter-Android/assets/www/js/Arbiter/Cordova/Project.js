@@ -147,6 +147,8 @@ Arbiter.Cordova.Project = (function(){
 				syncInProgress = false;
 			};
 			
+			Arbiter.Cordova.setState(Arbiter.Cordova.STATES.UPDATING);
+			
 			Arbiter.Cordova.Project.updateBaseLayer(function(){
 				
 				console.log("updated base layer: ", Arbiter.getTileUtil().getTileDir().path);
@@ -177,8 +179,6 @@ Arbiter.Cordova.Project = (function(){
 								Arbiter.ProjectDbHelper.getProjectDatabase(), Arbiter.FeatureDbHelper.getFeatureDatabase());
 								
 								syncInProgress = true;
-								
-								Arbiter.Cordova.setState(Arbiter.Cordova.STATES.UPDATING);
 								
 								syncHelper.startTileCache();
 							}

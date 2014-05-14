@@ -138,10 +138,8 @@
 
     <string name="server_dialog_title">Servers</string>
     <string name="add_server_button">Add Server</string>
-    <string name="delete_server_alert">This will delete all layers in all projects associated with this server!</string>
-	<string name="delete_server_title">Warning!!!</string>
-	<string name="update_server_alert">Are you sure?</string>
-	<string name="update_server_title">Warning!!!</string>
+    <string name="delete_server_alert">This will delete all layers in all projects associated with this server.</string>
+	<string name="update_server_alert">Are you sure you want to update the server?  Invalid changes may result in syncing failures.</string>
 	<string name="deleting_server">Deleting Server</string>
 	<string name="deleting_server_msg">Server deletion in progress&#8230;</string>
 	
@@ -230,4 +228,6 @@
     <string name="insert">insert</string>
     <string name="feature_outside_aoi_warning">You have inserted a feature outside of your selected area of interest.  After syncing this feature, it will no longer
          be on the device.</string>
+    <string name="confirm_delete_project">Are you sure you want to delete the project?  Any unsynchronized data will be lost.</string>
+    <string name="confirm_delete_layer">Are you sure you want to delete the layer?  Any unsynchronized data will be lost.</string>
 </resources>

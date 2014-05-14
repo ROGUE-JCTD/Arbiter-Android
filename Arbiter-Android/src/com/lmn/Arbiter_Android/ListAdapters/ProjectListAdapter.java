@@ -12,6 +12,9 @@ import com.lmn.Arbiter_Android.Dialog.Dialogs.SwitchProjectDialog;
 import com.lmn.Arbiter_Android.Loaders.ProjectsListLoader;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.support.v4.app.DialogFragment;
@@ -102,18 +105,8 @@ public class ProjectListAdapter extends BaseAdapter implements ArbiterAdapter<Pr
 
 					@Override
 					public void onClick(View v) {
-						CommandExecutor.runProcess(new Runnable(){
-							@Override
-							public void run() {
-								// Delete the corresponding project directory
-								ProjectStructure.getProjectStructure().deleteProject(activity, project.getProjectName());
-								
-								// Make sure the Project list updates.
-								LocalBroadcastManager.getInstance(activity.getApplicationContext())
-									.sendBroadcast(new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));
-							}
-							
-						});
+						
+						confirmDeleteProject(project);
 					}
 					
 				});
@@ -123,6 +116,56 @@ public class ProjectListAdapter extends BaseAdapter implements ArbiterAdapter<Pr
 		return view;
 	}
 
+	private void confirmDeleteProject(final Project project){
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		
+		builder.setTitle(R.string.warning);
+		
+		builder.setMessage(R.string.confirm_delete_project);
+		
+		builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				delete(project);
+			}
+		});
+		
+		builder.setNegativeButton(android.R.string.cancel, null);
+		
+		builder.create().show();
+	}
+	
+	private void delete(final Project project){
+		
+		String title = activity.getResources().getString(R.string.loading);
+		String message = activity.getResources().getString(R.string.please_wait);
+		
+		final ProgressDialog progressDialog = ProgressDialog.show(activity, title, message, true);
+		
+		CommandExecutor.runProcess(new Runnable(){
+			@Override
+			public void run() {
+				// Delete the corresponding project directory
+				ProjectStructure.getProjectStructure().deleteProject(activity, project.getProjectName());
+				
+				activity.runOnUiThread(new Runnable(){
+					@Override
+					public void run(){
+					
+						// Make sure the Project list updates.
+						LocalBroadcastManager.getInstance(activity.getApplicationContext())
+							.sendBroadcast(new Intent(ProjectsListLoader.PROJECT_LIST_UPDATED));
+						
+						progressDialog.dismiss();
+					}
+				});
+			}
+			
+		});
+	}
+	
 	@Override
 	public int getCount() {
 		if(items == null){

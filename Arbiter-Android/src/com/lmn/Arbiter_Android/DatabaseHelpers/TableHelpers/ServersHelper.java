@@ -232,7 +232,7 @@ public class ServersHelper implements BaseColumns{
 	public void deletionAlert(Activity activity, final Runnable deleteIt){
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 		
-		builder.setTitle(R.string.delete_server_title);
+		builder.setTitle(R.string.warning);
 		builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
 		builder.setMessage(R.string.delete_server_alert);
 		builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener(){
@@ -259,7 +259,7 @@ public class ServersHelper implements BaseColumns{
 			public void run(){
 				AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 				
-				builder.setTitle(R.string.update_server_title);
+				builder.setTitle(R.string.warning);
 				builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
 				builder.setMessage(R.string.update_server_alert);
 				builder.setPositiveButton(R.string.update, new DialogInterface.OnClickListener(){

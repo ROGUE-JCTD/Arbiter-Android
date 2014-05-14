@@ -138,10 +138,8 @@
 
     <string name="server_dialog_title">Servidores</string>
     <string name="add_server_button">Añadir servidor</string>
-    <string name="delete_server_alert">Esto eliminará todas las capas en todos los proyectos asociados con este servidor!</string>
-	<string name="delete_server_title">Advertencia!!!</string>
-	<string name="update_server_alert">¿Está seguro?</string>
-	<string name="update_server_title">Advertencia!!!</string>
+    <string name="delete_server_alert">Esto eliminará todas las capas en todos los proyectos asociados con este servidor.</string>
+	<string name="update_server_alert">¿Está seguro que desea actualizar el servidor? Cambios no válidos pueden producir errores de sincronización.</string>
 	<string name="deleting_server">Borrado del servidor</string>
 	<string name="deleting_server_msg">Borrado del servidor en curso&#8230;</string>
 	
@@ -228,4 +226,6 @@
     <string name="insert">inserta</string>
     <string name="feature_outside_aoi_warning">Ha insertado un elemento fuera de su área de interés seleccionada.  Después de la sincronización
          de esto elemento, el elemento no estará en el dispositivo.</string>
+    <string name="confirm_delete_project">¿Está seguro que desea eliminar el proyecto? Se perderán los datos no sincronizados.</string>
+    <string name="confirm_delete_layer">¿Está seguro que desea eliminar la capa? Se perderán los datos no sincronizados.</string>
 </resources>

@@ -2,7 +2,6 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
 import java.util.ArrayList;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,11 +18,12 @@ import android.widget.Spinner;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.Activities.AOIActivity;
+import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.BaseClasses.BaseLayer;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
+import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
@@ -51,6 +51,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	private ArrayList<Layer> layersInProject = null;
 	private boolean creatingProject;
 	private boolean onCreateAlreadyFired;
+	private ConnectivityListener connectivityListener;
 	
 	private MapChangeListener mapChangeListener;
 	private ArbiterProject arbiterProject;
@@ -62,7 +63,9 @@ public class AddLayersDialog extends ArbiterDialogFragment{
             "yellow", "silver", "white"};
 	
 	public static AddLayersDialog newInstance(String title, String ok, 
-			String cancel, int layout, ArrayList<Layer> layersInProject){
+			String cancel, int layout, ArrayList<Layer> layersInProject,
+			ConnectivityListener connectivityListener){
+		
 		AddLayersDialog frag = new AddLayersDialog();
 		
 		frag.setTitle(title);
@@ -74,11 +77,15 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		frag.layersInProject = layersInProject;
 		frag.arbiterProject = ArbiterProject.getArbiterProject();
 		
+		frag.connectivityListener = connectivityListener;
+		
 		return frag;
 	}
 
 	public static AddLayersDialog newInstance(String title, String ok, 
-			String cancel, int layout, boolean creatingProject){
+			String cancel, int layout, boolean creatingProject, 
+			ConnectivityListener connectivityListener){
+		
 		AddLayersDialog frag = new AddLayersDialog();
 		
 		frag.setTitle(title);
@@ -87,6 +94,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		frag.setLayout(layout);
 		frag.creatingProject = creatingProject;
 		frag.layersInProject = null;
+		frag.connectivityListener = connectivityListener;
 		
 		return frag;
 	}
@@ -96,6 +104,19 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		super.onCreate(savedInstanceState);
 		
 		setRetainInstance(true);
+		
+		this.setValidatingClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				
+				if(connectivityListener != null && connectivityListener.isConnected()){
+					onPositiveClick();
+				}else{
+					Util.showNoNetworkDialog(getActivity());
+				}
+			}
+		});
 		
 		if(!creatingProject){
 			try {
@@ -166,11 +187,19 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 							.getHelper(context, ProjectStructure
 									.getProjectPath(projectName), false);
 					
-					long[] layerIds = LayersHelper.getLayersHelper().
+					final long[] layerIds = LayersHelper.getLayersHelper().
 								insert(helper.getWritableDatabase(), context, layers);
 					
-					mapChangeListener.getMapChangeHelper().onLayersAdded(layers, 
-							layerIds);
+					getActivity().runOnUiThread(new Runnable(){
+						@Override
+						public void run(){
+							
+							mapChangeListener.getMapChangeHelper().onLayersAdded(layers, 
+									layerIds);
+							
+							dismiss();
+						}
+					});
 				}
 				
 			});
@@ -190,9 +219,11 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 			String cancel = activity.getResources().getString(android.R.string.cancel);
 			
 			ChooseBaselayerDialog dialog = ChooseBaselayerDialog.newInstance(title, ok, cancel, R.layout.choose_baselayer_dialog,
-					creatingProject, BaseLayer.createOSMBaseLayer());
+					creatingProject, BaseLayer.createOSMBaseLayer(), connectivityListener);
 			
 			dialog.show(activity.getSupportFragmentManager(), ChooseBaselayerDialog.TAG);
+			
+			dismiss();
 		}
 	}
 	

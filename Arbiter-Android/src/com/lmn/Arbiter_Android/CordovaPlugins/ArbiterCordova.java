@@ -237,7 +237,12 @@ public class ArbiterCordova extends CordovaPlugin{
     								activity.getResources(),
     								activity.getSupportFragmentManager());
     						
-    						dialogs.showProjectNameDialog();
+    						try{
+    							
+    							dialogs.showProjectNameDialog(((HasConnectivityListener) activity).getListener());
+    						}catch(ClassCastException e){
+    							e.printStackTrace();
+    						}
     					}
     				});
     			}
@@ -1085,9 +1090,22 @@ public class ArbiterCordova extends CordovaPlugin{
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				ArbiterState.getArbiterState().setNewAOI(aoi);
 				
-				activity.finish();
+				try{
+				
+					ConnectivityListener listener = ((HasConnectivityListener) activity).getListener();
+					
+					if(listener != null && listener.isConnected()){
+						ArbiterState.getArbiterState().setNewAOI(aoi);
+						
+						activity.finish();
+					}else{
+						
+						Util.showNoNetworkDialog(activity);
+					}
+				}catch(ClassCastException e){
+					e.printStackTrace();
+				}
 			}
 		});
 		

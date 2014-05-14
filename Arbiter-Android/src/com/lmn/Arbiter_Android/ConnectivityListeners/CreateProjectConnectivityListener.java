@@ -1,7 +1,5 @@
 package com.lmn.Arbiter_Android.ConnectivityListeners;
 
-import org.apache.cordova.CordovaWebView;
-
 import android.app.AlertDialog;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
@@ -9,7 +7,6 @@ import android.view.MenuItem;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
-import com.lmn.Arbiter_Android.Map.Map;
 
 public class CreateProjectConnectivityListener extends ConnectivityListener {
 	private FragmentActivity activity;
@@ -41,13 +38,17 @@ public class CreateProjectConnectivityListener extends ConnectivityListener {
 	}
 	
 	private MenuItem.OnMenuItemClickListener getOnConnectedListener(){
+		
 		if(onConnectedListener == null){
+			
+			final CreateProjectConnectivityListener listener = this;
+			
 			onConnectedListener = new MenuItem.OnMenuItemClickListener() {
 				
 				@Override
 				public boolean onMenuItemClick(MenuItem item) {
 					if(item.getItemId() == R.id.action_new_project){
-						dialogs.showProjectNameDialog();
+						dialogs.showProjectNameDialog(listener);
 						
 						return true;
 					}

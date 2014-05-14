@@ -28,6 +28,19 @@ public class Util {
 		return values;
 	}
 	
+	public static void showNoNetworkDialog(final Activity activity){
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		
+		builder.setTitle(R.string.no_network);
+		
+		builder.setMessage(R.string.check_network_connection);
+		
+		builder.setPositiveButton(R.string.close, null);
+		
+		builder.create().show();
+	}
+	
 	public static void showDialog(final Activity activity, int title, int message, 
 			String optionalMessage, Integer negativeBtnText,
 			Integer positiveBtnText, final Runnable onPositive){

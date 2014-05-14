@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.BaseLayer;
+import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseBaseLayer.ChooseBaselayerDialog;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
@@ -28,14 +29,16 @@ public class BaseLayerList extends CustomList<JSONArray, JSONObject> {
 	private Context context;
 	private OrderLayersModel orderLayersModel;
 	private MapChangeListener mapChangeListener;
+    private ConnectivityListener connectivityListener;
     
-	public BaseLayerList(ViewGroup viewGroup, FragmentActivity activity, int itemLayout){
+	public BaseLayerList(ViewGroup viewGroup, FragmentActivity activity, int itemLayout, ConnectivityListener connectivityListener){
 		super(viewGroup);
 		
 		this.activity = activity;
 		this.context = activity.getApplicationContext();
 		this.inflater =	LayoutInflater.from(this.context);
 		this.itemLayout = itemLayout;
+		this.connectivityListener = connectivityListener;
 		
 		try {
 			mapChangeListener = (MapChangeListener) activity;
@@ -103,7 +106,7 @@ public class BaseLayerList extends CustomList<JSONArray, JSONObject> {
 					String cancel = activity.getResources().getString(android.R.string.cancel);
 					
 					ChooseBaselayerDialog dialog = ChooseBaselayerDialog.newInstance(title,
-							ok, cancel, R.layout.choose_baselayer_dialog, false, layer);
+							ok, cancel, R.layout.choose_baselayer_dialog, false, layer, connectivityListener);
 					dialog.show(activity.getSupportFragmentManager(), ChooseBaselayerDialog.TAG);
 				}
 			});

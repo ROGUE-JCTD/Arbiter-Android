@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentManager;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
+import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.AddLayersDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.AddServerDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseAOIDialog;
@@ -46,13 +47,13 @@ public class ArbiterDialogs {
 		dialog.show(fragManager, "welcomeDialog");
 	}
 
-	public void showProjectNameDialog(){
+	public void showProjectNameDialog(ConnectivityListener connectivityListener){
 		String title = resources.getString(R.string.project_name_dialog_title);
 		String ok = resources.getString(android.R.string.ok);
 		String cancel = resources.getString(android.R.string.cancel);
 		int layout = R.layout.project_name_dialog;
 		
-		DialogFragment dialog = ProjectNameDialog.newInstance(title, ok, cancel, layout);
+		DialogFragment dialog = ProjectNameDialog.newInstance(title, ok, cancel, layout, connectivityListener);
 		dialog.show(fragManager, "projectNameDialog");
 	}
 	
@@ -83,7 +84,7 @@ public class ArbiterDialogs {
 		dialog.show(fragManager, "serversDialog");
 	}
 	
-	public void showAddLayersDialog(ArrayList<Layer> layersInProject){
+	public void showAddLayersDialog(ArrayList<Layer> layersInProject, ConnectivityListener connectivityListener){
 		String title = resources.getString(R.string.add_layers_dialog_title);
 		String ok = resources.getString(android.R.string.ok);
 		String cancel = resources.getString(android.R.string.cancel);
@@ -91,13 +92,13 @@ public class ArbiterDialogs {
 		
 		DialogFragment dialog;
 		
-		dialog = AddLayersDialog.
-				newInstance(title, ok, cancel, layout, layersInProject);
+		dialog = AddLayersDialog.newInstance(title, ok, cancel,
+				layout, layersInProject, connectivityListener);
 		
 		dialog.show(fragManager, "addLayersDialog");
 	}
 	
-	public void showAddLayersDialog(boolean creatingProject){
+	public void showAddLayersDialog(boolean creatingProject, ConnectivityListener connectivityListener){
 		String title = resources.getString(R.string.add_layers_dialog_title);
 		String ok = resources.getString(android.R.string.ok);
 		String cancel = resources.getString(android.R.string.cancel);
@@ -105,8 +106,8 @@ public class ArbiterDialogs {
 		
 		DialogFragment dialog;
 		
-		dialog = AddLayersDialog.
-				newInstance(title, ok, cancel, layout, creatingProject);
+		dialog = AddLayersDialog.newInstance(title, ok, cancel,
+				layout, creatingProject, connectivityListener);
 		
 		dialog.show(fragManager, "addLayersDialog");
 	}

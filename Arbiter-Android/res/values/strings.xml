@@ -230,4 +230,7 @@
          be on the device.</string>
     <string name="confirm_delete_project">Are you sure you want to delete the project?  Any unsynchronized data will be lost.</string>
     <string name="confirm_delete_layer">Are you sure you want to delete the layer?  Any unsynchronized data will be lost.</string>
+    <string name="added">ADDED</string>
+    <string name="modified">MODIFIED</string>
+    <string name="removed">REMOVED</string>
 </resources>

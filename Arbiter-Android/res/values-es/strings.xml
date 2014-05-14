@@ -228,4 +228,7 @@
          de esto elemento, el elemento no estará en el dispositivo.</string>
     <string name="confirm_delete_project">¿Está seguro que desea eliminar el proyecto? Se perderán los datos no sincronizados.</string>
     <string name="confirm_delete_layer">¿Está seguro que desea eliminar la capa? Se perderán los datos no sincronizados.</string>
+    <string name="added">AÑADIDO</string>
+    <string name="modified">MODIFICADO</string>
+    <string name="removed">ELIMINADO</string>
 </resources>

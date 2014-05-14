@@ -87,6 +87,15 @@ public class Notification extends NotificationListItem {
 			state = this.state;
 		}
 		
+		if("MODIFIED".equals(state)){
+			
+			state = activity.getResources().getString(R.string.modified);
+		}else if("ADDED".equals(state)){
+			state = activity.getResources().getString(R.string.added);
+		}else{
+			state = activity.getResources().getString(R.string.removed);
+		}
+		
 		stateTextView.setText(state);
 		
 		featureNotificationLayout.setVisibility(View.VISIBLE);

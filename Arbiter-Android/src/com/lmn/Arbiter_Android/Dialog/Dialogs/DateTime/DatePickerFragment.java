@@ -4,16 +4,16 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.Attribute;
+import com.lmn.Arbiter_Android.TimeZone.LocalTime;
 
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
@@ -23,24 +23,40 @@ public class DatePickerFragment extends DialogFragment implements  OnDateSetList
 	
 	private SimpleDateFormat sdf;
 	private Calendar calendar;
-	private boolean isFirstTimeSet;
-	private boolean setTime;
+	private String attributeType;
 	private Attribute attribute;
+	private Util util;
+	private int offsetFromUTC;
 	
-	public static DatePickerFragment newInstance(Calendar localCalendar, Attribute attribute, boolean setTime) throws ParseException{
+	public static DatePickerFragment newInstance(Calendar isoCalendar, Attribute attribute, String attributeType, Util util, int offsetFromUTC) throws Exception{
 		DatePickerFragment frag = new DatePickerFragment();
 		
-		frag.sdf = (new Util()).getDateFormat();
-
-		frag.calendar = localCalendar;
+		frag.util = util;
 		
-		frag.isFirstTimeSet = true;
+		frag.sdf = util.getSimpleDateFormat(attributeType);
 		
 		frag.attribute = attribute;
 		
-		frag.setTime = setTime;
+		frag.attributeType = attributeType;
+		
+		frag.offsetFromUTC = offsetFromUTC;
+		
+		frag.setCalendar(isoCalendar);
 		
 		return frag;
+	}
+	
+	private void setCalendar(Calendar isoCalendar) throws ParseException{
+		
+		Log.w(TAG, TAG + ".setCalendar attributeType = " + attributeType);
+		
+		if("xsd:date".equals(attributeType)){
+			calendar = isoCalendar;
+		}else{
+			Date localDate = new Date(isoCalendar.getTimeInMillis() + offsetFromUTC);
+			
+			this.calendar = (new LocalTime(sdf.format(localDate), ("xsd:dateTime".equals(attributeType)))).getLocalCalendar();
+		}
 	}
 	
 	@Override
@@ -66,37 +82,42 @@ public class DatePickerFragment extends DialogFragment implements  OnDateSetList
 	@Override
 	public void onDateSet(DatePicker view, int year, int monthOfYear,
 			int dayOfMonth) {
-		if(isFirstTimeSet && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1 &&
-				android.os.Build.VERSION.SDK_INT != android.os.Build.VERSION_CODES.JELLY_BEAN_MR2){
-			isFirstTimeSet = false;
-			return;
-		}
 		
-		calendar.set(Calendar.YEAR, year);
-		calendar.set(Calendar.MONTH, monthOfYear);
-		calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-		
-		Log.w("DatePicker", "DatePicker onDateSet");
-		
-		if(setTime){
-			// Plus 1 to adjust for difference between joda and java.util.date
-			TimePickerFragment timePicker = TimePickerFragment.newInstance(year, 
-					monthOfYear, dayOfMonth, calendar, attribute);
+		if(view.isShown()){
 			
-			timePicker.show(getActivity().getSupportFragmentManager(), TimePickerFragment.TAG);
-		}else{
-			setField(year, monthOfYear, dayOfMonth);
+			calendar.set(Calendar.YEAR, year);
+			calendar.set(Calendar.MONTH, monthOfYear);
+			calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+			
+			if(attributeType.equals("xsd:dateTime")){
+				
+				Fragment timePicker = getActivity().getSupportFragmentManager().findFragmentByTag(TimePickerFragment.TAG);
+				
+				if(timePicker == null){
+					
+					try {
+						timePicker = TimePickerFragment.newInstance(calendar, attribute, attributeType, util, offsetFromUTC);
+						
+						((TimePickerFragment)timePicker).show(getActivity().getSupportFragmentManager(), TimePickerFragment.TAG);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}else{
+				setField();
+			}
 		}
 	}
 	
-	private void setField(int year, int monthOfYear, int dayOfMonth){
-		calendar.set(Calendar.YEAR, year);
-		calendar.set(Calendar.MONTH, monthOfYear);
-		calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+	private void setField(){
 		
-		String newDate = sdf.format(calendar.getTime());
-		
-		attribute.setDate(newDate);
+		try {
+			attribute.setDate(calendar);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

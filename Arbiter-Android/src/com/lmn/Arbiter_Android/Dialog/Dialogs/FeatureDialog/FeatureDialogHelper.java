@@ -23,6 +23,7 @@ import android.widget.Button;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
@@ -51,7 +52,7 @@ public class FeatureDialogHelper {
 	public FeatureDialogHelper(FragmentActivity activity, View view, 
 			Feature feature, boolean startInEditMode,
 			Button editButton, Button editOnMapButton,
-			Button cancelButton, Button deleteButton, String layerId){
+			Button cancelButton, Button deleteButton, String layerId, Util util){
 		
 		this.activity = activity;
 		this.feature = feature;
@@ -71,7 +72,7 @@ public class FeatureDialogHelper {
 		}
 		
 		this.builder = new FeatureDialogBuilder(activity,
-				view, feature, startInEditMode);
+				view, feature, startInEditMode, util);
 		
 		builder.build(startInEditMode);
 		

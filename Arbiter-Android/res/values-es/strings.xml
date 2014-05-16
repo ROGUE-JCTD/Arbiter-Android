@@ -81,6 +81,8 @@
 	<string name="form_error_date">Por favor, introduzca una fecha válida.</string>
 	<string name="form_error_integer">Por favor, introduzca un entero válido.</string>
 	<string name="form_error_double">Por favor, introduzca un número válido.</string>
+	<string name="form_error_long">Por favor, introduzca un número válido.</string>
+	<string name="form_error_float">Por favor, introduzca un número válido.</string>
 	<string name="form_error_bool">Por favor introduzca verdadero o falso.</string>
 	<string name="check_errors">Las entradas no válidas</string>
 	<string name="check_errors_msg">Por favor, corrija los errores antes de continuar.</string>

@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
@@ -43,9 +44,8 @@ public class FeatureDialogBuilder {
 	private HashMap<String, MediaPanel> mediaPanels;
 	private JSONObject enumeration;
 	
-	
 	public FeatureDialogBuilder(Activity activity, View view,
-			Feature feature, boolean startInEditMode){
+			Feature feature, boolean startInEditMode, Util util){
 		
 		this.activity = activity;
 		this.context = activity.getApplicationContext();
@@ -58,7 +58,8 @@ public class FeatureDialogBuilder {
 		}
 		
 		this.feature = feature;
-		this.attributeHelper = new AttributeHelper(feature);
+		
+		this.attributeHelper = new AttributeHelper(feature, util);
 		
 		this.inflater = activity.getLayoutInflater();
 		this.outerLayout = (LinearLayout) view.findViewById(R.id.outerLayout);

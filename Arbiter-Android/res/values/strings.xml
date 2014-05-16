@@ -81,6 +81,8 @@
 	<string name="form_error_date">Please enter a valid date.</string>
 	<string name="form_error_integer">Please enter a valid integer.</string>
 	<string name="form_error_double">Please enter a valid number.</string>
+	<string name="form_error_long">Please enter a valid number.</string>
+	<string name="form_error_float">Please enter a valid number.</string>
 	<string name="form_error_bool">Please enter true or false.</string>
 	<string name="check_errors">Invalid entries</string>
 	<string name="check_errors_msg">Please fix errors before continuing.</string>

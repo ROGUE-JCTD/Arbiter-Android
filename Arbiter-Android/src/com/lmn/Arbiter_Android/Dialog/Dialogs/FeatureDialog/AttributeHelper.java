@@ -3,12 +3,12 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
+import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 import com.lmn.Arbiter_Android.Media.MediaHelper;
 
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.widget.EditText;
 import android.widget.Spinner;
 
@@ -17,18 +17,20 @@ public class AttributeHelper {
 	
 	private Feature feature;
 	private ValidityChecker validityChecker;
+	private Util util;
 	
-	public AttributeHelper(Feature feature){
+	public AttributeHelper(Feature feature, Util util){
 		this.attributes = new HashMap<String, Attribute>();
 		this.validityChecker = new ValidityChecker();
 		this.feature = feature;
+		this.util = util;
 	}
 	
 	public void add(FragmentActivity activity, String key, EditText editText,
 			EnumerationHelper enumHelper, boolean startInEditMode, String value){
 		
 		Attribute attribute = new Attribute(activity, editText,
-				enumHelper, startInEditMode, value);
+				enumHelper, startInEditMode, value, util);
 		
 		attributes.put(key, attribute);
 		
@@ -39,7 +41,7 @@ public class AttributeHelper {
 			EnumerationHelper enumHelper, boolean startInEditMode){
 		
 		Attribute attribute = new Attribute(activity, spinner,
-				enumHelper, startInEditMode);
+				enumHelper, startInEditMode, util);
 		
 		attributes.put(key, attribute);
 	}

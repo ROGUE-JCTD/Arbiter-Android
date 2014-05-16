@@ -1,16 +1,19 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.DateTime.DatePickerFragment;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.DateTime.TimePickerFragment;
 import com.lmn.Arbiter_Android.TimeZone.LocalTime;
 
 import android.content.res.Resources;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -20,15 +23,27 @@ public class Attribute {
 	private Spinner spinner;
 	private EditText editText;
 	private EnumerationHelper enumHelper;
-	private SimpleDateFormat formatter;
 	private FragmentActivity activity;
 	private String dateValue;
 	private boolean valid;
-	private String startValue;
+	private String type;
+	private Calendar isoCalendar;
+	private Util util;
+	private int offsetFromUTC;
 	
-	private Attribute(FragmentActivity activity, EnumerationHelper enumHelper){
+	private Attribute(FragmentActivity activity, EnumerationHelper enumHelper, Util util){
 		this.enumHelper = enumHelper;
-		this.formatter = (new Util()).getDateFormat();
+		
+		if(enumHelper != null){
+			this.type = enumHelper.getType();
+		}else{
+			this.type = null;
+		}
+		
+		this.util = util;
+		
+		this.offsetFromUTC = util.getOffsetFromUTC();
+					
 		this.activity = activity;
 		this.dateValue = null;
 		this.spinner = null;
@@ -37,33 +52,55 @@ public class Attribute {
 	}
 	
 	public Attribute(FragmentActivity activity, Spinner spinner,
-			EnumerationHelper enumHelper, boolean startInEditMode){
+			EnumerationHelper enumHelper, boolean startInEditMode, Util util){
 		
-		this(activity, enumHelper);
+		this(activity, enumHelper, util);
 		
 		this.spinner = spinner;
-		
-		this.startValue = getSpinnerValue();
 				
 		setEditMode(startInEditMode);
 	}
 	
 	public Attribute(FragmentActivity activity, EditText editText, 
-			EnumerationHelper enumHelper, boolean startInEditMode, String value){
+			EnumerationHelper enumHelper, boolean startInEditMode,
+			String value, Util util){
 		
-		this(activity, enumHelper);
+		this(activity, enumHelper, util);
 		
 		this.editText = editText;
 		
-		this.startValue = value;
+		if(isTimeType()){
+			
+			try{
+				
+				if(value == null || "".equals(value)){
+					value = util.getNow(type, true);
+				}
+				
+				// Add the 'Z' to the end of the string in case it isn't there.
+				if(value.charAt(value.length() - 1) != 'Z'){
+					value += 'Z';
+				}
+				
+				setCalendar(value);
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
 		
 		try {
+			
 			setStartValue(value);
-		} catch (ParseException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
 		setEditMode(startInEditMode);
+	}
+	
+	private boolean isTimeType(){
+		
+		return ("xsd:dateTime".equals(type) || "xsd:date".equals(type) || "xsd:time".equals(type));
 	}
 	
 	private void toggleSpinner(boolean editMode){
@@ -87,9 +124,9 @@ public class Attribute {
 			toggleSpinner(editMode);
 		}else{
 			
-			if(enumHelper != null && (enumHelper.getType().equals("xsd:dateTime")
-					|| enumHelper.getType().equals("xsd:date")
-					|| enumHelper.getType().equals("xsd:time"))){
+			if(type != null && (type.equals("xsd:dateTime")
+					|| type.equals("xsd:date")
+					|| type.equals("xsd:time"))){
 				
 				toggleDate(editMode);
 			}else{
@@ -98,47 +135,86 @@ public class Attribute {
 		}
 	}
 	
-	private String getNow(){
-		return formatter.format(Calendar.getInstance().getTime());
+	private void setCalendar(String value) throws Exception{
+		
+		Calendar localCalendar = (new LocalTime(util.getNow("xsd:dateTime", true), true)).getLocalCalendar();
+		
+		SimpleDateFormat formatter = util.getSimpleDateFormat(type);
+		Date date = formatter.parse(value);
+		
+		localCalendar.setTime(date);
+		
+		LocalTime localTime = new LocalTime(localCalendar);
+		
+		this.isoCalendar = localTime.getISOCalendar(localCalendar);
 	}
 	
-	private void setStartValue(String value) throws ParseException{
+	private void setStartValue(String value) throws Exception{
 		
-		if(enumHelper != null && (enumHelper.getType().equals("xsd:dateTime"))){
-			
-			if(value == null || value.equals("")){
-				value = getNow();
-			}
+		if(type != null && isTimeType()){
 			
 			this.dateValue = value;
 			
-			if(this.dateValue.charAt(this.dateValue.length() - 1) != 'Z'){
-				this.dateValue += 'Z';
-			}
-			
-			final Calendar localCalendar = (new LocalTime(this.dateValue, true)).getLocalCalendar();
-			
-			this.setDate(this.dateValue);
+			this.setDateField(this.dateValue);
 			
 			final Attribute attribute = this;
 			
-			editText.setOnClickListener(new OnClickListener(){
+			if("xsd:dateTime".equals(type)){
+				
+				editText.setOnClickListener(new OnClickListener(){
 
-				@Override
-				public void onClick(View v) {
-					DatePickerFragment frag = null;
-					
-					try {
-						frag = DatePickerFragment.newInstance(localCalendar, attribute, true);
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					@Override
+					public void onClick(View v) {
+						DatePickerFragment frag = null;
+						
+						try {
+							
+							frag = DatePickerFragment.newInstance(isoCalendar, attribute, type, util, offsetFromUTC);
+							frag.show(activity.getSupportFragmentManager(), DatePickerFragment.TAG);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 					
-					frag.show(activity.getSupportFragmentManager(), DatePickerFragment.TAG);
-				}
+				});
+			}else if("xsd:time".equals(type)){
 				
-			});
+				editText.setOnClickListener(new OnClickListener(){
+					@Override
+					public void onClick(View v){
+						
+						TimePickerFragment frag = null;
+						
+						try {
+							frag = TimePickerFragment.newInstance(isoCalendar, attribute, type, util, offsetFromUTC);
+							frag.show(activity.getSupportFragmentManager(), TimePickerFragment.TAG);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
+			}else{ // "xsd:date"
+				
+				editText.setOnClickListener(new OnClickListener(){
+					@Override
+					public void onClick(View v){
+						
+						DatePickerFragment frag = null;
+						
+						try {
+							
+							frag = DatePickerFragment.newInstance(isoCalendar, attribute, type, util, offsetFromUTC);
+							
+							frag.show(activity.getSupportFragmentManager(), TimePickerFragment.TAG);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
+			}
 			
 			editText.setEnabled(false);
 			editText.setFocusable(false);
@@ -170,9 +246,9 @@ public class Attribute {
 			value = getSpinnerValue();
 		}else{
 			
-			if(enumHelper != null && (enumHelper.getType().equals("xsd:dateTime") 
-					|| enumHelper.getType().equals("xsd:date")
-					|| enumHelper.getType().equals("xsd:time"))){
+			if(type != null && (type.equals("xsd:dateTime") 
+					|| type.equals("xsd:date")
+					|| type.equals("xsd:time"))){
 				value = getDateValue();
 			}else{
 				value = getEditTextValue();
@@ -182,23 +258,76 @@ public class Attribute {
 		return value;
 	}
 	
-	public void setDate(String newDate){
-		this.dateValue = newDate;
+	private String getDateTimeFromTime(String time) throws Exception{
 		
-		String formattedDate = null;
+		String now = util.getNow("xsd:dateTime", true);
 		
-		if(this.dateValue.charAt(this.dateValue.length() - 1) != 'Z'){
-			this.dateValue += 'Z';
+		String[] parts = now.split("T");
+		
+		parts[1] = time;
+		
+		return parts[0] + "T" + parts[1];
+	}
+	
+	private String getDateTimeFromDate(String date) throws Exception{
+		
+		String now = util.getNow("xsd:dateTime", true);
+		
+		String[] parts = now.split("T");
+		
+		if(date.charAt(date.length() - 1) == 'Z'){
+			date = date.substring(0, date.length() - 1);
 		}
 		
-		try {
-			formattedDate = (new LocalTime(this.dateValue, true)).getLocalCalendar().getTime().toString();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		parts[0] = date;
+		
+		return parts[0] + "T" + parts[1];
+	}
+
+	// Takes in a GMT date
+	public void setDateField(String dateStr) throws Exception{
+		
+		//Add offset to date
+		SimpleDateFormat format = util.getSimpleDateFormat("xsd:dateTime");
+		
+		if("xsd:time".equals(type)){
+			
+			dateStr = getDateTimeFromTime(dateStr);
+		}else if("xsd:date".equals(type)){
+			
+			dateStr = getDateTimeFromDate(dateStr);
 		}
 		
-		editText.setText(formattedDate);
+		Date date = format.parse(dateStr);
+		
+		Date dateWithOffset = new Date(date.getTime() + offsetFromUTC);
+		
+		Calendar localCalendar = (new LocalTime(format.format(dateWithOffset), true)).getLocalCalendar();
+		
+		LocalTime localTime = new LocalTime(localCalendar);
+		
+		Calendar isoCalendar = localTime.getISOCalendar(localCalendar);
+		
+		editText.setText(util.getHumanReadableDate(isoCalendar, type));
+	}
+	
+	private String getGMTFromLocal(Calendar localCalendar) throws Exception{
+		
+		Date gmtDate = new Date(localCalendar.getTimeInMillis() - offsetFromUTC);
+		
+		SimpleDateFormat format = util.getSimpleDateFormat(type);
+		
+		return format.format(gmtDate);
+	}
+	
+	// Will always get the date + the offset
+	public void setDate(Calendar localCalendar) throws Exception{
+		
+		String gmtValue = getGMTFromLocal(localCalendar);
+		
+		this.dateValue = gmtValue;
+		
+		setDateField(this.dateValue);
 	}
 	
 	public boolean isValid(){
@@ -210,8 +339,6 @@ public class Attribute {
 		Resources resources = activity.getResources();
 		String type = enumHelper.getType();
 		String val = editText.getText().toString();
-		
-		Util util = new Util();
 		
 		if(val.isEmpty()){
 			valid = true;
@@ -241,14 +368,29 @@ public class Attribute {
 					editText.setError(resources.getString(
 							R.string.form_error_bool));
 				}
+			}else if(type.equals("xsd:long")){
+				
+				valid = util.isLong(val);
+				
+				if(!valid){
+					editText.setError(resources.getString(R.string.form_error_long));
+				}
+			}else if(type.equals("xsd:float")){
+				
+				valid = util.isLong(val);
+				
+				if(!valid){
+					editText.setError(resources.getString(R.string.form_error_float));
+				}
 			}else if(type.equals("xsd:dateTime") 
 					|| type.equals("xsd:date") 
 					|| type.equals("xsd:time")){
 				
 				try {
+					SimpleDateFormat formatter = util.getSimpleDateFormat(type);
 					formatter.parse(dateValue);
 					valid = true;
-				} catch (ParseException e) {
+				} catch (Exception e) {
 					valid = false;
 				}
 				

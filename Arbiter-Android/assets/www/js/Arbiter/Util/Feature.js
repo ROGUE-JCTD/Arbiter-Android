@@ -1,9 +1,9 @@
 Arbiter.Util.Feature = (function(){
-    var gmlReader = new OpenLayers.Format.GML.v2({
+    var gmlReader = new OpenLayers.Format.GML.v3({
             extractAttributes: true
     });
     
-    gmlReader.readers.gml["MultiPoint"] = function(node, container) {
+   /* gmlReader.readers.gml["MultiPoint"] = function(node, container) {
         var obj = {components: []};
         this.readers.gml._inherit.apply(this, [node, obj, container]);
         this.readChildNodes(node, obj);
@@ -49,7 +49,7 @@ Arbiter.Util.Feature = (function(){
         }
         
         container.components.push(new OpenLayers.Geometry.MultiPolygon(obj.components));
-    };
+    };*/
     
     
     return {
@@ -83,12 +83,12 @@ Arbiter.Util.Feature = (function(){
         		return;
         	}
         	
-            var srsNumberStr = schema.getSRID().substring(
-            		schema.getSRID().indexOf(":") + 1);
+           /* var srsNumberStr = schema.getSRID().substring(
+            		schema.getSRID().indexOf(":") + 1);*/
             
             var transformedBounds = this.transformBounds(schema.getSRID(), bounds);
             
-            var getFeatureRequest = 
+            /*var getFeatureRequest = 
                 '<wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" ' +
                 'xmlns:wfs="http://www.opengis.net/wfs" ' +
                 'xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" ' +
@@ -116,13 +116,19 @@ Arbiter.Util.Feature = (function(){
                                 '</ogc:BBOX>' +
                         '</ogc:Filter>' +
                 '</wfs:Query>' +
-            '</wfs:GetFeature>';
+            '</wfs:GetFeature>';*/
             
             var gotRequestBack = false;
             
+            var url = schema.getUrl() + "/wfs?version=1.1.0&srsName=" + schema.getSRID() 
+            	+ "&request=GetFeature&typeNames=" 
+            	+ schema.getPrefix() + ":" + schema.getFeatureType() 
+            	+ "&bbox=" + transformedBounds.getBottom() + "," + transformedBounds.getLeft() 
+            	+ "," + transformedBounds.getTop() + "," + transformedBounds.getRight();
+            
             var options = {
-                url: schema.getUrl() + "/wfs",
-                data: getFeatureRequest,
+                url: url,
+                //data: getFeatureRequest,
                 headers: {
                         'Content-Type': 'text/xml;charset=utf-8',
                 },
@@ -151,7 +157,7 @@ Arbiter.Util.Feature = (function(){
             	options.headers['Authorization'] = 'Basic ' + encodedCredentials;
             }
             
-            var request = new OpenLayers.Request.POST(options);
+            var request = new OpenLayers.Request.GET(options);
             
             // Couldn't find a way to set timeout for an openlayers
     		// request, so I did this to abort the request after

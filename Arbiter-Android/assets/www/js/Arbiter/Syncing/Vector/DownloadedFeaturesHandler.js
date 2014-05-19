@@ -112,13 +112,6 @@
 		
 		questionMarks += ",?";
 		
-		if(Arbiter.Util.existsAndNotNull(feature.fid) && feature.fid.indexOf("@") !== -1){
-			
-			var parts = feature.fid.split("@");
-			
-			feature.fid = parts[0];
-		}
-		
 		values.push(feature.fid);
 		
 		// Push the attributes

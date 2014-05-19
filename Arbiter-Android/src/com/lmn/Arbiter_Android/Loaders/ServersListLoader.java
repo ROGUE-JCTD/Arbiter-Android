@@ -13,14 +13,16 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 
 public class ServersListLoader extends AsyncTaskLoader<SparseArray<Server>> {
 	public static final String SERVER_LIST_UPDATED = "SERVER_LIST_UPDATED";
-	
+	public static final String SERVER_ADDED = "SERVER_ADDED";
+
 	private ServerBroadcastReceiver loaderBroadcastReceiver = null;
 	private SparseArray<Server> servers;
 	private ApplicationDatabaseHelper appDbHelper = null;
+	private String intentReceived;
 	
-	public ServersListLoader(Context context) {
+	public ServersListLoader(Context context, String intentReceived) {
 		super(context);
-		
+		this.intentReceived = intentReceived;
 		appDbHelper = ApplicationDatabaseHelper.getHelper(context);
 	}
 
@@ -79,7 +81,7 @@ public class ServersListLoader extends AsyncTaskLoader<SparseArray<Server>> {
         	loaderBroadcastReceiver = new ServerBroadcastReceiver(this);
         	LocalBroadcastManager.getInstance(getContext()).
         		registerReceiver(loaderBroadcastReceiver, 
-        				new IntentFilter(ServersListLoader.SERVER_LIST_UPDATED));
+        				new IntentFilter(intentReceived));
         }
 
         if (takeContentChanged() || servers == null) {

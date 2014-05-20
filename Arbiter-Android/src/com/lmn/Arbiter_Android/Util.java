@@ -7,11 +7,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.TimeZone;
 
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 public class Util {
@@ -182,5 +189,23 @@ public class Util {
 		format.setTimeZone(TimeZone.getDefault());
 		
 		return format.format(calendar.getTime());
+	}
+	
+	public SQLiteDatabase getProjectDb(Activity activity, boolean reset){
+		
+		String projectName = ArbiterProject.getArbiterProject().getOpenProject(activity);
+		String projectPath = ProjectStructure.getProjectPath(projectName);
+		return ProjectDatabaseHelper.getHelper(activity.getApplicationContext(), projectPath, reset).getWritableDatabase();
+	}
+	
+	public SQLiteDatabase getApplicationDb(Context context){
+		
+		return ApplicationDatabaseHelper.getHelper(context).getWritableDatabase();
+	}
+	
+	public SQLiteDatabase getFeatureDb(Activity activity, boolean reset){
+		String projectName = ArbiterProject.getArbiterProject().getOpenProject(activity);
+		String projectPath = ProjectStructure.getProjectPath(projectName);
+		return FeatureDatabaseHelper.getHelper(activity.getApplicationContext(), projectPath, reset).getWritableDatabase();
 	}
 }

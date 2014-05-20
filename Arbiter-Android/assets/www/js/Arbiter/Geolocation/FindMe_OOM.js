@@ -46,16 +46,7 @@ Arbiter.FindMe_OOM.prototype.getPoint = function(onSuccess, onFailure){
 	
 	Arbiter.PreferencesHelper.get(this.FINDME, this, function(findme){
 		
-		context.clearSavedPoint(function(){
-			
-			success(findme);
-		}, function(e){
-			
-			console.log("Could not remove findme from preferences table: " + JSON.stringify(e));
-			
-			success(findme);
-		});
-		
+		success(findme);
 	}, function(e){
 		
 		if(Arbiter.Util.funcExists(onFailure)){

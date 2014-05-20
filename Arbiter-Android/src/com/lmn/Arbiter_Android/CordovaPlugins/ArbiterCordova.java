@@ -668,19 +668,20 @@ public class ArbiterCordova extends CordovaPlugin{
 		}
 	}
 	
-	private void alertGeolocationError(String msg){
+	private void alertGeolocationError(final String msg){
 		final Activity activity = cordova.getActivity();
-		
-		final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-		
-		builder.setIcon(R.drawable.icon);
-		builder.setTitle(R.string.geolocation_error);
-		builder.setMessage(msg);
-		builder.setPositiveButton(android.R.string.ok, null);
 		
 		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
+				
+				AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+				
+				builder.setIcon(R.drawable.icon);
+				builder.setTitle(R.string.geolocation_error);
+				builder.setMessage(msg);
+				builder.setPositiveButton(android.R.string.ok, null);
+				
 				builder.create().show();
 			}
 		});

@@ -255,6 +255,8 @@ Arbiter.FindMe.prototype.resume = function(){
 			
 			if(!findme.gotHighAccuracy){
 				
+				this.removePointTimeout = 2000;
+				
 				context.addPoint(findme.position, context.lowAccuracyPointStyle);
 				
 				context.geolocation.getCurrentLocationHighAccuracy();

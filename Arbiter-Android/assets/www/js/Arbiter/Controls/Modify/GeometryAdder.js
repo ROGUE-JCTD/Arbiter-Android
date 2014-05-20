@@ -18,13 +18,13 @@ Arbiter.GeometryAdder = function(map, modifyLayer, geometryType, featureAddedHan
 
 Arbiter.GeometryAdder.prototype.registerEvents = function(){
 	this.modifyLayer.events.register("sketchstarted", this, this.onSketchStarted);
-	this.modifyLayer.events.register("sketchmodified", this, this.onSketchModified);
 	this.modifyLayer.events.register("sketchcomplete", this, this.onSketchComplete);
 	this.modifyLayer.events.register("featureadded", this, this.onFeatureAdded);
+	this.modifyLayer.events.register("beforefeatureadded", this, this.onBeforeFeatureAdded);
 };
 
 Arbiter.GeometryAdder.prototype.onFeatureAdded = function(event){
-	
+	console.log("onFeatureAdded");
 	if(Arbiter.Util.existsAndNotNull(this.insertController) && this.insertController.active){
 		this.removeInsertController();
 		
@@ -32,29 +32,23 @@ Arbiter.GeometryAdder.prototype.onFeatureAdded = function(event){
 	}
 };
 
+Arbiter.GeometryAdder.prototype.onBeforeFeatureAdded = function(event){
+	console.log("onBeforeFeatureAdded");
+	if (event.feature.geometry.components[0].components.length < 4) {
+		Arbiter.Cordova.featureNotValidPolygon(function(){
+			console.log('Made it');
+		});
+		return false;
+	}
+	return true;
+};
+
 Arbiter.GeometryAdder.prototype.onSketchStarted = function(){
 	console.log("onSketchStarted");
 	
 	this.sketchStarted = true;
-};
+	Arbiter.Cordova.enableDoneEditingBtn();
 
-Arbiter.GeometryAdder.prototype.onSketchModified = function(){
-	console.log("onSketchModified");
-	
-	var type = Arbiter.Geometry.type;
-	
-	this.vertexCount++;
-	
-	if(this.vertexCount === 3 && (this.geometryType === type.POLYGON || this.geometryType === type.MULTIPOLYGON)){
-		
-		Arbiter.Cordova.enableDoneEditingBtn();
-	}else if(this.vertexCount === 2 && (this.geometryType === type.LINE || this.geometryType === type.MULTILINE)){
-		
-		Arbiter.Cordova.enableDoneEditingBtn();
-	}else if(this.vertexCount === 1 && (this.geometryType === type.POINT || this.geometryType === type.MULTIPOINT)){
-		
-		Arbiter.Cordova.enableDoneEditingBtn();
-	}
 };
 
 Arbiter.GeometryAdder.prototype.onSketchComplete = function(){

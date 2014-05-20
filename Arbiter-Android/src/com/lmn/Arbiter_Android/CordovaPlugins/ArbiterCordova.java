@@ -105,6 +105,11 @@ public class ArbiterCordova extends CordovaPlugin{
 			showFeatureNotInAOIWarning(callbackContext);
 			
 			return true;
+		}else if("featureNotValidPolygon".equals(action)){
+			
+			showFeatureNotValidPolygonWarning(callbackContext);
+			
+			return true;
 		}else if("appFinishedLoading".equals(action)){
 			
 			cordova.getActivity().runOnUiThread(new Runnable(){
@@ -476,6 +481,36 @@ public class ArbiterCordova extends CordovaPlugin{
 						}catch(ClassCastException e){
 							e.printStackTrace();
 						}
+					}
+				});
+				
+				builder.setCancelable(false);
+				
+				builder.create().show();
+			}
+		});
+	}
+	
+	private void showFeatureNotValidPolygonWarning(final CallbackContext callbackContext){
+		
+		final Activity activity = cordova.getActivity();
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				
+				AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+				
+				builder.setTitle(activity.getResources().getString(R.string.warning));
+				
+				builder.setMessage(activity.getResources().getString(R.string.feature_not_valid_polygon));
+				
+				builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+						callbackContext.success();
 					}
 				});
 				

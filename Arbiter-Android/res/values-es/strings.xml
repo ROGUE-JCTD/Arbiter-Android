@@ -226,6 +226,8 @@
     <string name="insert">inserta</string>
     <string name="feature_outside_aoi_warning">Ha insertado un elemento fuera de su área de interés seleccionada.  Después de la sincronización
          de esto elemento, el elemento no estará en el dispositivo.</string>
+    <string name="feature_not_valid_polygon">El poligono que trato de salvar a no tener suficientes vertices, debe tener al menos tres puntos para hacer un poligono.</string>
+    <string name="ok">Aceptar</string>
     <string name="confirm_delete_project">¿Está seguro que desea eliminar el proyecto? Se perderán los datos no sincronizados.</string>
     <string name="confirm_delete_layer">¿Está seguro que desea eliminar la capa? Se perderán los datos no sincronizados.</string>
     <string name="added">AÑADIDO</string>

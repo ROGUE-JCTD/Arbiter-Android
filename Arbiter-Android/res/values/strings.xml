@@ -228,6 +228,8 @@
     <string name="insert">insert</string>
     <string name="feature_outside_aoi_warning">You have inserted a feature outside of your selected area of interest.  After syncing this feature, it will no longer
          be on the device.</string>
+    <string name="feature_not_valid_polygon">The polygon you tried to save didn\'t have enough vertices, you must have at least three points to make a polygon.</string>
+    <string name="ok">OK</string>
     <string name="confirm_delete_project">Are you sure you want to delete the project?  Any unsynchronized data will be lost.</string>
     <string name="confirm_delete_layer">Are you sure you want to delete the layer?  Any unsynchronized data will be lost.</string>
     <string name="added">ADDED</string>

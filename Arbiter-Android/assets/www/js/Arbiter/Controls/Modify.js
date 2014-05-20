@@ -62,9 +62,7 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 		saveControlPanelInfo(event.feature.metadata.part);
 		
 		if(!modified){
-			modified = true;
-			
-			Arbiter.Cordova.enableDoneEditingBtn();
+			modified = true;			
 		}
 	};
 
@@ -247,32 +245,64 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 		},
 		
 		validEdit: function(){
-			
-			var featuresLength = 0;
-			
-			if(Arbiter.Util.existsAndNotNull(selectLayer)){
-				featuresLength += selectLayer.features.length;
-			}
-
-			if(Arbiter.Util.existsAndNotNull(modifyLayer)){
-				featuresLength += modifyLayer.features.length;
-			}
-			
 			var type = Arbiter.Geometry.getGeometryType(schema.getLayerId(), schema.getGeometryType());
 			var types = Arbiter.Geometry.type;
-			
-			return featuresLength > 0 || (type !== types.MULTIGEOMETRY
-					&& type !== types.MULTIPOINT 
-					&& type !== types.MULTILINE
-					&& type !== types.MULTIPOLYGON);
+			if ((type === types.MULTIGEOMETRY
+					|| type === types.MULTIPOINT 
+					|| type === types.MULTILINE
+					|| type === types.MULTIPOLYGON)) {
+				var featuresLength = 0;
+				
+				if(Arbiter.Util.existsAndNotNull(selectLayer)){
+					featuresLength += selectLayer.features.length;
+				}
+				if(Arbiter.Util.existsAndNotNull(modifyLayer)){
+					featuresLength += modifyLayer.features.length;
+				}
+				if (featuresLength < 1) {
+					return "NO_FEATURES";
+				}
+				console.log("Features", modifyLayer.features);
+				for (var index = 0; index < modifyLayer.features.length; index++) {
+					if (Arbiter.Util.existsAndNotNull(modifyLayer.features[index].metadata)) {
+						console.log("Type:", modifyLayer.features[index].metadata.part.type);
+						if (modifyLayer.features[index].metadata.part.type === "OpenLayers.Geometry.LineString") {
+							if (modifyLayer.features[index].geometry.components.length == 2) {
+								if (modifyLayer.features[index].geometry.components[0].equals(modifyLayer.features[index].geometry.components[1])) {
+					    			return "INVALID_LINE";
+					    		}
+							} else if (modifyLayer.features[index].geometry.components.length < 2) {
+								return "INVALID_LINE";
+							}
+						} else if (modifyLayer.features[index].metadata.part.type === "OpenLayers.Geometry.Polygon") {
+							console.log("Length: ", modifyLayer.features[index].geometry.components[0].components.length);
+							if (modifyLayer.features[index].geometry.components[0].components.length < 4) {
+								modifyLayer.removeFeatures([modifyLayer.features[index]]);
+								return "INVALID_POLYGON";
+							}
+						}
+					}
+				}
+			}
+			return true;
+		},
+		
+		finishGeometry: function() {
+			if(Arbiter.Util.existsAndNotNull(geometryAdder)){		
+				try{
+					geometryAdder.finish();
+					
+					geometryAdder = null;
+				}catch(e){
+					console.log(e.stack);
+				}
+			}
 		},
 		
 		done: function(onDone){
-			
 			var context = this;
 			
-			if(Arbiter.Util.existsAndNotNull(geometryAdder)){
-				
+			if(Arbiter.Util.existsAndNotNull(geometryAdder)){		
 				try{
 					geometryAdder.finish();
 					

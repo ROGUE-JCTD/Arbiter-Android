@@ -69,6 +69,13 @@ Arbiter.Controls.ControlPanel = (function(){
 		}
 	};
 	
+	var isValidPolygon = function(geometry) {
+		if (geometry.components[0].components.length >= 4) {
+			return true;
+		}
+		return false;
+	}
+	
 	var _startInsertMode = function(layerId, _geometryType){
 		
 		var olLayer = Arbiter.Layers.getLayerById(
@@ -95,6 +102,24 @@ Arbiter.Controls.ControlPanel = (function(){
 				var isInsideAOI = checkFeatureAddedInsideAOI(feature);
 				
 				var insertFeature = function(){
+					if (geometryType === Arbiter.Geometry.type.MULTIPOLYGON || geometryType === Arbiter.Geometry.type.POLYGON) {
+						if (!isValidPolygon(feature.geometry)) {
+							Arbiter.Cordova.featureNotValidPolygon(function(){
+								console.log('Made it');
+								controlPanelHelper.clear(function(){
+									
+									console.log("Cleared control panel k/v pairs");
+									
+									olLayer.removeFeatures([feature]);
+									
+									_endInsertMode();
+								}, function(e){
+									console.log("Couldn't clear control panel k/v pairs");
+								});
+							});
+							return;
+						}
+					}
 					if(geometryType === Arbiter.Geometry.type.MULTIPOINT 
 							|| geometryType === Arbiter.Geometry.type.MULTILINE
 							|| geometryType === Arbiter.Geometry.type.MULTIPOLYGON){
@@ -154,30 +179,33 @@ Arbiter.Controls.ControlPanel = (function(){
 			featureId = feature.metadata[Arbiter.FeatureTableHelper.ID];
 		}
 		
-		var layerId = Arbiter.Util.getLayerId(feature.layer);
-		
-		var wktGeometry = Arbiter.Geometry.getNativeWKT(feature, layerId);
-		
-		var schema = Arbiter.getLayerSchemas()[layerId];
-		
-		modifyControl = new Arbiter.Controls.Modify(Arbiter.Map.getMap(),
-				feature.layer, feature, schema);
-		
-		controlPanelHelper.set(featureId, layerId,
-				controlPanelHelper.CONTROLS.MODIFY, wktGeometry, null, function(){
+		if (feature.layer !== null && feature.layer !== undefined) {
+			var layerId = Arbiter.Util.getLayerId(feature.layer);
 			
-			selectControl.deactivate();
+			var wktGeometry = Arbiter.Geometry.getNativeWKT(feature, layerId);
 			
-			modifyControl.activate();
+			var schema = Arbiter.getLayerSchemas()[layerId];
 			
-			mode = Arbiter.ControlPanelHelper.prototype.CONTROLS.MODIFY;
+			modifyControl = new Arbiter.Controls.Modify(Arbiter.Map.getMap(),
+					feature.layer, feature, schema);
 			
-			if(Arbiter.Util.funcExists(onStartedModifyMode)){
-				onStartedModifyMode();
-			}
-		}, function(e){
-			console.log("start modify mode error", e);
-		});
+			controlPanelHelper.set(featureId, layerId,
+					controlPanelHelper.CONTROLS.MODIFY, wktGeometry, null, function(){
+				
+				selectControl.deactivate();
+				
+				modifyControl.activate();
+				
+				mode = Arbiter.ControlPanelHelper.prototype.CONTROLS.MODIFY;
+				
+				if(Arbiter.Util.funcExists(onStartedModifyMode)){
+					onStartedModifyMode();
+				}
+			}, function(e){
+				console.log("start modify mode error", e);
+			});
+		}
+
 	};
 	
 	var removeFeature = function(feature){
@@ -285,7 +313,7 @@ Arbiter.Controls.ControlPanel = (function(){
 				
 				startModifyMode(feature, onStartedModifyMode);
 			}catch(e){
-				console.log("enterModifyMode error", e);
+				console.log("enterModifyMode error", e.stack);
 			}
 		},
 		
@@ -294,13 +322,15 @@ Arbiter.Controls.ControlPanel = (function(){
 			if(!Arbiter.Util.existsAndNotNull(modifyControl)){
 				
 				if(Arbiter.Util.existsAndNotNull(onExitModify)){
+					console.log("exitModifyMode 1");
 					onExitModify();
 				}
 				
 				return;
 			}
-			
-			if(modifyControl.validEdit()){
+			modifyControl.finishGeometry();
+			var valid = modifyControl.validEdit();
+			if(valid === true){
 				modifyControl.done(function(){
 					
 					modifyControl = null;
@@ -320,6 +350,7 @@ Arbiter.Controls.ControlPanel = (function(){
 					
 					try{
 						if(Arbiter.Util.existsAndNotNull(onExitModify)){
+							console.log("exitModifyMode 2");
 							onExitModify();
 						}
 					}catch(e){
@@ -327,6 +358,7 @@ Arbiter.Controls.ControlPanel = (function(){
 					}
 				});
 			}else{
+				console.log(valid);
 				Arbiter.Cordova.notifyUserToAddGeometry();
 			}
 		},

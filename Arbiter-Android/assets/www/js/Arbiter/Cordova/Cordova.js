@@ -72,6 +72,12 @@ Arbiter.Cordova = (function() {
 			}, "ArbiterCordova", "featureNotInAOI", []);
 		},
 		
+		featureNotValidPolygon: function(removeInvalidFeature){
+			cordova.exec(function() {
+				removeInvalidFeature();
+			}, null, "ArbiterCordova", "featureNotValidPolygon", []);
+		},
+		
 		layersAlreadyInProject: function(layersAlreadyInProject){
 			
 			console.log("layersAlreadyInProject: " + JSON.stringify(layersAlreadyInProject));
@@ -202,6 +208,7 @@ Arbiter.Cordova = (function() {
 			Arbiter.Controls.ControlPanel.exitModifyMode(function(){
 				
 				try{
+					console.log('Exiting Modify Mode');
 					var selectedFeature = Arbiter.Controls
 						.ControlPanel.getSelectedFeature();
 				

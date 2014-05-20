@@ -33,6 +33,7 @@ import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseBaseLayer.ChooseBaselayerDia
 import com.lmn.Arbiter_Android.ListAdapters.AddLayersListAdapter;
 import com.lmn.Arbiter_Android.ListAdapters.ServerListAdapter;
 import com.lmn.Arbiter_Android.LoaderCallbacks.AddLayersLoaderCallbacks;
+import com.lmn.Arbiter_Android.LoaderCallbacks.AddServerCallbacks;
 import com.lmn.Arbiter_Android.LoaderCallbacks.ServerLoaderCallbacks;
 import com.lmn.Arbiter_Android.Loaders.AddLayersListLoader;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
@@ -289,8 +290,8 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		
 		// Prepare the loader.  Either re-connect with an existing one,
         // or start a new one.
-        this.serverLoaderCallbacks = new ServerLoaderCallbacks(this, 
-        		this.serverAdapter, R.id.loader_servers_dropdown);
+        this.serverLoaderCallbacks = new AddServerCallbacks(this, 
+        		this.serverAdapter, R.id.loader_servers_dropdown, this.spinner);
 	}
 	
 	/**

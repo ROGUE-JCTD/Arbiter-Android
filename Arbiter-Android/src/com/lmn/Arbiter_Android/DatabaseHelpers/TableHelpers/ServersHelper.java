@@ -32,7 +32,7 @@ public class ServersHelper implements BaseColumns{
 	public static final String SERVER_PASSWORD = "password";
 	public static final String SERVERS_TABLE_NAME = "servers";
 	public static final String GMT_OFFSET = "gmt_offset";
-	
+
 	private ServersHelper(){}
 	
 	private static ServersHelper helper = null;
@@ -120,6 +120,7 @@ public class ServersHelper implements BaseColumns{
 				db.setTransactionSuccessful();
 				
 				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ServersListLoader.SERVER_LIST_UPDATED));
+				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ServersListLoader.SERVER_ADDED));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

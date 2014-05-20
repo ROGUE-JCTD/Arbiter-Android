@@ -31,6 +31,7 @@ public class ServersHelper implements BaseColumns{
 	public static final String SERVER_USERNAME = "username";
 	public static final String SERVER_PASSWORD = "password";
 	public static final String SERVERS_TABLE_NAME = "servers";
+	public static final String GMT_OFFSET = "gmt_offset";
 	
 	private ServersHelper(){}
 	
@@ -52,7 +53,8 @@ public class ServersHelper implements BaseColumns{
 					SERVER_NAME + " TEXT, " +
 					SERVER_URL + " TEXT, " +
 					SERVER_USERNAME + " TEXT, " +
-					SERVER_PASSWORD + " TEXT);";
+					SERVER_PASSWORD + " TEXT, " + 
+					GMT_OFFSET + " INTEGER DEFAULT 0);";
 		
 		db.execSQL(sql);
 	}

@@ -7,6 +7,7 @@ Arbiter.ServersHelper = (function(){
 	var SERVER_USERNAME = "username";
 	var SERVER_PASSWORD = "password";
 	var SERVERS_TABLE_NAME = "servers";
+	var GMT_OFFSET = "gmt_offset";
 	
 	return {
 		loadServers: function(context, onSuccess, onFailure){
@@ -56,6 +57,32 @@ Arbiter.ServersHelper = (function(){
 					onFailure.call(context, e);
 				}
 			});
+		},
+		
+		updateServer: function(serverId, offset, onSuccess, onFailure){
+			
+			var db = Arbiter.ApplicationDbHelper.getDatabase();
+			
+			var fail = function(e){
+				
+				if(Arbiter.Util.existsAndNotNull(onFailure)){
+					onFailure(e);
+				}
+			};
+			
+			db.transaction(function(tx){
+				
+				var sql = "UPDATE " + SERVERS_TABLE_NAME + " SET " + GMT_OFFSET + "=? WHERE " + _ID + "=?;";
+				
+				tx.executeSql(sql, [offset, serverId], function(tx, res){
+					
+					if(Arbiter.Util.existsAndNotNull(onSuccess)){
+						onSuccess(offset);
+					}
+				}, function(tx, e){
+					fail(e);
+				});
+			}, fail);
 		}
 	};
 })();

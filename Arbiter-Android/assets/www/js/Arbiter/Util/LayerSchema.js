@@ -15,7 +15,7 @@ Arbiter.Util.LayerSchema = function(){
 	var layerId = null;
 	var color = null;
 	var serverType = null;
-	
+	var timeProperty = null;
 	var LayerSchema;
 	
 	if(arguments.length === 9){ // Downloaded from the interwebs...
@@ -63,6 +63,20 @@ Arbiter.Util.LayerSchema = function(){
 					
 					if(property.name === "photos" || property.name === "fotos"){
 						mediaColumn = property.name;
+					}
+					
+					if(property.type === "xsd:dateTime"){
+						
+						timeProperty = {
+							key: property.name,
+							type: property.type
+						};
+					}else if(property.type === "xsd:time" && !Arbiter.Util.existsAndNotNull(timeProperty)){
+						
+						timeProperty = {
+							key: property.name,
+							type: property.type
+						};
 					}
 					
 					attributes.push(attribute);
@@ -113,6 +127,29 @@ Arbiter.Util.LayerSchema = function(){
 			serverType = _serverType;
 			mediaColumn = _mediaColumn;
 			color = _color;
+			
+			var attribute = null;
+			var type = null;
+			
+			for(var i = 0; i < attributes.length; i++){
+				
+				attribute = attributes[i];
+				
+				type = attribute.getType();
+				
+				if(type === "dateTime"){
+					timeProperty = {
+						key: attribute.getName(),
+						type: "xsd:dateTime"
+					};
+					break;
+				}else if(type === "time" && !Arbiter.Util.existsAndNotNull(timeProperty)){
+					timeProperty = {
+						key: attribute.getName(),
+						type: "xsd:time"
+					};
+				}
+			}
 		};
 		
 		LayerSchema(_layerId, _url, _workspace, _prefix, _featureType, 
@@ -216,6 +253,10 @@ Arbiter.Util.LayerSchema = function(){
 		
 		getColor: function(){
 			return color;
+		},
+		
+		getTimeProperty: function(){
+			return timeProperty;
 		}
 	};
 };

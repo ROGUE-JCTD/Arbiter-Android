@@ -62,7 +62,7 @@
 	prototype.onDownloadSuccess = function(features){
 		var context = this;
 		
-		var downloadedFeaturesHandler = new Arbiter.DownloadedFeaturesHandler(this.db, this.schema, features, function(){
+		var downloadedFeaturesHandler = new Arbiter.DownloadedFeaturesHandler(this.db, this.schema, this.credentials, features, function(){
 			
 			var storeMediaForSchema = new Arbiter.StoreFeaturesMediaToDownload(
 					context.schema, features, function(failedToStore){

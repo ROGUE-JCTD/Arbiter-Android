@@ -14,7 +14,7 @@ import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ApplicationDatabaseHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "arbiter_application.db";
-	private static int DATABASE_VERSION = 3;
+	private static int DATABASE_VERSION = 4;
 	
 	private ApplicationDatabaseHelper(Context context){
 		super(context, ProjectStructure.getApplicationRoot() + File.separator + DATABASE_NAME, null, DATABASE_VERSION);

@@ -6,12 +6,6 @@ import org.apache.cordova.CordovaWebView;
 
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-
-import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
@@ -54,6 +48,10 @@ public class MapChangeHelper {
 				incompleteProjectHelper.checkForAOI();
 			}
 		});
+	}
+	
+	public void onServerUpdated(){
+		reloadMap();
 	}
 	
 	public void onLayersAdded(final ArrayList<Layer> layers, final long[] layerIds) {

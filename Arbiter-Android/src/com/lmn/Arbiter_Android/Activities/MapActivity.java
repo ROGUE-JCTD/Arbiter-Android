@@ -64,7 +64,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
 	private SyncConnectivityListener syncConnectivityListener;
     private CookieConnectivityListener cookieConnectivityListener;
     private NotificationBadge notificationBadge;
-    
+    private boolean isDestroyed = false;
     // For CORDOVA
     private CordovaWebView cordovaWebView;
     
@@ -507,6 +507,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     
     @Override
     protected void onDestroy(){
+    	this.isDestroyed = true;
     	super.onDestroy();
     	if(this.cordovaWebView != null){
     		Log.w("MapActivity", "MapActivity onDestroy");
@@ -567,7 +568,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
 	@Override
 	public Object onMessage(String message, Object obj) {
 		Log.d(TAG, message);
-        if(message.equals("onPageFinished")){
+        if(!isDestroyed && message.equals("onPageFinished")){
         	if(obj instanceof String){
         		if(((String) obj).equals("about:blank")){
         			this.cordovaWebView.loadUrl(ArbiterCordova.mainUrl);

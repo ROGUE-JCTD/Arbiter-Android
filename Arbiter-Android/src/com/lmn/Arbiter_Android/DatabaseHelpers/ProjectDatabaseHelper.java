@@ -41,6 +41,13 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 	}
 	
 	@Override
+	public void close() {
+		super.close();
+		
+		helper = null;
+	}
+	
+	@Override
 	public void onCreate(SQLiteDatabase db) {
 		LayersHelper.getLayersHelper().createTable(db);
 		PreferencesHelper.getHelper().createTable(db);

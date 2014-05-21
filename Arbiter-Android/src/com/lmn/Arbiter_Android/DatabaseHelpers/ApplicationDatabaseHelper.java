@@ -38,6 +38,13 @@ public class ApplicationDatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	@Override
+	public void close() {
+		super.close();
+		
+		helper = null;
+	}
+	
+	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		
 		int version = oldVersion;

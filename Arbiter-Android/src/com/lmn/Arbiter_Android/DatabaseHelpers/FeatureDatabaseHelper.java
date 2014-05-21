@@ -35,6 +35,13 @@ public class FeatureDatabaseHelper extends SQLiteOpenHelper {
 	}
 	
 	@Override
+	public void close() {
+		super.close();
+		
+		helper = null;
+	}
+	
+	@Override
 	public void onCreate(SQLiteDatabase db) {
 		GeometryColumnsHelper.getHelper().createTable(db);
 	}

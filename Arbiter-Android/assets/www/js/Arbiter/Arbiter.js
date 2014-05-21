@@ -24,6 +24,7 @@ Arbiter = (function(){
 		SHOULD_ZOOM_TO_AOI: "should_zoom_to_aoi",
 		MEDIA_TO_SEND: "mediaToSend",
 		BASE_LAYER: "base_layer",
+		SWITCHED_PROJECT: "switched_project",
 		
 		DEFAULT_ZOOM_EXTENT: "-20037508.34,-20037508.34,20037508.34,20037508.34",
 		

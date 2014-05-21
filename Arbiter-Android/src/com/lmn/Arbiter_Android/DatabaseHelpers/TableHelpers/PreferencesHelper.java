@@ -15,6 +15,7 @@ public class PreferencesHelper implements BaseColumns{
 	public static final String SHOULD_ZOOM_TO_AOI = "should_zoom_to_aoi";
 	public static final String BASE_LAYER = "base_layer";
 	public static final String FINDME = "findme";
+	public static final String SWITCHED_PROJECT = "switched_project";
 	
 	private PreferencesHelper(){}
 	

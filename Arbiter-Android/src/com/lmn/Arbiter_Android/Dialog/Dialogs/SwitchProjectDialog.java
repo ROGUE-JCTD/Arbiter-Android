@@ -42,8 +42,6 @@ public class SwitchProjectDialog extends ArbiterDialogFragment{
 		LocalBroadcastManager.getInstance(getActivity().getApplicationContext())
 			.sendBroadcast(new Intent(NotificationsLoader.NOTIFICATIONS_UPDATED));
 		
-		this.getActivity().finish();
-		
 		String projectName = ArbiterProject.getArbiterProject()
 				.getOpenProject(getActivity());
 		
@@ -53,6 +51,8 @@ public class SwitchProjectDialog extends ArbiterDialogFragment{
 				path, false).getWritableDatabase();
 		
 		PreferencesHelper.getHelper().put(db, getActivity().getApplicationContext(), PreferencesHelper.SWITCHED_PROJECT, "true");
+		
+		this.getActivity().finish();
 	}
 
 	@Override

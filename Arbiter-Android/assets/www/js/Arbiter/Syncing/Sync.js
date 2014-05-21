@@ -130,7 +130,7 @@
 			context.mediaDir = mediaDir;
 			
 			// Get the media to send object from the db
-			Arbiter.PreferencesHelper.get(Arbiter.MEDIA_TO_SEND, context, function(mediaToSend){
+			Arbiter.PreferencesHelper.get(context.projectDb, Arbiter.MEDIA_TO_SEND, context, function(mediaToSend){
 				
 				var callback = function(){
 					
@@ -271,7 +271,7 @@
 	prototype.startMediaSync = function(){
 		var context = this;
 		
-		var mediaSync = new Arbiter.MediaSync(this.layers, 
+		var mediaSync = new Arbiter.MediaSync(this.projectDb, this.layers, 
 				this.schemas, this.mediaDir, this.mediaToSend);
 		
 		mediaSync.startSync(function(failedUploads, failedDownloads){

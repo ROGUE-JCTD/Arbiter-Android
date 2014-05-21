@@ -175,7 +175,10 @@ Arbiter.Loaders.LayersLoader = (function(){
 	};
 	
 	var loadAOILayer = function(){
-		Arbiter.PreferencesHelper.get(Arbiter.AOI, Arbiter.Loaders.LayersLoader, function(aoi){
+		
+		var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+		
+		Arbiter.PreferencesHelper.get(projectDb, Arbiter.AOI, Arbiter.Loaders.LayersLoader, function(aoi){
 			
 			if(aoi !== null && aoi !== undefined && aoi !== ""){
 				addAOIToMap(aoi);

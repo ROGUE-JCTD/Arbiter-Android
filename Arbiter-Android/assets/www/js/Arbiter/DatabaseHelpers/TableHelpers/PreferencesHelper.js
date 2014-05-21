@@ -4,8 +4,8 @@ Arbiter.PreferencesHelper = (function(){
 	var VALUE = "value";
 	
 	return {
-		get: function(key, context, onSuccess, onFailure){
-			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
+		get: function(db, key, context, onSuccess, onFailure){
+			//var db = Arbiter.ProjectDbHelper.getProjectDatabase();
 			db.transaction(function(tx){
 				var sql = "select " + VALUE + " from " 
 					+ TABLE_NAME + " where " + KEY + "=?";
@@ -28,7 +28,7 @@ Arbiter.PreferencesHelper = (function(){
 					}
 				});
 			}, function(e){
-				console.log("ERROR: Arbiter.PreferencesHelper.get outer", e);
+				console.log("ERROR: Arbiter.PreferencesHelper.get outer", e.stack);
 				
 				if(Arbiter.Util.funcExists(onFailure)){
 					onFailure.call(context, e);
@@ -36,8 +36,8 @@ Arbiter.PreferencesHelper = (function(){
 			});
 		},
 		
-		put: function(key, value, context, onSuccess, onFailure){
-			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
+		put: function(db, key, value, context, onSuccess, onFailure){
+			//var db = Arbiter.ProjectDbHelper.getProjectDatabase();
 			
 			db.transaction(function(tx){
 				var sql = "INSERT OR REPLACE INTO " + TABLE_NAME + 
@@ -63,8 +63,8 @@ Arbiter.PreferencesHelper = (function(){
 			});
 		},
 		
-		remove: function(key, context, onSuccess, onFailure){
-			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
+		remove: function(db, key, context, onSuccess, onFailure){
+			//var db = Arbiter.ProjectDbHelper.getProjectDatabase();
 			
 			db.transaction(function(tx){
 				var sql = "DELETE FROM " + TABLE_NAME 

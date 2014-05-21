@@ -1,4 +1,5 @@
-Arbiter.MediaSync = function(_dbLayers, _layerSchemas, _mediaDir, _mediaToSend){
+Arbiter.MediaSync = function(projectDb, _dbLayers, _layerSchemas, _mediaDir, _mediaToSend){
+	this.projectDb = projectDb;
 	this.mediaToSend = _mediaToSend;
 	this.mediaDir = _mediaDir;
 	this.failedOnUpload = null;
@@ -148,7 +149,7 @@ Arbiter.MediaSync.prototype.uploadMedia = function(layer){
 		return;
 	}
 	
-	var mediaUploader = new Arbiter.MediaUploader(
+	var mediaUploader = new Arbiter.MediaUploader(this.projectDb,
 			schema, this.mediaToSend,
 			server, context.mediaDir,
 			this.finishedLayersUploading, this.totalLayers);

@@ -74,7 +74,9 @@ Arbiter.ControlPanelHelper.prototype.set = function(featureId, layerId, control,
 Arbiter.ControlPanelHelper.prototype.setActiveControl = function(control, onSuccess, onFailure){
 	var context = this;
 	
-	Arbiter.PreferencesHelper.put(context.ACTIVE_CONTROL, control, context, function(){
+	var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+	
+	Arbiter.PreferencesHelper.put(projectDb, context.ACTIVE_CONTROL, control, context, function(){
 		if(Arbiter.Util.funcExists(onSuccess)){
 			onSuccess();
 		}
@@ -89,7 +91,9 @@ Arbiter.ControlPanelHelper.prototype.setActiveControl = function(control, onSucc
 Arbiter.ControlPanelHelper.prototype.setLayerId = function(layerId, onSuccess, onFailure){
 	var context = this;
 	
-	Arbiter.PreferencesHelper.put(context.LAYER_ID, layerId, context, function(){
+	var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+	
+	Arbiter.PreferencesHelper.put(projectDb, context.LAYER_ID, layerId, context, function(){
 		
 		if(Arbiter.Util.funcExists(onSuccess)){
 			onSuccess();
@@ -104,7 +108,9 @@ Arbiter.ControlPanelHelper.prototype.setLayerId = function(layerId, onSuccess, o
 Arbiter.ControlPanelHelper.prototype.setFeatureId = function(featureId, onSuccess, onFailure){
 	var context = this;
 	
-	Arbiter.PreferencesHelper.put(context.FEATURE_ID, featureId, context, function(){
+	var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+	
+	Arbiter.PreferencesHelper.put(projectDb, context.FEATURE_ID, featureId, context, function(){
 		
 		if(Arbiter.Util.funcExists(onSuccess)){
 			onSuccess();
@@ -119,7 +125,9 @@ Arbiter.ControlPanelHelper.prototype.setFeatureId = function(featureId, onSucces
 Arbiter.ControlPanelHelper.prototype.setGeometry = function(geometry, onSuccess, onFailure){
 	var context = this;
 	
-	Arbiter.PreferencesHelper.put(context.GEOMETRY, geometry, context, function(){
+	var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+	
+	Arbiter.PreferencesHelper.put(projectDb, context.GEOMETRY, geometry, context, function(){
 		
 		if(Arbiter.Util.funcExists(onSuccess)){
 			onSuccess();
@@ -136,7 +144,9 @@ Arbiter.ControlPanelHelper.prototype.setIndexChain = function(indexChain, onSucc
 	
 	console.log("setIndexChain: indexChain = " + indexChain);
 	
-	Arbiter.PreferencesHelper.put(context.INDEX_CHAIN, indexChain, context, function(){
+	var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+	
+	Arbiter.PreferencesHelper.put(projectDb, context.INDEX_CHAIN, indexChain, context, function(){
 		
 		if(Arbiter.Util.funcExists(onSuccess)){
 			onSuccess();
@@ -151,7 +161,9 @@ Arbiter.ControlPanelHelper.prototype.setIndexChain = function(indexChain, onSucc
 Arbiter.ControlPanelHelper.prototype.getActiveControl = function(onSuccess, onFailure){
 	var context = this;
 	
-	Arbiter.PreferencesHelper.get(context.ACTIVE_CONTROL, context, function(activeControl){
+	var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+	
+	Arbiter.PreferencesHelper.get(projectDb, context.ACTIVE_CONTROL, context, function(activeControl){
 		
 		if(Arbiter.Util.funcExists(onSuccess)){
 			onSuccess(activeControl);
@@ -166,7 +178,9 @@ Arbiter.ControlPanelHelper.prototype.getActiveControl = function(onSuccess, onFa
 Arbiter.ControlPanelHelper.prototype.getLayerId = function(onSuccess, onFailure){
 	var context = this;
 	
-	Arbiter.PreferencesHelper.get(context.LAYER_ID, context, function(layerId){
+	var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+	
+	Arbiter.PreferencesHelper.get(projectDb, context.LAYER_ID, context, function(layerId){
 		
 		if(Arbiter.Util.funcExists(onSuccess)){
 			onSuccess(layerId);
@@ -181,7 +195,9 @@ Arbiter.ControlPanelHelper.prototype.getLayerId = function(onSuccess, onFailure)
 Arbiter.ControlPanelHelper.prototype.getFeatureId = function(onSuccess, onFailure){
 	var context = this;
 	
-	Arbiter.PreferencesHelper.get(context.FEATURE_ID, context, function(featureId){
+	var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+	
+	Arbiter.PreferencesHelper.get(projectDb, context.FEATURE_ID, context, function(featureId){
 		
 		if(Arbiter.Util.funcExists(onSuccess)){
 			onSuccess(featureId);
@@ -196,7 +212,9 @@ Arbiter.ControlPanelHelper.prototype.getFeatureId = function(onSuccess, onFailur
 Arbiter.ControlPanelHelper.prototype.getGeometry = function(onSuccess, onFailure){
 	var context = this;
 	
-	Arbiter.PreferencesHelper.get(context.GEOMETRY, context, function(geometry){
+	var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+	
+	Arbiter.PreferencesHelper.get(projectDb, context.GEOMETRY, context, function(geometry){
 		
 		if(Arbiter.Util.funcExists(onSuccess)){
 			onSuccess(geometry);
@@ -211,7 +229,9 @@ Arbiter.ControlPanelHelper.prototype.getGeometry = function(onSuccess, onFailure
 Arbiter.ControlPanelHelper.prototype.getIndexChain = function(onSuccess, onFailure){
 	var context = this;
 	
-	Arbiter.PreferencesHelper.get(context.INDEX_CHAIN, context, function(indexChain){
+	var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+	
+	Arbiter.PreferencesHelper.get(projectDb, context.INDEX_CHAIN, context, function(indexChain){
 		
 		if(Arbiter.Util.funcExists(onSuccess)){
 			onSuccess(indexChain);

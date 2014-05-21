@@ -6,6 +6,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
@@ -42,13 +43,7 @@ public class SwitchProjectDialog extends ArbiterDialogFragment{
 		LocalBroadcastManager.getInstance(getActivity().getApplicationContext())
 			.sendBroadcast(new Intent(NotificationsLoader.NOTIFICATIONS_UPDATED));
 		
-		String projectName = ArbiterProject.getArbiterProject()
-				.getOpenProject(getActivity());
-		
-		String path = ProjectStructure.getProjectPath(projectName);
-		
-		SQLiteDatabase db = ProjectDatabaseHelper.getHelper(getActivity().getApplicationContext(), 
-				path, false).getWritableDatabase();
+		SQLiteDatabase db = ApplicationDatabaseHelper.getHelper(getActivity().getApplicationContext()).getWritableDatabase();
 		
 		PreferencesHelper.getHelper().put(db, getActivity().getApplicationContext(), PreferencesHelper.SWITCHED_PROJECT, "true");
 		

@@ -12,8 +12,10 @@ var app = (function() {
 			// Get the file system for use in TileUtil.js
 			Arbiter.FileSystem.setFileSystem(function(){
 				
+				var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+				
 				// Get the AOI to check to see if it's been set
-				Arbiter.PreferencesHelper.get(Arbiter.SHOULD_ZOOM_TO_AOI, this, function(shouldZoomToAOI){
+				Arbiter.PreferencesHelper.get(projectDb, Arbiter.SHOULD_ZOOM_TO_AOI, this, function(shouldZoomToAOI){
 					
 					Arbiter.Cordova.Project.getSavedBounds(function(savedBounds, savedZoom){
 						

@@ -49,12 +49,16 @@ var app = (function() {
 								}
 								Arbiter.Localization.setLocale(localeCode);
 							
+								var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+								
+								var appDb = Arbiter.ApplicationDbHelper.getDatabase();
+								
 								// Get the AOI to check to see if it's been set
-								Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
+								Arbiter.PreferencesHelper.get(projectDb, Arbiter.AOI, this, function(_aoi){
 									
 									var bounds = null;
 									
-									Arbiter.PreferencesHelper.get(Arbiter.SWITCHED_PROJECT, this, function(value) {
+									Arbiter.PreferencesHelper.get(appDb, Arbiter.SWITCHED_PROJECT, this, function(value) {
 										if(value !== "true" && savedBounds !== null && savedBounds !== undefined 
 												&& savedZoom !== null 
 												&& savedZoom !== undefined){
@@ -84,7 +88,7 @@ var app = (function() {
 														bounds[3]);
 											}
 										}
-										Arbiter.PreferencesHelper.put(Arbiter.SWITCHED_PROJECT, "false", this);
+										Arbiter.PreferencesHelper.put(appDb, Arbiter.SWITCHED_PROJECT, "false", this);
 									}, function(e){
 										console.log("Could not read SWITCHED_PROJECT variable from Preferences database: " + JSON.stringify(e));
 									});

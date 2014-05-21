@@ -1,5 +1,6 @@
-Arbiter.MediaUploader = function(_schema, _mediaToSend, _server, _mediaDir, _finishedLayerCount, _totalLayerCount){
+Arbiter.MediaUploader = function(projectDb, _schema, _mediaToSend, _server, _mediaDir, _finishedLayerCount, _totalLayerCount){
 	
+	this.projectDb = projectDb;
 	this.schema = _schema;
 	this.mediaToSend = _mediaToSend;
 	this.media = this.mediaToSend[this.schema.getLayerId()];
@@ -109,7 +110,7 @@ Arbiter.MediaUploader.prototype.updateMediaToSend = function(onSuccess, onFailur
 		delete this.mediaToSend[this.schema.getLayerId()];
 	}
 	
-	Arbiter.PreferencesHelper.put(Arbiter.MEDIA_TO_SEND,
+	Arbiter.PreferencesHelper.put(this.projectDb, Arbiter.MEDIA_TO_SEND,
 			JSON.stringify(this.mediaToSend),
 			this, function(){
 		

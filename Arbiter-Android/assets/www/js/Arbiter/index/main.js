@@ -85,7 +85,7 @@ var app = (function() {
 											}
 										}
 										Arbiter.PreferencesHelper.put(Arbiter.SWITCHED_PROJECT, "false", this);
-									},, function(e){
+									}, function(e){
 										console.log("Could not read SWITCHED_PROJECT variable from Preferences database: " + JSON.stringify(e));
 									});
 									

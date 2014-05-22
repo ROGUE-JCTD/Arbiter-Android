@@ -18,6 +18,9 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
@@ -91,6 +94,46 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface,
         		}
         	}
         });
+        
+        final ImageButton locationButton = (ImageButton) findViewById(R.id.aoiLocationButton);
+    	
+    	locationButton.setOnClickListener(new OnClickListener(){
+    		@Override
+    		public void onClick(View v){
+    			
+    			if(locationButton.getAnimation() == null){
+    				
+    				Animation rotation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.button_rotate);
+        			
+    				rotation.setDuration(2500);
+    				
+    				// 60000 / 2500
+        			rotation.setRepeatCount(24);
+        			
+        			locationButton.startAnimation(rotation);
+        			
+        			Map.getMap().zoomToCurrentPosition(cordovaWebView);
+    			}
+    		}
+    	});
+    	
+    	ImageButton zoomInButton = (ImageButton) findViewById(R.id.aoiZoomInButton);
+    	
+    	zoomInButton.setOnClickListener(new OnClickListener(){
+    		@Override
+    		public void onClick(View v){
+    			Map.getMap().zoomIn(cordovaWebView);
+    		}
+    	});
+    	
+    	ImageButton zoomOutButton = (ImageButton) findViewById(R.id.aoiZoomOutButton);
+    	
+    	zoomOutButton.setOnClickListener(new OnClickListener(){
+    		@Override
+    		public void onClick(View v){
+    			Map.getMap().zoomOut(cordovaWebView);
+    		}
+    	});
 	}
 	
 	@Override

@@ -51,6 +51,11 @@ var app = (function() {
 						);
 						
 						Arbiter.Layers.removeAllLayers();
+			            //aoi layer needs to be added here so geolocation will work
+			            var map = Arbiter.Map.getMap();
+			            var layer = new OpenLayers.Layer.Vector(Arbiter.AOI);
+			            
+			            map.addLayer(layer);
 					
 						Arbiter.Layers.addDefaultLayer(true);
 					

@@ -13,7 +13,6 @@ import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.GeometryColumnsHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseGeometryTypeDialog;
 import com.lmn.Arbiter_Android.ListAdapters.ChooseGeometryTypeAdapter;
 import com.lmn.Arbiter_Android.Map.Map;

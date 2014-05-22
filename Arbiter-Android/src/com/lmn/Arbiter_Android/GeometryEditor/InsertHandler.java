@@ -76,6 +76,6 @@ public class InsertHandler {
 	
 	public void done(){
 		Log.w("InsertHandler", "InsertHandler done");
-		Map.getMap().finishInserting(cordovaMap.getWebView());
+		Map.getMap().getUpdatedGeometry(cordovaMap.getWebView());
 	}
 }

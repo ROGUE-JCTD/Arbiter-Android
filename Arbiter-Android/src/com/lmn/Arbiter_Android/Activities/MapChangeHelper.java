@@ -94,6 +94,9 @@ public class MapChangeHelper {
 				editor.setFeatureInfo(featureType, featureId, layerId, wktGeometry, new Runnable(){
 					@Override
 					public void run(){
+						
+						Log.w("MapChangeHelper", "MapChangeHelper onSelectFEature featureID = " + featureId);
+						
 						if(featureId != null && featureId != "null"){
 							editor.setEditMode(GeometryEditor.Mode.SELECT);
 						}else{

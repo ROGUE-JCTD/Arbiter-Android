@@ -195,10 +195,12 @@ Arbiter.Cordova = (function() {
 					"errorAddingLayers", [e]);
 		},
 		
+		// validate in here. 
 		getUpdatedGeometry: function(){
 			
 			Arbiter.Controls.ControlPanel.finishGeometry();
 			
+			// Also finishes modifying the geometry
 			Arbiter.Controls.ControlPanel.exitModifyMode(function(){
 				
 				try{
@@ -208,6 +210,12 @@ Arbiter.Cordova = (function() {
 					if(selectedFeature === null || selectedFeature === undefined){
 						throw "getUpdatedGeometry() - selectedFeature should not be empty";
 					}
+					
+					var featureValidation = new Arbiter.Validation.Feature(selectedFeature);
+					
+					var isValid = featureValidation.validate(true);
+					
+					console.log("selectedFeature isValid = " + isValid);
 					
 					var featureId = null;
 					
@@ -272,7 +280,11 @@ Arbiter.Cordova = (function() {
 				}
 			}
 			
-			Arbiter.Controls.ControlPanel.exitModifyMode();
+			// Put check in place because its causing issues when modifying new features.
+			// Don't want it to stop editing...
+			if(Arbiter.Util.existsAndNotNull(featureId)){
+				Arbiter.Controls.ControlPanel.exitModifyMode();
+			}
 			
 			console.log("displayFeatureDialog selectedFeature: ", Arbiter.Controls.ControlPanel.getSelectedFeature());
 			

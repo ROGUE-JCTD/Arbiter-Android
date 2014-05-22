@@ -549,6 +549,8 @@ public class ArbiterCordova extends CordovaPlugin{
 			@Override
 			public void run(){
 				
+				Log.w("ArbiterCordova","ArbiterCordova notifyUserToAddGeometry");
+				
 				try{
 					((Map.MapChangeListener) activity).getMapChangeHelper().setEditMode(GeometryEditor.Mode.EDIT);
 				}catch(ClassCastException e){

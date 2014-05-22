@@ -33,27 +33,31 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 	var addingGeometryPart = false;
 	
 	var saveControlPanelInfo = function(geometryPart){
-		var featureId = featureOfInterest.metadata[Arbiter.FeatureTableHelper.ID];
-		var layerId = schema.getLayerId();
 		
-		var geometry = geometryExpander.compress();
-		
-		var tempFeature = new OpenLayers.Feature.Vector(geometry);
-		
-		var wktGeometry = Arbiter.Geometry.getNativeWKT(tempFeature, layerId);
-		
-		var indexChain = geometryPart.getIndexChain();
-		
-		console.log("saveControlPanelInfo: \nwktGeometry = " + wktGeometry + "\nindexChain = " + indexChain);
-		
-		controlPanelHelper.set(featureId, layerId, 
-				controlPanelHelper.CONTROLS.MODIFY, 
-				wktGeometry, indexChain, function(){
+		if(Arbiter.Util.existsAndNotNull(featureOfInterest.metadata)){
 			
-			console.log("successfully updated geometry");
-		}, function(e){
-			console.log("error updating modified geometry", e);
-		});
+			var featureId = featureOfInterest.metadata[Arbiter.FeatureTableHelper.ID];
+			var layerId = schema.getLayerId();
+			
+			var geometry = geometryExpander.compress();
+			
+			var tempFeature = new OpenLayers.Feature.Vector(geometry);
+			
+			var wktGeometry = Arbiter.Geometry.getNativeWKT(tempFeature, layerId);
+			
+			var indexChain = geometryPart.getIndexChain();
+			
+			console.log("saveControlPanelInfo: \nwktGeometry = " + wktGeometry + "\nindexChain = " + indexChain);
+			
+			controlPanelHelper.set(featureId, layerId, 
+					controlPanelHelper.CONTROLS.MODIFY, 
+					wktGeometry, indexChain, function(){
+				
+				console.log("successfully updated geometry");
+			}, function(e){
+				console.log("error updating modified geometry", e);
+			});
+		}
 	};
 	
 	var featureModified =  function(event){
@@ -131,8 +135,21 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 	};
 	
 	var registerEvents = function(){
-		modifyLayer.events.register("featuremodified", null, featureModified);
-		modifyLayer.events.register("beforefeaturemodified", null, onBeforeFeatureModified);
+		modifyLayer.events.register("featuremodified", null, function(event){ 
+			try{
+			
+				featureModified(event);
+			}catch(e){
+				console.log("featureModified", e.stack);
+			}
+		});
+		modifyLayer.events.register("beforefeaturemodified", null, function(event){
+			try{
+				onBeforeFeatureModified(event);
+			}catch(e){
+				console.log("beforeFeatureModified", e.stack);
+			}
+		});
 	};
 	
 	var _attachToMap = function(){
@@ -370,6 +387,8 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 		},
 		
 		beginAddGeometry: function(_geometryType){
+			
+			console.log("beginAddGeometry addingGeometryPart = " + addingGeometryPart);
 			
 			if(addingGeometryPart){
 				return;

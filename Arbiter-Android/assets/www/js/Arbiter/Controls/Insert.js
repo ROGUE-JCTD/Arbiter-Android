@@ -160,10 +160,18 @@
 				
 				handler = OpenLayers.Handler.Path;
 				
+				options = {
+					multi: true
+				};
+				
 				break;
 			case type.MULTIPOLYGON:
 				
 				handler = OpenLayers.Handler.Polygon;
+				
+				options = {
+					multi: true
+				};
 				
 				break;
 				

@@ -88,7 +88,7 @@ Arbiter.Controls.ControlPanel = (function(){
 		controlPanelHelper.set(0, layerId, controlPanelHelper.CONTROLS.INSERT, 0, null, function(){
 			
 			var map = Arbiter.Map.getMap();
-			
+			selectControl.deactivate();
 			insertControl = new Arbiter.Controls.Insert(olLayer, map,
 					geometryType, function(feature){
 				
@@ -109,7 +109,9 @@ Arbiter.Controls.ControlPanel = (function(){
 					}
 					
 					mode = Arbiter.ControlPanelHelper.prototype.CONTROLS.INSERT;
-					
+
+					selectControl.activate();
+
 					selectControl.select(feature);
 					
 					selectedFeature = feature;

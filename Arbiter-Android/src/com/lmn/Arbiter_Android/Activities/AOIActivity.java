@@ -95,7 +95,7 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface,
         	}
         });
         
-        final ImageButton locationButton = (ImageButton) findViewById(R.id.aoiLocationButton);
+        final ImageButton locationButton = (ImageButton) findViewById(R.id.locationButton);
     	
     	locationButton.setOnClickListener(new OnClickListener(){
     		@Override

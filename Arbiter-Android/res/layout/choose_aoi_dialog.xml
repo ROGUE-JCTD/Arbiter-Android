@@ -149,7 +149,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/aoiZoomInButton"
-        android:layout_below="@+id/aoiZoomInButton"
+        android:layout_below="@id/aoiZoomInButton"
         android:layout_marginTop="16dp"
         android:alpha="0.9"
         android:background="#CCCCCC"
@@ -157,11 +157,11 @@
         android:src="@drawable/zoom_out" />
 
     <ImageButton
-        android:id="@+id/aoiLocationButton"
+        android:id="@+id/locationButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/blueBorder"
-        android:layout_below="@+id/blueBorder"
+        android:layout_alignRight="@id/blueBorder"
+        android:layout_below="@id/blueBorder"
         android:layout_marginRight="16dp"
         android:layout_marginTop="26dp"
         android:alpha="0.9"
@@ -171,11 +171,11 @@
         android:src="@drawable/location" />
 
     <ImageButton
-        android:id="@+id/aoiZoomInButton"
+        android:id="@id/aoiZoomInButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/aoiLocationButton"
-        android:layout_below="@+id/aoiLocationButton"
+        android:layout_alignRight="@id/locationButton"
+        android:layout_below="@id/locationButton"
         android:layout_marginTop="18dp"
         android:alpha="0.9"
         android:background="#CCCCCC"

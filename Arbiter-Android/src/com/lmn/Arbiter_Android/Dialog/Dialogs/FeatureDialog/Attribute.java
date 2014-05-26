@@ -399,10 +399,11 @@ public class Attribute {
 							R.string.form_error_date));;
 				}
 			}
-			//this will remove the error message if the user fixes an invalid field
-			if(valid == true) {
-				editText.setError(null);
-			}
+		}
+
+		//this will remove the error message if the user fixes an invalid field
+		if(valid == true) {
+			editText.setError(null);
 		}
 		
 		return valid;

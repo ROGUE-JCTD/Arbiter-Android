@@ -434,20 +434,6 @@ public class Map{
 		});
 	}
 	
-	public void finishInserting(final CordovaWebView webview){
-		
-		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
-			@Override
-			public void run(){
-				
-				String url = "javascript:app.waitForArbiterInit(new Function('"
-						+ "Arbiter.Controls.ControlPanel.finishInserting()'))";
-				
-				webview.loadUrl(url);
-			}
-		});
-	}
-	
 	public void addPart(final CordovaWebView webview){
 		
 		AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){

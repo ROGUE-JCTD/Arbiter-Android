@@ -261,10 +261,6 @@ public class GeometryEditor {
 		
 		this.cancelBtn.setVisibility(visible);
 		
-		if(visibility){
-			this.doneBtn.setEnabled(false);
-		}
-		
 		this.doneBtn.setVisibility(visible);
 	}
 	
@@ -325,11 +321,6 @@ public class GeometryEditor {
 					e.printStackTrace();
 				}
 		}
-	}
-	
-	public void enableDoneButton(){
-		
-		this.doneBtn.setEnabled(true);
 	}
 	
 	public void enableMultiPartBtns(boolean enable, boolean enableCollection){

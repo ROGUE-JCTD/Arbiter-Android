@@ -233,4 +233,5 @@
     <string name="added">AÑADIDO</string>
     <string name="modified">MODIFICADO</string>
     <string name="removed">ELIMINADO</string>
+    <string name="no_valid_geometries">No hay geometrías válidos presentes.</string>
 </resources>

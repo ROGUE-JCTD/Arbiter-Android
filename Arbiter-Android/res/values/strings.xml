@@ -235,4 +235,5 @@
     <string name="added">ADDED</string>
     <string name="modified">MODIFIED</string>
     <string name="removed">REMOVED</string>
+    <string name="no_valid_geometries">No valid geometries present.</string>
 </resources>

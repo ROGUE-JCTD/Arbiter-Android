@@ -182,16 +182,6 @@ public class MapChangeHelper {
 		});
 	}
 	
-	public void enableDoneEditingButton(){
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				
-				editor.enableDoneButton();
-			}
-		});
-	}
-	
 	public void enableMultiPartBtns(final boolean enable, final boolean enableCollection){
 		
 		activity.runOnUiThread(new Runnable(){

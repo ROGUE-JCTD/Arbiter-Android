@@ -64,12 +64,6 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 		console.log("onFeatureModified", event);
 		
 		saveControlPanelInfo(event.feature.metadata.part);
-		
-		if(!modified){
-			modified = true;
-			
-			Arbiter.Cordova.enableDoneEditingBtn();
-		}
 	};
 
 	var onFeatureSelected = function(feature){
@@ -437,8 +431,6 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 				modifyController.activate();
 				
 				Arbiter.Cordova.hidePartButtons();
-				
-				Arbiter.Cordova.enableDoneEditingBtn();
 			}
 		},
 		
@@ -464,8 +456,6 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 				Arbiter.Cordova.hidePartButtons();
 				
 				modifyController.activate();
-				
-				Arbiter.Cordova.enableDoneEditingBtn();
 			}
 		},
 		

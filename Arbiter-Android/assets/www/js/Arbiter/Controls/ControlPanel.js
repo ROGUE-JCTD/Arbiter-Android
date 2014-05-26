@@ -15,6 +15,8 @@ Arbiter.Controls.ControlPanel = (function(){
 	
 	var oomCleared = true;
 	
+	var onFinishedInserting = null;
+	
 	var _endInsertMode = function(){
 		
 		if(Arbiter.Util.existsAndNotNull(insertControl)){
@@ -66,7 +68,14 @@ Arbiter.Controls.ControlPanel = (function(){
 				
 				selectedFeature = feature;
 				
-				startModifyMode(feature);
+				startModifyMode(feature, function(){
+					if(Arbiter.Util.existsAndNotNull(onFinishedInserting)){
+						
+						onFinishedInserting();
+						
+						onFinishedInserting = null;
+					}
+				});
 			});
 		}, function(e){
 			console.log("start insert mode error", e.stack);
@@ -243,35 +252,31 @@ Arbiter.Controls.ControlPanel = (function(){
 				return;
 			}
 			
-			if(modifyControl.validEdit()){
-				modifyControl.done(function(){
+			modifyControl.done(function(){
+				
+				modifyControl = null;
+				
+				selectControl.activate();
+				
+				if(Arbiter.Util.existsAndNotNull(selectedFeature)){
 					
-					modifyControl = null;
-					
-					selectControl.activate();
-					
-					if(Arbiter.Util.existsAndNotNull(selectedFeature)){
-						
-						if(!Arbiter.Util.existsAndNotNull(selectedFeature.metadata)){
-							selectedFeature.metadata = {};
-						}
-						
-						selectedFeature.metadata["modified"] = true;
-						
-						selectControl.select(selectedFeature);
+					if(!Arbiter.Util.existsAndNotNull(selectedFeature.metadata)){
+						selectedFeature.metadata = {};
 					}
 					
-					try{
-						if(Arbiter.Util.existsAndNotNull(onExitModify)){
-							onExitModify();
-						}
-					}catch(e){
-						console.log(e.stack);
+					selectedFeature.metadata["modified"] = true;
+					
+					selectControl.select(selectedFeature);
+				}
+				
+				try{
+					if(Arbiter.Util.existsAndNotNull(onExitModify)){
+						onExitModify();
 					}
-				});
-			}else{
-				Arbiter.Cordova.notifyUserToAddGeometry();
-			}
+				}catch(e){
+					console.log(e.stack);
+				}
+			});
 		},
 		
 		unselect: function(){
@@ -328,8 +333,18 @@ Arbiter.Controls.ControlPanel = (function(){
 			}
 		},
 		
-		finishInserting: function(){
-			insertControl.finishInserting();
+		finishInserting: function(_onFinishedInserting){
+			if(Arbiter.Util.existsAndNotNull(insertControl)){
+				
+				onFinishedInserting = _onFinishedInserting;
+				
+				insertControl.finishInserting();
+			}else{
+				
+				_onFinishedInserting();
+				
+				onFinishedInserting = null;
+			}
 		},
 		
 		getInsertControl: function(){

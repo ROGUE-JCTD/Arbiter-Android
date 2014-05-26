@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -81,6 +82,26 @@ public class ArbiterCordova extends CordovaPlugin{
 			
 			setProjectsAOI(aoi, tileCount);
 			
+			return true;
+		}else if("invalidGeometriesEntered".equals(action)){
+			
+			final Activity activity = cordova.getActivity();
+			
+			activity.runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					
+					AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+					
+					builder.setTitle(R.string.warning);
+					
+					builder.setMessage(R.string.no_valid_geometries);
+					
+					builder.setPositiveButton(R.string.close, null);
+					
+					builder.create().show();
+				}
+			});
 			return true;
 		}else if("isAddingGeometryPart".equals(action)){
 			
@@ -365,20 +386,6 @@ public class ArbiterCordova extends CordovaPlugin{
 		}else if("alertGeolocationError".equals(action)){
 			
 			alertGeolocationError(args.getString(0));
-			
-			return true;
-		}else if("enableDoneEditingBtn".equals(action)){
-			
-			Map.MapChangeListener mapListener;
-			
-			try{
-				
-				mapListener = (Map.MapChangeListener) cordova.getActivity();
-				mapListener.getMapChangeHelper().enableDoneEditingButton();
-				
-			}catch(ClassCastException e){
-				e.printStackTrace();
-			}
 			
 			return true;
 		}else if("featureUnselected".equals(action)){

@@ -97,7 +97,7 @@ public class MapChangeHelper {
 						
 						Log.w("MapChangeHelper", "MapChangeHelper onSelectFEature featureID = " + featureId);
 						
-						if(featureId != null && featureId != "null"){
+						if(featureId != null && !"null".equals(featureId)){
 							editor.setEditMode(GeometryEditor.Mode.SELECT);
 						}else{
 							editor.setEditMode(GeometryEditor.Mode.INSERT);

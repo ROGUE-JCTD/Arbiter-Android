@@ -55,7 +55,7 @@ Arbiter.PreferencesHelper = (function(){
 					}
 				});
 			}, function(e){
-				console.log("ERROR: Arbiter.PreferencesHelper.put outer", e);
+				console.log("ERROR: Arbiter.PreferencesHelper.put outer", e.stack);
 				
 				if(Arbiter.Util.funcExists(onFailure)){
 					onFailure.call(context, e);

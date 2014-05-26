@@ -49,33 +49,46 @@ Arbiter.Controls.ControlPanel = (function(){
 			insertControl = new Arbiter.Controls.Insert(olLayer, map,
 					geometryType, function(feature){
 				
-				if(geometryType === Arbiter.Geometry.type.MULTIPOINT 
-						|| geometryType === Arbiter.Geometry.type.MULTILINE
-						|| geometryType === Arbiter.Geometry.type.MULTIPOLYGON){
-					
-					if(!Arbiter.Util.existsAndNotNull(feature.metadata)){
-						feature.metadata = {};
+				if(Arbiter.Util.existsAndNotNull(feature)){
+				
+					if(geometryType === Arbiter.Geometry.type.MULTIPOINT 
+							|| geometryType === Arbiter.Geometry.type.MULTILINE
+							|| geometryType === Arbiter.Geometry.type.MULTIPOLYGON){
+						
+						if(!Arbiter.Util.existsAndNotNull(feature.metadata)){
+							feature.metadata = {};
+						}
+						
+						feature.metadata[Arbiter.FeatureTableHelper.PART_OF_MULTI] = true; 
 					}
+						
+					_endInsertMode();
 					
-					feature.metadata[Arbiter.FeatureTableHelper.PART_OF_MULTI] = true; 
-				}
+					mode = Arbiter.ControlPanelHelper.prototype.CONTROLS.INSERT;
 					
-				_endInsertMode();
-				
-				mode = Arbiter.ControlPanelHelper.prototype.CONTROLS.INSERT;
-				
-				selectControl.select(feature);
-				
-				selectedFeature = feature;
-				
-				startModifyMode(feature, function(){
+					selectControl.select(feature);
+					
+					selectedFeature = feature;
+					
+					startModifyMode(feature, function(){
+						if(Arbiter.Util.existsAndNotNull(onFinishedInserting)){
+							
+							onFinishedInserting();
+							
+							onFinishedInserting = null;
+						}
+					});
+				}else{
+					
+					_endInsertMode();
+					
 					if(Arbiter.Util.existsAndNotNull(onFinishedInserting)){
 						
 						onFinishedInserting();
 						
 						onFinishedInserting = null;
 					}
-				});
+				}
 			});
 		}, function(e){
 			console.log("start insert mode error", e.stack);
@@ -334,6 +347,7 @@ Arbiter.Controls.ControlPanel = (function(){
 		},
 		
 		finishInserting: function(_onFinishedInserting){
+			
 			if(Arbiter.Util.existsAndNotNull(insertControl)){
 				
 				onFinishedInserting = _onFinishedInserting;

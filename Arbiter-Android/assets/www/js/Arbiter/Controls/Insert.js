@@ -260,6 +260,15 @@
 			if(Arbiter.Util.funcExists(this.insertCallback)){
 				this.insertCallback(feature);
 			}
+		}else{
+			
+			this.map.removeLayer(this.insertLayer);
+			
+			this.deactivate();
+			
+			if(Arbiter.Util.funcExists(this.insertCallback)){
+				this.insertCallback();
+			}
 		}
 	};
 })();

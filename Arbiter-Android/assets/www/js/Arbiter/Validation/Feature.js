@@ -4,6 +4,7 @@
 		this.feature = feature;
 		this.geometry = feature.geometry.clone();
 		this.removeInvalidGeometries = removeInvalidGeometries;
+		this.hasValidGeometries = null;
 	};
 	
 	var construct = Arbiter.Validation.Feature;
@@ -73,19 +74,25 @@
 			
 		if(parent === this.feature){ // Only true for the first call
 			
-			// If the cloned geometry is null it means that the feature should be removed
-			if(!Arbiter.Util.existsAndNotNull(this.geometry) && this.removeInvalidGeometries){
+			this.hasValidGeometries = Arbiter.Util.existsAndNotNull(this.geometry);
+			
+			// If removing invalid geometries
+			if(this.removeInvalidGeometries){
 				
-				this.feature.layer.removeFeatures(this.feature);
-				
-				if(!Arbiter.Util.existsAndNotNull(this.feature.metadata)){
-					this.feature.metadata = {};
+				// If no valid geometries, remove the feature
+				if(!this.hasValidGeometries){
+					
+					this.feature.layer.removeFeatures(this.feature);
+					
+					if(!Arbiter.Util.existsAndNotNull(this.feature.metadata)){
+						this.feature.metadata = {};
+					}
+					
+					this.feature.metadata[construct.REMOVED_DURING_VALIDATION] = true;
+				}else{ // If there are valid geometries, just change the geometry.
+					
+					this.feature.geometry = this.geometry;
 				}
-				
-				this.feature.metadata[construct.REMOVED_DURING_VALIDATION] = true;
-			}else{
-				
-				this.feature.geometry = this.geometry;
 			}
 		}
 		
@@ -124,21 +131,24 @@
 	
 	prototype._handleRemoveGeometry = function(parent, childIndex){
 		
-		if(this.removeInvalidGeometries){
+		if(parent === this.feature){
 			
-			if(parent === this.feature){
-				
-				this.geometry = null;
-			}else{
-				
-				parent.components.splice(childIndex, 1);
-			}
+			this.geometry = null;
+		}else{
+			
+			parent.components.splice(childIndex, 1);
 		}
 	};
 	
 	prototype._validatePoint = function(geometry){
 		
-		return true;
+		if(Arbiter.Util.existsAndNotNull(geometry) 
+				&& geometry.CLASS_NAME === "OpenLayers.Geometry.Point"){
+			
+			return true;
+		}
+		
+		return false;
 	};
 	
 	prototype._validateLineString = function(geometry){

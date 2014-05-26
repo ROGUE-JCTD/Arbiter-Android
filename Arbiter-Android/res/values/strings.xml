@@ -228,7 +228,7 @@
     <string name="invalid_url_slash_wms">\"WMS\" server urls must end with \"/wms\"</string>
     <string name="invalid_url_slash_tms">\"TMS\" server urls end with \"/hot/1.0.0/\"</string>
     <string name="insert">insert</string>
-    <string name="feature_outside_aoi_warning">You have inserted a feature outside of your selected area of interest.  After syncing this feature, it will no longer
+    <string name="feature_outside_aoi_warning">You have placed a feature outside of your selected area of interest.  After syncing this feature, it will no longer
          be on the device.</string>
     <string name="confirm_delete_project">Are you sure you want to delete the project?  Any unsynchronized data will be lost.</string>
     <string name="confirm_delete_layer">Are you sure you want to delete the layer?  Any unsynchronized data will be lost.</string>
@@ -236,4 +236,12 @@
     <string name="modified">MODIFIED</string>
     <string name="removed">REMOVED</string>
     <string name="no_valid_geometries">No valid geometries present.</string>
+    <string name="no_valid_geometries_delete_or_cancel">No valid geometries present.  Would you like to delete the feature or cancel?</string>
+    <string name="valid_point_geometry_description">A Point geometry must have at least one point.</string>
+    <string name="valid_line_geometry_description">A Line geometry must have at least two unique points.</string>
+    <string name="valid_polygon_geometry_description">A Polygon geometry must have at least three unique points.</string>
+    <string name="valid_multipoint_geometry_description">A MultiPoint geometry must have at least one valid Point geometry.</string>
+    <string name="valid_multiline_geometry_description">A MultiLine geometry must have at least one valid Line geometry.</string>
+    <string name="valid_multipolygon_geometry_description">A MultiPolygon geometry must have at least one valid Polygon geometry.</string>
+    <string name="valid_geometry_collection_description">A Geometry Collection must have at least one valid geometry.</string>
 </resources>

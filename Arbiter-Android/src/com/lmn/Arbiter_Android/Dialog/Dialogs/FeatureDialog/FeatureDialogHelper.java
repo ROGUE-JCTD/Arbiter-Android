@@ -182,7 +182,6 @@ public class FeatureDialogHelper {
 	 * the feature on the map.
 	 */
 	public void editOnMap(){
-		
 		ArbiterState.getArbiterState().editingFeature(feature, layerId);
 		
 		//mapListener.getMapChangeHelper().onEditFeature(feature);
@@ -239,10 +238,12 @@ public class FeatureDialogHelper {
 			e.printStackTrace();
 		}
 		
+		ArrayList<String> mediaToDelete = new ArrayList<String>();
 		for(String key : mediaPanels.keySet()){
 			mediaPanel = mediaPanels.get(key);
 			
 			ArrayList<String> mediaToSend = mediaPanel.getMediaToSend();
+			mediaToDelete.addAll(mediaPanel.getMediaToDelete());
 			
 			for(int i = 0, count = mediaToSend.size(); i < count; i++){
 				mediaLayer.put(mediaToSend.get(i));
@@ -251,7 +252,25 @@ public class FeatureDialogHelper {
 			mediaPanel.clearMediaToSend();
 		}
 		
-		helper.updateMediaToSend(newMedia.toString());
+		String newMediaString = newMedia.toString();
+		
+		for(int i = 0, count = mediaToDelete.size(); i < count; i++){
+			String mediaElement = '\"' + mediaToDelete.get(i) + '\"';
+			
+			int index = newMediaString.indexOf(mediaElement);
+			if (index > -1) {
+				int length = mediaElement.length();
+				if (newMediaString.indexOf(mediaElement + ",") == index) {
+					length++;
+				} else if (newMediaString.indexOf("," + mediaElement) == index - 1) {
+					index--;
+					length++;
+				}
+				newMediaString = newMediaString.substring(0, index) + newMediaString.substring(index+length);
+			}
+		}
+		
+		helper.updateMediaToSend(newMediaString);
 	}
 	
 	private boolean save() throws Exception{

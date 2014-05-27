@@ -245,6 +245,8 @@ Arbiter.Cordova = (function() {
 							if(Arbiter.Util.existsAndNotNull(selectedFeature.metadata) 
 									&& selectedFeature.metadata[Arbiter.Validation.Feature.REMOVED_DURING_VALIDATION]){
 								
+								Arbiter.Controls.ControlPanel.setSelectedFeature(null);
+								
 								cordova.exec(null, null, "ArbiterCordova", "invalidGeometriesEntered", [schema.getFeatureType(), featureId]);
 							}else{
 								

@@ -251,7 +251,7 @@ public class Attribute {
 					|| type.equals("xsd:time"))){
 				value = getDateValue();
 			}else{
-				value = getEditTextValue();
+				value = getEditTextValue().trim();
 			}
 		}
 		
@@ -340,12 +340,12 @@ public class Attribute {
 		String type = enumHelper.getType();
 		String val = editText.getText().toString();
 		
-		if(val.isEmpty()){
+		if(val.trim().isEmpty()){
 			valid = true;
 		}else{
 			if(type.equals("xsd:integer") || type.equals("xsd:int")){
 				
-				valid = util.isInteger(val);
+				valid = util.isInteger(val.trim());
 				
 				if(!valid){
 					editText.setError(resources.getString(
@@ -353,7 +353,7 @@ public class Attribute {
 				}
 			}else if(type.equals("xsd:double")){
 				
-				valid = util.isDouble(val);
+				valid = util.isDouble(val.trim());
 				
 				if(!valid){
 					editText.setError(resources.getString(
@@ -361,7 +361,7 @@ public class Attribute {
 				}
 			}else if(type.equals("xsd:boolean")){
 				
-				if(val.equals("true") || val.equals("false")){
+				if(val.trim().equals("true") || val.trim().equals("false")){
 					valid = true;
 				}else{
 					valid = false;
@@ -370,14 +370,14 @@ public class Attribute {
 				}
 			}else if(type.equals("xsd:long")){
 				
-				valid = util.isLong(val);
+				valid = util.isLong(val.trim());
 				
 				if(!valid){
 					editText.setError(resources.getString(R.string.form_error_long));
 				}
 			}else if(type.equals("xsd:float")){
 				
-				valid = util.isLong(val);
+				valid = util.isLong(val.trim());
 				
 				if(!valid){
 					editText.setError(resources.getString(R.string.form_error_float));

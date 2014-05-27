@@ -400,6 +400,11 @@ public class Attribute {
 				}
 			}
 		}
+
+		//this will remove the error message if the user fixes an invalid field
+		if(valid == true) {
+			editText.setError(null);
+		}
 		
 		return valid;
 	}

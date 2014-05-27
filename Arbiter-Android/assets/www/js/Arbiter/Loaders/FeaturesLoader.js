@@ -142,17 +142,7 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 		return collection;
 	};
 	
-	var processFeature = function(schema, dbFeature, olLayer,
-			activeControl, layerId, featureId, geometry, indexChain){
-		
-		var wkt = dbFeature[schema.getGeometryName()];
-		
-		var partOfMulti = false;
-		
-		if(wkt.substring(0, 5).indexOf("Multi") >= 0){
-			partOfMulti = true;
-		}
-		
+	var readFeature = function(schema, layerId, wkt){
 		var feature = wktFormatter.read(wkt);
 		
 		var geometryType = Arbiter.Geometry.getGeometryType(layerId, schema.getGeometryType());
@@ -182,6 +172,22 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 						new OpenLayers.Projection(mapProj));
 			}
 		}
+		
+		return feature;
+	};
+	
+	var processFeature = function(schema, dbFeature, olLayer,
+			activeControl, layerId, featureId, geometry, indexChain){
+		
+		var wkt = dbFeature[schema.getGeometryName()];
+		
+		var partOfMulti = false;
+		
+		if(wkt.substring(0, 5).indexOf("Multi") >= 0){
+			partOfMulti = true;
+		}
+		
+		var feature = readFeature(schema, layerId, wkt);
 		
 		addAttributes(schema, dbFeature, feature);
 		
@@ -252,6 +258,50 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 	return {
 		loadFeatures: function(schema, olLayer, onSuccess, onFailure){
 			
+			var success = function(activeControl, layerId, featureId, geometry, indexChain){
+				
+				console.log("loadFeatures success(): activeControl = " 
+						+ activeControl + ", layerId = " 
+						+ layerId + ", featureId = " 
+						+ featureId + ", geometry = " 
+						+ geometry + ", indexChain = " + indexChain);
+				
+				// If the map refreshed during modify mode, on an uninserted feature
+				if(activeControl == controlPanelHelper.CONTROLS.MODIFY 
+						&& layerId == schema.getLayerId() 
+						&& (!Arbiter.Util.existsAndNotNull(featureId) 
+								|| featureId === "null" 
+								|| featureId === "undefined")){
+					
+					try{
+						
+						var feature = readFeature(schema, layerId, geometry);
+						
+						olLayer.addFeatures([feature]);
+						
+						Arbiter.Controls.ControlPanel.setSelectedFeature(feature);
+						
+						Arbiter.Controls.ControlPanel.enterModifyMode(feature, function(){
+							if(Arbiter.Util.existsAndNotNull(indexChain)){
+								Arbiter.Controls.ControlPanel.selectGeometryPartByIndexChain(indexChain);
+							}
+							
+							if(Arbiter.Util.existsAndNotNull(onSuccess)){
+								onSuccess();
+							}
+						});
+						
+					}catch(e){
+						console.log("error reading feature: " + e.stack);
+					}
+				}else{
+					
+					if(Arbiter.Util.existsAndNotNull(onSuccess)){
+						onSuccess();
+					}
+				}
+			};
+			
 			getControlPanelMode(function(activeControl, layerId, featureId, geometry, indexChain){
 				
 				Arbiter.FeatureTableHelper.loadFeatures(schema, this, 
@@ -271,14 +321,8 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 						}
 					}
 					
-					var funcExists = Arbiter.Util.funcExists(onSuccess);
-					
-					if(funcExists){
-						if(featureCount === 0){
-							onSuccess();
-						}else if(currentFeatureIndex === (featureCount - 1)){
-							onSuccess();
-						}
+					if(featureCount === 0 || (currentFeatureIndex === (featureCount - 1))){
+						success(activeControl, layerId, featureId, geometry, indexChain);
 					}
 						
 				}, onFailure);

@@ -295,7 +295,7 @@ public class FeatureDialogHelper {
 		ControlPanelHelper controlPanelHelper = new ControlPanelHelper(activity);
 		controlPanelHelper.set(featureId, layerId,
 				ControlPanelHelper.CONTROLS.SELECT,
-				feature.getGeometry(), null);
+				feature.getGeometry(), null, null);
 		
 		// Update the mediaToSend property so that
 		// we know which files need to be synced.

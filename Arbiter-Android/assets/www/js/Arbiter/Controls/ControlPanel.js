@@ -33,6 +33,8 @@ Arbiter.Controls.ControlPanel = (function(){
 		
 		var geometryType = Arbiter.Geometry.getGeometryType(layerId, _geometryType);
 		
+		var geometryTypeName = Arbiter.Geometry.getGeometryName(geometryType);
+		
 		var context = Arbiter.Controls.ControlPanel;
 		
 		var schema = Arbiter.getLayerSchemas()[layerId];
@@ -42,7 +44,7 @@ Arbiter.Controls.ControlPanel = (function(){
 				"could not get schema for layer id '" + layerId + "'";
 		}
 		
-		controlPanelHelper.set(0, layerId, controlPanelHelper.CONTROLS.INSERT, 0, null, function(){
+		controlPanelHelper.set(0, layerId, controlPanelHelper.CONTROLS.INSERT, 0, geometryTypeName, null, function(){
 			
 			var map = Arbiter.Map.getMap();
 			selectControl.deactivate();
@@ -109,6 +111,8 @@ Arbiter.Controls.ControlPanel = (function(){
 		
 		var geometryType = Arbiter.Geometry.getGeometryType(layerId); 
 		
+		var geometryTypeName = Arbiter.Geometry.getGeometryName(geometryType);
+		
 		if(geometryType === Arbiter.Geometry.type.MULTIGEOMETRY && feature.geometry.CLASS_NAME !== "OpenLayers.Geometry.Collection"){
 			
 			var collection = new OpenLayers.Geometry.Collection([feature.geometry]);
@@ -124,7 +128,7 @@ Arbiter.Controls.ControlPanel = (function(){
 				feature.layer, feature, schema);
 		
 		controlPanelHelper.set(featureId, layerId,
-				controlPanelHelper.CONTROLS.MODIFY, wktGeometry, null, function(){
+				controlPanelHelper.CONTROLS.MODIFY, wktGeometry, geometryTypeName, null, function(){
 			
 			selectControl.deactivate();
 			
@@ -187,9 +191,9 @@ Arbiter.Controls.ControlPanel = (function(){
 				}
 			};
 			
-			if(Arbiter.Util.existsAndNotNull(featureId)){
+			/*if(Arbiter.Util.existsAndNotNull(featureId)){
 				
-				controlPanelHelper.set(featureId, layerId, controlPanelHelper.CONTROLS.SELECT, 0, null, function(){
+				controlPanelHelper.set(featureId, layerId, controlPanelHelper.CONTROLS.SELECT, 0, null, null, function(){
 					
 					oomCleared = false;
 					
@@ -197,9 +201,9 @@ Arbiter.Controls.ControlPanel = (function(){
 				}, function(e){
 					console.log("Error saving select mode", e);
 				});
-			}else{
+			}else{*/
 				exec();
-			}
+			//}
 		}
 	};
 	

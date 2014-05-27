@@ -32,6 +32,7 @@ public class LayersHelper implements BaseColumns{
 	public static final String WORKSPACE = "workspace";
 	public static final String LAYER_ORDER = "layerOrder";
 	public static final String READ_ONLY = "readOnly";
+	public static final String ADD_LAYER_ORDER_TRIGGER_NAME = "addLayerOrder";
 	
 	private LayersHelper(){}
 	
@@ -57,7 +58,7 @@ public class LayersHelper implements BaseColumns{
 					WORKSPACE + " TEXT, " +
 					SERVER_ID + " INTEGER, " + 
 					LAYER_ORDER + " INTEGER, " +
-					READ_ONLY + " BOOLEAN);";
+					READ_ONLY + " BOOLEAN DEFAULT 0);";
 		
 		db.execSQL(sql);
 		
@@ -66,7 +67,7 @@ public class LayersHelper implements BaseColumns{
 	
 	private void createAutoIncrementLayerOrderTrigger(SQLiteDatabase db){
 		
-		String createTriggerSql = "CREATE TRIGGER addLayerOrder "
+		String createTriggerSql = "CREATE TRIGGER " + ADD_LAYER_ORDER_TRIGGER_NAME + " "
 				+ "AFTER INSERT ON " + LAYERS_TABLE_NAME + " "
 				+ "BEGIN "
 					+ "UPDATE " + LAYERS_TABLE_NAME + " SET " + LAYER_ORDER + "="
@@ -108,7 +109,7 @@ public class LayersHelper implements BaseColumns{
 			layers.add(new Layer(cursor.getInt(0),
 					cursor.getString(1), cursor.getString(2), cursor.getInt(3), null, null, cursor.getString(4), 
 					cursor.getString(5), cursor.getString(6), cursor.getInt(7),
-					util.convertIntToBoolean(cursor.getInt(8))));
+					util.convertIntToBoolean(cursor.getInt(8)), util.convertIntToBoolean(cursor.getInt(9))));
 		}
 		
 		cursor.close();
@@ -149,7 +150,7 @@ public class LayersHelper implements BaseColumns{
 			layer = new Layer(cursor.getInt(0),
 					cursor.getString(1), cursor.getString(2), cursor.getInt(3), null, null, cursor.getString(4), 
 					cursor.getString(5), cursor.getString(6), cursor.getInt(7),
-					util.convertIntToBoolean(cursor.getInt(8)));
+					util.convertIntToBoolean(cursor.getInt(8)), util.convertIntToBoolean(cursor.getInt(9)));
 		}
 		
 		cursor.close();
@@ -218,29 +219,25 @@ public class LayersHelper implements BaseColumns{
 			
 			// Remove the featureType from the geometryColumns table
 			// and drop the schema table for the feature type
-			int affected = GeometryColumnsHelper.getHelper().remove(
+			GeometryColumnsHelper.getHelper().remove(
 					featureDb, featureType);
 			
 			FailedSync.getHelper().remove(projectDb, layer.getLayerId());
 			
 			FailedSync.getHelper().removeFromMediaToSend(context, projectDb, layer.getLayerId());
 			
-			// If the geometryColumn row was successfully removed,
-			// then remove the layer from the layers table and call
-			// the onLayerDeleted method of the mapChangeListener
-		//	if(affected != 0){
-				String whereClause = _ID + "=?";
-				String[] whereArgs = {
-					Long.toString(layer.getLayerId())
-				};
-				
-				projectDb.delete(LAYERS_TABLE_NAME, whereClause, whereArgs);
-				
-				projectDb.setTransactionSuccessful();
-				
-				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
-				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(NotificationsLoader.NOTIFICATIONS_UPDATED));
-		//	}
+			String whereClause = _ID + "=?";
+			String[] whereArgs = {
+				Long.toString(layer.getLayerId())
+			};
+			
+			projectDb.delete(LAYERS_TABLE_NAME, whereClause, whereArgs);
+			
+			projectDb.setTransactionSuccessful();
+			
+			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
+			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(NotificationsLoader.NOTIFICATIONS_UPDATED));
+			
 		} catch (Exception e){
 			e.printStackTrace();
 		} finally {
@@ -272,7 +269,7 @@ public class LayersHelper implements BaseColumns{
 			for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 				delete(projectDb, featureDb, context, new Layer(cursor.getInt(0),
 						cursor.getString(1), null, cursor.getInt(2), null, null, null, 
-						null, null, -1, false));
+						null, null, -1, false, false));
 			}
 			
 			cursor.close();

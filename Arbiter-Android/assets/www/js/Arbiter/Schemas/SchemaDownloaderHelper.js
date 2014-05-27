@@ -25,6 +25,8 @@
 		
 		this.describeFeatureTypeReader = new OpenLayers.Format.WFSDescribeFeatureType();
 		
+		this.isReadOnly = false;
+		
 		this.color = this.layer[Arbiter.LayersHelper.color()];
 		
 		this.failed = false;
@@ -57,10 +59,11 @@
 			
 			return;
 		}
-		this.checkReadOnly();
+		
+		this._checkReadOnly();
 	};
 	
-	prototype.checkReadOnly = function() {
+	prototype._checkReadOnly = function() {
 		var context = this;
 		
 		var gotRequestBack = false;
@@ -79,22 +82,64 @@
             '<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">' +
             '<ogc:FeatureId fid="garbage_id" />' +
             '</ogc:Filter></wfs:Update>' +
-            '</wfs:Transaction>'
+            '</wfs:Transaction>',
 			headers: {
 				Authorization: 'Basic ' + context.credentials
 			},
 			success: function(response){
 				gotRequestBack = true;
-				var gmlReader = new OpenLayers.Format.GML.v2({
-					extractAttributes: true
-			    });
-				var json = gmlReader.read(response.responseText);
-				if (Arbiter.Util.existsAndNotNull(json.ServiceExceptionReport) &&
-					Arbiter.Util.existsAndNotNull(json.ServiceExceptionReport.ServiceException) &&
-		            json.ServiceExceptionReport.ServiceException.indexOf('read-only') >= 0) {
-		            	layer.get('metadata').readOnly = true;
-		        }
-				context.checkSchema();
+				
+				console.log("schemaDownloaderHelper: readOnly check - ", response);
+				
+				var xml = response.responseXML;
+				
+				if(xml && xml.childNodes){
+					
+					var node = null;
+					var reportNode = null;
+					var exceptionNode = null;
+					
+					for(var i = 0; i < xml.childNodes.length; i++){
+						
+						node = xml.childNodes[i];
+						
+						// The only node we care about
+						if(node.nodeName === "ServiceExceptionReport"){
+							
+							if(node.childNodes){
+								
+								// Run through the exceptions
+								for(var j = 0; j < node.childNodes.length; j++){
+									
+									reportNode = node.childNodes[j];
+									
+									if(reportNode.nodeName === "ServiceException"){
+										
+										if(reportNode.childNodes){
+											
+											for(var k = 0; k < reportNode.childNodes.length; k++){
+												
+												exceptionNode = reportNode.childNodes[k];
+												
+												if(exceptionNode.nodeValue.indexOf('read-only') >= 0){
+													
+													context.isReadOnly = true;
+													
+													break;
+												}
+											}
+										}
+									}
+								}
+							}
+							
+							break;
+						}
+					}
+				}
+				
+				console.log("isReadOnly = " + context.isReadOnly);
+				context._saveReadOnly();
 			},
 			failure: function(response){
 				gotRequestBack = true;
@@ -113,9 +158,23 @@
 				context.onDownloadFailure();
 			}
 		}, 30000);
-	}
+	};
 
-	prototype.checkSchema = function(){
+	prototype._saveReadOnly = function(){
+		
+		var context = this;
+		
+		var content = {};
+		
+		content[Arbiter.LayersHelper.readOnly()] = this.isReadOnly;
+		
+		Arbiter.LayersHelper.updateLayer(this.layer[Arbiter.LayersHelper.featureType()], content, this, function(){
+			
+			context._downloadSchema();
+		}, this.onDownloadFailure);
+	};
+	
+	prototype._downloadSchema = function(){
 		var context = this;
 		
 		var gotRequestBack = false;
@@ -140,7 +199,8 @@
 				try{
 					context.schema = new Arbiter.Util.LayerSchema(context.layerId, context.url,
 							results.targetNamespace, context.featureType, context.srid,
-							results.featureTypes[0].properties, context.serverId, context.serverType, context.color);
+							results.featureTypes[0].properties, context.serverId,
+							context.serverType, context.color, context.isReadOnly);
 				}catch(e){
 					var msg = "Could not create schema - " + JSON.stringify(e);
 					

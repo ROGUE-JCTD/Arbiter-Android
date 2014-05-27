@@ -1,7 +1,6 @@
 package com.lmn.Arbiter_Android.BaseClasses;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -17,7 +16,6 @@ import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.NotificationsTableHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.SyncTableHelper;
 import com.lmn.Arbiter_Android.Loaders.NotificationsLoader;
 import com.lmn.Arbiter_Android.Notifications.NotificationListItem;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
@@ -79,9 +77,9 @@ public class Layer extends NotificationListItem{
 	}
 	
 	public Layer(int layerId, String featureType, String workspace, int serverId, String serverName, String serverUrl,
-			String title, String srs, String boundingBox, String color, int layerOrder, boolean checked){
+			String title, String srs, String boundingBox, String color, int layerOrder, boolean checked, boolean readOnly){
 		this(layerId, featureType, workspace, serverId, serverName, serverUrl,
-				title, boundingBox, color, layerOrder, checked);
+				title, boundingBox, color, layerOrder, checked, readOnly);
 		
 		this.srs = srs;
 	}
@@ -101,6 +99,7 @@ public class Layer extends NotificationListItem{
 		this.workspace = item.getWorkspace();
 		this.layerOrder = item.getLayerOrder();
 		this.syncId = item.getSyncId();
+		this.readOnly = item.isReadOnly();
 	}
 	
 	public Layer(BaseLayer baseLayer){
@@ -160,6 +159,14 @@ public class Layer extends NotificationListItem{
 	
 	public boolean isChecked(){
 		return this.checked;
+	}
+	
+	public boolean isReadOnly(){
+		return this.readOnly;
+	}
+	
+	public void setReadOnly(boolean readOnly){
+		this.readOnly = readOnly;
 	}
 	
 	public int getServerId(){

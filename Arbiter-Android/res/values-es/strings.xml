@@ -242,4 +242,6 @@
     <string name="valid_multiline_geometry_description">Una geometría de línea múltiple debe tener al menos una geometría de línea válida.</string>
     <string name="valid_multipolygon_geometry_description">Una geometría de polígono múltiple debe tener al menos una geometría de polígono válida.</string>
     <string name="valid_geometry_collection_description">Una geometría de grupo debe tener al menos una geometría válida.</string>
+    <string name="delete_media">Eliminar Foto</string>
+    <string name="sure_delete_media">¿Está seguro de que desea eliminar esta foto desde el elemento?</string>
 </resources>

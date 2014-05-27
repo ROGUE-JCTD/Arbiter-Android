@@ -142,6 +142,7 @@ public class MediaPanel {
 			//takePictureBtn.setEnabled(!takePictureBtn.isEnabled());
 			takePictureBtn.setVisibility(editMode ? View.VISIBLE : View.GONE);
 		}
+		mediaLoader.setEditMode(editMode);
 	}
 	
 	public void addMediaToSend(String fileName){
@@ -156,5 +157,9 @@ public class MediaPanel {
 	
 	public ArrayList<String> getMediaToSend(){
 		return mediaToSend;
+	}
+	
+	public ArrayList<String> getMediaToDelete() {
+		return mediaLoader.getMediaToDelete();
 	}
 }

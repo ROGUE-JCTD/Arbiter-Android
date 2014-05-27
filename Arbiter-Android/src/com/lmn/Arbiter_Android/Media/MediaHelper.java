@@ -30,6 +30,11 @@ public class MediaHelper {
 		return uri;
 	}
 	
+	public String getMediaFileFromUri(String fullUri){
+		
+		return fullUri.substring(fullUri.lastIndexOf(File.separator) + 1);
+	}
+	
 	public boolean isExternalStorageReadable(){
 		String state = Environment.getExternalStorageState();
 	    

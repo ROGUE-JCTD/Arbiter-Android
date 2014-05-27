@@ -1,12 +1,12 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -36,6 +36,8 @@ public class MediaLoader {
 	private MediaHelper mediaHelper;
 	private LayoutInflater inflater;
 	private FragmentActivity fragActivity;
+	private boolean editMode = false;
+	private ArrayList<String> mediaToDelete;
 	
 	public MediaLoader(Activity activity, String key, Feature feature,
 			LinearLayout mediaView, LayoutInflater inflater){
@@ -46,6 +48,7 @@ public class MediaLoader {
 		this.mediaView = mediaView;
 		this.mediaHelper = new MediaHelper(activity);
 		this.inflater = inflater;
+		this.mediaToDelete = new ArrayList<String>();
 		
 		try{
 			this.fragActivity = (FragmentActivity) activity;
@@ -56,6 +59,41 @@ public class MediaLoader {
 	
 	private void clearMedia(){
 		mediaView.removeAllViews();
+	}
+	
+	public void deleteMedia(String uri) {
+		String mediaElement = mediaHelper.getMediaFileFromUri(uri);
+		mediaToDelete.add(mediaElement);
+		mediaElement = '\"' + mediaElement + '\"';
+		
+		String media = getMedia();
+		
+		int index = media.indexOf(mediaElement);
+		int length = mediaElement.length();
+		if (media.indexOf(mediaElement + ",") == index) {
+			length++;
+		} else if (media.indexOf("," + mediaElement) == index - 1) {
+			index--;
+			length++;
+		}
+		setMedia(media.substring(0, index) + media.substring(index+length));
+		try {
+			loadMedia();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void setEditMode(boolean editMode) {
+		this.editMode = editMode;
+	}
+	
+	public boolean getEditMode() {
+		return this.editMode;
+	}
+	
+	public ArrayList<String> getMediaToDelete() {
+		return this.mediaToDelete;
 	}
 	
 	private String getMedia(){
@@ -70,6 +108,12 @@ public class MediaLoader {
 		}
 		
 		return media;
+	}
+	
+	private void setMedia(String mediaString){
+		LinkedHashMap<String, String> attributes = feature.getAttributes();
+		
+		attributes.put(key, mediaString);
 	}
 	
 	private int dpToPx(int dp){
@@ -105,7 +149,7 @@ public class MediaLoader {
 	}
 	
 	private void onMediaClick(String imageUri){
-		MediaDialog dialog = MediaDialog.newInstance(imageUri);
+		MediaDialog dialog = MediaDialog.newInstance(imageUri, this);
 		if(dialog != null) {
 			dialog.show(fragActivity.getSupportFragmentManager(), "MediaDialog");
 		}

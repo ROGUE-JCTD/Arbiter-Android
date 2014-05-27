@@ -46,7 +46,7 @@ Arbiter.VectorUploader.prototype.onSaveFailure = function(layer){
 
 Arbiter.VectorUploader.prototype.upload = function(){
 	
-	if(this.schema.isEditable() === false){
+	if(this.schema.isEditable() === false || this.schema.isReadOnly()){
 		
 		if(Arbiter.Util.funcExists(this.onSuccess)){
 			this.onSuccess();

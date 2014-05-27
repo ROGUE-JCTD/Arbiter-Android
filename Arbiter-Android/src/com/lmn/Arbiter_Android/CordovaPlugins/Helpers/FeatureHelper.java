@@ -14,17 +14,18 @@ public class FeatureHelper {
 		this.activity = activity;
 	}
 	
-	public void displayFeatureDialog(Feature feature, String layerId, boolean geomEdited){
+	public void displayFeatureDialog(Feature feature, String layerId, boolean geomEdited, boolean isReadOnly){
 		
-		displayDialog(feature, layerId, geomEdited || feature.isNew());
+		displayDialog(feature, layerId, geomEdited || feature.isNew(), isReadOnly);
 	}
 	
-	private void displayDialog(Feature feature, String layerId, boolean startInEditMode){
+	private void displayDialog(Feature feature, String layerId, boolean startInEditMode, boolean isReadOnly){
 		
 		String title = feature.getFeatureType();
 		
 		FeatureDialog dialog = FeatureDialog.newInstance(title, 
-				R.layout.feature_dialog, feature, layerId, startInEditMode);
+				R.layout.feature_dialog, feature,
+				layerId, startInEditMode, isReadOnly);
 		
 		FragmentManager manager = activity.getSupportFragmentManager();
 		

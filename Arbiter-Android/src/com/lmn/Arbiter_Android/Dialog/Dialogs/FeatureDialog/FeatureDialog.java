@@ -6,6 +6,9 @@ import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,13 +25,16 @@ public class FeatureDialog extends ArbiterDialogFragment{
 	private Button editOnMapButton;
 	private Button deleteButton;
 	private Button cancelButton;
+	private boolean isReadOnly;
 	
 	private static FeatureDialog dialog = null;
 	
 	public static String TAG = "FeatureDialog";
 	
 	public static FeatureDialog newInstance(String title, int layout, 
-			Feature feature, String layerId, boolean startInEditMode){
+			Feature feature, String layerId, 
+			boolean startInEditMode, boolean isReadOnly){
+		
 		if (dialog != null) {
 			return null;
 		}
@@ -42,6 +48,7 @@ public class FeatureDialog extends ArbiterDialogFragment{
 		dialog.startInEditMode = startInEditMode;
 		dialog.feature = feature;
 		dialog.layerId = layerId;
+		dialog.isReadOnly = isReadOnly;
 		
 		return dialog;
 	}
@@ -118,11 +125,18 @@ public class FeatureDialog extends ArbiterDialogFragment{
 		
 		editOnMapButton = (Button) view.findViewById(R.id.editFeature);
 		
+		Log.w("FeatureDialog", "FeatureDialog isReadOnly = " + isReadOnly);
+		
 		if(editOnMapButton != null){
 			editOnMapButton.setOnClickListener(new OnClickListener(){
 				@Override
 				public void onClick(View v){
-					helper.editOnMap();
+					
+					if(!isReadOnly){
+						helper.editOnMap();
+					}else{
+						displayIsReadOnly();
+					}
 				}
 			});
 		}
@@ -134,13 +148,19 @@ public class FeatureDialog extends ArbiterDialogFragment{
 
 				@Override
 				public void onClick(View v) {
-					boolean editing = helper.isEditing();
-					if(!editing){
-						helper.startEditMode(editButton, editOnMapButton,
-								cancelButton, deleteButton);
+					
+					if(!isReadOnly){
+						
+						boolean editing = helper.isEditing();
+						if(!editing){
+							helper.startEditMode(editButton, editOnMapButton,
+									cancelButton, deleteButton);
+						}else{
+							helper.endEditMode(editButton, editOnMapButton,
+									cancelButton, deleteButton);
+						}
 					}else{
-						helper.endEditMode(editButton, editOnMapButton,
-								cancelButton, deleteButton);
+						displayIsReadOnly();
 					}
 				}
 			});
@@ -153,10 +173,30 @@ public class FeatureDialog extends ArbiterDialogFragment{
 
 				@Override
 				public void onClick(View v) {
-					helper.removeFeature();
+					
+					if(!isReadOnly){
+						helper.removeFeature();
+					}else{
+						displayIsReadOnly();
+					}
 				}
 			});
 		}
+	}
+	
+	private void displayIsReadOnly(){
+		
+		Activity activity = getActivity();
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		
+		builder.setTitle(R.string.read_only);
+		
+		builder.setMessage(R.string.read_only_msg);
+		
+		builder.setPositiveButton(R.string.close, null);
+		
+		builder.create().show();
 	}
 	
 	public void updateFeaturesMedia(String key, String media, String newMedia){

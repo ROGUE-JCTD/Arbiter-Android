@@ -8,11 +8,14 @@ import org.apache.cordova.CordovaWebView;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
+import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseGeometryTypeDialog;
 import com.lmn.Arbiter_Android.ListAdapters.ChooseGeometryTypeAdapter;
 import com.lmn.Arbiter_Android.Map.Map;
@@ -301,7 +304,40 @@ public class GeometryEditor {
 				toggleMultiPartBtns(false);
 				toggleConfirmBtns(false);
 				
-				displayInfoDialog(false);
+				try{
+					
+					final Activity activity = weakActivity.get();
+					
+					if(activity != null && layerId != null){
+						
+						ExecutorService threadPool = ((HasThreadPool) activity).getThreadPool();
+						String title = activity.getResources().getString(R.string.loading);
+						String message = activity.getResources().getString(R.string.please_wait);
+						
+						final ProgressDialog dialog = ProgressDialog.show(activity, title, message);
+						
+						threadPool.execute(new Runnable(){
+							@Override
+							public void run(){
+								
+								final Layer layer = LayersHelper.getLayersHelper().get((new Util().getProjectDb(
+										activity, false)), Integer.parseInt(layerId));
+								
+								activity.runOnUiThread(new Runnable(){
+									@Override
+									public void run(){
+										
+										displayInfoDialog(false, layer.isReadOnly());
+										
+										dialog.dismiss();
+									}
+								});
+							}
+						});
+					}
+				}catch(ClassCastException e){
+					e.printStackTrace();
+				}
 				
 				break;
 				
@@ -459,11 +495,14 @@ public class GeometryEditor {
 						feature.updateAttribute(feature.getGeometryName(), wktGeometry);
 						//feature.backupGeometry();
 						
+						final Layer layer = LayersHelper.getLayersHelper().get(
+								(new Util().getProjectDb(activity, false)), Integer.parseInt(layerId));
+						
 						activity.runOnUiThread(new Runnable(){
 							@Override
 							public void run(){
 								
-								displayInfoDialog(true);
+								displayInfoDialog(true, layer.isReadOnly());
 								
 								dialog.dismiss();
 							}
@@ -476,14 +515,14 @@ public class GeometryEditor {
 		}
 	}
 	
-	private void displayInfoDialog(boolean geomEdited){
+	private void displayInfoDialog(boolean geomEdited, boolean isReadOnly){
 		Activity activity = weakActivity.get();
 		
 		if(activity != null){
 			try{
 				Log.w("GeometryEditor", "GeometryEditor displayInfoDialog featureId = " + featureId + ", wktGeometry = " + wktGeometry);
 				FeatureHelper helper = new FeatureHelper((FragmentActivity) activity);
-				helper.displayFeatureDialog(feature, layerId, geomEdited);
+				helper.displayFeatureDialog(feature, layerId, geomEdited, isReadOnly);
 			}catch(ClassCastException e){
 				e.printStackTrace();
 			}

@@ -16,9 +16,10 @@ Arbiter.Util.LayerSchema = function(){
 	var color = null;
 	var serverType = null;
 	var timeProperty = null;
+	var isReadOnly = false;
 	var LayerSchema;
 	
-	if(arguments.length === 9){ // Downloaded from the interwebs...
+	if(arguments.length === 10){ // Downloaded from the interwebs...
 		var _layerId = arguments[0];
 		var _url = arguments[1];
 		var _workspace = arguments[2];
@@ -28,8 +29,9 @@ Arbiter.Util.LayerSchema = function(){
 		var _serverId = arguments[6];
 		var _serverType = arguments[7]
 		var _color = arguments[8];
+		var _isReadOnly = arguments[9];
 		
-		LayerSchema = function(_layerId, _url, _workspace, _featureType, _srid, properties, _serverId, _serverType, _color){
+		LayerSchema = function(_layerId, _url, _workspace, _featureType, _srid, properties, _serverId, _serverType, _color, _isReadOnly){
 			var parsedFeatureType = Arbiter.Util.parseFeatureType(_featureType);
 			featureType = parsedFeatureType.featureType;
 			prefix = parsedFeatureType.prefix;
@@ -45,6 +47,7 @@ Arbiter.Util.LayerSchema = function(){
 			serverId = _serverId;
 			serverType = _serverType;
 			color = _color;
+			isReadOnly = _isReadOnly;
 			
 			var attribute = null;
 			
@@ -87,8 +90,8 @@ Arbiter.Util.LayerSchema = function(){
 			}
 		};
 		
-		LayerSchema(_layerId, _url, _workspace, _featureType, _srid, properties, _serverId, _serverType, _color);
-	}else if(arguments.length === 15){ // Loaded from database
+		LayerSchema(_layerId, _url, _workspace, _featureType, _srid, properties, _serverId, _serverType, _color, _isReadOnly);
+	}else if(arguments.length === 16){ // Loaded from database
 		var _layerId = arguments[0];
 		var _url = arguments[1];
 		var _workspace = arguments[2];
@@ -104,12 +107,14 @@ Arbiter.Util.LayerSchema = function(){
 		var _serverType = arguments[12];
 		var _mediaColumn = arguments[13];
 		var _color = arguments[14];
+		var _isReadOnly = arguments[15];
 		
 		LayerSchema = function(_layerId, _url, _workspace, 
 				_prefix, _featureType, _srid, 
 				_geometryName, _geometryType,
 				_enumeration, _attributes, 
-				_visibility, _serverId, _serverType, _mediaColumn, _color){
+				_visibility, _serverId, _serverType,
+				_mediaColumn, _color, _isReadOnly){
 			
 			layerId = _layerId;
 			editable = true;
@@ -127,6 +132,7 @@ Arbiter.Util.LayerSchema = function(){
 			serverType = _serverType;
 			mediaColumn = _mediaColumn;
 			color = _color;
+			isReadOnly = _isReadOnly;
 			
 			var attribute = null;
 			var type = null;
@@ -154,7 +160,8 @@ Arbiter.Util.LayerSchema = function(){
 		
 		LayerSchema(_layerId, _url, _workspace, _prefix, _featureType, 
 				_srid, _geometryName, _geometryType, 
-				_enumeration, _attributes, _visibility, _serverId, _serverType, _mediaColumn, _color);
+				_enumeration, _attributes, _visibility,
+				_serverId, _serverType, _mediaColumn, _color, _isReadOnly);
 		
 	}else if(arguments.length === 8){ // LayerGroup
 		var _layerId = arguments[0];
@@ -257,6 +264,10 @@ Arbiter.Util.LayerSchema = function(){
 		
 		getTimeProperty: function(){
 			return timeProperty;
+		},
+		
+		isReadOnly: function(){
+			return isReadOnly === "true" || isReadOnly === true;
 		}
 	};
 };

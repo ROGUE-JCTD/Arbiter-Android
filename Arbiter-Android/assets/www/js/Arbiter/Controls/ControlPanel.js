@@ -15,57 +15,14 @@ Arbiter.Controls.ControlPanel = (function(){
 	
 	var oomCleared = true;
 	
+	var onFinishedInserting = null;
+	
 	var _endInsertMode = function(){
 		
-		if(insertControl !== null && insertControl !== undefined){
+		if(Arbiter.Util.existsAndNotNull(insertControl)){
 			insertControl.deactivate();
 			
 			insertControl = null;
-		}
-	};
-	
-	var checkFeatureAddedInsideAOI = function(feature){
-		
-		console.log("onFeatureAddedOutsideAOI", feature);
-		
-		var map = Arbiter.Map.getMap();
-		
-		var aoiLayer = map.getLayersByName(Arbiter.AOI);
-		
-		if(Arbiter.Util.existsAndNotNull(aoiLayer) && aoiLayer.length > 0){
-			aoiLayer = aoiLayer[0];
-		}
-		
-		if(Arbiter.Util.existsAndNotNull(aoiLayer)){
-			
-			if(Arbiter.Util.existsAndNotNull(feature)){
-				
-				feature.geometry.calculateBounds();
-				
-				var featureBounds = feature.geometry.getBounds();
-				
-				var aoiFeature = null;
-				
-				if(aoiLayer.features.length > 0){
-					aoiFeature = aoiLayer.features[0];
-				}
-				
-				if(Arbiter.Util.existsAndNotNull(aoiFeature)){
-					
-					aoiFeature.geometry.calculateBounds();
-					
-					var aoiBounds = aoiFeature.geometry.getBounds();
-					
-					if(featureBounds.intersectsBounds(aoiBounds)){
-						
-						console.log("inside the aoi!");
-						
-						return true;
-					}
-						
-					return false;
-				}
-			}
 		}
 	};
 	
@@ -76,6 +33,8 @@ Arbiter.Controls.ControlPanel = (function(){
 		
 		var geometryType = Arbiter.Geometry.getGeometryType(layerId, _geometryType);
 		
+		var geometryTypeName = Arbiter.Geometry.getGeometryName(geometryType);
+		
 		var context = Arbiter.Controls.ControlPanel;
 		
 		var schema = Arbiter.getLayerSchemas()[layerId];
@@ -85,16 +44,15 @@ Arbiter.Controls.ControlPanel = (function(){
 				"could not get schema for layer id '" + layerId + "'";
 		}
 		
-		controlPanelHelper.set(0, layerId, controlPanelHelper.CONTROLS.INSERT, 0, null, function(){
+		controlPanelHelper.set(0, layerId, controlPanelHelper.CONTROLS.INSERT, 0, geometryTypeName, null, function(){
 			
 			var map = Arbiter.Map.getMap();
-			
+			selectControl.deactivate();
 			insertControl = new Arbiter.Controls.Insert(olLayer, map,
 					geometryType, function(feature){
 				
-				var isInsideAOI = checkFeatureAddedInsideAOI(feature);
+				if(Arbiter.Util.existsAndNotNull(feature)){
 				
-				var insertFeature = function(){
 					if(geometryType === Arbiter.Geometry.type.MULTIPOINT 
 							|| geometryType === Arbiter.Geometry.type.MULTILINE
 							|| geometryType === Arbiter.Geometry.type.MULTIPOLYGON){
@@ -104,41 +62,36 @@ Arbiter.Controls.ControlPanel = (function(){
 						}
 						
 						feature.metadata[Arbiter.FeatureTableHelper.PART_OF_MULTI] = true; 
-					}else{
-						_endInsertMode();
 					}
+						
+					_endInsertMode();
 					
 					mode = Arbiter.ControlPanelHelper.prototype.CONTROLS.INSERT;
-					
+
+					selectControl.activate();
+
 					selectControl.select(feature);
 					
 					selectedFeature = feature;
 					
-					Arbiter.Cordova.getUpdatedGeometry();
-				};
-				
-				if(isInsideAOI){
-					
-					console.log("isInsideAOI");
-					
-					insertFeature();
+					startModifyMode(feature, function(){
+						if(Arbiter.Util.existsAndNotNull(onFinishedInserting)){
+							
+							onFinishedInserting();
+							
+							onFinishedInserting = null;
+						}
+					});
 				}else{
 					
-					console.log("isOutsideAOI");
+					_endInsertMode();
 					
-					Arbiter.Cordova.featureNotInAOI(insertFeature, function(){
+					if(Arbiter.Util.existsAndNotNull(onFinishedInserting)){
 						
-						controlPanelHelper.clear(function(){
-							
-							console.log("Cleared control panel k/v pairs");
-							
-							olLayer.removeFeatures([feature]);
-							
-							_endInsertMode();
-						}, function(e){
-							console.log("Couldn't clear control panel k/v pairs");
-						});
-					});
+						onFinishedInserting();
+						
+						onFinishedInserting = null;
+					}
 				}
 			});
 		}, function(e){
@@ -150,11 +103,22 @@ Arbiter.Controls.ControlPanel = (function(){
 		
 		var featureId = null;
 		
-		if(feature.metadata !== null && feature.metadata !== undefined){
+		if(Arbiter.Util.existsAndNotNull(feature.metadata)){
 			featureId = feature.metadata[Arbiter.FeatureTableHelper.ID];
 		}
 		
 		var layerId = Arbiter.Util.getLayerId(feature.layer);
+		
+		var geometryType = Arbiter.Geometry.getGeometryType(layerId); 
+		
+		var geometryTypeName = Arbiter.Geometry.getGeometryName(geometryType);
+		
+		if(geometryType === Arbiter.Geometry.type.MULTIGEOMETRY && feature.geometry.CLASS_NAME !== "OpenLayers.Geometry.Collection"){
+			
+			var collection = new OpenLayers.Geometry.Collection([feature.geometry]);
+			
+			feature.geometry = collection;
+		}
 		
 		var wktGeometry = Arbiter.Geometry.getNativeWKT(feature, layerId);
 		
@@ -164,7 +128,7 @@ Arbiter.Controls.ControlPanel = (function(){
 				feature.layer, feature, schema);
 		
 		controlPanelHelper.set(featureId, layerId,
-				controlPanelHelper.CONTROLS.MODIFY, wktGeometry, null, function(){
+				controlPanelHelper.CONTROLS.MODIFY, wktGeometry, geometryTypeName, null, function(){
 			
 			selectControl.deactivate();
 			
@@ -195,9 +159,7 @@ Arbiter.Controls.ControlPanel = (function(){
 		
 		if(Arbiter.Util.existsAndNotNull(feature.layer) 
 				// Account for the layers created by the draw feature control/handler
-				&& (feature.layer.name.indexOf("OpenLayers") === -1)
-				&& Arbiter.Util.existsAndNotNull(feature.metadata) 
-				&& Arbiter.Util.existsAndNotNull(feature.metadata[Arbiter.FeatureTableHelper.ID])){
+				&& (feature.layer.name.indexOf("OpenLayers") === -1)){
 			
 			var _mode = mode;
 			var _cancel = cancel;
@@ -208,17 +170,14 @@ Arbiter.Controls.ControlPanel = (function(){
 			
 			var featureId = null;
 			
-			if(feature.metadata !== null && feature.metadata !== undefined){
+			if(Arbiter.Util.existsAndNotNull(feature.metadata)){
 				featureId = feature.metadata[Arbiter.FeatureTableHelper.ID];
 			}
 			
 			var layerId = Arbiter.Util.getLayerId(feature.layer);
 			
-			controlPanelHelper.set(featureId, layerId, controlPanelHelper.CONTROLS.SELECT, 0, null, function(){
-				
-				oomCleared = false;
-				
-				if(selectedFeature.metadata["modified"]){
+			var exec = function(){
+				if(Arbiter.Util.existsAndNotNull(selectedFeature.metadata) && selectedFeature.metadata["modified"]){
 					delete selectedFeature.metadata["modified"];
 				}else{
 					Arbiter.Cordova.featureSelected(
@@ -230,9 +189,21 @@ Arbiter.Controls.ControlPanel = (function(){
 							_cancel
 					);
 				}
-			}, function(e){
-				console.log("Error saving select mode", e);
-			});
+			};
+			
+			/*if(Arbiter.Util.existsAndNotNull(featureId)){
+				
+				controlPanelHelper.set(featureId, layerId, controlPanelHelper.CONTROLS.SELECT, 0, null, null, function(){
+					
+					oomCleared = false;
+					
+					exec();
+				}, function(e){
+					console.log("Error saving select mode", e);
+				});
+			}else{*/
+				exec();
+			//}
 		}
 	};
 	
@@ -300,35 +271,31 @@ Arbiter.Controls.ControlPanel = (function(){
 				return;
 			}
 			
-			if(modifyControl.validEdit()){
-				modifyControl.done(function(){
+			modifyControl.done(function(){
+				
+				modifyControl = null;
+				
+				selectControl.activate();
+				
+				if(Arbiter.Util.existsAndNotNull(selectedFeature)){
 					
-					modifyControl = null;
-					
-					selectControl.activate();
-					
-					if(Arbiter.Util.existsAndNotNull(selectedFeature)){
-						
-						if(!Arbiter.Util.existsAndNotNull(selectedFeature.metadata)){
-							selectedFeature.metadata = {};
-						}
-						
-						selectedFeature.metadata["modified"] = true;
-						
-						selectControl.select(selectedFeature);
+					if(!Arbiter.Util.existsAndNotNull(selectedFeature.metadata)){
+						selectedFeature.metadata = {};
 					}
 					
-					try{
-						if(Arbiter.Util.existsAndNotNull(onExitModify)){
-							onExitModify();
-						}
-					}catch(e){
-						console.log(e.stack);
+					selectedFeature.metadata["modified"] = true;
+					
+					selectControl.select(selectedFeature);
+				}
+				
+				try{
+					if(Arbiter.Util.existsAndNotNull(onExitModify)){
+						onExitModify();
 					}
-				});
-			}else{
-				Arbiter.Cordova.notifyUserToAddGeometry();
-			}
+				}catch(e){
+					console.log(e.stack);
+				}
+			});
 		},
 		
 		unselect: function(){
@@ -385,8 +352,19 @@ Arbiter.Controls.ControlPanel = (function(){
 			}
 		},
 		
-		finishInserting: function(){
-			insertControl.finishInserting();
+		finishInserting: function(_onFinishedInserting){
+			
+			if(Arbiter.Util.existsAndNotNull(insertControl)){
+				
+				onFinishedInserting = _onFinishedInserting;
+				
+				insertControl.finishInserting();
+			}else{
+				
+				_onFinishedInserting();
+				
+				onFinishedInserting = null;
+			}
 		},
 		
 		getInsertControl: function(){

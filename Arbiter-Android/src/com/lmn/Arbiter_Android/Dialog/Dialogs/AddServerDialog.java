@@ -33,6 +33,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.ListAdapters.ServerTypesAdapter;
+import com.lmn.Arbiter_Android.Map.Map;
 
 public class AddServerDialog extends ArbiterDialogFragment{
 	private Server server;
@@ -92,6 +93,7 @@ public class AddServerDialog extends ArbiterDialogFragment{
 				getActivity().runOnUiThread(new Runnable(){
 					@Override
 					public void run(){
+						
 						dismiss();
 						
 						if(progressDialog != null){
@@ -302,6 +304,17 @@ public class AddServerDialog extends ArbiterDialogFragment{
 					public void run() {
 						ServersHelper.getServersHelper().update(helper.getWritableDatabase(),
 								context, server);
+						
+						activity.runOnUiThread(new Runnable(){
+							@Override
+							public void run(){
+								try{
+									((Map.MapChangeListener) activity).getMapChangeHelper().onServerUpdated();
+								}catch(ClassCastException e){
+									e.printStackTrace();
+								}
+							}
+						});
 					}
 					
 				});

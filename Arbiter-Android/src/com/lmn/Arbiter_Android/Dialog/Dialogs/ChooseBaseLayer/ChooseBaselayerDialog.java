@@ -13,15 +13,18 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.Activities.AOIActivity;
 import com.lmn.Arbiter_Android.BaseClasses.BaseLayer;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
+import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
@@ -48,10 +51,13 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 	private BaseLayer baseLayer;
 	private MapChangeListener mapChangeListener;
 	private BaseLayer startingBaseLayer;
+	private ConnectivityListener connectivityListener;
 	
 	public static ChooseBaselayerDialog newInstance(String title, String ok, 
-			String cancel, int layout, boolean creatingProject, BaseLayer baseLayer){
-		ChooseBaselayerDialog frag = new ChooseBaselayerDialog();
+			String cancel, int layout, boolean creatingProject, BaseLayer baseLayer,
+			ConnectivityListener connectivityListener){
+		
+		final ChooseBaselayerDialog frag = new ChooseBaselayerDialog();
 		
 		frag.setTitle(title);
 		frag.setOk(ok);
@@ -63,6 +69,22 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 		frag.baseLayer = baseLayer;
 		frag.arbiterProject = ArbiterProject.getArbiterProject();
 		frag.mapChangeListener = null;
+		frag.connectivityListener = connectivityListener;
+		
+		Log.w("ChooseBaseLayerDialog", "ChooseBaseLayerDialog connectivityListener " + ((connectivityListener == null) ? "is null" : "isn't null"));
+		
+		frag.setValidatingClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				
+				if(frag.connectivityListener != null && frag.connectivityListener.isConnected()){
+					frag.onPositiveClick();
+				}else{
+					Util.showNoNetworkDialog(frag.getActivity());
+				}
+			}
+		});
 		
 		return frag;
 	}
@@ -155,6 +177,8 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 								mapChangeListener.getMapChangeHelper().cacheBaseLayer();
 								
 								SyncProgressDialog.show(activity);
+								
+								dismiss();
 							}
 						});
 					}
@@ -166,8 +190,10 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 			// Set the base layer for the new project
 			newProject.setBaseLayer(baseLayer);
 			
-			Intent projectsIntent = new Intent(getActivity(), AOIActivity.class);
-    		this.startActivity(projectsIntent);
+			Intent aoiIntent = new Intent(getActivity(), AOIActivity.class);
+    		this.startActivity(aoiIntent);
+    		
+    		dismiss();
 		}
 	}
 	

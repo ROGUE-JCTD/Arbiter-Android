@@ -13,6 +13,7 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.About.About;
 import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.ConnectivityListeners.CookieConnectivityListener;
@@ -22,6 +23,7 @@ import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.SyncTableHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.FailedSyncHelper;
@@ -62,7 +64,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
 	private SyncConnectivityListener syncConnectivityListener;
     private CookieConnectivityListener cookieConnectivityListener;
     private NotificationBadge notificationBadge;
-    
+    private boolean isDestroyed = false;
     // For CORDOVA
     private CordovaWebView cordovaWebView;
     
@@ -118,11 +120,19 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         InitArbiterProject();
         setListeners();
         clearControlPanelKVP();
+        clearFindMe();
         
         this.failedSyncHelper = new FailedSyncHelper(this, 
         		getProjectDatabase(), this.syncConnectivityListener);
         
         this.failedSyncHelper.checkIncompleteSync();
+    }
+    
+    private void clearFindMe(){
+    	
+    	SQLiteDatabase projectDb = (new Util()).getProjectDb(this, false);
+    	
+    	PreferencesHelper.getHelper().delete(projectDb, getApplicationContext(), PreferencesHelper.FINDME);
     }
     
     private void clearControlPanelKVP(){
@@ -206,7 +216,10 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     				
     				Animation rotation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.button_rotate);
         			
-        			rotation.setRepeatCount(Animation.INFINITE);
+    				rotation.setDuration(2500);
+    				
+    				// 60000 / 2500
+        			rotation.setRepeatCount(24);
         			
         			locationButton.startAnimation(rotation);
         			
@@ -378,8 +391,8 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     @Override
     protected void onPause() {
     	super.onPause();
-        Log.d(TAG, "onPause"); 
-
+        Log.d(TAG, "onPause");
+        
         if (this.cordovaWebView == null) {
             return;
         } else if(this.isFinishing()){
@@ -494,6 +507,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     
     @Override
     protected void onDestroy(){
+    	this.isDestroyed = true;
     	super.onDestroy();
     	if(this.cordovaWebView != null){
     		Log.w("MapActivity", "MapActivity onDestroy");
@@ -554,7 +568,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
 	@Override
 	public Object onMessage(String message, Object obj) {
 		Log.d(TAG, message);
-        if(message.equals("onPageFinished")){
+        if(!isDestroyed && message.equals("onPageFinished")){
         	if(obj instanceof String){
         		if(((String) obj).equals("about:blank")){
         			this.cordovaWebView.loadUrl(ArbiterCordova.mainUrl);

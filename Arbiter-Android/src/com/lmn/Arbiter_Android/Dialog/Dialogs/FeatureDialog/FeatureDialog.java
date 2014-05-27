@@ -2,6 +2,7 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
 
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 
@@ -93,7 +94,7 @@ public class FeatureDialog extends ArbiterDialogFragment{
 		this.helper = new FeatureDialogHelper(getActivity(), 
 				view, feature, startInEditMode,
 				editButton, editOnMapButton,
-				cancelButton, deleteButton, layerId);
+				cancelButton, deleteButton, layerId, new Util());
 	}
 	
 	private void registerListeners(View view){

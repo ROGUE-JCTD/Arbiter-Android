@@ -41,7 +41,6 @@ public class LayersDialog extends ArbiterDialogFragment{
 	@SuppressWarnings("unused")
 	private BaseLayerLoaderCallbacks baseLayerLoaderCallbacks;
 	
-	@SuppressWarnings("unused")
 	private AddLayersConnectivityListener connectivityListener;
 	
 	private MapChangeListener mapChangeListener;
@@ -99,7 +98,6 @@ public class LayersDialog extends ArbiterDialogFragment{
 	@Override
 	public void beforeCreateDialog(View view) {
 		if(view != null){
-			populateListView(view);
 			registerListeners(view);
 		}
 	}
@@ -131,7 +129,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 	private void populateBaseLayerList(View view){
 		LinearLayout baselayerList = (LinearLayout) view.findViewById(R.id.baselayerList);
 		
-		this.baseLayerList = new BaseLayerList(baselayerList, this.getActivity(), R.layout.base_layer_list_item);
+		this.baseLayerList = new BaseLayerList(baselayerList, this.getActivity(), R.layout.base_layer_list_item, connectivityListener);
 		
 		this.baseLayerLoaderCallbacks = new BaseLayerLoaderCallbacks(this, this.baseLayerList, R.id.loader_base_layer_list);
 	}
@@ -163,13 +161,15 @@ public class LayersDialog extends ArbiterDialogFragment{
 		this.cancelOrderLayersBtn = (ImageButton) view.findViewById(R.id.cancelOrderingLayers);
 		this.doneOrderingLayersBtn = (ImageButton) view.findViewById(R.id.doneOrderingLayers);
 		
+		connectivityListener = new AddLayersConnectivityListener(
+				getActivity().getApplicationContext(), this.addLayersBtn);
+		
+		populateListView(view);
+		
 		this.orderLayersController = new OrderLayersViewController(this.addLayersBtn, this.orderLayersBtn,
 				this.cancelOrderLayersBtn, this.doneOrderingLayersBtn, this.overlayList);
 		
 		final LayersDialog frag = this;
-			
-			connectivityListener = new AddLayersConnectivityListener(
-					getActivity().getApplicationContext(), this.addLayersBtn);
 			
 		this.addLayersBtn.setOnClickListener(new OnClickListener(){
 
@@ -178,9 +178,11 @@ public class LayersDialog extends ArbiterDialogFragment{
 				
 				if(makeSureNotEditing()){
 					if(overlayList.getCount() < 5){
+						
+						Log.w("LayersDialog", "LayersDialog connectivityListener " + ((connectivityListener == null) ? "is null" : "isn't null"));
 						// Open the add layers dialog
 						(new ArbiterDialogs(getActivity().getApplicationContext(), getActivity().getResources(), 
-								getActivity().getSupportFragmentManager())).showAddLayersDialog(frag.getCopyOfLayers());
+								getActivity().getSupportFragmentManager())).showAddLayersDialog(frag.getCopyOfLayers(), connectivityListener);
 					}else{
 						 displayLayersLimit();
 					}

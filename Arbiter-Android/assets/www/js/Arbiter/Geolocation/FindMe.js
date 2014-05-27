@@ -34,7 +34,14 @@ Arbiter.FindMe = function(olMap, olLayer, includeOOM, onSuccess, onFailure){
 		Arbiter.Cordova.finishedGettingLocation();
 	};
 	
-	this.onFailedGettingLocation = onFailure;
+	this.onFailedGettingLocation = function(e){
+		
+		if(Arbiter.Util.existsAndNotNull(onFailure)){
+			onFailure(e);
+		}
+		
+		Arbiter.Cordova.finishedGettingLocation();
+	};
 	
 	this.lowAccuracyPointStyle = {
 		externalGraphic: this.smallBallLowAccuracy,
@@ -108,9 +115,7 @@ Arbiter.FindMe.prototype.addPoint = function(position, style){
 			}, function(e){
 				console.log("FindMe could not removed saved point: " + JSON.stringify(e));
 				
-				if(Arbiter.Util.existsAndNotNull(context.onFailedGettingLocation)){
-					context.onFailedGettingLocation(e);
-				}
+				context.onFailedGettingLocation(e);
 			});
 		}else{
 			context.onFinishedGettingLocation();
@@ -224,9 +229,7 @@ Arbiter.FindMe.prototype.onFailure = function(e){
 	
 	console.log(msg);
 	
-	if(Arbiter.Util.existsAndNotNull(this.onFailedGettingLocation)){
-		this.onFailedGettingLocation(e);
-	}
+	this.onFailedGettingLocation(e);
 	
 	Arbiter.Cordova.alertGeolocationError(msg);
 };
@@ -251,6 +254,8 @@ Arbiter.FindMe.prototype.resume = function(){
 			
 			
 			if(!findme.gotHighAccuracy){
+				
+				this.removePointTimeout = 2000;
 				
 				context.addPoint(findme.position, context.lowAccuracyPointStyle);
 				

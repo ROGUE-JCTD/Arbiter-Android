@@ -1,9 +1,6 @@
 package com.lmn.Arbiter_Android.ListAdapters;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
@@ -21,8 +18,10 @@ import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -119,7 +118,7 @@ public class OverlayList extends CustomList<ArrayList<Layer>, Layer> {
 					@Override
 					public void onClick(View v) {
 						if(makeSureNotEditing()){
-							deleteLayer(new Layer(layer));
+							confirmDeleteLayer(new Layer(layer));
 						}
 					}
             		
@@ -222,9 +221,35 @@ public class OverlayList extends CustomList<ArrayList<Layer>, Layer> {
 		});
 	}
 	
+	private void confirmDeleteLayer(final Layer layer){
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		
+		builder.setTitle(R.string.warning);
+		
+		builder.setMessage(R.string.confirm_delete_layer);
+		
+		builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				deleteLayer(layer);
+			}
+		});
+		
+		builder.setNegativeButton(android.R.string.cancel, null);
+		
+		builder.create().show();
+	}
+	
 	private void deleteLayer(final Layer layer){
 		
 		final String projectName = arbiterProject.getOpenProject(activity);
+		
+		String title = activity.getResources().getString(R.string.loading);
+		String message = activity.getResources().getString(R.string.please_wait);
+		
+		final ProgressDialog progressDialog = ProgressDialog.show(activity, title, message, true);
 		
 		CommandExecutor.runProcess(new Runnable(){
 			@Override
@@ -245,8 +270,16 @@ public class OverlayList extends CustomList<ArrayList<Layer>, Layer> {
 					layer
 				);
 					
-				mapChangeListener.getMapChangeHelper()
-					.onLayerDeleted(layer.getLayerId());
+				activity.runOnUiThread(new Runnable(){
+					@Override
+					public void run(){
+					
+						mapChangeListener.getMapChangeHelper()
+						.onLayerDeleted(layer.getLayerId());
+						
+						progressDialog.dismiss();
+					}
+				});
 			}
 		});
 	}

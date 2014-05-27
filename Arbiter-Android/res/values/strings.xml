@@ -81,6 +81,8 @@
 	<string name="form_error_date">Please enter a valid date.</string>
 	<string name="form_error_integer">Please enter a valid integer.</string>
 	<string name="form_error_double">Please enter a valid number.</string>
+	<string name="form_error_long">Please enter a valid number.</string>
+	<string name="form_error_float">Please enter a valid number.</string>
 	<string name="form_error_bool">Please enter true or false.</string>
 	<string name="check_errors">Invalid entries</string>
 	<string name="check_errors_msg">Please fix errors before continuing.</string>
@@ -138,10 +140,8 @@
 
     <string name="server_dialog_title">Servers</string>
     <string name="add_server_button">Add Server</string>
-    <string name="delete_server_alert">This will delete all layers in all projects associated with this server!</string>
-	<string name="delete_server_title">Warning!!!</string>
-	<string name="update_server_alert">Are you sure?</string>
-	<string name="update_server_title">Warning!!!</string>
+    <string name="delete_server_alert">This will delete all layers in all projects associated with this server.</string>
+	<string name="update_server_alert">Are you sure you want to update the server?  Invalid changes may result in syncing failures.</string>
 	<string name="deleting_server">Deleting Server</string>
 	<string name="deleting_server_msg">Server deletion in progress&#8230;</string>
 	
@@ -228,6 +228,22 @@
     <string name="invalid_url_slash_wms">\"WMS\" server urls must end with \"/wms\"</string>
     <string name="invalid_url_slash_tms">\"TMS\" server urls end with \"/hot/1.0.0/\"</string>
     <string name="insert">insert</string>
-    <string name="feature_outside_aoi_warning">You have inserted a feature outside of your selected area of interest.  After syncing this feature, it will no longer
+    <string name="feature_outside_aoi_warning">You have placed a feature outside of your selected area of interest.  After syncing this feature, it will no longer
          be on the device.</string>
+    <string name="confirm_delete_project">Are you sure you want to delete the project?  Any unsynchronized data will be lost.</string>
+    <string name="confirm_delete_layer">Are you sure you want to delete the layer?  Any unsynchronized data will be lost.</string>
+    <string name="added">ADDED</string>
+    <string name="modified">MODIFIED</string>
+    <string name="removed">REMOVED</string>
+    <string name="no_valid_geometries">No valid geometries present.</string>
+    <string name="no_valid_geometries_delete_or_cancel">No valid geometries present.  Would you like to delete the feature or cancel?</string>
+    <string name="valid_point_geometry_description">A Point geometry must have at least one point.</string>
+    <string name="valid_line_geometry_description">A Line geometry must have at least two unique points.</string>
+    <string name="valid_polygon_geometry_description">A Polygon geometry must have at least three unique points.</string>
+    <string name="valid_multipoint_geometry_description">A MultiPoint geometry must have at least one valid Point geometry.</string>
+    <string name="valid_multiline_geometry_description">A MultiLine geometry must have at least one valid Line geometry.</string>
+    <string name="valid_multipolygon_geometry_description">A MultiPolygon geometry must have at least one valid Polygon geometry.</string>
+    <string name="valid_geometry_collection_description">A Geometry Collection must have at least one valid geometry.</string>
+    <string name="delete_media">Delete Media</string>
+    <string name="sure_delete_media">Are you sure you want to remove this item from the feature?</string>
 </resources>

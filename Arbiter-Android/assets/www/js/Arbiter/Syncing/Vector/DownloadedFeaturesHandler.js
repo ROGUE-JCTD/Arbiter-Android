@@ -1,13 +1,15 @@
 (function(){
 	
-	Arbiter.DownloadedFeaturesHandler = function(db, schema, features, onSuccess, onFailure){
+	Arbiter.DownloadedFeaturesHandler = function(db, schema, credentials, features, onSuccess, onFailure){
 		this.schema = schema;
+		this.encodedCredentials = credentials;
 		this.features = features;
 		this.onSuccess = onSuccess;
 		this.onFailure = onFailure;
 		this.db = db;
 		this.wktFormatter = new OpenLayers.Format.WKT();
 		this.createTableSql = null;
+		this.gmtOffset = null;
 	};
 	
 	var prototype = Arbiter.DownloadedFeaturesHandler.prototype;
@@ -27,6 +29,163 @@
 	};
 	
 	prototype.storeDownloads = function(){
+		
+		if(Arbiter.Util.existsAndNotNull(this.schema.getTimeProperty())){
+			this.checkTimeDifference();
+		}else{
+			this._storeDownloads();
+		}
+	};
+	
+	prototype.checkTimeDifference = function(){
+		
+		if(Arbiter.Util.existsAndNotNull(this.features) && this.features.length > 0){
+			
+			var context = this;
+			
+			var featureId = this.features[0].fid;
+			
+			var featureType = "";
+			
+			var prefix = this.schema.getPrefix();
+			
+			if(Arbiter.Util.existsAndNotNull(prefix) && prefix !== ""){
+				
+				featureType += prefix + ":";
+			}
+			
+			featureType += this.schema.getFeatureType();
+			
+			var url =  this.schema.getUrl() + "/wfs?service=wfs&version=1.1.0&outputFormat=json&request=GetFeature&typeNames=" + featureType + "&featureID=" + featureId;
+			
+			var gotRequestBack = false;
+	        
+	        var options = {
+	            url: url,
+	            headers: {
+	                    'Content-Type': 'text/xml;charset=utf-8',
+	            },
+	            success: function(response){
+	            	gotRequestBack = true;
+	            	
+	            	response = JSON.parse(response.responseText);
+	            	
+	            	console.log("checkTimeDifference response", response);
+	            	
+	                var features = response.features;
+	                
+	                console.log("CheckTimeDifference features: ", features);
+	                
+	                context.calculateTimeDifference(features);
+	            },
+	            failure: function(response){
+	            	gotRequestBack = true;
+	            	
+	            	context.handleFailed("CheckTimeDifference failed");
+	            }
+	        };
+	        
+	        if(Arbiter.Util.existsAndNotNull(this.encodedCredentials)){
+	        	options.headers['Authorization'] = 'Basic ' + this.encodedCredentials;
+	        }
+	        
+	        var request = new OpenLayers.Request.GET(options);
+	        
+	        // Couldn't find a way to set timeout for an openlayers
+			// request, so I did this to abort the request after
+			// 15 seconds of not getting a response
+			window.setTimeout(function(){
+				if(!gotRequestBack){
+					request.abort();
+					
+					context.handleFailed("CheckTimeDifference timed out");
+				}
+			}, 30000);
+		}else{
+			
+			this._storeDownloads();
+		}
+	};
+	
+	prototype.calculateTimeDifference = function(features){
+		
+		var timeProperty = this.schema.getTimeProperty();
+		
+		if(Arbiter.Util.existsAndNotNull(features) && features.length > 0 
+				&& Arbiter.Util.existsAndNotNull(timeProperty) 
+				&& this.isTimeType(timeProperty.type)){
+			
+			var geoJSONFeature = features[0];
+			
+			if(Arbiter.Util.existsAndNotNull(timeProperty)){
+				
+				var geoJSONValue = geoJSONFeature.properties[timeProperty.key];
+				
+				if(Arbiter.Util.existsAndNotNull(geoJSONValue)){
+					
+					var wfs1_0_0Feature = this.features[0];
+					
+					console.log("calculateTimeDifference wfs1_0_0Feature feature", wfs1_0_0Feature);
+					
+					var wfs1_0_0Value = wfs1_0_0Feature.attributes[timeProperty.key];
+					
+					console.log("calculateTimeDifference wfs1_0_0Value " + wfs1_0_0Value + ", type= " + timeProperty.type);
+					
+					var isoDate = null;
+					var localDate = null;
+					
+					if(timeProperty.type === "xsd:dateTime" || timeProperty.type === "dateTime"){
+						
+						isoDate = new Date(geoJSONValue);
+						localDate = new Date(wfs1_0_0Value);
+					}else{ // timeProperty.type === "xsd:time"
+						
+						var nowString = (new Date()).toISOString();
+						
+						var parts = nowString.split("T");
+						
+						parts[1] = geoJSONValue;
+						
+						isoDate = new Date(parts.join("T"));
+						
+						parts[1] = wfs1_0_0Value;
+						
+						localDate = new Date(parts.join("T"));
+					}
+					
+					var diffInMilli = isoDate.getTime() - localDate.getTime();
+					
+					console.log("diffInMilli = " + diffInMilli);
+					
+					this.storeTimeDiff(diffInMilli);
+				}
+			}
+		}else{
+			
+			// No features, so can't calculate the time difference.  Proceed as usual.
+			this._storeDownloads();
+		}
+	};
+	
+	prototype.storeTimeDiff = function(gmtOffset){
+		
+		var context = this;
+		
+		console.log("storeTimeDiff: offset = " + gmtOffset + ", serverId = " + this.schema.getServerId());
+		
+		Arbiter.ServersHelper.updateServer(this.schema.getServerId(), gmtOffset, function(gmtOffset){
+			
+			console.log("updated server");
+			
+			context.gmtOffset = gmtOffset;
+			
+			context._storeDownloads();
+		}, context.handleFailed);
+	};
+	
+	prototype._storeDownloads = function(){
+		
+		console.log("storing downloads");
 		
 		var context = this;
 		
@@ -114,12 +273,27 @@
 		
 		values.push(feature.fid);
 		
+		var attribute = null;
+		var isoTimeString = null;
+		
 		// Push the attributes
 		for(var i = 0; i < attributes.length; i++){
-			attributeName = attributes[i].getName();
+			attribute = attributes[i];
+			attributeName = attribute.getName();
 			query += ", " + attributeName;
 			
-			values.push(feature.attributes[attributeName]);
+			console.log("before isTimeType type = " + attribute.getType());
+			
+			if(this.isTimeType(attribute.getType())){
+				isoTimeString = this.addGMTOffset(feature.attributes[attributeName], attribute.getType());
+				
+				console.log("localTime: " + feature.attributes[attributeName] + ", gmtTime = " + isoTimeString);
+				
+				values.push(isoTimeString);
+			}else{
+				values.push(feature.attributes[attributeName]);
+			}
+			
 			// Add a question mark to represent the value of 
 			// the attribute
 			questionMarks += ", ?";
@@ -131,6 +305,47 @@
 			query: query,
 			values: values
 		};
+	};
+	
+	prototype.isTimeType = function(type){
+		
+		return (type === "xsd:dateTime" || type === "xsd:time" || type === "dateTime" || type === "time");
+	};
+	
+	prototype.addGMTOffset = function(timestring, type){
+		
+		console.log("addGMTOffset");
+		
+		if(Arbiter.Util.existsAndNotNull(this.gmtOffset) 
+				&& Arbiter.Util.existsAndNotNull(timestring)
+				&& this.isTimeType(type)){
+			
+			if(type === "xsd:dateTime" || type === "dateTime"){
+				
+				var localDate = new Date(timestring);
+				
+				var isoDate = new Date(localDate.getTime() + this.gmtOffset);
+				
+				return isoDate.toISOString();
+			}else if(type === "xsd:time" || type === "time"){
+				
+				var now = new Date().toISOString();
+				
+				var parts = now.split("T");
+				
+				parts[1] = timestring;
+				
+				var localDate = new Date(parts.join("T"));
+				
+				var isoDate = new Date(localDate.getTime() + this.gmtOffset);
+				
+				parts = isoDate.toISOString().split("T");
+				
+				return parts[1];
+			}
+		}
+		
+		return timestring;
 	};
 	
 	prototype.getCreateSql = function(tx, onSuccess, onFailure){

@@ -90,7 +90,10 @@ Arbiter.FileSystem = (function(){
 		},
 		
 		ensureMediaDirectoryExists: function(onSuccess, onFailure){
-			Arbiter.PreferencesHelper.get(Arbiter.PROJECT_NAME, Arbiter.FileSystem, function(projectName){
+			
+			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
+			
+			Arbiter.PreferencesHelper.get(db, Arbiter.PROJECT_NAME, Arbiter.FileSystem, function(projectName){
 				
 				// Make sure the directories being 
 				// used with the file api exist.

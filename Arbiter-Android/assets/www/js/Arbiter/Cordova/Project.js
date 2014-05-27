@@ -105,8 +105,10 @@ Arbiter.Cordova.Project = (function(){
 			Arbiter.ProjectDbHelper.getProjectDatabase().close();
 			Arbiter.FeatureDbHelper.getFeatureDatabase().close();
 			
+			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
+			
 			Arbiter.Cordova.Project.updateBaseLayer(function(){
-				Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
+				Arbiter.PreferencesHelper.get(db, Arbiter.AOI, this, function(_aoi){
 					var bounds = null;
 					
 					if(_aoi !== null && _aoi !== undefined 
@@ -159,7 +161,9 @@ Arbiter.Cordova.Project = (function(){
 					
 					Arbiter.Loaders.LayersLoader.load(function(){
 						
-						Arbiter.PreferencesHelper.get(Arbiter.AOI, context, function(_aoi){
+						var db = Arbiter.ProjectDbHelper.getProjectDatabase();
+						
+						Arbiter.PreferencesHelper.get(db, Arbiter.AOI, context, function(_aoi){
 							
 							if(_aoi !== null && _aoi !== undefined 
 									&& _aoi !== ""){
@@ -238,7 +242,9 @@ Arbiter.Cordova.Project = (function(){
 				layersAlreadyInProject = null;
 			};
 			
-			Arbiter.PreferencesHelper.get(Arbiter.AOI, context, function(_aoi){
+			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
+			
+			Arbiter.PreferencesHelper.get(db, Arbiter.AOI, context, function(_aoi){
 				var aoi = _aoi.split(','); 
 				var bounds = null;
 				
@@ -264,15 +270,20 @@ Arbiter.Cordova.Project = (function(){
 				Arbiter.Cordova.errorUpdatingAOI(e);
 			};
 			
-			Arbiter.PreferencesHelper.put(Arbiter.AOI, aoi, this, function(){
+			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
+			
+			Arbiter.PreferencesHelper.put(db, Arbiter.AOI, aoi, this, function(){
 				
 				Arbiter.Cordova.Project.sync(true);
 			}, onFailure);
 		},
 		
 		getSavedBounds: function(onSuccess, onFailure){
-			Arbiter.PreferencesHelper.get(Arbiter.SAVED_BOUNDS, this, function(savedBounds){
-				Arbiter.PreferencesHelper.get(Arbiter.SAVED_ZOOM_LEVEL, this, function(savedZoom){
+			
+			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
+			
+			Arbiter.PreferencesHelper.get(db, Arbiter.SAVED_BOUNDS, this, function(savedBounds){
+				Arbiter.PreferencesHelper.get(db, Arbiter.SAVED_ZOOM_LEVEL, this, function(savedZoom){
 					
 					if(Arbiter.Util.funcExists(onSuccess)){
 						onSuccess(savedBounds, savedZoom);
@@ -282,7 +293,10 @@ Arbiter.Cordova.Project = (function(){
 		},
 		
 		zoomToAOI: function(onSuccess, onFailure){
-			Arbiter.PreferencesHelper.get(Arbiter.AOI, this, function(_aoi){
+			
+			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
+			
+			Arbiter.PreferencesHelper.get(db, Arbiter.AOI, this, function(_aoi){
 				
 				if(_aoi !== null && _aoi !== undefined 
 						&& _aoi !== ""){
@@ -371,7 +385,9 @@ Arbiter.Cordova.Project = (function(){
 				
 				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.UPDATING);
 				
-				Arbiter.PreferencesHelper.get(Arbiter.AOI, context, function(_aoi){
+				var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+				
+				Arbiter.PreferencesHelper.get(projectDb, Arbiter.AOI, context, function(_aoi){
 					
 					if(_aoi !== null && _aoi !== undefined 
 							&& _aoi !== ""){
@@ -380,7 +396,7 @@ Arbiter.Cordova.Project = (function(){
 						
 						var bounds = new Arbiter.Util.Bounds(aoi[0], aoi[1], aoi[2], aoi[3]);
 						
-						Arbiter.PreferencesHelper.get(Arbiter.BASE_LAYER, context, function(baseLayer){
+						Arbiter.PreferencesHelper.get(projectDb, Arbiter.BASE_LAYER, context, function(baseLayer){
 							
 							if(Arbiter.Util.existsAndNotNull(baseLayer)){
 								try{
@@ -467,7 +483,9 @@ Arbiter.Cordova.Project = (function(){
 				syncInProgress = false;
 			};
 			
-			Arbiter.PreferencesHelper.get(Arbiter.AOI, context, function(_aoi){
+			var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+			
+			Arbiter.PreferencesHelper.get(projectDb, Arbiter.AOI, context, function(_aoi){
 				
 				if(_aoi !== null && _aoi !== undefined 
 						&& _aoi !== ""){

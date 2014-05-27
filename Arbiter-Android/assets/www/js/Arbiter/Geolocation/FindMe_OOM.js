@@ -14,7 +14,9 @@ Arbiter.FindMe_OOM.prototype.savePoint = function(gotHighAccuracy, position, onS
 	
 	console.log("saving point: " + obj.gotHighAccuracy);
 	
-	Arbiter.PreferencesHelper.put(this.FINDME,
+	var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+	
+	Arbiter.PreferencesHelper.put(projectDb, this.FINDME,
 			JSON.stringify(obj), this, function(){
 		
 		console.log("point saved successfully: " + obj.gotHighAccuracy);
@@ -44,18 +46,11 @@ Arbiter.FindMe_OOM.prototype.getPoint = function(onSuccess, onFailure){
 		}
 	};
 	
-	Arbiter.PreferencesHelper.get(this.FINDME, this, function(findme){
+	var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+	
+	Arbiter.PreferencesHelper.get(projectDb, this.FINDME, this, function(findme){
 		
-		context.clearSavedPoint(function(){
-			
-			success(findme);
-		}, function(e){
-			
-			console.log("Could not remove findme from preferences table: " + JSON.stringify(e));
-			
-			success(findme);
-		});
-		
+		success(findme);
 	}, function(e){
 		
 		if(Arbiter.Util.funcExists(onFailure)){
@@ -66,7 +61,9 @@ Arbiter.FindMe_OOM.prototype.getPoint = function(onSuccess, onFailure){
 
 Arbiter.FindMe_OOM.prototype.clearSavedPoint = function(onSuccess, onFailure){
 	
-	Arbiter.PreferencesHelper.remove(this.FINDME, this, function(){
+	var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+	
+	Arbiter.PreferencesHelper.remove(projectDb, this.FINDME, this, function(){
 		
 		if(Arbiter.Util.funcExists(onSuccess)){
 			onSuccess();

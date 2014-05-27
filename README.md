@@ -19,3 +19,4 @@ Try it out!
 
 [Arbiter User Doc Download](https://github.com/ROGUE-JCTD/Arbiter-Android/blob/master/How_to_Use_Arbiter.pdf?raw=true)
 
+[Arbiter User Doc - Español Download](https://github.com/ROGUE-JCTD/Arbiter-Android/blob/master/How_to_Use_Arbiter-ESPAN%C3%9EOL.pdf?raw=true)

@@ -1,11 +1,9 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
-import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.Media.MediaHelper;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -15,23 +13,31 @@ import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+
+import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.MediaLoader;
+import com.lmn.Arbiter_Android.Media.MediaHelper;
 
 public class MediaDialog extends DialogFragment {
 	private String uri;
 	private int layout;
 	private static MediaDialog dialog = null;
+	private MediaLoader loader;
 	
-	public static MediaDialog newInstance(String uri){
+	public static MediaDialog newInstance(String uri, MediaLoader loader){
 		if (dialog != null) {
 			return null;
 		}
 		dialog = new MediaDialog();
 		dialog.uri = uri;
 		dialog.layout = R.layout.media_dialog;
+		dialog.loader = loader;
 		
 		return dialog;
 	}
@@ -95,11 +101,44 @@ public class MediaDialog extends DialogFragment {
 		
 		setMediaResource(view);
 		
-		AlertDialog dialog = new AlertDialog.Builder(getActivity())
+		final AlertDialog mediaDialog = new AlertDialog.Builder(getActivity())
 			.setView(view).create();
 		
-		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		mediaDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		
-		return dialog;
+		Button deleteMedia = (Button) view.findViewById(R.id.deleteMedia);
+		deleteMedia.setVisibility(loader.getEditMode() ? View.VISIBLE : View.GONE);
+		deleteMedia.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {	
+					getActivity().runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			    			
+			    			builder.setIcon(R.drawable.icon);
+			    			builder.setTitle(R.string.warning);
+			    			
+			    			String message = getActivity().getResources()
+			    					.getString(R.string.sure_delete_media);
+			    			
+			    			builder.setMessage(message);
+			    			builder.setNegativeButton(android.R.string.cancel, null);
+			    			builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener(){
+		
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									loader.deleteMedia(uri);
+									mediaDialog.dismiss();
+								}
+			    			});
+			    			builder.create().show();
+						}
+					});
+				}
+			});
+		
+		return mediaDialog;
 	}
 }

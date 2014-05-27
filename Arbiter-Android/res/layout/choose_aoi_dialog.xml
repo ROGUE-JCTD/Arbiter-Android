@@ -50,66 +50,67 @@
         android:id="@+id/blueBorder"
         android:layout_width="match_parent"
         android:layout_height="57dp"
+        android:layout_below="@+id/topOverlayBar"
         android:layout_toLeftOf="@id/rightOverlayBar"
         android:layout_toRightOf="@id/leftOverlayBar"
-        android:layout_below="@+id/topOverlayBar"
-        android:background="@color/holo_blue_light"/>
-    
+        android:background="@color/holo_blue_light" />
+
     <RelativeLayout
+        android:id="@+id/relativeLayout1"
         android:layout_width="match_parent"
         android:layout_height="55dp"
+        android:layout_below="@+id/topOverlayBar"
         android:layout_toLeftOf="@id/rightOverlayBar"
-        android:layout_toRightOf="@id/leftOverlayBar"
-        android:layout_below="@+id/topOverlayBar">
-        
+        android:layout_toRightOf="@id/leftOverlayBar" >
+
         <View
-       		android:id="@+id/titleBar"
-        	android:layout_width="match_parent"
-        	android:layout_height="match_parent"
-        	android:background="@android:color/background_light" />
-        
+            android:id="@+id/titleBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/background_light" />
+
         <ImageView
-	        android:id="@+id/titleIcon"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_centerVertical="true"
-	        android:layout_marginLeft="14dp"
-	        android:src="@drawable/icon"
-	        android:contentDescription="@null" /> 
-	        
-	    <TextView
-	        android:id="@+id/title"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_toRightOf="@id/titleIcon"
-	        android:layout_marginLeft="5dp"
-	        android:layout_centerVertical="true"
-	        android:textColor="@color/holo_blue_light"
-	        android:textSize="18sp"
-	        android:text="@string/choose_aoi_dialog_title" />
+            android:id="@+id/titleIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="14dp"
+            android:contentDescription="@null"
+            android:src="@drawable/icon" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/titleIcon"
+            android:text="@string/choose_aoi_dialog_title"
+            android:textColor="@color/holo_blue_light"
+            android:textSize="18sp" />
     </RelativeLayout>
-    
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="55dp"
+        android:layout_above="@+id/bottomOverlayBar"
         android:layout_toLeftOf="@id/rightOverlayBar"
         android:layout_toRightOf="@id/leftOverlayBar"
-        android:layout_above="@+id/bottomOverlayBar"
-        android:orientation="horizontal"
-        android:baselineAligned="false">
-        
+        android:baselineAligned="false"
+        android:orientation="horizontal" >
+
         <RelativeLayout
             android:layout_width="match_parent"
-        	android:layout_height="match_parent"
-        	android:layout_weight="1"
-        	android:layout_marginRight="1dp">
-        	
+            android:layout_height="match_parent"
+            android:layout_marginRight="1dp"
+            android:layout_weight="1" >
+
             <View
-       		android:id="@+id/cancelButton"
-        	android:layout_width="match_parent"
-        	android:layout_height="match_parent"
-        	android:background="@drawable/aoi_selector"
-        	android:clickable="true" />
+                android:id="@+id/cancelButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/aoi_selector"
+                android:clickable="true" />
 
             <TextView
                 android:id="@+id/cancelTextView"
@@ -118,21 +119,20 @@
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
                 android:text="@android:string/cancel" />
-            
         </RelativeLayout>
-        
+
         <RelativeLayout
             android:layout_width="match_parent"
-        	android:layout_height="match_parent"
-        	android:layout_weight="1"
-        	android:layout_marginRight="1dp">
-        	
+            android:layout_height="match_parent"
+            android:layout_marginRight="1dp"
+            android:layout_weight="1" >
+
             <View
-       		android:id="@+id/okButton"
-        	android:layout_width="match_parent"
-        	android:layout_height="match_parent"
-        	android:background="@drawable/aoi_selector"
-        	android:clickable="true" />
+                android:id="@+id/okButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/aoi_selector"
+                android:clickable="true" />
 
             <TextView
                 android:id="@+id/okTextView"
@@ -141,7 +141,45 @@
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
                 android:text="@android:string/ok" />
-            
         </RelativeLayout>
     </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/aoiZoomOutButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/aoiZoomInButton"
+        android:layout_below="@id/aoiZoomInButton"
+        android:layout_marginTop="16dp"
+        android:alpha="0.9"
+        android:background="#CCCCCC"
+        android:padding="4dp"
+        android:src="@drawable/zoom_out" />
+
+    <ImageButton
+        android:id="@+id/locationButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/blueBorder"
+        android:layout_below="@id/blueBorder"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="26dp"
+        android:alpha="0.9"
+        android:background="#CCCCCC"
+        android:contentDescription="@string/location_button"
+        android:padding="0dp"
+        android:src="@drawable/location" />
+
+    <ImageButton
+        android:id="@id/aoiZoomInButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/locationButton"
+        android:layout_below="@id/locationButton"
+        android:layout_marginTop="18dp"
+        android:alpha="0.9"
+        android:background="#CCCCCC"
+        android:padding="4dp"
+        android:src="@drawable/zoom_in" />
+
 </RelativeLayout>

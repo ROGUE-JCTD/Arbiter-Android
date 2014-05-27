@@ -32,8 +32,14 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 	
 	var addingGeometryPart = false;
 	
-	var saveControlPanelInfo = function(geometryPart){
-		var featureId = featureOfInterest.metadata[Arbiter.FeatureTableHelper.ID];
+	var saveControlPanelInfo = function(geometryPart, geometryTypeName){
+			
+		var featureId = null;
+		
+		if(Arbiter.Util.existsAndNotNull(featureOfInterest.metadata)){
+			featureId = featureOfInterest.metadata[Arbiter.FeatureTableHelper.ID];
+		}
+		
 		var layerId = schema.getLayerId();
 		
 		var geometry = geometryExpander.compress();
@@ -48,7 +54,7 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 		
 		controlPanelHelper.set(featureId, layerId, 
 				controlPanelHelper.CONTROLS.MODIFY, 
-				wktGeometry, indexChain, function(){
+				wktGeometry, geometryTypeName, indexChain, function(){
 			
 			console.log("successfully updated geometry");
 		}, function(e){
@@ -60,12 +66,6 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 		console.log("onFeatureModified", event);
 		
 		saveControlPanelInfo(event.feature.metadata.part);
-		
-		if(!modified){
-			modified = true;
-			
-			Arbiter.Cordova.enableDoneEditingBtn();
-		}
 	};
 
 	var onFeatureSelected = function(feature){
@@ -102,6 +102,8 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 		
 		var type = Arbiter.Geometry.getGeometryType(schema.getLayerId(), schema.getGeometryType());
 		
+		var geometryTypeName = Arbiter.Geometry.getGeometryName(type);
+		
 		var feature = event.feature;
 		
 		if(Arbiter.Util.existsAndNotNull(feature.metadata)){
@@ -127,12 +129,25 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 		
 		Arbiter.Cordova.setMultiPartBtnsEnabled(enable, enableCollection);
 		
-		saveControlPanelInfo(event.feature.metadata.part);
+		saveControlPanelInfo(event.feature.metadata.part, geometryTypeName);
 	};
 	
 	var registerEvents = function(){
-		modifyLayer.events.register("featuremodified", null, featureModified);
-		modifyLayer.events.register("beforefeaturemodified", null, onBeforeFeatureModified);
+		modifyLayer.events.register("featuremodified", null, function(event){ 
+			try{
+			
+				featureModified(event);
+			}catch(e){
+				console.log("featureModified", e.stack);
+			}
+		});
+		modifyLayer.events.register("beforefeaturemodified", null, function(event){
+			try{
+				onBeforeFeatureModified(event);
+			}catch(e){
+				console.log("beforeFeatureModified", e.stack);
+			}
+		});
 	};
 	
 	var _attachToMap = function(){
@@ -371,6 +386,8 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 		
 		beginAddGeometry: function(_geometryType){
 			
+			console.log("beginAddGeometry addingGeometryPart = " + addingGeometryPart);
+			
 			if(addingGeometryPart){
 				return;
 			}
@@ -418,8 +435,6 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 				modifyController.activate();
 				
 				Arbiter.Cordova.hidePartButtons();
-				
-				Arbiter.Cordova.enableDoneEditingBtn();
 			}
 		},
 		
@@ -445,8 +460,6 @@ Arbiter.Controls.Modify = function(_map, _olLayer, _featureOfInterest, _schema){
 				Arbiter.Cordova.hidePartButtons();
 				
 				modifyController.activate();
-				
-				Arbiter.Cordova.enableDoneEditingBtn();
 			}
 		},
 		

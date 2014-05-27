@@ -13,7 +13,6 @@ import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.CordovaPlugins.Helpers.FeatureHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.GeometryColumnsHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseGeometryTypeDialog;
 import com.lmn.Arbiter_Android.ListAdapters.ChooseGeometryTypeAdapter;
 import com.lmn.Arbiter_Android.Map.Map;
@@ -262,10 +261,6 @@ public class GeometryEditor {
 		
 		this.cancelBtn.setVisibility(visible);
 		
-		if(visibility){
-			this.doneBtn.setEnabled(false);
-		}
-		
 		this.doneBtn.setVisibility(visible);
 	}
 	
@@ -326,11 +321,6 @@ public class GeometryEditor {
 					e.printStackTrace();
 				}
 		}
-	}
-	
-	public void enableDoneButton(){
-		
-		this.doneBtn.setEnabled(true);
 	}
 	
 	public void enableMultiPartBtns(boolean enable, boolean enableCollection){

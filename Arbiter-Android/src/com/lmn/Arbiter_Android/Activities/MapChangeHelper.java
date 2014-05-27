@@ -6,12 +6,6 @@ import org.apache.cordova.CordovaWebView;
 
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-
-import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
@@ -56,6 +50,10 @@ public class MapChangeHelper {
 		});
 	}
 	
+	public void onServerUpdated(){
+		reloadMap();
+	}
+	
 	public void onLayersAdded(final ArrayList<Layer> layers, final long[] layerIds) {
 		
 		activity.runOnUiThread(new Runnable(){
@@ -96,7 +94,10 @@ public class MapChangeHelper {
 				editor.setFeatureInfo(featureType, featureId, layerId, wktGeometry, new Runnable(){
 					@Override
 					public void run(){
-						if(featureId != null && featureId != "null"){
+						
+						Log.w("MapChangeHelper", "MapChangeHelper onSelectFEature featureID = " + featureId);
+						
+						if(featureId != null && !"null".equals(featureId)){
 							editor.setEditMode(GeometryEditor.Mode.SELECT);
 						}else{
 							editor.setEditMode(GeometryEditor.Mode.INSERT);
@@ -177,16 +178,6 @@ public class MapChangeHelper {
 			@Override
 			public void run(){
 				Map.getMap().resetWebApp(cordovaWebView);
-			}
-		});
-	}
-	
-	public void enableDoneEditingButton(){
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				
-				editor.enableDoneButton();
 			}
 		});
 	}

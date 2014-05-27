@@ -53,9 +53,6 @@
 			
 			this.insertLayer.events.register("sketchstarted",
 					this, this.onSketchStarted);
-			
-			this.insertLayer.events.register("sketchmodified",
-					this, this.onSketchModified);
 		}
 	};
 	
@@ -68,9 +65,6 @@
 			
 			this.insertLayer.events.unregister("sketchstarted",
 					this, this.onSketchStarted);
-			
-			this.insertLayer.events.unregister("sketchmodified",
-					this, this.onSketchModified);
 		}
 	};
 	
@@ -101,23 +95,6 @@
 	
 	prototype.onSketchStarted = function(feature, vertex){
 		this.sketchStarted = true;
-	};
-	
-	prototype.onSketchModified = function(feature, vertex){
-		var type = Arbiter.Geometry.type;
-		
-		this.vertexCount++;
-		
-		if(this.vertexCount === 3 && (this.geometryType === type.POLYGON || this.geometryType === type.MULTIPOLYGON)){
-			
-			Arbiter.Cordova.enableDoneEditingBtn();
-		}else if(this.vertexCount === 2 && (this.geometryType === type.LINE || this.geometryType === type.MULTILINE)){
-			
-			Arbiter.Cordova.enableDoneEditingBtn();
-		}else if(this.vertexCount === 1 && (this.geometryType === type.POINT || this.geometryType === type.MULTIPOINT)){
-			
-			Arbiter.Cordova.enableDoneEditingBtn();
-		}
 	};
 	
 	prototype.initController = function(){
@@ -160,10 +137,18 @@
 				
 				handler = OpenLayers.Handler.Path;
 				
+				options = {
+					multi: true
+				};
+				
 				break;
 			case type.MULTIPOLYGON:
 				
 				handler = OpenLayers.Handler.Polygon;
+				
+				options = {
+					multi: true
+				};
 				
 				break;
 				
@@ -274,6 +259,15 @@
 			
 			if(Arbiter.Util.funcExists(this.insertCallback)){
 				this.insertCallback(feature);
+			}
+		}else{
+			
+			this.map.removeLayer(this.insertLayer);
+			
+			this.deactivate();
+			
+			if(Arbiter.Util.funcExists(this.insertCallback)){
+				this.insertCallback();
 			}
 		}
 	};

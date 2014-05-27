@@ -23,6 +23,7 @@ import android.widget.Button;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.ArbiterState;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
@@ -51,7 +52,7 @@ public class FeatureDialogHelper {
 	public FeatureDialogHelper(FragmentActivity activity, View view, 
 			Feature feature, boolean startInEditMode,
 			Button editButton, Button editOnMapButton,
-			Button cancelButton, Button deleteButton, String layerId){
+			Button cancelButton, Button deleteButton, String layerId, Util util){
 		
 		this.activity = activity;
 		this.feature = feature;
@@ -71,7 +72,7 @@ public class FeatureDialogHelper {
 		}
 		
 		this.builder = new FeatureDialogBuilder(activity,
-				view, feature, startInEditMode);
+				view, feature, startInEditMode, util);
 		
 		builder.build(startInEditMode);
 		
@@ -181,7 +182,6 @@ public class FeatureDialogHelper {
 	 * the feature on the map.
 	 */
 	public void editOnMap(){
-		
 		ArbiterState.getArbiterState().editingFeature(feature, layerId);
 		
 		//mapListener.getMapChangeHelper().onEditFeature(feature);
@@ -238,10 +238,12 @@ public class FeatureDialogHelper {
 			e.printStackTrace();
 		}
 		
+		ArrayList<String> mediaToDelete = new ArrayList<String>();
 		for(String key : mediaPanels.keySet()){
 			mediaPanel = mediaPanels.get(key);
 			
 			ArrayList<String> mediaToSend = mediaPanel.getMediaToSend();
+			mediaToDelete.addAll(mediaPanel.getMediaToDelete());
 			
 			for(int i = 0, count = mediaToSend.size(); i < count; i++){
 				mediaLayer.put(mediaToSend.get(i));
@@ -250,7 +252,25 @@ public class FeatureDialogHelper {
 			mediaPanel.clearMediaToSend();
 		}
 		
-		helper.updateMediaToSend(newMedia.toString());
+		String newMediaString = newMedia.toString();
+		
+		for(int i = 0, count = mediaToDelete.size(); i < count; i++){
+			String mediaElement = '\"' + mediaToDelete.get(i) + '\"';
+			
+			int index = newMediaString.indexOf(mediaElement);
+			if (index > -1) {
+				int length = mediaElement.length();
+				if (newMediaString.indexOf(mediaElement + ",") == index) {
+					length++;
+				} else if (newMediaString.indexOf("," + mediaElement) == index - 1) {
+					index--;
+					length++;
+				}
+				newMediaString = newMediaString.substring(0, index) + newMediaString.substring(index+length);
+			}
+		}
+		
+		helper.updateMediaToSend(newMediaString);
 	}
 	
 	private boolean save() throws Exception{
@@ -294,7 +314,7 @@ public class FeatureDialogHelper {
 		ControlPanelHelper controlPanelHelper = new ControlPanelHelper(activity);
 		controlPanelHelper.set(featureId, layerId,
 				ControlPanelHelper.CONTROLS.SELECT,
-				feature.getGeometry(), null);
+				feature.getGeometry(), null, null);
 		
 		// Update the mediaToSend property so that
 		// we know which files need to be synced.

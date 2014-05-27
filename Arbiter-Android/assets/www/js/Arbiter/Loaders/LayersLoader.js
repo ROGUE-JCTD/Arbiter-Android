@@ -175,7 +175,10 @@ Arbiter.Loaders.LayersLoader = (function(){
 	};
 	
 	var loadAOILayer = function(){
-		Arbiter.PreferencesHelper.get(Arbiter.AOI, Arbiter.Loaders.LayersLoader, function(aoi){
+		
+		var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+		
+		Arbiter.PreferencesHelper.get(projectDb, Arbiter.AOI, Arbiter.Loaders.LayersLoader, function(aoi){
 			
 			if(aoi !== null && aoi !== undefined && aoi !== ""){
 				addAOIToMap(aoi);
@@ -397,25 +400,28 @@ Arbiter.Loaders.LayersLoader = (function(){
 										
 										controlPanelHelper.getLayerId(function(layerId){
 											
-											if(activeControl == controlPanelHelper.CONTROLS.INSERT){
-												Arbiter.Controls.ControlPanel.startInsertMode(layerId);
-											}
-											
-											if(Arbiter.Util.funcExists(onSuccess)){
-												onSuccess();
-											}
-											
-											// Sometimes after loading,
-											// the wfs layers do not get drawn
-											// properly.  This ensures they
-											// get drawn correctly.
-											redrawWFSLayers();
-											
-											if(Arbiter.Util.existsAndNotNull(layersWithUnsupportedCRS) 
-													&& layersWithUnsupportedCRS.length){
+											controlPanelHelper.getGeometryType(function(geometryType){
 												
-												Arbiter.Cordova.reportLayersWithUnsupportedCRS(layersWithUnsupportedCRS);
-											}
+												if(activeControl == controlPanelHelper.CONTROLS.INSERT){
+													Arbiter.Controls.ControlPanel.startInsertMode(layerId, geometryType);
+												}
+												
+												if(Arbiter.Util.funcExists(onSuccess)){
+													onSuccess();
+												}
+												
+												// Sometimes after loading,
+												// the wfs layers do not get drawn
+												// properly.  This ensures they
+												// get drawn correctly.
+												redrawWFSLayers();
+												
+												if(Arbiter.Util.existsAndNotNull(layersWithUnsupportedCRS) 
+														&& layersWithUnsupportedCRS.length){
+													
+													Arbiter.Cordova.reportLayersWithUnsupportedCRS(layersWithUnsupportedCRS);
+												}
+											}, onFailure);
 										}, onFailure)
 									}, onFailure);
 								});

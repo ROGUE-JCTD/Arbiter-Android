@@ -191,17 +191,6 @@ Arbiter.Geometry = (function(){
 			
 			var wkt = wktFormatter.write(Arbiter.Util.getFeatureInNativeProjection(srid, schema.getSRID(), feature));
 			
-			if(Arbiter.Util.existsAndNotNull(feature.metadata) 
-					&& this.shouldBeMulti(
-							feature.metadata[Arbiter.FeatureTableHelper.PART_OF_MULTI], wkt)){
-				
-				wkt = this.convertToMulti(wkt);
-			}
-			
-			if(this.isGeometryCollection(layerId) && wkt.substring(0, 18) !== "GEOMETRYCOLLECTION"){
-				wkt = "GEOMETRYCOLLECTION(" + wkt + ")";
-			}
-			
 			return wkt;
 		},
 		

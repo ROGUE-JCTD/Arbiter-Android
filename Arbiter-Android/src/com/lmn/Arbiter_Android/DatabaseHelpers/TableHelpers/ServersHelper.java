@@ -31,7 +31,8 @@ public class ServersHelper implements BaseColumns{
 	public static final String SERVER_USERNAME = "username";
 	public static final String SERVER_PASSWORD = "password";
 	public static final String SERVERS_TABLE_NAME = "servers";
-	
+	public static final String GMT_OFFSET = "gmt_offset";
+
 	private ServersHelper(){}
 	
 	private static ServersHelper helper = null;
@@ -52,7 +53,8 @@ public class ServersHelper implements BaseColumns{
 					SERVER_NAME + " TEXT, " +
 					SERVER_URL + " TEXT, " +
 					SERVER_USERNAME + " TEXT, " +
-					SERVER_PASSWORD + " TEXT);";
+					SERVER_PASSWORD + " TEXT, " + 
+					GMT_OFFSET + " INTEGER DEFAULT 0);";
 		
 		db.execSQL(sql);
 	}
@@ -118,6 +120,7 @@ public class ServersHelper implements BaseColumns{
 				db.setTransactionSuccessful();
 				
 				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ServersListLoader.SERVER_LIST_UPDATED));
+				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ServersListLoader.SERVER_ADDED));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -232,7 +235,7 @@ public class ServersHelper implements BaseColumns{
 	public void deletionAlert(Activity activity, final Runnable deleteIt){
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 		
-		builder.setTitle(R.string.delete_server_title);
+		builder.setTitle(R.string.warning);
 		builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
 		builder.setMessage(R.string.delete_server_alert);
 		builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener(){
@@ -259,7 +262,7 @@ public class ServersHelper implements BaseColumns{
 			public void run(){
 				AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 				
-				builder.setTitle(R.string.update_server_title);
+				builder.setTitle(R.string.warning);
 				builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
 				builder.setMessage(R.string.update_server_alert);
 				builder.setPositiveButton(R.string.update, new DialogInterface.OnClickListener(){

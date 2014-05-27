@@ -7,7 +7,10 @@
 	var prototype = Arbiter.Loaders.BaseLayer.prototype;
 	
 	prototype.load = function(onSuccess, onFailure){
-		Arbiter.PreferencesHelper.get(Arbiter.BASE_LAYER, this, function(baseLayer){
+		
+		var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
+		
+		Arbiter.PreferencesHelper.get(projectDb, Arbiter.BASE_LAYER, this, function(baseLayer){
 			
 			if(Arbiter.Util.existsAndNotNull(baseLayer)){
 				try{

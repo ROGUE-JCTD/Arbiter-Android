@@ -58,7 +58,7 @@ public class LayersHelper implements BaseColumns{
 					WORKSPACE + " TEXT, " +
 					SERVER_ID + " INTEGER, " + 
 					LAYER_ORDER + " INTEGER, " +
-					READ_ONLY + " BOOLEAN DEFAULT 0);";
+					READ_ONLY + " TEXT DEFAULT 'false');";
 		
 		db.execSQL(sql);
 		
@@ -109,7 +109,7 @@ public class LayersHelper implements BaseColumns{
 			layers.add(new Layer(cursor.getInt(0),
 					cursor.getString(1), cursor.getString(2), cursor.getInt(3), null, null, cursor.getString(4), 
 					cursor.getString(5), cursor.getString(6), cursor.getInt(7),
-					util.convertIntToBoolean(cursor.getInt(8)), util.convertIntToBoolean(cursor.getInt(9))));
+					util.convertIntToBoolean(cursor.getInt(8)), cursor.getString(9)));
 		}
 		
 		cursor.close();
@@ -150,7 +150,7 @@ public class LayersHelper implements BaseColumns{
 			layer = new Layer(cursor.getInt(0),
 					cursor.getString(1), cursor.getString(2), cursor.getInt(3), null, null, cursor.getString(4), 
 					cursor.getString(5), cursor.getString(6), cursor.getInt(7),
-					util.convertIntToBoolean(cursor.getInt(8)), util.convertIntToBoolean(cursor.getInt(9)));
+					util.convertIntToBoolean(cursor.getInt(8)), cursor.getString(9));
 		}
 		
 		cursor.close();
@@ -269,7 +269,7 @@ public class LayersHelper implements BaseColumns{
 			for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 				delete(projectDb, featureDb, context, new Layer(cursor.getInt(0),
 						cursor.getString(1), null, cursor.getInt(2), null, null, null, 
-						null, null, -1, false, false));
+						null, null, -1, false, "false"));
 			}
 			
 			cursor.close();

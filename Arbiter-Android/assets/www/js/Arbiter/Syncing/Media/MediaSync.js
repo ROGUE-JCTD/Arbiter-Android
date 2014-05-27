@@ -140,7 +140,7 @@ Arbiter.MediaSync.prototype.uploadMedia = function(layer){
 	
 	var schema = this.layerSchemas[layerId];
 	
-	if(schema.isEditable() === false){
+	if(schema.isEditable() === false || schema.isReadOnly()){
 	
 		++this.finishedLayersUploading;
 		

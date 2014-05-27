@@ -58,7 +58,7 @@ public class Layer extends NotificationListItem{
 	
 	
 	public Layer(int layerId, String featureType, String workspace, int serverId, String serverName, String serverUrl,
-			String title, String boundingBox, String color, int layerOrder, boolean checked, boolean readOnly){
+			String title, String boundingBox, String color, int layerOrder, boolean checked, String readOnly){
 		this.layerId = layerId;
 		this.featureType = featureType;
 		this.serverName = serverName;
@@ -71,13 +71,13 @@ public class Layer extends NotificationListItem{
 		this.workspace = workspace;
 		this.layerOrder = layerOrder;
 		this.syncId = -1;
-		this.readOnly = readOnly;
+		this.readOnly = Boolean.parseBoolean(readOnly);
 		
 		setChecked(checked);
 	}
 	
 	public Layer(int layerId, String featureType, String workspace, int serverId, String serverName, String serverUrl,
-			String title, String srs, String boundingBox, String color, int layerOrder, boolean checked, boolean readOnly){
+			String title, String srs, String boundingBox, String color, int layerOrder, boolean checked, String readOnly){
 		this(layerId, featureType, workspace, serverId, serverName, serverUrl,
 				title, boundingBox, color, layerOrder, checked, readOnly);
 		

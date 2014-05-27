@@ -246,4 +246,6 @@
     <string name="valid_geometry_collection_description">A Geometry Collection must have at least one valid geometry.</string>
     <string name="delete_media">Delete Media</string>
     <string name="sure_delete_media">Are you sure you want to remove this item from the feature?</string>
+    <string name="read_only">Read only</string>
+    <string name="read_only_msg">This layer is read only.  Please contact the server administrator to check your permissions.</string>
 </resources>

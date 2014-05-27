@@ -244,4 +244,6 @@
     <string name="valid_geometry_collection_description">Una geometría de grupo debe tener al menos una geometría válida.</string>
     <string name="delete_media">Eliminar Foto</string>
     <string name="sure_delete_media">¿Está seguro de que desea eliminar esta foto desde el elemento?</string>
+    <string name="read_only">Sólo lectura</string>
+    <string name="read_only_msg">Esta capa es de sólo lectura. Por favor, póngase en contacto con el administrador del servidor para comprobar sus permisos.</string>
 </resources>

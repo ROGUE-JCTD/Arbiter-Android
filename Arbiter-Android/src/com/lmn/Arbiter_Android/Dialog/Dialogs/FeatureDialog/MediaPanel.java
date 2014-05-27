@@ -134,6 +134,10 @@ public class MediaPanel {
 		this.mediaLoader = new MediaLoader(activity, key,
 				feature, mediaView, inflater);
 		
+		if (startInEditMode) {
+			mediaLoader.setEditMode(true);
+		}
+		
 		loadMedia();
 	}
 	

@@ -351,7 +351,7 @@ public class Attribute {
 					editText.setError(resources.getString(
 							R.string.form_error_integer));
 				}
-			}else if(type.equals("xsd:double")){
+			}else if(type.equals("xsd:double") || type.equals("xsd:decimal")){
 				
 				valid = util.isDouble(val.trim());
 				
@@ -377,7 +377,7 @@ public class Attribute {
 				}
 			}else if(type.equals("xsd:float")){
 				
-				valid = util.isLong(val.trim());
+				valid = util.isFloat(val.trim());
 				
 				if(!valid){
 					editText.setError(resources.getString(R.string.form_error_float));

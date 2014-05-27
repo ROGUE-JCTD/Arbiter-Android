@@ -55,21 +55,27 @@ Arbiter.Cordova = (function() {
 			cordova.exec(null, null, "ArbiterCordova", "gotPicture", []);
 		},
 		
-		featureNotInAOI: function(insertFeature, cancelInsertFeature){
+		featureNotInAOI: function(featureId, insertFeature, cancelInsertFeature){
 			
 			Arbiter.Cordova.setState(Arbiter.Cordova.STATES.OUTSIDE_AOI_WARNING);
 			
 			cordova.exec(function(){
-				insertFeature();
+				
+				if(Arbiter.Util.existsAndNotNull(insertFeature)){
+					
+					insertFeature();
+				}
 				
 				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.NEUTRAL);
 				
 			}, function(){
 				
-				cancelInsertFeature();
+				if(Arbiter.Util.existsAndNotNull(cancelInsertFeature)){
+					cancelInsertFeature();
+				}
 				
 				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.NEUTRAL);
-			}, "ArbiterCordova", "featureNotInAOI", []);
+			}, "ArbiterCordova", "featureNotInAOI", [featureId]);
 		},
 		
 		layersAlreadyInProject: function(layersAlreadyInProject){
@@ -195,52 +201,90 @@ Arbiter.Cordova = (function() {
 					"errorAddingLayers", [e]);
 		},
 		
+		// validate in here. 
 		getUpdatedGeometry: function(){
 			
-			Arbiter.Controls.ControlPanel.finishGeometry();
+			console.log("getUpdatedGeometry");
 			
-			Arbiter.Controls.ControlPanel.exitModifyMode(function(){
+			Arbiter.Controls.ControlPanel.finishInserting(function(){
+			
+				console.log("finished inserting");
 				
-				try{
-					var selectedFeature = Arbiter.Controls
-						.ControlPanel.getSelectedFeature();
-				
-					if(selectedFeature === null || selectedFeature === undefined){
-						throw "getUpdatedGeometry() - selectedFeature should not be empty";
-					}
+				// Also finishes modifying the geometry
+				Arbiter.Controls.ControlPanel.exitModifyMode(function(){
 					
-					var featureId = null;
+					try{
+						var selectedFeature = Arbiter.Controls
+							.ControlPanel.getSelectedFeature();
 					
-					if(selectedFeature.metadata !== null 
-							&& selectedFeature.metadata !== undefined){
+						console.log("selectedFeature", selectedFeature);
 						
-						featureId = selectedFeature.metadata[
-						    Arbiter.FeatureTableHelper.ID];
-					}
-					
-					var layerId = Arbiter.Util.getLayerId(selectedFeature.layer);
-					
-					console.log("layerId = " + layerId);
-					
-					var schema = Arbiter.getLayerSchemas()[layerId];
-					
-					var wktGeometry = null;
-					
-					if(Arbiter.Util.existsAndNotNull(selectedFeature.geometry)){
-						if(!Arbiter.Util.existsAndNotNull(featureId)){
-							wktGeometry = Arbiter.Geometry.getNativeWKT(selectedFeature, layerId);
+						if(!Arbiter.Util.existsAndNotNull(selectedFeature)){
+							
+							cordova.exec(null, null, "ArbiterCordova", "invalidGeometriesEntered", [null, null]);
 						}else{
-							wktGeometry = Arbiter.Geometry.checkForGeometryCollection(layerId, featureId, schema.getSRID());
+							console.log("selectedFeature isn't null");
+							var featureId = null;
+							
+							if(selectedFeature.metadata !== null 
+									&& selectedFeature.metadata !== undefined){
+								
+								featureId = selectedFeature.metadata[
+								    Arbiter.FeatureTableHelper.ID];
+							}
+							
+							var layerId = Arbiter.Util.getLayerId(selectedFeature.layer);
+							
+							var schema = Arbiter.getLayerSchemas()[layerId];
+							
+							// Validate the feature and remove any invalid parts.
+							var featureValidation = new Arbiter.Validation.Feature(selectedFeature, true);
+							
+							var invalidGeometries = featureValidation.validate();
+							
+							if(Arbiter.Util.existsAndNotNull(selectedFeature.metadata) 
+									&& selectedFeature.metadata[Arbiter.Validation.Feature.REMOVED_DURING_VALIDATION]){
+								
+								Arbiter.Controls.ControlPanel.setSelectedFeature(null);
+								
+								cordova.exec(null, null, "ArbiterCordova", "invalidGeometriesEntered", [schema.getFeatureType(), featureId]);
+							}else{
+								
+								var insideAOI = featureValidation.checkFeatureAddedInsideAOI();
+								
+								var exec = function(){
+									
+									var wktGeometry = null;
+									
+									if(Arbiter.Util.existsAndNotNull(selectedFeature.geometry)){
+										if(!Arbiter.Util.existsAndNotNull(featureId)){
+											wktGeometry = Arbiter.Geometry.getNativeWKT(selectedFeature, layerId);
+										}else{
+											wktGeometry = Arbiter.Geometry.checkForGeometryCollection(layerId, featureId, schema.getSRID());
+										}
+									}
+									
+									cordova.exec(null, null, "ArbiterCordova", "showUpdatedGeometry", 
+											[schema.getFeatureType(), featureId, layerId, wktGeometry]);
+								};
+								
+								if(insideAOI){
+									exec();
+								}else{
+									
+									Arbiter.Cordova.featureNotInAOI(featureId, exec, function(){
+										
+										// Using this to cancel the edit right now...
+										Arbiter.Cordova.resetWebApp();
+									});
+								}
+								
+							}
 						}
+					}catch(e){
+						console.log(e.stack);
 					}
-					
-					console.log("getUpdatedGeometry = " + wktGeometry);
-					
-					cordova.exec(null, null, "ArbiterCordova", "showUpdatedGeometry", 
-							[schema.getFeatureType(), featureId, layerId, wktGeometry]);
-				}catch(e){
-					console.log(e.stack);
-				}
+				});
 			});
 		},
 		
@@ -252,32 +296,45 @@ Arbiter.Cordova = (function() {
 		featureSelected : function(featureType, featureId, layerId,
 				feature, mode, cancel){
 			
-			console.log("featureSelected: featureType = " + featureType 
-					+ ", featureId = " + featureId + ", layerId = " 
-					+ layerId + ", mode = " + mode + ", cancel = " 
-					+ cancel + ", feature = ", feature);
+			var featureValidator = new Arbiter.Validation.Feature(feature, false);
 			
-			var schemas = Arbiter.getLayerSchemas();
+			featureValidator.validate();
 			
-			var schema = schemas[layerId];
+			console.log("featureSelected featureValidator", featureValidator);
 			
-			var wktGeometry = null;
-			
-			if(cancel === false){
+			if(featureValidator.hasValidGeometries === true){
 				
-				if(!Arbiter.Util.existsAndNotNull(featureId)){
-					wktGeometry = Arbiter.Geometry.getNativeWKT(feature, layerId);
-				}else{
-					wktGeometry = Arbiter.Geometry.checkForGeometryCollection(layerId, featureId, schema.getSRID());
+				console.log("featureSelected: featureType = " + featureType 
+						+ ", featureId = " + featureId + ", layerId = " 
+						+ layerId + ", mode = " + mode + ", cancel = " 
+						+ cancel + ", feature = ", feature);
+				
+				var schemas = Arbiter.getLayerSchemas();
+				
+				var schema = schemas[layerId];
+				
+				var wktGeometry = null;
+				
+				if(cancel === false){
+					
+					if(!Arbiter.Util.existsAndNotNull(featureId)){
+						wktGeometry = Arbiter.Geometry.getNativeWKT(feature, layerId);
+					}else{
+						wktGeometry = Arbiter.Geometry.checkForGeometryCollection(layerId, featureId, schema.getSRID());
+					}
 				}
+				
+				// Put check in place because its causing issues when modifying new features.
+				// Don't want it to stop editing...
+				if(Arbiter.Util.existsAndNotNull(featureId)){
+					Arbiter.Controls.ControlPanel.exitModifyMode();
+				}
+				
+				console.log("displayFeatureDialog selectedFeature: ", Arbiter.Controls.ControlPanel.getSelectedFeature());
+				
+				cordova.exec(null, null, "ArbiterCordova", "featureSelected",
+						[featureType, featureId, layerId, wktGeometry, mode]);
 			}
-			
-			Arbiter.Controls.ControlPanel.exitModifyMode();
-			
-			console.log("displayFeatureDialog selectedFeature: ", Arbiter.Controls.ControlPanel.getSelectedFeature());
-			
-			cordova.exec(null, null, "ArbiterCordova", "featureSelected",
-					[featureType, featureId, layerId, wktGeometry, mode]);
 		},
 		
 		updateTileSyncingStatus: function(percent){
@@ -402,12 +459,6 @@ Arbiter.Cordova = (function() {
 					"alertGeolocationError", [msg]);
 		},
 		
-		enableDoneEditingBtn: function(){
-			
-			cordova.exec(null, null, "ArbiterCordova",
-					"enableDoneEditingBtn", []);
-		},
-		
 		setMultiPartBtnsEnabled: function(enable, enableCollection){
 			
 			cordova.exec(null, null, "ArbiterCordova", "setMultiPartBtnsEnabled", [enable, enableCollection]);
@@ -421,10 +472,6 @@ Arbiter.Cordova = (function() {
 		confirmGeometryRemoval: function(onConfirm){
 			
 			cordova.exec(onConfirm, null, "ArbiterCordova", "confirmGeometryRemoval", []);
-		},
-		
-		notifyUserToAddGeometry: function(){
-			cordova.exec(null, null, "ArbiterCordova", "notifyUserToAddGeometry", []);
 		},
 		
 		hidePartButtons: function(){

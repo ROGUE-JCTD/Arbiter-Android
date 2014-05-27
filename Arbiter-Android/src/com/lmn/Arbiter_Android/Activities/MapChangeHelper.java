@@ -94,7 +94,10 @@ public class MapChangeHelper {
 				editor.setFeatureInfo(featureType, featureId, layerId, wktGeometry, new Runnable(){
 					@Override
 					public void run(){
-						if(featureId != null && featureId != "null"){
+						
+						Log.w("MapChangeHelper", "MapChangeHelper onSelectFEature featureID = " + featureId);
+						
+						if(featureId != null && !"null".equals(featureId)){
 							editor.setEditMode(GeometryEditor.Mode.SELECT);
 						}else{
 							editor.setEditMode(GeometryEditor.Mode.INSERT);
@@ -175,16 +178,6 @@ public class MapChangeHelper {
 			@Override
 			public void run(){
 				Map.getMap().resetWebApp(cordovaWebView);
-			}
-		});
-	}
-	
-	public void enableDoneEditingButton(){
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				
-				editor.enableDoneButton();
 			}
 		});
 	}

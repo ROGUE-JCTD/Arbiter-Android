@@ -9,6 +9,8 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -30,11 +32,15 @@ import com.lmn.Arbiter_Android.Activities.ProjectsActivity;
 import com.lmn.Arbiter_Android.Activities.TileConfirmation;
 import com.lmn.Arbiter_Android.AppFinishedLoading.AppFinishedLoading;
 import com.lmn.Arbiter_Android.AppFinishedLoading.AppFinishedLoadingJob;
+import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.ConnectivityListeners.HasConnectivityListener;
+import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.GeometryColumnsHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
@@ -82,6 +88,102 @@ public class ArbiterCordova extends CordovaPlugin{
 			setProjectsAOI(aoi, tileCount);
 			
 			return true;
+		}else if("invalidGeometriesEntered".equals(action)){
+			
+			final Activity activity = cordova.getActivity();
+			
+			final String featureType = args.getString(0);
+			final String featureId = args.getString(1);
+			
+			activity.runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					
+					AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+					
+					builder.setTitle(R.string.warning);
+					
+					String validDescription = "\t" + activity.getResources().getString(R.string.valid_point_geometry_description);
+					
+					validDescription += "\n\n\t" + activity.getResources().getString(R.string.valid_line_geometry_description);
+					
+					validDescription += "\n\n\t" + activity.getResources().getString(R.string.valid_polygon_geometry_description);
+					
+					validDescription += "\n\n\t" + activity.getResources().getString(R.string.valid_multipoint_geometry_description);
+					
+					validDescription += "\n\n\t" + activity.getResources().getString(R.string.valid_multiline_geometry_description);
+					
+					validDescription += "\n\n\t" + activity.getResources().getString(R.string.valid_multipolygon_geometry_description);
+					
+					validDescription += "\n\n\t" + activity.getResources().getString(R.string.valid_geometry_collection_description);
+					
+					if(!"null".equals(featureId) && featureId != null){
+						
+						builder.setMessage(activity.getResources().getString(R.string.no_valid_geometries_delete_or_cancel)
+								+ "\n\n" + validDescription);
+						
+						builder.setPositiveButton(R.string.delete_feature, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+										
+								deleteFeature(featureType, featureId);
+							}
+						});
+						
+						builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener(){
+
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+										
+								String title = activity.getResources().getString(R.string.loading);
+								String message = activity.getResources().getString(R.string.please_wait);
+								
+								final ProgressDialog progressDialog = ProgressDialog.show(
+										activity, title, message, true);
+								
+								cordova.getThreadPool().execute(new Runnable(){
+									@Override
+									public void run(){
+										
+										ControlPanelHelper cpHelper = new ControlPanelHelper(activity);
+										cpHelper.clearControlPanel();
+										
+										ArbiterState.getArbiterState().doneEditingFeature();
+										
+										activity.runOnUiThread(new Runnable(){
+											@Override
+											public void run(){
+												Log.w("FeatureDialogHelper", "FeatureDialogHelper reloadMap");
+												
+												try{
+													Map.MapChangeListener mapListener = (Map.MapChangeListener) activity;
+													
+													mapListener.getMapChangeHelper().reloadMap();
+													mapListener.getMapChangeHelper().setEditMode(GeometryEditor.Mode.OFF);
+												}catch(ClassCastException e){
+													e.printStackTrace();
+												}finally{
+													progressDialog.dismiss();
+												}
+											}
+										});
+									}
+								});
+							}
+						});
+					}else{
+						
+						builder.setMessage(activity.getResources().getString(R.string.no_valid_geometries)
+								+ "\n\n" + validDescription);
+						
+						builder.setPositiveButton(R.string.close, null);
+					}
+					
+					builder.create().show();
+				}
+			});
+			return true;
 		}else if("isAddingGeometryPart".equals(action)){
 			
 			boolean isAddingPart = args.getBoolean(0);
@@ -102,7 +204,9 @@ public class ArbiterCordova extends CordovaPlugin{
 			return true;
 		}else if("featureNotInAOI".equals(action)){
 			
-			showFeatureNotInAOIWarning(callbackContext);
+			String featureId = args.getString(0);
+			
+			showFeatureNotInAOIWarning(featureId, callbackContext);
 			
 			return true;
 		}else if("appFinishedLoading".equals(action)){
@@ -367,20 +471,6 @@ public class ArbiterCordova extends CordovaPlugin{
 			alertGeolocationError(args.getString(0));
 			
 			return true;
-		}else if("enableDoneEditingBtn".equals(action)){
-			
-			Map.MapChangeListener mapListener;
-			
-			try{
-				
-				mapListener = (Map.MapChangeListener) cordova.getActivity();
-				mapListener.getMapChangeHelper().enableDoneEditingButton();
-				
-			}catch(ClassCastException e){
-				e.printStackTrace();
-			}
-			
-			return true;
 		}else if("featureUnselected".equals(action)){
 			
 			featureUnselected();
@@ -414,11 +504,6 @@ public class ArbiterCordova extends CordovaPlugin{
 			confirmGeometryRemoval(callbackContext);
 			
 			return true;
-		}else if("notifyUserToAddGeometry".equals(action)){
-			
-			notifyUserToAddGeometry();
-			
-			return true;
 		}else if("hidePartButtons".equals(action)){
 			
 			hidePartButtons(); 
@@ -442,7 +527,78 @@ public class ArbiterCordova extends CordovaPlugin{
 		return false;
 	}
 	
-	private void showFeatureNotInAOIWarning(final CallbackContext callbackContext){
+	private void deleteFeature(final String featureType, final String featureId){
+		
+		final Activity activity = cordova.getActivity();
+		
+		String title = activity.getResources().getString(R.string.loading);
+		String message = activity.getResources().getString(R.string.please_wait);
+		
+		final ProgressDialog progressDialog = ProgressDialog.show(
+				activity, title, message, true);
+		
+		cordova.getThreadPool().execute(new Runnable(){
+			@Override
+			public void run(){
+				
+				SQLiteDatabase db = (new Util()).getFeatureDb(activity, false);
+				
+				Feature feature = FeaturesHelper.getHelper().getFeature(db, featureId, featureType);
+				
+				if(feature.getSyncState().equals(FeaturesHelper.SYNC_STATES.SYNCED)){
+					feature.setModifiedState(FeaturesHelper.MODIFIED_STATES.DELETED);
+					feature.setSyncState(FeaturesHelper.SYNC_STATES.NOT_SYNCED);
+					
+					FeaturesHelper.getHelper().update(db, 
+							feature.getFeatureType(), feature.getId(),
+							feature);
+				}else{ 
+					
+					feature.setModifiedState(FeaturesHelper.MODIFIED_STATES.DELETED);
+					
+					String fid = feature.getFID();
+					
+					if(fid != null && !fid.equals("")){
+						FeaturesHelper.getHelper().update(db, 
+								feature.getFeatureType(), feature.getId(),
+								feature);
+					}else{
+						// If the feature isn't synced and it's not on the server, 
+						// then we don't need to keep track of it anymore.
+						FeaturesHelper.getHelper().delete(db,
+								feature.getFeatureType(), feature.getId());
+					}
+				}
+				
+				ControlPanelHelper cpHelper = new ControlPanelHelper(cordova.getActivity());
+				cpHelper.clearControlPanel();
+				
+				activity.runOnUiThread(new Runnable(){
+					@Override
+					public void run(){
+						
+						try{
+							
+							((Map.MapChangeListener) activity).getMapChangeHelper().reloadMap();
+							
+							AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+
+								@Override
+								public void run() {
+									
+									progressDialog.dismiss();
+								}
+							});
+						}catch(ClassCastException e){
+							e.printStackTrace();
+						}
+					}
+				});
+			}
+		});
+	}
+	
+	private void showFeatureNotInAOIWarning(final String featureId, final CallbackContext callbackContext){
 		
 		final Activity activity = cordova.getActivity();
 		
@@ -456,7 +612,15 @@ public class ArbiterCordova extends CordovaPlugin{
 				
 				builder.setMessage(activity.getResources().getString(R.string.feature_outside_aoi_warning));
 				
-				builder.setPositiveButton(R.string.insert, new DialogInterface.OnClickListener() {
+				String positiveString = null;
+				
+				if(featureId != null && !"null".equals(featureId)){
+					positiveString = activity.getResources().getString(R.string.edit_attributes);
+				}else{
+					positiveString = activity.getResources().getString(R.string.insert);
+				}
+				
+				builder.setPositiveButton(positiveString, new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -537,33 +701,6 @@ public class ArbiterCordova extends CordovaPlugin{
 				}catch(ClassCastException e){
 					e.printStackTrace();
 				}
-			}
-		});
-	}
-	
-	private void notifyUserToAddGeometry(){
-		
-		final Activity activity = cordova.getActivity();
-		
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				
-				try{
-					((Map.MapChangeListener) activity).getMapChangeHelper().setEditMode(GeometryEditor.Mode.EDIT);
-				}catch(ClassCastException e){
-					e.printStackTrace();
-				}
-				
-				final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-				
-				builder.setIcon(R.drawable.icon);
-				builder.setTitle(R.string.notify_user_to_add_geometry_title);
-				builder.setMessage(R.string.notify_user_to_add_geometry_msg);
-				
-				builder.setPositiveButton(android.R.string.ok, null);
-				
-				builder.create().show();
 			}
 		});
 	}

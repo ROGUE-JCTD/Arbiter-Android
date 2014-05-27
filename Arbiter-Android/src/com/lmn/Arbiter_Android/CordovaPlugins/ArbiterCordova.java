@@ -32,6 +32,7 @@ import com.lmn.Arbiter_Android.Activities.ProjectsActivity;
 import com.lmn.Arbiter_Android.Activities.TileConfirmation;
 import com.lmn.Arbiter_Android.AppFinishedLoading.AppFinishedLoading;
 import com.lmn.Arbiter_Android.AppFinishedLoading.AppFinishedLoadingJob;
+import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.ConnectivityListeners.HasConnectivityListener;
@@ -126,29 +127,7 @@ public class ArbiterCordova extends CordovaPlugin{
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 										
-								String title = activity.getResources().getString(R.string.loading);
-								String message = activity.getResources().getString(R.string.please_wait);
-								
-								final ProgressDialog progressDialog = ProgressDialog.show(
-										activity, title, message, true);
-								
-								cordova.getThreadPool().execute(new Runnable(){
-									@Override
-									public void run(){
-										
-										SQLiteDatabase featureDb = (new Util()).getFeatureDb(activity, false);
-										
-										FeaturesHelper.getHelper().delete(featureDb, featureType, featureId);
-										
-										activity.runOnUiThread(new Runnable(){
-											@Override
-											public void run(){
-												
-												progressDialog.dismiss();
-											}
-										});
-									}
-								});
+								deleteFeature(featureType, featureId);
 							}
 						});
 						
@@ -546,6 +525,77 @@ public class ArbiterCordova extends CordovaPlugin{
 		
 		// Returning false results in a "MethodNotFound" error.
 		return false;
+	}
+	
+	private void deleteFeature(final String featureType, final String featureId){
+		
+		final Activity activity = cordova.getActivity();
+		
+		String title = activity.getResources().getString(R.string.loading);
+		String message = activity.getResources().getString(R.string.please_wait);
+		
+		final ProgressDialog progressDialog = ProgressDialog.show(
+				activity, title, message, true);
+		
+		cordova.getThreadPool().execute(new Runnable(){
+			@Override
+			public void run(){
+				
+				SQLiteDatabase db = (new Util()).getFeatureDb(activity, false);
+				
+				Feature feature = FeaturesHelper.getHelper().getFeature(db, featureId, featureType);
+				
+				if(feature.getSyncState().equals(FeaturesHelper.SYNC_STATES.SYNCED)){
+					feature.setModifiedState(FeaturesHelper.MODIFIED_STATES.DELETED);
+					feature.setSyncState(FeaturesHelper.SYNC_STATES.NOT_SYNCED);
+					
+					FeaturesHelper.getHelper().update(db, 
+							feature.getFeatureType(), feature.getId(),
+							feature);
+				}else{ 
+					
+					feature.setModifiedState(FeaturesHelper.MODIFIED_STATES.DELETED);
+					
+					String fid = feature.getFID();
+					
+					if(fid != null && !fid.equals("")){
+						FeaturesHelper.getHelper().update(db, 
+								feature.getFeatureType(), feature.getId(),
+								feature);
+					}else{
+						// If the feature isn't synced and it's not on the server, 
+						// then we don't need to keep track of it anymore.
+						FeaturesHelper.getHelper().delete(db,
+								feature.getFeatureType(), feature.getId());
+					}
+				}
+				
+				ControlPanelHelper cpHelper = new ControlPanelHelper(cordova.getActivity());
+				cpHelper.clearControlPanel();
+				
+				activity.runOnUiThread(new Runnable(){
+					@Override
+					public void run(){
+						
+						try{
+							
+							((Map.MapChangeListener) activity).getMapChangeHelper().reloadMap();
+							
+							AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+
+								@Override
+								public void run() {
+									
+									progressDialog.dismiss();
+								}
+							});
+						}catch(ClassCastException e){
+							e.printStackTrace();
+						}
+					}
+				});
+			}
+		});
 	}
 	
 	private void showFeatureNotInAOIWarning(final String featureId, final CallbackContext callbackContext){

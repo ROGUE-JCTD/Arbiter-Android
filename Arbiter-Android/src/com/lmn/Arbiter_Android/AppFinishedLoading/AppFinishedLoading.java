@@ -2,8 +2,6 @@ package com.lmn.Arbiter_Android.AppFinishedLoading;
 
 import java.util.ArrayList;
 
-import android.util.Log;
-
 public class AppFinishedLoading {
 
 	private boolean finishedLoading;

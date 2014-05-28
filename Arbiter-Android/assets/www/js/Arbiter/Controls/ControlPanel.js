@@ -191,7 +191,7 @@ Arbiter.Controls.ControlPanel = (function(){
 				}
 			};
 			
-			/*if(Arbiter.Util.existsAndNotNull(featureId)){
+			if(Arbiter.Util.existsAndNotNull(featureId)){
 				
 				controlPanelHelper.set(featureId, layerId, controlPanelHelper.CONTROLS.SELECT, 0, null, null, function(){
 					
@@ -201,9 +201,9 @@ Arbiter.Controls.ControlPanel = (function(){
 				}, function(e){
 					console.log("Error saving select mode", e);
 				});
-			}else{*/
+			}else{
 				exec();
-			//}
+			}
 		}
 	};
 	

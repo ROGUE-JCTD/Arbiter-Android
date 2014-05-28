@@ -284,17 +284,30 @@
 					+ ", failedDownloads = " 
 					+ JSON.stringify(failedDownloads));
 
-			if(context.cacheTiles === true || context.cacheTiles === "true"){
-				context.startTileCache();
-			}else{
-				context.getNotifications();
-			}
-
+			context.checkLayerPermissions();
 		}, function(e){
 			context.onSyncFailed(e);
 		}, this.downloadOnly);
 	};
 
+	prototype.checkLayerPermissions = function(){
+		
+		var context = this;
+		
+		var permissionsSync = new Arbiter.PermissionsSync(this.schemas);
+		
+		permissionsSync.sync(function(){
+			
+			if(context.cacheTiles === true || context.cacheTiles === "true"){
+				context.startTileCache();
+			}else{
+				context.getNotifications();
+			}
+		}, function(e){
+			context.onSyncFailed(e);
+		});
+	};
+	
 	prototype.startTileCache = function(){
 		var context = this;
 		

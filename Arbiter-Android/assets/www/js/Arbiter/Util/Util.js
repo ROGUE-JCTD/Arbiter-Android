@@ -3,7 +3,10 @@ Arbiter.Util = (function(){
 	return {
 		getEncodedCredentials: function(username, password){
 			
-			if(username === "" && password === ""){
+			if((username === "" && password === "") 
+					|| !Arbiter.Util.existsAndNotNull(username) 
+					|| !Arbiter.Util.existsAndNotNull(password)){
+				
 				return null;
 			}
 			

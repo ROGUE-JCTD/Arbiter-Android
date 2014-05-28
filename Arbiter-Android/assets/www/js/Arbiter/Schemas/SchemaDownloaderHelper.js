@@ -6,7 +6,6 @@
 		this.onSuccess = _onSuccess;
 		this.onFailure = _onFailure;
 		
-		console.log("schemaDownloaderHelper layer = ", this.layer);
 		this.serverId = this.layer[Arbiter.LayersHelper.serverId()];
 		
 		this.layerId = this.layer[Arbiter.LayersHelper.layerId()];
@@ -24,8 +23,6 @@
 		this.srid = this.layer[Arbiter.GeometryColumnsHelper.featureGeometrySRID()];
 		
 		this.describeFeatureTypeReader = new OpenLayers.Format.WFSDescribeFeatureType();
-		
-		this.isReadOnly = false;
 		
 		this.color = this.layer[Arbiter.LayersHelper.color()];
 		
@@ -60,118 +57,7 @@
 			return;
 		}
 		
-		this._checkReadOnly();
-	};
-	
-	prototype._checkReadOnly = function() {
-		var context = this;
-		
-		var gotRequestBack = false;
-		
-		var url = this.url.substring(0, this.url.length - 4);
-		
-		var request = new OpenLayers.Request.POST({
-			url: url + "/wfs/WfsDispatcher",
-			data: '<?xml version="1.0" encoding="UTF-8"?> ' +
-            '<wfs:Transaction xmlns:wfs="http://www.opengis.net/wfs" ' +
-            'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
-            'service="WFS" version="1.0.0" ' +
-            'xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/wfs.xsd"> ' +
-            '<wfs:Update xmlns:feature="http://www.geonode.org/" typeName="' +
-            context.featureType + '">' +
-            '<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">' +
-            '<ogc:FeatureId fid="garbage_id" />' +
-            '</ogc:Filter></wfs:Update>' +
-            '</wfs:Transaction>',
-			headers: {
-				Authorization: 'Basic ' + context.credentials
-			},
-			success: function(response){
-				gotRequestBack = true;
-				
-				console.log("schemaDownloaderHelper: readOnly check - ", response);
-				
-				var xml = response.responseXML;
-				
-				if(xml && xml.childNodes){
-					
-					var node = null;
-					var reportNode = null;
-					var exceptionNode = null;
-					
-					for(var i = 0; i < xml.childNodes.length; i++){
-						
-						node = xml.childNodes[i];
-						
-						// The only node we care about
-						if(node.nodeName === "ServiceExceptionReport"){
-							
-							if(node.childNodes){
-								
-								// Run through the exceptions
-								for(var j = 0; j < node.childNodes.length; j++){
-									
-									reportNode = node.childNodes[j];
-									
-									if(reportNode.nodeName === "ServiceException"){
-										
-										if(reportNode.childNodes){
-											
-											for(var k = 0; k < reportNode.childNodes.length; k++){
-												
-												exceptionNode = reportNode.childNodes[k];
-												
-												if(exceptionNode.nodeValue.indexOf('read-only') >= 0){
-													
-													context.isReadOnly = true;
-													
-													break;
-												}
-											}
-										}
-									}
-								}
-							}
-							
-							break;
-						}
-					}
-				}
-				
-				console.log("isReadOnly = " + context.isReadOnly);
-				context._saveReadOnly();
-			},
-			failure: function(response){
-				gotRequestBack = true;
-				
-				context.onDownloadFailure();
-			}
-		});
-		
-		// Couldn't find a way to set timeout for an openlayers
-		// request, so I did this to abort the request after
-		// 15 seconds of not getting a response
-		window.setTimeout(function(){
-			if(!gotRequestBack){
-				request.abort();
-				
-				context.onDownloadFailure();
-			}
-		}, 30000);
-	};
-
-	prototype._saveReadOnly = function(){
-		
-		var context = this;
-		
-		var content = {};
-		
-		content[Arbiter.LayersHelper.readOnly()] = this.isReadOnly;
-		
-		Arbiter.LayersHelper.updateLayer(this.layer[Arbiter.LayersHelper.featureType()], content, this, function(){
-			
-			context._downloadSchema();
-		}, this.onDownloadFailure);
+		this._downloadSchema();
 	};
 	
 	prototype._downloadSchema = function(){
@@ -200,7 +86,7 @@
 					context.schema = new Arbiter.Util.LayerSchema(context.layerId, context.url,
 							results.targetNamespace, context.featureType, context.srid,
 							results.featureTypes[0].properties, context.serverId,
-							context.serverType, context.color, context.isReadOnly);
+							context.serverType, context.color, false);
 				}catch(e){
 					var msg = "Could not create schema - " + JSON.stringify(e);
 					

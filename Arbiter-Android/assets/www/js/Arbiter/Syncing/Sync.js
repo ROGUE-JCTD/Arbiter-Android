@@ -329,9 +329,11 @@
 				// If the layerIndex hasn't been specified, set it to 0 to get the first layer
 				if(!Arbiter.Util.existsAndNotNull(layerIndex)){
 					layerIndex = 0;
-				} // If the layerIndex is >= the layer count, then
+				} 
+				
+				// If the layerIndex is >= the layer count, then
 				// there are no more layers to get so the sync is completed
-				else if(layerIndex >= context.layers.length){
+				if(layerIndex >= context.layers.length){
 					
 					context.notificationHandler.syncId = context.syncId;
 					
@@ -350,6 +352,7 @@
 				
 				// Get the schema corresponding to the current layer
 				var layer = context.layers[layerIndex];
+				
 				var schema = context.schemas[layer[Arbiter.LayersHelper.layerId()]];
 				
 				// If the schema exists and is editable, then get the notifications for the layer

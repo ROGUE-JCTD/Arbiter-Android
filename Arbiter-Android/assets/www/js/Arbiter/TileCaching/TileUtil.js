@@ -5,6 +5,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	var map = _map;
 	var fileSystem = _fileSystem;
 	var tileDir = _tileDir;
+	var METADATA_KEY = "TILE_UTIL_OVERRIDEN";
 	
 	var registerOnLayerAdded = function(){
 		
@@ -12,21 +13,21 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 			if(event && event.layer 
 					&& event.layer.getURL){
 				
-				event.layer.getURL_Original = event.layer.getURL;
-				
-				event.layer.getURL = TileUtil.getURL;
-				
-				// Check to make sure OOM_Workaround is present and registered on the map
-				if(Arbiter.Cordova && Arbiter.Cordova.OOM_Workaround && Arbiter.Cordova.OOM_Workaround.registered
-						
-						// If the OOM_Workaround is also present, it's not guaranteed that this override will
-						// happen before the OOM_Workaround override.  OOM_Workaround's override sets the key
-						// Arbiter.Cordova.OOM_Workaround.OOM_Workaround to true if it has already overridden the
-						// layers getURL method.  If this is true, we need to make sure the OOM_Workaround override
-						// gets applied again.
-						&& event.layer.metadata && event.layer.metadata[Arbiter.Cordova.OOM_Workaround.OOM_Workaround]){
+				if(!Arbiter.Util.existsAndNotNull(event.layer.metadata)){
 					
-					Arbiter.Cordova.OOM_Workaround.overrideGetURL(event.layer);
+					event.layer.metadata = {};
+				}
+				
+				var metadata = event.layer.metadata;
+				
+				// If the key isn't there yet, or it's false
+				if(!Arbiter.Util.existsAndNotNull(metadata[METADATA_KEY]) || !metadata[METADATA_KEY]){
+					
+					event.layer.getURL_Original = event.layer.getURL;
+					
+					event.layer.getURL = TileUtil.getURL;
+					
+					metadata[METADATA_KEY] = true;
 				}
 			}
 		});

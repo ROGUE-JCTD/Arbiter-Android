@@ -2,14 +2,6 @@ Arbiter.Cordova.OOM_Workaround = (function(){
 	
 	var kitkat = "4.4";
 	
-	var addMetadata = function(layer){
-		if(!layer.metadata){
-			layer.metadata = {};
-		}
-		
-		layer.metadata[Arbiter.Cordova.OOM_Workaround.OOM_Workaround] = true;
-	};
-	
 	var onMoveEnd = function(){
 		var map = Arbiter.Map.getMap();
 		var context = Arbiter.Cordova.OOM_Workaround;
@@ -25,9 +17,20 @@ Arbiter.Cordova.OOM_Workaround = (function(){
 			if((device.version < kitkat) && event && event.layer 
 					&& event.layer.getURL){
 				
-				context.overrideGetURL(event.layer);
+				if(!Arbiter.Util.existsAndNotNull(event.layer.metadata)){
+					event.layer.metadata = {};
+				}
 				
-				addMetadata(event.layer);
+				var metadata = event.layer.metadata;
+				
+				console.log("oom override for layer: " + event.layer.name + ", overridden = " + metadata[context.METADATA_KEY]);
+				
+				if(!Arbiter.Util.existsAndNotNull(metadata[context.METADATA_KEY]) || !metadata[context.METADATA_KEY]){
+					
+					context.overrideGetURL(event.layer);
+					
+					metadata[context.METADATA_KEY] = true;
+				}
 			}
 		});
 	};
@@ -35,11 +38,11 @@ Arbiter.Cordova.OOM_Workaround = (function(){
 	return {
 		registered: false,
 		
-		OOM_Workaround: "oomWorkaround",
-		
 		tileCounter : 0,
 
 		RESET_ARBITER_ON : 150,
+		
+		METADATA_KEY: "OOM_OVERRIDEN",
 		
 		overrideGetURL : function(layer) {
 			var context = this;

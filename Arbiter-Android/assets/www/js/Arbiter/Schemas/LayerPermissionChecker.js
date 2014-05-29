@@ -45,7 +45,8 @@
             '<ogc:FeatureId fid="garbage_id" />' +
             '</ogc:Filter></wfs:Update>' +
             '</wfs:Transaction>',
-			success: function(response){
+			callback: function(response){
+				
 				gotRequestBack = true;
 				
 				var xml = response.responseXML;
@@ -96,11 +97,6 @@
 				}
 				
 				context._saveReadOnly(success, fail);
-			},
-			failure: function(response){
-				gotRequestBack = true;
-				
-				fail();
 			}
 		};
 		

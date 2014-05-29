@@ -88,6 +88,14 @@
 			context._queryLayer(schema);
 		};
 		
+		
+		if(!schema.isEditable()){
+			
+			next();
+			
+			return;
+		}
+		
 		var layerPermissionChecker = new Arbiter.LayerPermissionChecker(url, featureType, credentials);
 		
 		layerPermissionChecker.checkReadOnly(function(){

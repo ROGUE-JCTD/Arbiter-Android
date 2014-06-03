@@ -1315,15 +1315,18 @@ public class ArbiterCordova extends CordovaPlugin{
 									overlay.setVisibility(View.VISIBLE);
 								}
 								webview.loadUrl("about:blank");
-								if (overlay != null){
-									AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
-										@Override
-										public void run() {
+								
+								AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+									@Override
+									public void run() {
+										
+										if(overlay != null){
 											overlay.setVisibility(View.GONE);
-											dialog.dismiss();
 										}
-									});
-								}
+										
+										dialog.dismiss();
+									}
+								});
 							}
 						});
 					}

@@ -1294,28 +1294,38 @@ public class ArbiterCordova extends CordovaPlugin{
 		final boolean isCreatingProject = ArbiterState
 				.getArbiterState().isCreatingProject();
 		
-		CommandExecutor.runProcess(new Runnable(){
+		activity.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
-				OOMWorkaround oom = new OOMWorkaround(activity);
-				oom.setSavedBounds(currentExtent, zoomLevel, isCreatingProject);
 				
-				activity.runOnUiThread(new Runnable(){
+				final ProgressDialog dialog = ProgressDialog.show(activity, activity.getResources().getString(
+						R.string.loading), activity.getResources().getString(R.string.please_wait), true);
+				
+				CommandExecutor.runProcess(new Runnable(){
 					@Override
 					public void run(){
-						AppFinishedLoading.getInstance().setFinishedLoading(false);
-						if (overlay != null){
-							overlay.setVisibility(View.VISIBLE);
-						}
-						webview.loadUrl("about:blank");
-						if (overlay != null){
-							AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
-								@Override
-								public void run() {
-									overlay.setVisibility(View.GONE);
+						OOMWorkaround oom = new OOMWorkaround(activity);
+						oom.setSavedBounds(currentExtent, zoomLevel, isCreatingProject);
+						
+						activity.runOnUiThread(new Runnable(){
+							@Override
+							public void run(){
+								AppFinishedLoading.getInstance().setFinishedLoading(false);
+								if (overlay != null){
+									overlay.setVisibility(View.VISIBLE);
 								}
-							});
-						}
+								webview.loadUrl("about:blank");
+								if (overlay != null){
+									AppFinishedLoading.getInstance().onAppFinishedLoading(new AppFinishedLoadingJob(){
+										@Override
+										public void run() {
+											overlay.setVisibility(View.GONE);
+											dialog.dismiss();
+										}
+									});
+								}
+							}
+						});
 					}
 				});
 			}

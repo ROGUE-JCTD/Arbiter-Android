@@ -427,10 +427,6 @@ public class ArbiterCordova extends CordovaPlugin{
 			syncCompleted(callbackContext);
 			
 			return true;
-		}else if("syncFailed".equals(action)){
-			syncFailed(args.getString(0), callbackContext);
-			
-			return true;
 		}else if("errorUpdatingAOI".equals(action)){
 			errorUpdatingAOI(args.getString(0), callbackContext);
 			
@@ -1098,20 +1094,6 @@ public class ArbiterCordova extends CordovaPlugin{
 				});
 			}
 		});
-	}
-	
-	private void syncFailed(final String error, final CallbackContext callback){
-		cordova.getActivity().runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				//arbiterProject.dismissSyncProgressDialog();
-				
-				Util.showDialog(cordova.getActivity(), R.string.error_syncing, 
-						R.string.error_syncing_msg, error, null, null, null);
-			}
-		});
-		
-		callback.success();
 	}
 	
 	/**

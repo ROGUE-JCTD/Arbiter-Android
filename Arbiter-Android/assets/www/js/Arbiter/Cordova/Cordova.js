@@ -406,10 +406,7 @@ Arbiter.Cordova = (function() {
 			
 			console.log("syncFailed");
 			
-			cordova.exec(function(){
-				Arbiter.Cordova.setState(Arbiter.Cordova.STATES.NEUTRAL);
-			}, null, "ArbiterCordova",
-					"syncFailed", [e]);
+			Arbiter.Cordova.setState(Arbiter.Cordova.STATES.NEUTRAL);
 		},
 		
 		errorUpdatingAOI: function(e){

@@ -16,10 +16,6 @@
 		this.projectDb = projectDb;
 		this.featureDb = featureDb;
 		
-		// Object[layerId]
-		this.failedMediaUploads = null;
-		this.failedMediaDownloads = null;
-		
 		this.mediaDir = null;
 		this.mediaToSend = null;
 		
@@ -274,15 +270,7 @@
 		var mediaSync = new Arbiter.MediaSync(this.projectDb, this.layers, 
 				this.schemas, this.mediaDir, this.mediaToSend);
 		
-		mediaSync.startSync(function(failedUploads, failedDownloads){
-			
-			context.failedMediaUploads = failedUploads;
-			context.failedMediaDownloads = failedDownloads;
-			
-			console.log("media sync completed failedUploads = " 
-					+ JSON.stringify(failedUploads) 
-					+ ", failedDownloads = " 
-					+ JSON.stringify(failedDownloads));
+		mediaSync.startSync(function(){
 
 			context.checkLayerPermissions();
 		}, function(e){

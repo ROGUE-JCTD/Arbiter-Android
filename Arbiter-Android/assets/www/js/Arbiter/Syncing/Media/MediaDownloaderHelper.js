@@ -8,7 +8,6 @@ Arbiter.MediaDownloaderHelper = function(feature,
 	this.header = _header;
 	this.url = _url;
 	
-	this.failedMedia = null;
 	this.schema = _schema;
 	
 	var mediaAttribute = feature[this.schema.getMediaColumn()];
@@ -27,6 +26,7 @@ Arbiter.MediaDownloaderHelper = function(feature,
     this.totalLayers = _totalLayers;
     this.finishedMedia = 0;
     this.onDownloadComplete = null;
+    this.onDownloadFailure = null;
 };
 
 Arbiter.MediaDownloaderHelper.prototype.pop = function(){
@@ -38,30 +38,16 @@ Arbiter.MediaDownloaderHelper.prototype.pop = function(){
 	return undefined;
 };
 
-Arbiter.MediaDownloaderHelper.prototype.startDownload = function(onSuccess){
+Arbiter.MediaDownloaderHelper.prototype.startDownload = function(onSuccess, onFailure){
 	
 	this.onDownloadComplete = onSuccess;
+	this.onDownloadFailure = onFailure;
 	
 	if(this.featureMedia.length === 0){
 		this.updateProgressDialog(false);
 	}
 	
 	this.startDownloadingNext();
-};
-
-Arbiter.MediaDownloaderHelper.prototype.addToFailedMedia = function(_failed, _error){
-	
-	if(_failed !== null && _failed !== undefined){
-		
-		if(this.failedMedia === null || this.failedMedia === undefined){
-			this.failedMedia = [];
-		}
-		
-		this.failedMedia.push({
-			media: _failed,
-			error: _error
-		});
-	}
 };
 
 Arbiter.MediaDownloaderHelper.prototype.startDownloadingNext = function(){
@@ -74,7 +60,7 @@ Arbiter.MediaDownloaderHelper.prototype.startDownloadingNext = function(){
 	}else{
 		
 		if(Arbiter.Util.funcExists(this.onDownloadComplete)){
-			this.onDownloadComplete(this.finishedMediaCount, this.failedMedia);
+			this.onDownloadComplete(this.finishedMediaCount);
 		}
 	}
 };
@@ -105,13 +91,27 @@ Arbiter.MediaDownloaderHelper.prototype.updateProgressDialog = function(isMedia)
 Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
 	var context = this;
 	
-	var onFailure = function(error){
+	var onFailure = function(e){
 		
-		context.updateProgressDialog(true);
+		var callback = function(){
+			
+			context.updateProgressDialog(true);
+			
+			context.startDownloadingNext();
+		};
 		
-		context.addToFailedMedia(media, error);
-		
-		context.startDownloadingNext();
+		// If it was a timeout, ask the user if they want to continue or cancel, and act accordingly.
+		if(e === Arbiter.Error.Sync.TIMED_OUT){
+			
+			Arbiter.Cordova.syncOperationTimedOut(callback, function(){
+				
+				if(Arbiter.Util.existsAndNotNull(context.onDownloadFailure)){
+					context.onDownloadFailure(Arbiter.Error.Sync.TIMED_OUT, context.finishedMediaCount);
+				}
+			});
+		}else{
+			callback();
+		}
 	};
 	
 	var onSuccess = function(){

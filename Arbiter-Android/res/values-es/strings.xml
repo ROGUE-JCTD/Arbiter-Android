@@ -33,7 +33,7 @@
 	<string name="done_editing">Guardar</string>
 	<string name="delete_feature">Borrar</string>
 	<string name="edit_feature">Mapa</string>
-	<string name="cancel_editing">Cancelar</string>
+	<string name="cancel">Cancelar</string>
 	<string name="update_feature_title">Actualizar</string>
 	<string name="update_feature_msg">Actualizar este elemento?</string>
 	<string name="updating">Actualización</string>
@@ -246,4 +246,5 @@
     <string name="sure_delete_media">¿Está seguro de que desea eliminar esta foto desde el elemento?</string>
     <string name="read_only">Sólo lectura</string>
     <string name="read_only_msg">Esta capa es de sólo lectura. Por favor, póngase en contacto con el administrador del servidor para comprobar sus permisos.</string>
+    <string name="continue_sync">Continuar</string>
 </resources>

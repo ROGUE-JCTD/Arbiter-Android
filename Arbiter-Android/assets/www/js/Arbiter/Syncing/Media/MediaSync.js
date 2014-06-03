@@ -2,8 +2,6 @@ Arbiter.MediaSync = function(projectDb, _dbLayers, _layerSchemas, _mediaDir, _me
 	this.projectDb = projectDb;
 	this.mediaToSend = _mediaToSend;
 	this.mediaDir = _mediaDir;
-	this.failedOnUpload = null;
-	this.failedOnDownload = null;
 	
 	this.layers = _dbLayers;
 	
@@ -15,6 +13,7 @@ Arbiter.MediaSync = function(projectDb, _dbLayers, _layerSchemas, _mediaDir, _me
 	this.finishedLayersUploading = 0;
 	
 	this.onSyncComplete = null;
+	this.onSyncFailure = null;
 };
 
 // url
@@ -34,7 +33,8 @@ Arbiter.MediaSync.prototype.startSync = function(onSuccess, onFailure, downloadO
 	var context = this;
 	
 	this.onSyncComplete = onSuccess;
-		
+	this.onSyncFailure = onFailure;
+	
 	if(downloadOnly === true || downloadOnly === "true"){
 		
 		context.startDownloadForNext();
@@ -45,9 +45,6 @@ Arbiter.MediaSync.prototype.startSync = function(onSuccess, onFailure, downloadO
 };
 
 Arbiter.MediaSync.prototype.onUploadComplete = function(){
-	// TODO: Handle errors
-	console.log("MediaSync.js Upload completed.  The following"
-			+ " failed to upload:", this.failedOnUpload);
 	
 	this.index = -1;
 	
@@ -55,13 +52,9 @@ Arbiter.MediaSync.prototype.onUploadComplete = function(){
 };
 
 Arbiter.MediaSync.prototype.onDownloadComplete = function(){
-	// TODO: Handle errors
-	console.log("MediaSync.js Download completed.  The following"
-			+ " failed to download:", JSON.stringify(this.failedOnDownload));
 	
 	if(Arbiter.Util.funcExists(this.onSyncComplete)){
-		this.onSyncComplete(this.failedOnUpload,
-				this.failedOnDownload);
+		this.onSyncComplete();
 	}
 };
 
@@ -89,20 +82,6 @@ Arbiter.MediaSync.prototype.startDownloadForNext = function(){
 		this.downloadMedia(layer);
 	}else{
 		this.onDownloadComplete();
-	}
-};
-
-Arbiter.MediaSync.prototype.putFailedUpload = function(key, failed){
-	
-	if(failed !== null && failed !== undefined){
-		
-		if(this.failedOnUpload === null 
-				|| this.failedOnUpload === undefined){
-			
-			this.failedOnUpload = {};
-		}
-		
-		this.failedOnUpload[key] = failed;
 	}
 };
 
@@ -149,33 +128,36 @@ Arbiter.MediaSync.prototype.uploadMedia = function(layer){
 		return;
 	}
 	
+	var proceed = function(){
+		
+		++context.finishedLayersUploading;
+		
+		context.startUploadForNext();
+	};
+	
 	var mediaUploader = new Arbiter.MediaUploader(this.projectDb,
 			schema, this.mediaToSend,
 			server, context.mediaDir,
 			this.finishedLayersUploading, this.totalLayers);
 	
-	mediaUploader.startUpload(function(failedMedia){
+	mediaUploader.startUpload(function(){
 		
-		++context.finishedLayersUploading;
+		proceed();
+	}, function(e){
 		
-		context.putFailedUpload(layerId, failedMedia);
-		
-		context.startUploadForNext();
-	});
-};
-
-Arbiter.MediaSync.prototype.putFailedDownload = function(key, failed){
-	
-	if(failed !== null && failed !== undefined){
-		
-		if(this.failedOnDownload === null 
-				|| this.failedOnDownload === undefined){
+		// If the error was a timeout, call the sync failure callback to cancel the rest of the uploads
+		if(e === Arbiter.Error.Sync.TIMED_OUT){
 			
-			this.failedOnDownload = {};
+			if(Arbiter.Util.existsAndNotNull(context.onSyncFailure)){
+				
+				context.onSyncFailure(e);
+			}
+		}else{
+			
+			// Otherwise proceed with uploading the rest.
+			proceed();
 		}
-		
-		this.failedOnDownload[key] = failed;
-	}
+	});
 };
 
 Arbiter.MediaSync.prototype.downloadMedia = function(layer){
@@ -203,12 +185,25 @@ Arbiter.MediaSync.prototype.downloadMedia = function(layer){
 			schema, server, this.mediaDir,
 			this.finishedLayersDownloading, this.totalLayers);
 	
-	mediaDownloader.startDownload(function(failedMedia){
+	var proceed = function(){
 		
 		++context.finishedLayersDownloading;
 		
-		context.putFailedDownload(layerId, failedMedia);
-		
 		context.startDownloadForNext();
+	};
+	
+	mediaDownloader.startDownload(function(){
+		
+		proceed();
+	}, function(e){
+		
+		if(e === Arbiter.Error.Sync.TIMED_OUT){
+			
+			if(Arbiter.Util.existsAndNotNull(context.onSyncFailure)){
+				context.onSyncFailure(e);
+			}
+		}else{
+			proceed();
+		}
 	});
 };

@@ -219,6 +219,45 @@ public class ArbiterCordova extends CordovaPlugin{
 			});
 			
 			return true;
+		}else if("syncOperationTimedOut".equals(action)){
+			
+			final Activity activity = cordova.getActivity();
+			
+			activity.runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					
+					AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+					
+					builder.setTitle(R.string.sync_timed_out);
+					
+					builder.setMessage(R.string.sync_timed_out_msg);
+					
+					builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							
+							Log.w("ArbiterCordova", "ArbiterCordova syncOperationTimedOut cancel");
+							callbackContext.error(0);
+						}
+					});
+					
+					builder.setPositiveButton(R.string.continue_sync, new DialogInterface.OnClickListener(){
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							
+							Log.w("ArbiterCordova", "ArbiterCordova syncOperationTimedOut continue");
+							callbackContext.success();
+						}
+					});
+					
+					builder.create().show();
+				}
+			});
+			
+			return true;
 		}else if("layersAlreadyInProject".equals(action)){
 			
 			final JSONArray layersAlreadyInProject = args.getJSONArray(0);

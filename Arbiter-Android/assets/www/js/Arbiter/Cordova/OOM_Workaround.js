@@ -23,8 +23,6 @@ Arbiter.Cordova.OOM_Workaround = (function(){
 				
 				var metadata = event.layer.metadata;
 				
-				console.log("oom override for layer: " + event.layer.name + ", overridden = " + metadata[context.METADATA_KEY]);
-				
 				if(!Arbiter.Util.existsAndNotNull(metadata[context.METADATA_KEY]) || !metadata[context.METADATA_KEY]){
 					
 					context.overrideGetURL(event.layer);

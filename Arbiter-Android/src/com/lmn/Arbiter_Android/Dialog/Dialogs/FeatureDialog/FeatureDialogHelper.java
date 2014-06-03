@@ -89,7 +89,7 @@ public class FeatureDialogHelper {
 		Resources resources = activity.getResources();
 		
 		if(editMode){
-			text = resources.getString(R.string.cancel_editing);
+			text = resources.getString(R.string.cancel);
 		}else{
 			text = resources.getString(R.string.back);
 		}

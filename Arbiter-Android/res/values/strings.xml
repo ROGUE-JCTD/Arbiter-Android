@@ -33,7 +33,7 @@
 	<string name="done_editing">Save</string>
 	<string name="delete_feature">Delete</string>
 	<string name="edit_feature">Map</string>
-	<string name="cancel_editing">Cancel</string>
+	<string name="cancel">Cancel</string>
 	<string name="update_feature_title">Update</string>
 	<string name="update_feature_msg">Update the feature?</string>
 	<string name="updating">Updating</string>
@@ -248,4 +248,8 @@
     <string name="sure_delete_media">Are you sure you want to remove this item from the feature?</string>
     <string name="read_only">Read only</string>
     <string name="read_only_msg">This layer is read only.  Please contact the server administrator to check your permissions.</string>
+    
+    <string name="sync_timed_out">Sync timed out</string>
+    <string name="sync_timed_out_msg">The sync timed out.  Would you like to continue syncing or cancel the remaining sync operations?</string>
+    <string name="continue_sync">Continue</string>
 </resources>

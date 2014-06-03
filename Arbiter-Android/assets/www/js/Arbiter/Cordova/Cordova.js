@@ -55,6 +55,21 @@ Arbiter.Cordova = (function() {
 			cordova.exec(null, null, "ArbiterCordova", "gotPicture", []);
 		},
 		
+		syncOperationTimedOut: function(continueSync, cancelSync){
+			
+			cordova.exec(function(){
+				
+				if(Arbiter.Util.existsAndNotNull(continueSync)){
+					continueSync();
+				}
+			}, function(){
+				
+				if(Arbiter.Util.existsAndNotNull(cancelSync)){
+					cancelSync();
+				}
+			}, "ArbiterCordova", "syncOperationTimedOut", []);
+		},
+		
 		featureNotInAOI: function(featureId, insertFeature, cancelInsertFeature){
 			
 			Arbiter.Cordova.setState(Arbiter.Cordova.STATES.OUTSIDE_AOI_WARNING);

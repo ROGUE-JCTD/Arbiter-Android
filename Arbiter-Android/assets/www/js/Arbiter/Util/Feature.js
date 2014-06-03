@@ -161,7 +161,7 @@ Arbiter.Util.Feature = (function(){
     				request.abort();
     				
     				if(Arbiter.Util.funcExists(onFailure)){
-    					onFailure();
+    					onFailure(Arbiter.Error.Sync.TIMED_OUT);
     				}
     			}
     		}, 30000);

@@ -7,9 +7,6 @@ Arbiter.MediaDownloader = function(_featureDb, _schema, _server,
 	this.server = _server;
 	this.mediaDir = _mediaDir;
 	
-	// key by arbiter_id
-	this.failedOnDownload = null;
-	
 	var credentials = Arbiter.Util.getEncodedCredentials(
 			this.server.getUsername(),
 			this.server.getPassword());
@@ -26,6 +23,7 @@ Arbiter.MediaDownloader = function(_featureDb, _schema, _server,
 	}
 	
 	this.onDownloadComplete = null;
+	this.onDownloadFailure = null;
 	
 	this.features = [];
 	this.index = -1;
@@ -48,10 +46,11 @@ Arbiter.MediaDownloader.prototype.pop = function(){
 	return undefined;
 };
 
-Arbiter.MediaDownloader.prototype.startDownload = function(onSuccess){
+Arbiter.MediaDownloader.prototype.startDownload = function(onSuccess, onFailure){
 	var context = this;
 	
 	this.onDownloadComplete = onSuccess;
+	this.onDownloadFailure = onFailure;
 	
 	this.getFeatures(function(){
 		
@@ -72,7 +71,7 @@ Arbiter.MediaDownloader.prototype.startDownload = function(onSuccess){
 			}
 			
 			if(Arbiter.Util.funcExists(context.onDownloadComplete)){
-				context.onDownloadComplete(context.failedOnDownload);
+				context.onDownloadComplete();
 			}
 			
 			return;
@@ -84,7 +83,7 @@ Arbiter.MediaDownloader.prototype.startDownload = function(onSuccess){
 		console.log(e);
 		
 		if(Arbiter.Util.funcExists(context.onDownloadComplete)){
-			context.onDownloadComplete(context.failedOnDownload);
+			context.onDownloadComplete();
 		}
 	});
 };
@@ -118,18 +117,6 @@ Arbiter.MediaDownloader.prototype.getFeatures = function(onSuccess, onFailure){
 	});
 };
 
-Arbiter.MediaDownloader.prototype.putDownloadFailure = function(key, failedMedia){
-	
-	if(failedMedia !== null && failedMedia !== undefined){
-		
-		if(this.failedOnDownload === null || this.failedOnDownload === undefined){
-			this.failedOnDownload = {};
-		}
-		
-		this.failedOnDownload[key] = failedMedia;
-	}	
-};
-
 Arbiter.MediaDownloader.prototype.startDownloadingNext = function(){
 	var context = this;
 	
@@ -143,24 +130,34 @@ Arbiter.MediaDownloader.prototype.startDownloadingNext = function(){
 				this.finishedFeatures, this.totalFeatures,
 				this.finishedLayers, this.totalLayers);
 		
-		mediaDownloaderHelper.startDownload(function(_finishedMediaCount, _failedMedia){
+		var proceed = function(_finishedMediaCount){
 			
 			++context.finishedFeatures;
 			
 			context.finishedMediaCount = _finishedMediaCount;
 			
-			var key = feature[Arbiter.FeatureTableHelper.ID];
-			
-			if(_failedMedia !== null && _failedMedia !== undefined){
-				context.putDownloadFailure(key, _failedMedia)
-			}
-			
 			context.startDownloadingNext();
+		};
+		
+		mediaDownloaderHelper.startDownload(function(_finishedMediaCount){
+			
+			proceed(_finishedMediaCount);
+		}, function(e, _finishedMediaCount){
+			
+			// If it was a timeout, cancel the remaining requests, otherwise continue
+			if(e === Arbiter.Error.Sync.TIMED_OUT){
+				
+				if(Arbiter.Util.existsAndNotNull(context.onDownloadFailure)){
+					onDownloadFailure(e);
+				}
+			}else{
+				proceed(_finishedMediaCount);
+			}
 		});
 	}else{
 		
 		if(Arbiter.Util.funcExists(this.onDownloadComplete)){
-			this.onDownloadComplete(this.failedOnDownload);
+			this.onDownloadComplete();
 		}
 	}
 };

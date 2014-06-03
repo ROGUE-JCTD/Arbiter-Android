@@ -17,10 +17,10 @@
 
 	var prototype = Arbiter.VectorDownloader.prototype;
 	
-	prototype.onDownloadFailure = function(){
+	prototype.onDownloadFailure = function(e){
 		
 		if(Arbiter.Util.funcExists(this.onFailure)){
-			this.onFailure(this.schema.getFeatureType());
+			this.onFailure(e);
 		}
 	};
 
@@ -55,7 +55,7 @@
 			
 			console.log("Failed to download features", e);
 			
-			context.onDownloadFailure();
+			context.onDownloadFailure(e);
 		});
 	};
 

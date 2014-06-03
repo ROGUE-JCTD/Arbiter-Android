@@ -28,7 +28,6 @@ Arbiter.MediaProgressListener.prototype.watchProgress = function(){
 		if(context.isMakingProgress()){
 			context.watchProgress();
 		}else{
-			console.log("not making progress");
 			context.notMakingProgress();
 		}
 	}, 30000);
@@ -37,7 +36,6 @@ Arbiter.MediaProgressListener.prototype.watchProgress = function(){
 Arbiter.MediaProgressListener.prototype.isMakingProgress = function(){
 	var makingProgress = this.progress !== this.lastChecked;
 	
-	console.log("isMakingProgress = " + makingProgress);
 	this.lastChecked = this.progress;
 	
 	return makingProgress;

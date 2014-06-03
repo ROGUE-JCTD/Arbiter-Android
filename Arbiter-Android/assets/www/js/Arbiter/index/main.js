@@ -114,6 +114,8 @@ var app = (function() {
 									Arbiter.Loaders.LayersLoader.load(function(){
 										
 										findMeOOM();
+										
+										Arbiter.Cordova.appFinishedLoading();
 									}, function(e){
 										console.log("Could not load layers during initialization: " + JSON.stringify(e));
 									});
@@ -123,8 +125,6 @@ var app = (function() {
 									}
 					
 									ArbiterInitialized = true;
-									
-									Arbiter.Cordova.appFinishedLoading();
 								});
 							}, function(e){
 								console.log("Error initializing Arbiter while getting the locale", e);

@@ -87,7 +87,7 @@
 			console.log("Failed to insert features into " 
 					+ context.schema.getFeatureType(), e);
 			
-			context.onDownloadFailure();
+			context.onDownloadFailure(e);
 		});
 		
 		downloadedFeaturesHandler.storeDownloads();

@@ -103,7 +103,12 @@
 			next();
 		}, function(e){
 			
-			next();
+			if(e === Arbiter.Error.Sync.TIMED_OUT){
+				
+				context._onSyncFailure(e);
+			}else{
+				next();
+			}
 		});
 	};
 })();

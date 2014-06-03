@@ -115,7 +115,13 @@
 			if(!gotRequestBack){
 				request.abort();
 				
-				fail();
+				Arbiter.Cordova.syncOperationTimedOut(function(){
+					// Continue
+					fail();
+				}, function(){
+					// Cancel
+					fail(Arbiter.Error.Sync.TIMED_OUT);
+				});
 			}
 		}, 30000);
 	};

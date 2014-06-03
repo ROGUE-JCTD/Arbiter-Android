@@ -91,14 +91,17 @@
 	        
 	        var request = new OpenLayers.Request.GET(options);
 	        
-	        // Couldn't find a way to set timeout for an openlayers
-			// request, so I did this to abort the request after
-			// 15 seconds of not getting a response
 			window.setTimeout(function(){
 				if(!gotRequestBack){
 					request.abort();
 					
-					context.handleFailed("CheckTimeDifference timed out");
+					Arbiter.Cordova.syncOperationTimedOut(function(){
+						// Continue
+						context.handleFailed("CheckTimeDifference timed out, but continue with requests");
+					}, function(){
+						// Cancel
+						context.handleFailed(Arbiter.Error.Sync.TIMED_OUT);
+					});
 				}
 			}, 30000);
 		}else{
@@ -125,11 +128,7 @@
 					
 					var wfs1_0_0Feature = this.features[0];
 					
-					console.log("calculateTimeDifference wfs1_0_0Feature feature", wfs1_0_0Feature);
-					
 					var wfs1_0_0Value = wfs1_0_0Feature.attributes[timeProperty.key];
-					
-					console.log("calculateTimeDifference wfs1_0_0Value " + wfs1_0_0Value + ", type= " + timeProperty.type);
 					
 					var isoDate = null;
 					var localDate = null;
@@ -282,12 +281,8 @@
 			attributeName = attribute.getName();
 			query += ", " + attributeName;
 			
-			console.log("before isTimeType type = " + attribute.getType());
-			
 			if(this.isTimeType(attribute.getType())){
 				isoTimeString = this.addGMTOffset(feature.attributes[attributeName], attribute.getType());
-				
-				console.log("localTime: " + feature.attributes[attributeName] + ", gmtTime = " + isoTimeString);
 				
 				values.push(isoTimeString);
 			}else{

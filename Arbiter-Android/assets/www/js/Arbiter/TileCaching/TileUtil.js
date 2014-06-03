@@ -926,6 +926,13 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 				//console.log("---- zDirEntry: " + zDirEntry.toURL());
 				zDirEntry.getDirectory("" + x, {create: true, exclusive: false}, 
 					function(xDirEntry){
+						xDirEntry.getFile(".nomedia", {create: true, exclusive: false}, function() {
+						}, function(e1, e2) {
+							if (errorCallback){
+								errorCallback(e1, e2);
+							}
+							console.log("TileUtil.saveTile Couldn't create .nomedia file.", e1, e2);
+						});
 						//console.log("---- xDirEntry: " + xDirEntry.toURL());
 						var filePath = xDirEntry.toURL() + "/" + y + "." + ext; 
 						

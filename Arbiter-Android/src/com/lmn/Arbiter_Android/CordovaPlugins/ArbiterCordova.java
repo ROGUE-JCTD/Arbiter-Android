@@ -1320,11 +1320,17 @@ public class ArbiterCordova extends CordovaPlugin{
 									@Override
 									public void run() {
 										
-										if(overlay != null){
-											overlay.setVisibility(View.GONE);
-										}
-										
-										dialog.dismiss();
+										activity.runOnUiThread(new Runnable(){
+											@Override
+											public void run(){
+												
+												if(overlay != null){
+													overlay.setVisibility(View.GONE);
+												}
+												
+												dialog.dismiss();
+											}
+										});
 									}
 								});
 							}

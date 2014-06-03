@@ -51,7 +51,7 @@ Arbiter.Cordova.OOM_Workaround = (function(){
 				var url = getURL.call(this, bounds);
 				
 				context.tileCounter++;
-
+				
 				return url;
 			};
 		},

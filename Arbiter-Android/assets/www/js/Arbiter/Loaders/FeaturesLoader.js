@@ -38,22 +38,23 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 			attributeType = attributes[i].getType();
 			attributeValue = dbFeature[attributeName];
 			
-			if(attributeValue === "" 
+			if(attributeName === Arbiter.FeatureTableHelper.FID){
+				
+				olFeature[attributeName] 
+					= attributeValue;
+				
+			}else if(attributeName !== Arbiter.FeatureTableHelper.SYNC_STATE
+					&& attributeName !== Arbiter.FeatureTableHelper.MODIFIED_STATE){
+				
+				if(attributeValue === "" 
 						|| attributeValue === null 
 						|| attributeValue === undefined){
-				
-				olFeature[attributeName] = null;
-			}else{
-				if(attributeName === Arbiter.FeatureTableHelper.FID){
 					
-					olFeature[Arbiter.FeatureTableHelper.FID] 
-						= dbFeature[Arbiter.FeatureTableHelper.FID];
-					
-				}else if(attributeName !== Arbiter.FeatureTableHelper.SYNC_STATE
-						&& attributeName !== Arbiter.FeatureTableHelper.MODIFIED_STATE){
+					olFeature.attributes[attributeName] = null;
+				}else{
 					
 					olFeature.attributes[attributeName] = 
-						dbFeature[attributeName];
+						attributeValue;
 				}
 			}
 		}

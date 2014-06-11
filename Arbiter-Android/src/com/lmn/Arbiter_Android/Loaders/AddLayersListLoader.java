@@ -1,11 +1,19 @@
 package com.lmn.Arbiter_Android.Loaders;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.IntentFilter;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
+import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.BroadcastReceivers.AddLayersBroadcastReceiver;
@@ -19,6 +27,9 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 	private AddLayersDialog dialog = null;
 	private GetCapabilities getCapabilities;
 	private ArrayList<Layer> layers;
+	private ProgressDialog progressDialog;
+	private boolean connectedOK;
+	private AlertDialog alertDialog;
 	
 	public AddLayersListLoader(AddLayersDialog dialog) {
 		super(dialog.getActivity().getApplicationContext());
@@ -30,11 +41,61 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 	@Override
 	public ArrayList<Layer> loadInBackground() {
 		
+		final Activity activity = dialog.getActivity();
+		
+		activity.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				progressDialog = ProgressDialog.show(activity, activity.getResources().getString(R.string.loading_getcapabilities),
+						activity.getResources().getString(R.string.please_wait), true);
+			}
+		});
+		
 		ArrayList<Layer> _layers = null;
 		Server server = dialog.getSelectedServer();
 			
-		_layers = getCapabilities.getLayers(server,
-				dialog.getLayersInProject());
+		try {
+			_layers = getCapabilities.getLayers(server,
+					dialog.getLayersInProject());
+			connectedOK = true;
+		} catch (IOException e) {
+			connectedOK = false;
+		}finally{
+			
+			activity.runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					
+					if(progressDialog != null){
+						progressDialog.dismiss();
+						
+						progressDialog = null;
+					}
+					
+					if(!connectedOK && (alertDialog == null)){
+						
+						AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+						
+						builder.setTitle(R.string.could_not_connect);
+						
+						builder.setMessage(R.string.check_server_and_network);
+						
+						builder.setPositiveButton(R.string.close, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								
+								alertDialog = null;
+							}
+						});
+						
+						alertDialog = builder.create();
+						
+						alertDialog.show();
+					}
+				}
+			});
+		}
 		
 		return _layers;
 	}

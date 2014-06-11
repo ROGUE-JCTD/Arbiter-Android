@@ -65,7 +65,7 @@
 	<string name="error_updating_aoi">Error</string>
 	<string name="error_updating_aoi_msg">Could not update the area of interest!</string>
 	<string name="loading_feature_info">Feature is loading&#8230; Please wait&#8230;</string>
-	<string name="loading">Loading&#8230;</string>
+	<string name="loading">Loading</string>
 	<string name="no_network">No Network Connection</string>
 	<string name="check_network_connection">Please check your network connection.</string>
 	<string name="layers_limit">Layer limit reached</string>
@@ -252,4 +252,7 @@
     <string name="sync_timed_out">Sync timed out</string>
     <string name="sync_timed_out_msg">The sync timed out.  Would you like to continue syncing or cancel the remaining sync operations?</string>
     <string name="continue_sync">Continue</string>
+    <string name="loading_getcapabilities">Loading layers</string>
+    <string name="could_not_connect">Could not connect</string>
+    <string name="check_server_and_network">Please check the server details and network connection and try again later.</string>
 </resources>

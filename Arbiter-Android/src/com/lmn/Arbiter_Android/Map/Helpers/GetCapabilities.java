@@ -41,7 +41,7 @@ public class GetCapabilities {
 	 * @return
 	 * @throws Exception
 	 */
-	public ArrayList<Layer> getLayers(Server server, ArrayList<Layer> layersInProject){
+	public ArrayList<Layer> getLayers(Server server, ArrayList<Layer> layersInProject) throws IOException{
 		if(server != null && server.getUrl() != null){
 			String url = server.getUrl() + "?service=wms&version=1.1.1&request=GetCapabilities";
 			
@@ -67,9 +67,6 @@ public class GetCapabilities {
 			try {
 				response = client.execute(request);
 			} catch (ClientProtocolException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

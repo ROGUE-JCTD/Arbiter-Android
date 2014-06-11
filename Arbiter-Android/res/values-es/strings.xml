@@ -65,7 +65,7 @@
 	<string name="error_updating_aoi">Error</string>
 	<string name="error_updating_aoi_msg">No se pudo actualizar el área de interés!</string>
 	<string name="loading_feature_info">El elemento se está cargando&#8230; Por favor, espere&#8230;</string>
-	<string name="loading">Cargando&#8230;</string>
+	<string name="loading">Cargando</string>
 	<string name="no_network">Sin conexión a la red</string>
 	<string name="check_network_connection">Compruebe su conexión de red.</string>
 	<string name="layers_limit">Capa límite alcanzado</string>
@@ -247,4 +247,7 @@
     <string name="read_only">Sólo lectura</string>
     <string name="read_only_msg">Esta capa es de sólo lectura. Por favor, póngase en contacto con el administrador del servidor para comprobar sus permisos.</string>
     <string name="continue_sync">Continuar</string>
+    <string name="loading_getcapabilities">Cargando capas</string>
+    <string name="could_not_connect">No se pudo conectar</string>
+    <string name="check_server_and_network">Por favor, consulte los detalles del servidor y la conexión de red y vuelva a intentarlo más tarde.</string>
 </resources>

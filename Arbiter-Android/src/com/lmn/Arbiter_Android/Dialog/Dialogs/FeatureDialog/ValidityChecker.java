@@ -5,8 +5,6 @@ import android.text.TextWatcher;
 import android.widget.EditText;
 
 public class ValidityChecker {
-
-	private int invalidCount;
 	
 	public ValidityChecker(){
 		
@@ -23,7 +21,7 @@ public class ValidityChecker {
 			@Override
 			public void afterTextChanged(Editable s) {
 				
-				checkValidity(attribute);
+				attribute.updateValidity();
 			}
 
 			@Override
@@ -40,23 +38,5 @@ public class ValidityChecker {
 				
 			}
 		});
-	}
-	
-	private boolean checkValidity(Attribute attribute){
-		boolean startingValidity = attribute.isValid();
-		
-		boolean updatedValidity = attribute.updateValidity();
-		
-		if(!updatedValidity && startingValidity){
-			invalidCount++;
-		}else if(updatedValidity && !startingValidity){
-			invalidCount--;
-		}
-		
-		return updatedValidity;
-	}
-	
-	public boolean checkFormValidity(){
-		return invalidCount == 0;
 	}
 }

@@ -21,16 +21,16 @@ public class AttributeHelper {
 	
 	public AttributeHelper(Feature feature, Util util){
 		this.attributes = new HashMap<String, Attribute>();
-		this.validityChecker = new ValidityChecker();
 		this.feature = feature;
 		this.util = util;
+		this.validityChecker = new ValidityChecker();
 	}
 	
 	public void add(FragmentActivity activity, String key, EditText editText,
-			EnumerationHelper enumHelper, boolean startInEditMode, String value){
+			EnumerationHelper enumHelper, boolean isNillable, boolean startInEditMode, String value){
 		
 		Attribute attribute = new Attribute(activity, editText,
-				enumHelper, startInEditMode, value, util);
+				enumHelper, isNillable, startInEditMode, value, util);
 		
 		attributes.put(key, attribute);
 		
@@ -38,10 +38,10 @@ public class AttributeHelper {
 	}
 	
 	public void add(FragmentActivity activity, String key, Spinner spinner,
-			EnumerationHelper enumHelper, boolean startInEditMode){
+			EnumerationHelper enumHelper, boolean isNillable, boolean startInEditMode){
 		
 		Attribute attribute = new Attribute(activity, spinner,
-				enumHelper, startInEditMode, util);
+				enumHelper, isNillable, startInEditMode, util);
 		
 		attributes.put(key, attribute);
 	}
@@ -68,7 +68,19 @@ public class AttributeHelper {
 			return true;
 		}
 		
-		return validityChecker.checkFormValidity();
+		boolean valid = true;
+		Attribute attribute = null;
+		
+		for(String key : attributes.keySet()){
+			
+			attribute = attributes.get(key);
+			
+			if(!attribute.updateValidity()){
+				valid = false;
+			}
+		}
+		
+		return valid;
 	}
 	
 	public void updateFeature(){

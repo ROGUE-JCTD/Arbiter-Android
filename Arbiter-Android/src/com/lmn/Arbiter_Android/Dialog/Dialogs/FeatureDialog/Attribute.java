@@ -3,7 +3,6 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
@@ -25,14 +24,18 @@ public class Attribute {
 	private EnumerationHelper enumHelper;
 	private FragmentActivity activity;
 	private String dateValue;
-	private boolean valid;
 	private String type;
 	private Calendar isoCalendar;
 	private Util util;
 	private int offsetFromUTC;
+	private boolean isNillable;
 	
-	private Attribute(FragmentActivity activity, EnumerationHelper enumHelper, Util util){
+	private Attribute(FragmentActivity activity, EnumerationHelper enumHelper, boolean isNillable, Util util){
 		this.enumHelper = enumHelper;
+		
+		Log.w("Attribute", "Attribute isNillable = " + isNillable);
+		
+		this.isNillable = isNillable;
 		
 		if(enumHelper != null){
 			this.type = enumHelper.getType();
@@ -48,13 +51,12 @@ public class Attribute {
 		this.dateValue = null;
 		this.spinner = null;
 		this.editText = null;
-		this.valid = true;
 	}
 	
 	public Attribute(FragmentActivity activity, Spinner spinner,
-			EnumerationHelper enumHelper, boolean startInEditMode, Util util){
+			EnumerationHelper enumHelper, boolean isNillable, boolean startInEditMode, Util util){
 		
-		this(activity, enumHelper, util);
+		this(activity, enumHelper, isNillable, util);
 		
 		this.spinner = spinner;
 				
@@ -62,10 +64,10 @@ public class Attribute {
 	}
 	
 	public Attribute(FragmentActivity activity, EditText editText, 
-			EnumerationHelper enumHelper, boolean startInEditMode,
+			EnumerationHelper enumHelper, boolean isNillable, boolean startInEditMode,
 			String value, Util util){
 		
-		this(activity, enumHelper, util);
+		this(activity, enumHelper, isNillable, util);
 		
 		this.editText = editText;
 		
@@ -330,80 +332,104 @@ public class Attribute {
 		setDateField(this.dateValue);
 	}
 	
-	public boolean isValid(){
-		
-		return valid;
-	}
-	
 	public boolean updateValidity(){
 		Resources resources = activity.getResources();
-		String type = enumHelper.getType();
-		String val = editText.getText().toString();
 		
-		if(val.trim().isEmpty()){
-			valid = true;
-		}else{
-			if(type.equals("xsd:integer") || type.equals("xsd:int")){
+		boolean valid = true;
+		
+		if(editText != null){
+			
+			String val = editText.getText().toString();
+			
+			if(val.trim().isEmpty()){
+				Log.w("Attribute", "Attribute its empty valid =  " + isNillable);
 				
-				valid = util.isInteger(val.trim());
-				
-				if(!valid){
-					editText.setError(resources.getString(
-							R.string.form_error_integer));
-				}
-			}else if(type.equals("xsd:double") || type.equals("xsd:decimal")){
-				
-				valid = util.isDouble(val.trim());
+				valid = isNillable;
 				
 				if(!valid){
-					editText.setError(resources.getString(
-							R.string.form_error_double));
+					
+					editText.setError(resources.getString(R.string.required_field));
 				}
-			}else if(type.equals("xsd:boolean")){
+			}else{
 				
-				if(val.trim().equals("true") || val.trim().equals("false")){
-					valid = true;
-				}else{
-					valid = false;
-					editText.setError(resources.getString(
-							R.string.form_error_bool));
-				}
-			}else if(type.equals("xsd:long")){
+				if(enumHelper != null){
 				
-				valid = util.isLong(val.trim());
-				
-				if(!valid){
-					editText.setError(resources.getString(R.string.form_error_long));
-				}
-			}else if(type.equals("xsd:float")){
-				
-				valid = util.isFloat(val.trim());
-				
-				if(!valid){
-					editText.setError(resources.getString(R.string.form_error_float));
-				}
-			}else if(type.equals("xsd:dateTime") 
-					|| type.equals("xsd:date") 
-					|| type.equals("xsd:time")){
-				
-				try {
-					SimpleDateFormat formatter = util.getSimpleDateFormat(type);
-					formatter.parse(dateValue);
-					valid = true;
-				} catch (Exception e) {
-					valid = false;
-				}
-				
-				if(!valid){
-					editText.setError(resources.getString(
-							R.string.form_error_date));;
+					String type = enumHelper.getType();
+					
+					if(type.equals("xsd:integer") || type.equals("xsd:int")){
+						
+						valid = util.isInteger(val.trim());
+						
+						if(!valid){
+							editText.setError(resources.getString(
+									R.string.form_error_integer));
+						}
+					}else if(type.equals("xsd:double") || type.equals("xsd:decimal")){
+						
+						valid = util.isDouble(val.trim());
+						
+						if(!valid){
+							editText.setError(resources.getString(
+									R.string.form_error_double));
+						}
+					}else if(type.equals("xsd:boolean")){
+						
+						if(val.trim().equals("true") || val.trim().equals("false")){
+							valid = true;
+						}else{
+							valid = false;
+							editText.setError(resources.getString(
+									R.string.form_error_bool));
+						}
+					}else if(type.equals("xsd:long")){
+						
+						valid = util.isLong(val.trim());
+						
+						if(!valid){
+							editText.setError(resources.getString(R.string.form_error_long));
+						}
+					}else if(type.equals("xsd:float")){
+						
+						valid = util.isFloat(val.trim());
+						
+						if(!valid){
+							editText.setError(resources.getString(R.string.form_error_float));
+						}
+					}else if(type.equals("xsd:dateTime") 
+							|| type.equals("xsd:date") 
+							|| type.equals("xsd:time")){
+						
+						try {
+							SimpleDateFormat formatter = util.getSimpleDateFormat(type);
+							formatter.parse(dateValue);
+							valid = true;
+						} catch (Exception e) {
+							valid = false;
+						}
+						
+						if(!valid){
+							editText.setError(resources.getString(
+									R.string.form_error_date));;
+						}
+					}
 				}
 			}
-		}
 
-		//this will remove the error message if the user fixes an invalid field
-		if(valid == true) {
-			editText.setError(null);
+			//this will remove the error message if the user fixes an invalid field
+			if(valid == true) {
+				editText.setError(null);
+			}
+		}else if(spinner != null){
+			
+			String val = getSpinnerValue();
+			
+			if(val.trim().isEmpty()){
+				
+				valid = isNillable;
+			}else{
+				
+				valid = true;
+			}
 		}
 		
 		return valid;

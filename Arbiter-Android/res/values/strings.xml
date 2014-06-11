@@ -255,4 +255,5 @@
     <string name="loading_getcapabilities">Loading layers</string>
     <string name="could_not_connect">Could not connect</string>
     <string name="check_server_and_network">Please check the server details and network connection and try again later.</string>
+    <string name="required_field">Required field*</string>
 </resources>

@@ -3,11 +3,13 @@ package com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers;
 import java.util.HashMap;
 
 import com.lmn.Arbiter_Android.BaseClasses.GeometryColumn;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog.NillableHelper;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 public class GeometryColumnsHelper implements BaseColumns {
 	public static final String GEOMETRY_COLUMNS_TABLE_NAME = "geometry_columns";
@@ -151,6 +153,26 @@ public class GeometryColumnsHelper implements BaseColumns {
 		cursor.close();
 		
 		return enumeration;
+	}
+	
+	public NillableHelper checkIfNillable(SQLiteDatabase db, String featureType){
+		
+		String sql = "pragma table_info(" + featureType + ");";
+		
+		Cursor cursor = db.rawQuery(sql, null);
+		
+		NillableHelper nillableHelper = new NillableHelper();
+		
+		for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
+			
+			Log.w("GeometryColumns", "GeometryColumns name '" + cursor.getString(1) + "', notnull = '" + cursor.getInt(3));
+			
+			nillableHelper.addAttribute(cursor.getString(1), ((cursor.getInt(3) == 0) ? true : false)); // 0 = nillable, 1 = not nillable
+		}
+		
+		cursor.close();
+		
+		return nillableHelper;
 	}
 	
 	public String getGeometryType(SQLiteDatabase db, String featureType){

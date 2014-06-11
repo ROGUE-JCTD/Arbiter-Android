@@ -43,6 +43,7 @@ public class FeatureDialogBuilder {
 	private LinearLayout outerLayout;
 	private HashMap<String, MediaPanel> mediaPanels;
 	private JSONObject enumeration;
+	private NillableHelper nillableHelper;
 	
 	public FeatureDialogBuilder(Activity activity, View view,
 			Feature feature, boolean startInEditMode, Util util){
@@ -65,6 +66,8 @@ public class FeatureDialogBuilder {
 		this.outerLayout = (LinearLayout) view.findViewById(R.id.outerLayout);
 		
 		this.mediaPanels = new HashMap<String, MediaPanel>();
+		
+		this.nillableHelper = null;
 	}
 	
 	private SQLiteDatabase getDb(){
@@ -88,8 +91,12 @@ public class FeatureDialogBuilder {
 			@Override
 			public void run(){
 				
+				SQLiteDatabase db = getDb();
+				
 				String _enumeration = GeometryColumnsHelper.getHelper()
-						.getEnumeration(getDb(), feature.getFeatureType());
+						.getEnumeration(db, feature.getFeatureType());
+				
+				nillableHelper = GeometryColumnsHelper.getHelper().checkIfNillable(db, feature.getFeatureType());
 				
 				try {
 					
@@ -191,9 +198,17 @@ public class FeatureDialogBuilder {
 		EditText attributeValue = (EditText) attributeView.findViewById(R.id.attributeText);
 		
 		if(attributeValue != null){
+			
+			boolean isNillable = nillableHelper.isNillable(key);
+			
+			if(!isNillable){
+				
+				attributeValue.setHint(R.string.required_field);
+			}
+			
 			attributeValue.setText(value);
 			attributeHelper.add(fragActivity, key, attributeValue,
-					null, false, value);
+					null, isNillable, false, value);
 		}
 		
 		outerLayout.addView(attributeView);
@@ -218,7 +233,7 @@ public class FeatureDialogBuilder {
 		outerLayout.addView(layout);
 		
 		attributeHelper.add(fragActivity, key, dropdown,
-				enumHelper, startInEditMode);
+				enumHelper, nillableHelper.isNillable(key), startInEditMode);
 		
 		return dropdown;
 	}
@@ -232,8 +247,14 @@ public class FeatureDialogBuilder {
 		
 		if(attributeValue != null){
 			
+			boolean isNillable = nillableHelper.isNillable(key);
+			
+			if(!isNillable){
+				attributeValue.setHint(R.string.required_field);
+			}
+			
 			attributeHelper.add(fragActivity, key, attributeValue,
-					enumHelper, startInEditMode, value);
+					enumHelper, isNillable, startInEditMode, value);
 		}
 		
 		outerLayout.addView(attributeView);

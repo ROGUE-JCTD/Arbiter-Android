@@ -53,8 +53,15 @@ Arbiter.Loaders.FeaturesLoader = (function(){
 					olFeature.attributes[attributeName] = null;
 				}else{
 					
-					olFeature.attributes[attributeName] = 
-						attributeValue;
+					if((attributeValue === "[]") && (attributeName === Arbiter.FeatureTableHelper.FOTOS 
+							|| attributeName === Arbiter.FeatureTableHelper.PHOTOS)){
+						
+						olFeature.attributes[attributeName] = null;
+					}else{
+						
+						olFeature.attributes[attributeName] = 
+							attributeValue;
+					}
 				}
 			}
 		}

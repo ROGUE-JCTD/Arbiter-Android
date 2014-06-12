@@ -38,9 +38,10 @@ public class MediaLoader {
 	private FragmentActivity fragActivity;
 	private boolean editMode = false;
 	private ArrayList<String> mediaToDelete;
+	private Runnable onDeleteMedia;
 	
 	public MediaLoader(Activity activity, String key, Feature feature,
-			LinearLayout mediaView, LayoutInflater inflater){
+			LinearLayout mediaView, LayoutInflater inflater, Runnable onDeleteMedia){
 		
 		this.activity = activity;
 		this.key = key;
@@ -49,6 +50,7 @@ public class MediaLoader {
 		this.mediaHelper = new MediaHelper(activity);
 		this.inflater = inflater;
 		this.mediaToDelete = new ArrayList<String>();
+		this.onDeleteMedia = onDeleteMedia;
 		
 		try{
 			this.fragActivity = (FragmentActivity) activity;
@@ -79,6 +81,11 @@ public class MediaLoader {
 		setMedia(media.substring(0, index) + media.substring(index+length));
 		try {
 			loadMedia();
+			
+			if(onDeleteMedia != null){
+				
+				onDeleteMedia.run();
+			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

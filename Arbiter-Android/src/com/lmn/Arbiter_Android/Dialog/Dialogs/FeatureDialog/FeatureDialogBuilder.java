@@ -138,10 +138,10 @@ public class FeatureDialogBuilder {
 				if(key.equals(MediaHelper.MEDIA) || key.equals(MediaHelper.FOTOS)){
 					try {
 						
-						MediaPanel panel = new MediaPanel(activity, feature,
+						MediaPanel panel = new MediaPanel(key, activity, feature, nillableHelper.isNillable(key),
 								this.outerLayout, this.inflater);
 						
-						panel.appendMedia(key, value, startInEditMode);
+						panel.appendMedia(value, startInEditMode);
 						
 						mediaPanels.put(key, panel);
 					} catch (JSONException e) {
@@ -312,7 +312,23 @@ public class FeatureDialogBuilder {
 	}
 	
 	public boolean checkFormValidity(){
-		return attributeHelper.checkFormValidity();
+		boolean formValidity = attributeHelper.checkFormValidity();
+		
+		MediaPanel panel = null;
+		boolean panelValidity = true;
+		
+		for(String key : mediaPanels.keySet()){
+			
+			panel = mediaPanels.get(key);
+			
+			panelValidity = panel.checkValidity();
+			
+			if(!panelValidity){
+				formValidity = false;
+			}
+		}
+		
+		return formValidity;
 	}
 	
 	public void updateFeature(){
@@ -331,7 +347,6 @@ public class FeatureDialogBuilder {
 				MediaPanel panel = mediaPanels.get(key);
 				
 				try {
-					Log.w("FeatureDialogBuilder", "FeatureDialogBuilder.updateFeaturesMedia loadMedia()");
 					
 					// Add new media to the arrayList of
 					// media to be synced.  This won't
@@ -339,6 +354,8 @@ public class FeatureDialogBuilder {
 					panel.addMediaToSend(newMedia);
 					
 					panel.loadMedia();
+					
+					panel.checkValidity();
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

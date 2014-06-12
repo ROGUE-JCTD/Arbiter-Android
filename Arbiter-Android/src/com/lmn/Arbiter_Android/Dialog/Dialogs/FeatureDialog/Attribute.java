@@ -36,8 +36,6 @@ public class Attribute {
 	private Attribute(FragmentActivity activity, EnumerationHelper enumHelper, boolean isNillable, Util util){
 		this.enumHelper = enumHelper;
 		
-		Log.w("Attribute", "Attribute isNillable = " + isNillable);
-		
 		this.isNillable = isNillable;
 		
 		if(enumHelper != null){

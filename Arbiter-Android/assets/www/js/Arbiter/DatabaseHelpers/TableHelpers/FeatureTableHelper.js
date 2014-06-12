@@ -37,6 +37,8 @@ Arbiter.FeatureTableHelper = (function(){
 		FID : "fid",
 		SYNC_STATE: "sync_state",
 		MODIFIED_STATE: "modified_state",
+		FOTOS: "fotos",
+		PHOTOS: "photos",
 		PART_OF_MULTI: "partOfMulti",
 		
 		MODIFIED_STATES: {
@@ -458,7 +460,8 @@ Arbiter.FeatureTableHelper = (function(){
 					row = res.rows.item(i);
 					
 					if(row.name !== context.ID && row.name !== geometryName){
-						if(row.name === "photos" || row.name === "fotos"){
+						if(row.name === Arbiter.FeatureTableHelper.PHOTOS 
+								|| row.name === Arbiter.FeatureTableHelper.FOTOS){
 							mediaColumn = row.name;
 						}
 						

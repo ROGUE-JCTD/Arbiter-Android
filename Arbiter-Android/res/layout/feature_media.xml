@@ -29,20 +29,38 @@
 	    </LinearLayout>
     </HorizontalScrollView>
     
-    <ImageButton 
-        android:id="@+id/takePicture"
+    <RelativeLayout
+        android:id="@+id/takePictureBtnContainer"
         android:layout_below="@id/mediaScrollView"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent" 
-        android:padding="20dp"
-        android:layout_marginTop="15dp"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:src="@drawable/camera"
-        android:contentDescription="@string/take_picture" />
+        android:layout_width="match_parent">
+        
+        <EditText
+	        android:id="@+id/errorEditText"
+	        android:layout_alignBottom="@+id/takePicture"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:ems="10"
+	        android:inputType="none"
+	        android:enabled="false"
+	        android:layout_marginLeft="50dp"
+        	android:layout_marginRight="14dp" />
+        
+        <ImageButton 
+	        android:id="@id/takePicture"
+	        android:layout_height="wrap_content"
+	        android:layout_width="match_parent" 
+	        android:padding="20dp"
+	        android:layout_marginTop="15dp"
+	        android:layout_marginLeft="50dp"
+	        android:layout_marginRight="50dp"
+	        android:src="@drawable/camera"
+	        android:contentDescription="@string/take_picture" />
+        
+    </RelativeLayout>
     
     <View 
-        android:layout_below="@id/takePicture"
+        android:layout_below="@id/takePictureBtnContainer"
         android:layout_height="wrap_content"
         android:layout_width="match_parent" 
         android:padding="50dp"

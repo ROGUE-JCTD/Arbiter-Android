@@ -186,25 +186,29 @@ public class FeatureDialogBuilder {
 	
 	private void appendGeometry(String key, String value){
 		View attributeView = inflater.inflate(R.layout.feature_attribute, null);
+		boolean isNillable = true;
 		
 		if(key != null){
+			
+			isNillable = nillableHelper.isNillable(key);
+			
 			TextView attributeLabel = (TextView) attributeView.findViewById(R.id.attributeLabel);
 			
 			if(attributeLabel != null){
-				attributeLabel.setText(key);
+				
+				String label = key;
+				
+				if(!isNillable){
+					label += "*";
+				}
+				
+				attributeLabel.setText(label);
 			}
 		}
 		
 		EditText attributeValue = (EditText) attributeView.findViewById(R.id.attributeText);
 		
 		if(attributeValue != null){
-			
-			boolean isNillable = nillableHelper.isNillable(key);
-			
-			if(!isNillable){
-				
-				attributeValue.setHint(R.string.required_field);
-			}
 			
 			attributeValue.setText(value);
 			attributeHelper.add(fragActivity, key, attributeValue,
@@ -228,12 +232,16 @@ public class FeatureDialogBuilder {
 		
 		dropdown.setSelection(position);
 		
-		setLabel(layout, key);
+		EditText errorEditText = (EditText) layout.findViewById(R.id.errorEditText);
+		
+		boolean isNillable = nillableHelper.isNillable(key);
+		
+		setLabel(layout, key, isNillable);
 		
 		outerLayout.addView(layout);
 		
-		attributeHelper.add(fragActivity, key, dropdown,
-				enumHelper, nillableHelper.isNillable(key), startInEditMode);
+		attributeHelper.add(fragActivity, key, dropdown, errorEditText,
+				enumHelper, isNillable, startInEditMode);
 		
 		return dropdown;
 	}
@@ -241,17 +249,13 @@ public class FeatureDialogBuilder {
 	private void appendEditText(String key, String value, boolean startInEditMode, EnumerationHelper enumHelper){
 		View attributeView = inflater.inflate(R.layout.feature_attribute, null);
 		
-		setLabel(attributeView, key);
+		boolean isNillable = nillableHelper.isNillable(key);
+		
+		setLabel(attributeView, key, isNillable);
 		
 		final EditText attributeValue = (EditText) attributeView.findViewById(R.id.attributeText);
 		
 		if(attributeValue != null){
-			
-			boolean isNillable = nillableHelper.isNillable(key);
-			
-			if(!isNillable){
-				attributeValue.setHint(R.string.required_field);
-			}
 			
 			attributeHelper.add(fragActivity, key, attributeValue,
 					enumHelper, isNillable, startInEditMode, value);
@@ -270,12 +274,19 @@ public class FeatureDialogBuilder {
 		return _enumeration;
 	}
 	
-	private void setLabel(View layout, String key){
+	private void setLabel(View layout, String key, boolean isNillable){
 		if(key != null){
 			TextView attributeLabel = (TextView) layout.findViewById(R.id.attributeLabel);
 			
 			if(attributeLabel != null){
-				attributeLabel.setText(key);
+				
+				String label = key;
+				
+				if(!isNillable){
+					label += "*";
+				}
+				
+				attributeLabel.setText(label);
 			}
 		}
 	}

@@ -30,6 +30,9 @@ public class Attribute {
 	private int offsetFromUTC;
 	private boolean isNillable;
 	
+	// Edit text for displaying errors for spinners
+	private EditText errorEditText;
+	
 	private Attribute(FragmentActivity activity, EnumerationHelper enumHelper, boolean isNillable, Util util){
 		this.enumHelper = enumHelper;
 		
@@ -53,13 +56,14 @@ public class Attribute {
 		this.editText = null;
 	}
 	
-	public Attribute(FragmentActivity activity, Spinner spinner,
+	public Attribute(FragmentActivity activity, Spinner spinner, EditText errorEditText,
 			EnumerationHelper enumHelper, boolean isNillable, boolean startInEditMode, Util util){
 		
 		this(activity, enumHelper, isNillable, util);
 		
 		this.spinner = spinner;
-				
+		this.errorEditText = errorEditText;
+		
 		setEditMode(startInEditMode);
 	}
 	
@@ -416,7 +420,7 @@ public class Attribute {
 			}
 
 			//this will remove the error message if the user fixes an invalid field
-			if(valid == true) {
+			if(valid) {
 				editText.setError(null);
 			}
 		}else if(spinner != null){
@@ -426,9 +430,18 @@ public class Attribute {
 			if(val.trim().isEmpty()){
 				
 				valid = isNillable;
+				
+				if(!valid){
+					errorEditText.setError(resources.getString(R.string.required_field));
+				}
 			}else{
 				
 				valid = true;
+			}
+			
+			if(valid){
+				
+				errorEditText.setError(null);
 			}
 		}
 		

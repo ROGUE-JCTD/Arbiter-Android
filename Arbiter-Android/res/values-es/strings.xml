@@ -250,5 +250,5 @@
     <string name="loading_getcapabilities">Cargando capas</string>
     <string name="could_not_connect">No se pudo conectar</string>
     <string name="check_server_and_network">Por favor, consulte los detalles del servidor y la conexión de red y vuelva a intentarlo más tarde.</string>
-     <string name="required_field">Campo obligatorio*</string>
+     <string name="required_field">Campo obligatorio</string>
 </resources>

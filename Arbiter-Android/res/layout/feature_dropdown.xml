@@ -14,12 +14,26 @@
 	        android:textStyle="bold"
 	        android:text="@string/error_loading_features" />
 
-	    <Spinner
-	        android:id="@+id/spinner"
+	    <RelativeLayout
 	        android:layout_width="match_parent"
 	        android:layout_height="0dp"
+	        android:layout_weight="1"
 	        android:layout_marginLeft="14dp"
-	        android:layout_marginRight="14dp"
-	        android:layout_weight="1" />
+		    android:layout_marginRight="14dp">
+	        
+	        <EditText
+		        android:id="@+id/errorEditText"
+		        android:layout_width="match_parent"
+		        android:layout_height="match_parent"
+		        android:ems="10"
+		        android:inputType="none"
+		        android:enabled="false" />
+	        
+	        <Spinner
+		        android:id="@+id/spinner"
+		        android:layout_width="match_parent"
+		        android:layout_height="match_parent"/>
+	        
+	    </RelativeLayout>
 
 </LinearLayout>

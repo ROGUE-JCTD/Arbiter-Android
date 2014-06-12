@@ -37,13 +37,15 @@ public class AttributeHelper {
 		validityChecker.add(attribute, editText);
 	}
 	
-	public void add(FragmentActivity activity, String key, Spinner spinner,
+	public void add(FragmentActivity activity, String key, Spinner spinner, EditText errorEditText,
 			EnumerationHelper enumHelper, boolean isNillable, boolean startInEditMode){
 		
-		Attribute attribute = new Attribute(activity, spinner,
+		Attribute attribute = new Attribute(activity, spinner, errorEditText,
 				enumHelper, isNillable, startInEditMode, util);
 		
 		attributes.put(key, attribute);
+		
+		validityChecker.add(key, attribute, spinner);
 	}
 	
 	public boolean setEditMode(boolean editMode){

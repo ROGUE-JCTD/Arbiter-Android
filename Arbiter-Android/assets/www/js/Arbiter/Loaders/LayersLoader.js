@@ -245,7 +245,7 @@ Arbiter.Loaders.LayersLoader = (function(){
 			
 			serverType = schema.getServerType();
 			
-			if(serverType === "WMS"){
+			if(serverType === "WMS" && isBaseLayer === true){
 				layer = loadWMSLayer(key, schema, isBaseLayer);
 			}else if(serverType === "TMS"){
 				layer = loadTMSLayer(key, schema, isBaseLayer);

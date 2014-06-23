@@ -7,9 +7,13 @@ import org.apache.cordova.CordovaWebView;
 import org.json.JSONException;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -17,7 +21,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.view.LayoutInflater;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Feature;
@@ -79,6 +82,27 @@ public class MediaPanel {
 		js += ");";
 		
 		Log.w("MediaPanel", "MediaPanel takePicture js = " + js);
+		
+	    webview.loadUrl(js);
+	}
+	
+	private void selectPicture() {
+		String media = getMedia();
+		
+		String js = "javascript:Arbiter.MediaHelper.selectPicture('"
+		+ key + "'";
+		
+		Log.w("MediaPanel", "MediaPanel selectPicture media = '" + media + "'");
+		
+		if(media != null && !"".equals(media)){
+			Log.w("MediaPanel", "MediaPanel not one of those things");
+			
+			js += ", " + media;
+		}
+		
+		js += ");";
+		
+		Log.w("MediaPanel", "MediaPanel selectPicture js = " + js);
 		
 	    webview.loadUrl(js);
 	}
@@ -152,21 +176,53 @@ public class MediaPanel {
 		
 		errorEditText = (EditText) mediaLayout.findViewById(R.id.errorEditText);
 		
-		if(!cameraExists()){
-			// If the camera doesn't exist, then make the takePictureBtn hidden
-			takePictureBtn.setVisibility(View.GONE);
-		}else{
-			takePictureBtn.setOnClickListener(new OnClickListener(){
 
-				@Override
-				public void onClick(View v) {
-					takePicture();	
+		takePictureBtn.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				if (cameraExists()) {
+					activity.runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Resources resources = activity.getResources();
+							
+							AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+							
+							String title = null;
+							String msg = null;
+	
+							title = resources.getString(R.string.picture_source);
+							msg = resources.getString(R.string.select_picture_source);
+							
+							builder.setTitle(title);
+							builder.setIcon(resources.getDrawable(R.drawable.icon));
+							builder.setMessage(msg);
+							builder.setNegativeButton(R.string.from_camera, new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									takePicture();
+								}
+							});
+							builder.setPositiveButton(R.string.from_library, new DialogInterface.OnClickListener(){
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									selectPicture();
+								}
+							});
+							
+							builder.create().show();
+						}
+					});
+				} else {
+					selectPicture();
 				}
-			});
-			
-			// Default start not in edit mode
-			takePictureBtn.setVisibility(startInEditMode ? View.VISIBLE : View.GONE);
-		}
+			}
+		});
+		
+		// Default start not in edit mode
+		takePictureBtn.setVisibility(startInEditMode ? View.VISIBLE : View.GONE);
 		
 		// Append the mediaLayout to the dialog
 		outerLayout.addView(mediaLayout);

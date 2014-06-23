@@ -44,6 +44,10 @@
 	<string name="feature_saved">Feature saved</string>
 	<string name="feature_saved_msg">The feature has been saved.</string>
 	<string name="return_to_map">Return to Map</string>
+	<string name="picture_source">Select Source</string>
+	<string name="select_picture_source">Add a photo...</string>
+	<string name="from_camera">From Camera</string>
+	<string name="from_library">From Photo Library</string>
 	<string name="review_feature">Review Feature</string>
 	<string name="insert_feature_warning">Insert feature</string>
 	<string name="insert_feature_warning_msg">Insert the feature?</string>

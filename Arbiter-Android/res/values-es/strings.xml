@@ -44,6 +44,10 @@
 	<string name="feature_saved">Elemento guardado</string>
 	<string name="feature_saved_msg">El elemento se ha guardado.</string>
 	<string name="return_to_map">Volver al Mapa</string>
+	<string name="picture_source">Seleccionar la Fuente</string>
+	<string name="select_picture_source">Añadir una foto…</string>
+	<string name="from_camera">Desde la Cámara</string>
+	<string name="from_library">Desde el Álbum</string>
 	<string name="review_feature">Revise Elemento</string>
 	<string name="insert_feature_warning">Insertar el elemento</string>
 	<string name="insert_feature_warning_msg">Inserte el Elemento?</string>

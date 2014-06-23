@@ -50,7 +50,7 @@ Arbiter.MediaHelper = (function(){
         });
     };
     
-    var copyMedia = function(fileEntry, key, featuresMedia){
+    var copyMedia = function(fileEntry, key, featuresMedia, removeFile){
     	var fileSystem = Arbiter.FileSystem.getFileSystem();
     	
     	// Make sure the media directory exists
@@ -64,24 +64,33 @@ Arbiter.MediaHelper = (function(){
     					fileEntry.copyTo(mediaDir, "temp.jpg", function(newFile){
     						
     						// Delete the temporary file created by the camera
-    						fileEntry.remove(function(){
-    							
-    							// The file was copied successfully,
-    							// so name the file properly.
-    							
-    							//For some reason the newFile from the copyTo function isn't returning the correct toURL() path
+    						if (removeFile) {
+        						fileEntry.remove(function(){
+        							
+        							// The file was copied successfully,
+        							// so name the file properly.
+        							
+        							//For some reason the newFile from the copyTo function isn't returning the correct toURL() path
+        							mediaDir.getFile("temp.jpg", {create: true, exclusive: false}, function(newFile){
+        								copySuccess(newFile, key, featuresMedia);
+        							}, function(e){
+        								copyFail("Arbiter.MediaHelper copyMedia - Error getting created temp file - " + e);
+        							});
+        						}, function(e){
+        							console.log("Arbiter.MediaHelper - Could not remove temporary file - ", e);
+        							
+        							// The file was copied successfully,
+        							// so name the file properly.
+        							copySuccess(newFile);
+        						});
+    						} else {
     							mediaDir.getFile("temp.jpg", {create: true, exclusive: false}, function(newFile){
     								copySuccess(newFile, key, featuresMedia);
     							}, function(e){
     								copyFail("Arbiter.MediaHelper copyMedia - Error getting created temp file - " + e);
     							});
-    						}, function(e){
-    							console.log("Arbiter.MediaHelper - Could not remove temporary file - ", e);
-    							
-    							// The file was copied successfully,
-    							// so name the file properly.
-    							copySuccess(newFile);
-    						});
+    						}
+
     					}, function(e){
     						copyFail("Arbiter.MediaHelper copyMedia - Error copying file - " + e);
     					});
@@ -100,7 +109,13 @@ Arbiter.MediaHelper = (function(){
     var onPictureTaken = function(imageUri, key, featuresMedia){
     	window.resolveLocalFileSystemURI(imageUri, function(fileEntry){
     		copyMedia(fileEntry, key, featuresMedia);
-    	}, copyFail);
+    	}, copyFail, true);
+    };
+    
+    var onPictureSelected = function(imageUri, key, featuresMedia){
+    	window.resolveLocalFileSystemURI(imageUri, function(fileEntry){
+    		copyMedia(fileEntry, key, featuresMedia);
+    	}, copyFail, false);
     };
     
 	return {
@@ -114,7 +129,7 @@ Arbiter.MediaHelper = (function(){
     			allowEdit: false,
     			correctOrientation: true,
     			destinationType: Camera.DestinationType.FILE_URI,
-    			encodingType: Camera.EncodingType.JPEG 
+    			encodingType: Camera.EncodingType.JPEG
     	    };
 	    	
 	    	navigator.camera.getPicture(function(imageUri){
@@ -124,6 +139,29 @@ Arbiter.MediaHelper = (function(){
 	    		onPictureTaken(imageUri, key, media);
 	    	}, function(e){
 	    		console.log("Failed to take picture - ", e);
+	    	}, cameraOptions);
+	    },
+	
+		selectPicture: function(key, media){
+	    	
+	    	Arbiter.Cordova.setState(Arbiter.Cordova.STATES.TAKING_PICTURE);
+	    	
+	    	var cameraOptions = { 
+				quality: 20, 
+				allowEdit: false,
+				correctOrientation: true,
+				destinationType: Camera.DestinationType.FILE_URI,
+				encodingType: Camera.EncodingType.JPEG,
+				sourceType: Camera.PictureSourceType.PHOTOLIBRARY
+		    };
+	    	
+	    	navigator.camera.getPicture(function(imageUri){
+	    		
+	    		Arbiter.Cordova.gotPicture();
+	    		
+	    		onPictureSelected(imageUri, key, media);
+	    	}, function(e){
+	    		console.log("Failed to load picture from library - ", e);
 	    	}, cameraOptions);
 	    }
 	};

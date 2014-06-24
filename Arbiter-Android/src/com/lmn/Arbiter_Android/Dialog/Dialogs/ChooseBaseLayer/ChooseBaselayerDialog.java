@@ -36,6 +36,7 @@ import com.lmn.Arbiter_Android.Loaders.BaseLayerLoader;
 import com.lmn.Arbiter_Android.Loaders.LayersListLoader;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
+import com.lmn.Arbiter_Android.Settings.Settings;
 
 public class ChooseBaselayerDialog extends ArbiterDialogFragment implements BaseLayerUpdater{
 	public static final String TAG = "ChooseBaselayerDialog";
@@ -190,8 +191,7 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 			// Set the base layer for the new project
 			newProject.setBaseLayer(baseLayer);
 			
-			Intent aoiIntent = new Intent(getActivity(), AOIActivity.class);
-    		this.startActivity(aoiIntent);
+			new Settings(getActivity()).displaySettingsDialog(true);
     		
     		dismiss();
 		}

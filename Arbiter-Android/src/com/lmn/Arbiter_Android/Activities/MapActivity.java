@@ -380,7 +380,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         		
         	case R.id.action_settings:
         		
-        		new Settings(this).displaySettingsDialog();;
+        		new Settings(this).displaySettingsDialog(false);
         		
         		return true;
         		

@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.CheckBox;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Activities.AOIActivity;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.Map.Map;
@@ -29,7 +31,7 @@ public class Settings {
 		this.activity = activity;
 	}
 	
-	public void displaySettingsDialog(){
+	public void displaySettingsDialog(final boolean newProject){
 		
 		activity.runOnUiThread(new Runnable(){
     		@Override
@@ -44,7 +46,7 @@ public class Settings {
     			
     			final View view = inflater.inflate(R.layout.settings, null);
     			
-    			populateSettings(view);
+    			populateSettings(view, newProject);
     			
     			builder.setView(view);
     			
@@ -52,20 +54,36 @@ public class Settings {
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						saveSettings(view);
+						saveSettings(view, newProject);
+						if (newProject) {
+							Intent aoiIntent = new Intent(activity, AOIActivity.class);
+				    		activity.startActivity(aoiIntent);
+						}
 					}
     				
     			});
-    			builder.setNegativeButton(android.R.string.cancel, null);
+    			builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (newProject) {
+							ArbiterProject.getArbiterProject().doneCreatingProject(activity.getApplicationContext());
+						}
+					}
+    				
+    			});
     			
     			builder.create().show();
     		}
     	});
 	}
 	
-	private void populateSettings(View view){
+	private void populateSettings(View view, boolean newProject){
 		String projectName = ArbiterProject.getArbiterProject()
 				.getOpenProject(activity);
+		if (newProject) {
+			projectName = ArbiterProject.getArbiterProject().getNewProject().getProjectName();
+		}
 		
 		String path = ProjectStructure.getProjectPath(projectName);
 		
@@ -87,9 +105,12 @@ public class Settings {
 		
 	}
 	
-	private void saveSettings(View view) {
+	private void saveSettings(View view, boolean newProject) {
 		String projectName = ArbiterProject.getArbiterProject()
 				.getOpenProject(activity);
+		if (newProject) {
+			projectName = ArbiterProject.getArbiterProject().getNewProject().getProjectName();
+		}
 		
 		String path = ProjectStructure.getProjectPath(projectName);
 		
@@ -102,8 +123,10 @@ public class Settings {
 		}
 		if (disableWMS.isChecked() != disableWMSDBValue) {
 			PreferencesHelper.getHelper().put(projectDb, activity.getApplicationContext(), PreferencesHelper.DISABLE_WMS, Boolean.toString(disableWMS.isChecked()));
-			Map.MapChangeListener mapListener = (Map.MapChangeListener) activity;
-			mapListener.getMapChangeHelper().reloadMap();
+			if (!newProject) {
+				Map.MapChangeListener mapListener = (Map.MapChangeListener) activity;
+				mapListener.getMapChangeHelper().reloadMap();
+			}
 		}
 	}
 }

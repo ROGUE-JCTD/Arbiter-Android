@@ -199,100 +199,117 @@ Arbiter.Loaders.LayersLoader = (function(){
 		var layer = null;
 		var olBaseLayer = null;
 		
-		if(!Arbiter.Util.existsAndNotNull(baseLayer) || (Arbiter.Util.existsAndNotNull(baseLayer) && baseLayer[Arbiter.BaseLayer.NAME] === "OpenStreetMap")){
-			
-			olBaseLayer = Arbiter.Layers.addDefaultLayer(true);
-		}
+		var disableWMS = false;
 		
-		if(layerSchemas === undefined 
-				|| layerSchemas === null 
-				|| (Arbiter.getLayerSchemasLength() === 0)){
+		var doWork = function() {
+			if(!Arbiter.Util.existsAndNotNull(baseLayer) || (Arbiter.Util.existsAndNotNull(baseLayer) && baseLayer[Arbiter.BaseLayer.NAME] === "OpenStreetMap")){
+				
+				olBaseLayer = Arbiter.Layers.addDefaultLayer(true);
+			}
 			
-			setBaseLayer(olBaseLayer);
+			if(layerSchemas === undefined 
+					|| layerSchemas === null 
+					|| (Arbiter.getLayerSchemasLength() === 0)){
+				
+				setBaseLayer(olBaseLayer);
+				
+				loadAOILayer();
+				
+				if(Arbiter.Util.funcExists(onSuccess)){
+					isDone(onSuccess);
+				}
+				
+				return;
+			}
+			
+			var schema;
+			var key;
+			var editableLayers = 0;
+			var featureType = null;
+			var serverType = null;
+			var isBaseLayer = false;
+			
+			for(var i = 0; i < dbLayers.length; i++){
+				key = dbLayers[i][Arbiter.LayersHelper.layerId()];
+				
+				schema = layerSchemas[key];
+				
+				featureType = "";
+				
+				if(Arbiter.Util.existsAndNotNull(schema.getPrefix()) && schema.getPrefix() !== "null"){
+					featureType += schema.getPrefix() + ":";
+				}
+				
+				featureType += schema.getFeatureType();
+				
+				if(Arbiter.Util.existsAndNotNull(baseLayer) && (featureType === baseLayer[Arbiter.BaseLayer.FEATURE_TYPE])){
+					isBaseLayer = true;
+				}
+				
+				serverType = schema.getServerType();
+				
+				if(serverType === "WMS"){
+					if (!disableWMS || isBaseLayer) {
+						layer = loadWMSLayer(key, schema, isBaseLayer);
+					}
+				}else if(serverType === "TMS"){
+					layer = loadTMSLayer(key, schema, isBaseLayer);
+				}else{
+					console.log("Invalid server type: " + serverType);
+				}
+				
+				if(isBaseLayer === true){
+					olBaseLayer = layer;
+					isBaseLayer = false;
+					dbLayers.splice(i--, 1);
+				}else{
+					if(serverType === "WMS"){
+						layersToLoad++;
+					}
+				}
+			}
+			
+			for(var i = 0; i < dbLayers.length; i++){
+				
+				key = dbLayers[i][Arbiter.LayersHelper.layerId()];
+				
+				schema = layerSchemas[key];
+				
+				if(schema.isEditable()){
+					
+					editableLayers++;
+					// Load the vector layer
+					loadWFSLayer(key, schema, onSuccess);
+				}else{
+					layersToLoad--;
+					
+					isDone(onSuccess);
+				}
+			}
 			
 			loadAOILayer();
 			
-			if(Arbiter.Util.funcExists(onSuccess)){
-				isDone(onSuccess);
+			if(Arbiter.Util.existsAndNotNull(olBaseLayer)){
+				setBaseLayer(olBaseLayer);
 			}
 			
-			return;
-		}
-		
-		var schema;
-		var key;
-		var editableLayers = 0;
-		var featureType = null;
-		var serverType = null;
-		var isBaseLayer = false;
-		
-		for(var i = 0; i < dbLayers.length; i++){
-			key = dbLayers[i][Arbiter.LayersHelper.layerId()];
-			
-			schema = layerSchemas[key];
-			
-			featureType = "";
-			
-			if(Arbiter.Util.existsAndNotNull(schema.getPrefix()) && schema.getPrefix() !== "null"){
-				featureType += schema.getPrefix() + ":";
-			}
-			
-			featureType += schema.getFeatureType();
-			
-			if(Arbiter.Util.existsAndNotNull(baseLayer) && (featureType === baseLayer[Arbiter.BaseLayer.FEATURE_TYPE])){
-				isBaseLayer = true;
-			}
-			
-			serverType = schema.getServerType();
-			
-			if(serverType === "WMS"){
-				layer = loadWMSLayer(key, schema, isBaseLayer);
-			}else if(serverType === "TMS"){
-				layer = loadTMSLayer(key, schema, isBaseLayer);
-			}else{
-				console.log("Invalid server type: " + serverType);
-			}
-			
-			if(isBaseLayer === true){
-				olBaseLayer = layer;
-				isBaseLayer = false;
-				dbLayers.splice(i--, 1);
-			}else{
-				if(serverType === "WMS"){
-					layersToLoad++;
-				}
-			}
-		}
-		
-		for(var i = 0; i < dbLayers.length; i++){
-			
-			key = dbLayers[i][Arbiter.LayersHelper.layerId()];
-			
-			schema = layerSchemas[key];
-			
-			if(schema.isEditable()){
+			if(editableLayers === 0 
+					&& Arbiter.Util.funcExists(onSuccess)){
 				
-				editableLayers++;
-				// Load the vector layer
-				loadWFSLayer(key, schema, onSuccess);
-			}else{
-				layersToLoad--;
-				
-				isDone(onSuccess);
+				onSuccess();
 			}
 		}
 		
-		loadAOILayer();
+		var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
 		
-		if(Arbiter.Util.existsAndNotNull(olBaseLayer)){
-			setBaseLayer(olBaseLayer);
-		}
-		
-		if(editableLayers === 0 
-				&& Arbiter.Util.funcExists(onSuccess)){
-			
-			onSuccess();
-		}
+		Arbiter.PreferencesHelper.get(projectDb, Arbiter.DISABLE_WMS, Arbiter.Loaders.LayersLoader, function(_disableWMS){
+			if (_disableWMS !== undefined && _disableWMS !== null) {
+				disableWMS = _disableWMS == 'true';
+			}
+			doWork();
+		}, function(e){
+			doWork();
+		});
 	};
 	
 	/**

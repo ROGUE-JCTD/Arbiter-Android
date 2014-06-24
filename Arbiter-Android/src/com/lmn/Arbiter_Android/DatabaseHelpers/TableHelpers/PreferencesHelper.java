@@ -16,6 +16,8 @@ public class PreferencesHelper implements BaseColumns{
 	public static final String BASE_LAYER = "base_layer";
 	public static final String FINDME = "findme";
 	public static final String SWITCHED_PROJECT = "switched_project";
+	public static final String DOWNLOAD_PHOTOS = "download_photos";
+	public static final String DISABLE_WMS = "disable_wms";
 	
 	private PreferencesHelper(){}
 	

@@ -34,6 +34,7 @@ import com.lmn.Arbiter_Android.Map.Map;
 import com.lmn.Arbiter_Android.Notifications.Sync;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 import com.lmn.Arbiter_Android.ReturnQueues.OnReturnToMap;
+import com.lmn.Arbiter_Android.Settings.Settings;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -377,12 +378,18 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         		
         		return true;
         		
+        	case R.id.action_settings:
+        		
+        		new Settings(this).displaySettingsDialog();;
+        		
+        		return true;
+        		
         	case R.id.action_about:
         		
         		new About(this).displayAboutDialog();;
         		
         		return true;
-        		
+       
     		default:
     			return super.onOptionsItemSelected(item);
     	}

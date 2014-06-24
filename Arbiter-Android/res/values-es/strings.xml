@@ -185,6 +185,7 @@
 	<string name="layer_order">Orden de las capas</string>
 	<string name="move_down">Mueve hacia abajo</string>
     <string name="move_up">Mueve hacia arriba</string>
+    <string name="settings">Ajustes</string>
     <string name="about">Sobre</string>
     <string name="version">Destino:</string>
     <string name="commit_date">Tiempo de Destino:</string>
@@ -254,5 +255,8 @@
     <string name="loading_getcapabilities">Cargando capas</string>
     <string name="could_not_connect">No se pudo conectar</string>
     <string name="check_server_and_network">Por favor, consulte los detalles del servidor y la conexión de red y vuelva a intentarlo más tarde.</string>
-     <string name="required_field">Campo obligatorio</string>
+    <string name="required_field">Campo obligatorio</string>
+    <string name="download_photos">Descargar fotos para los elementos</string>
+    <string name="disable_wms">Desactivar WMS para las capas de base no</string>
+     
 </resources>

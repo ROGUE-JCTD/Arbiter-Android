@@ -185,6 +185,7 @@
     <string name="layer_order">Layer order</string>
     <string name="move_down">Move down</string>
     <string name="move_up">Move up</string>
+    <string name="settings">Settings</string>
     <string name="about">About</string>
     <string name="version">Commit:</string>
     <string name="commit_date">Commit date:</string>
@@ -260,4 +261,6 @@
     <string name="could_not_connect">Could not connect</string>
     <string name="check_server_and_network">Please check the server details and network connection and try again later.</string>
     <string name="required_field">Required field</string>
+    <string name="download_photos">Download photos for features</string>
+    <string name="disable_wms">Disable WMS for non-base layers</string>
 </resources>

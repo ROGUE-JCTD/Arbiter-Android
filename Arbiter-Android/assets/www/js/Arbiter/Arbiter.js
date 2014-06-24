@@ -15,6 +15,8 @@ Arbiter = (function(){
 		INCLUDE_DEFAULT_LAYER: "include_default_layer",
 		DEFAULT_LAYER_VISIBILITY: "default_layer_visibility",
 		AOI: "aoi",
+		DISABLE_WMS: "disable_wms",
+		DOWNLOAD_PHOTOS: "download_photos",
 		PROJECT_NAME: "project_name",
 		SELECTED_FID: "selected_fid",
 		SELECTED_LAYER: "selected_layer",

@@ -34,7 +34,7 @@ Arbiter.MediaSync.prototype.startSync = function(onSuccess, onFailure, downloadO
 	
 	this.onSyncComplete = onSuccess;
 	this.onSyncFailure = onFailure;
-	
+
 	if(downloadOnly === true || downloadOnly === "true"){
 		
 		context.startDownloadForNext();
@@ -77,12 +77,24 @@ Arbiter.MediaSync.prototype.startDownloadForNext = function(){
 	
 	var layer = this.pop();
 	
-	if(layer !== undefined){
-		
-		this.downloadMedia(layer);
-	}else{
-		this.onDownloadComplete();
+	var downloadPhotos = false;
+	
+	var doWork = function() {
+		if(layer !== undefined && downloadPhotos){
+			context.downloadMedia(layer);
+		}else{
+			context.onDownloadComplete();
+		}
 	}
+	
+	Arbiter.PreferencesHelper.get(Arbiter.ProjectDbHelper.getProjectDatabase(), Arbiter.DOWNLOAD_PHOTOS, context, function(_downloadPhotos){
+		if (_downloadPhotos !== undefined && _downloadPhotos !== null) {
+			downloadPhotos = _downloadPhotos == 'true';
+		}
+		doWork();
+	}, function(e){
+		doWork();
+	});
 };
 
 Arbiter.MediaSync.prototype.uploadMedia = function(layer){

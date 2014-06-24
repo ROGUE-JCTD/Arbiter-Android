@@ -85,6 +85,10 @@ Arbiter.Util.LayerSchema = function(){
 					
 					attributes.push(attribute);
 					
+					if(property.type === "xsd:boolean"){
+						property.enumeration = ["true", "false"];
+					}
+					
 					enumeration.addEnumeration(property.name,
 							property.type, property.enumeration);
 				}

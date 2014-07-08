@@ -189,7 +189,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     		@Override
     		public void onClick(View v){
     			
-    			if(syncConnectivityListener.isConnected() && makeSureNotEditing()){
+    			if(makeSureNotEditing()){
     				SyncProgressDialog.show(activity);
             		Map.getMap().sync(cordovaWebView);
     			}

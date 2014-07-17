@@ -23,7 +23,8 @@ var app = (function() {
 	 * On device ready
 	 */
 	var onDeviceReady = function() {
-		Arbiter.isOnline('onLine' in navigator && navigator.onLine);
+		//Arbiter.isOnline('onLine' in navigator && navigator.onLine);
+	    Arbiter.isOnline(true);
 		Arbiter.Init(function() {
 			
 			// Get the file system for use in TileUtil.js
@@ -152,9 +153,10 @@ var app = (function() {
 	
 	var onOffline = function(){
 		app.waitForArbiterInit(function(){
-			Arbiter.Layers.toggleWMSLayers(false);
+			//Arbiter.Layers.toggleWMSLayers(false);
 			
-			Arbiter.isOnline(false);
+			//Arbiter.isOnline(false);
+            Arbiter.isOnline(true);
 		});
 	};
 	

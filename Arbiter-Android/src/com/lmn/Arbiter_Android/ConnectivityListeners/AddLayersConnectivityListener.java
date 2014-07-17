@@ -29,6 +29,7 @@ public class AddLayersConnectivityListener extends ConnectivityListener {
 	}
 	
 	private void onDisconnected(){
-		addLayersBtn.setEnabled(false);
+		//addLayersBtn.setEnabled(false);
+		addLayersBtn.setEnabled(true);
 	}
 }

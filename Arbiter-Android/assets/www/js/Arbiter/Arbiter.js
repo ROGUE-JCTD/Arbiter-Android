@@ -5,7 +5,8 @@ Arbiter = (function(){
 	var aoiHasBeenSet = false;
 	var tileUtil = null;
 	
-	var isOnline = false;
+	//var isOnline = false;
+	var isOnline = true;
 	
 	return {
 		// WFS version for DescribeFeatureType request

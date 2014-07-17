@@ -12,7 +12,8 @@ public class ConnectivityListener extends BroadcastReceiver{
 	private Context context;
 	
 	public ConnectivityListener(Context context){
-		this.isConnected = false;
+		//this.isConnected = false;
+		this.isConnected = true;
 		this.context = context;
 		
 		IntentFilter intentFilter = new IntentFilter();
@@ -42,7 +43,8 @@ public class ConnectivityListener extends BroadcastReceiver{
 	}
 	
 	public boolean isConnected(){
-		return this.isConnected;
+		//return this.isConnected;
+		return true;
 	}
 	
 	public void onDestroy(){

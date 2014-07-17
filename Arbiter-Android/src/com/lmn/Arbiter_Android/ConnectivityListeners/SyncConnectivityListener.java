@@ -35,6 +35,7 @@ public class SyncConnectivityListener extends ConnectivityListener {
 	
 	private void onDisconnected(){
 		syncButton.setBackgroundColor(red);
-		syncButton.setEnabled(false);
+		//syncButton.setEnabled(false);
+		syncButton.setEnabled(true);
 	}
 }

@@ -33,7 +33,8 @@ public class CreateProjectConnectivityListener extends ConnectivityListener {
 		if(isConnected){
 			onConnected();
 		}else{
-			onDisconnected();
+			//onDisconnected();
+			onConnected();
 		}
 	}
 	

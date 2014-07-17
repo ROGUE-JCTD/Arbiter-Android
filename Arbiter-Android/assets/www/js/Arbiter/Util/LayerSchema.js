@@ -223,6 +223,20 @@ Arbiter.Util.LayerSchema = function(){
 			return featureType;
 		},
 		
+		getFeatureTypeWithPrefix: function(){
+			
+			var _featureType = '';
+			
+			if(Arbiter.Util.existsAndNotNull(prefix) && (prefix !== '')){
+				
+				_featureType += prefix + ":";
+			}
+			
+			_featureType += featureType;
+			
+			return _featureType;
+		},
+		
 		getWorkspace: function(){
 			return workspace;
 		},

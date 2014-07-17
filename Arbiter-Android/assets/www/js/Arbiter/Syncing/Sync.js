@@ -188,8 +188,42 @@
 		
 		this.syncInProgress = true;
 		
-		var context = this;
+		if(!this.downloadOnly){
+			this._checkForSchemaChanges();
+		}else{
+			this._startSync();
+		}
+	};
+
+	prototype._checkForSchemaChanges = function(){
 		
+		var context = this;
+			
+		this.initialize(function(){
+			
+			var schemaChangeHandler = new Arbiter.SchemaChangeHandler(context.projectDb,
+					context.featureDb, context.fileSystem, Arbiter.WFS_DFT_VERSION);
+			
+			schemaChangeHandler.checkForChanges(context.schemas, function(results){
+				
+				console.log("schemaChangeHandler results", results);
+				
+				context._startSync();
+			}, function(e){
+				
+				console.log("schemaChangeHandler error", e.stack);
+				
+				context.onSyncFailed(e);
+			});
+		}, function(e){
+			context.onSyncFailed(e);
+		});
+	};
+	
+	prototype._startSync = function(){
+		
+		var context = this;
+
 		var run = function(){
 			context.initialize(function(){
 				
@@ -214,7 +248,7 @@
 			run();
 		}
 	};
-
+	
 	prototype.storeUploadsAndDownloads = function(){
 		
 		var context = this;

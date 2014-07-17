@@ -56,6 +56,8 @@ Arbiter.FileSystem = (function(){
 		
 		TILESET_ROOT : "TileSets",
 		
+		SCHEMA_FILES_ROOT: "SchemaFiles",
+		
 		// Media dirs begin
 		PROJECTS : "Projects",
 		MEDIA : "Media",

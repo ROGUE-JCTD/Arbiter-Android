@@ -109,6 +109,8 @@
 	
 	prototype._getPreviousFeatures = function(){
 		
+		console.log("_getPreviousFeatures");
+		
 		var context = this;
 		
 		var tempTableName = Arbiter.Util.getTempFeatureTableName(this.schema.getFeatureType());

@@ -63,16 +63,12 @@
 	prototype._downloadSchema = function(){
 		var context = this;
 		
-		var gotRequestBack = false;
+		var describeFeatureType = new Arbiter.DescribeFeatureType(this.url, this.credentials,
+				this.wfsVersion, this.featureType, this.describeFeatureTypeReader, 30000);
 		
-		var url = this.url.substring(0, this.url.length - 4);
-		
-		var options = {
-			url: url + "/wfs?service=wfs&version=" + context.wfsVersion + "&request=DescribeFeatureType&typeName=" + context.featureType,
-			success: function(response){
-				gotRequestBack = true;
-				
-				var results = context.describeFeatureTypeReader.read(response.responseText);
+		describeFeatureType.download(function(results){
+			
+			try{
 				
 				// If there are no feature types, return.
 				if(!results.featureTypes || !results.featureTypes.length){
@@ -82,46 +78,25 @@
 					return;
 				}
 				
-				try{
-					context.schema = new Arbiter.Util.LayerSchema(context.layerId, context.url,
-							results.targetNamespace, context.featureType, context.srid,
-							results.featureTypes[0].properties, context.serverId,
-							context.serverType, context.color, false);
-				}catch(e){
-					var msg = "Could not create schema - " + JSON.stringify(e);
-					
-					throw msg;
-				}
+				context.schema = new Arbiter.Util.LayerSchema(context.layerId, context.url,
+						results.targetNamespace, context.featureType, context.srid,
+						results.featureTypes[0].properties, context.serverId,
+						context.serverType, context.color, false);
 				
 				context.workspace = results.targetNamespace;
 				
 				context.checkNotInProject();
-			},
-			failure: function(response){
-				gotRequestBack = true;
+			
+			}catch(e){
 				
-				context.onDownloadFailure();
+				console.log(e.stack);
+				throw e;
 			}
-		};
-		
-		if(Arbiter.Util.existsAndNotNull(context.credentials)){
-			options.headers = {
-				Authorization: 'Basic ' + context.credentials
-			};
-		}
-		
-		var request = new OpenLayers.Request.GET(options);
-		
-		// Couldn't find a way to set timeout for an openlayers
-		// request, so I did this to abort the request after
-		// 15 seconds of not getting a response
-		window.setTimeout(function(){
-			if(!gotRequestBack){
-				request.abort();
-				
-				context.onDownloadFailure();
-			}
-		}, 30000);
+			
+		}, function(e){
+			
+			context.onDownloadFailure.call(context);
+		});
 	};
 
 	prototype.checkNotInProject = function(){

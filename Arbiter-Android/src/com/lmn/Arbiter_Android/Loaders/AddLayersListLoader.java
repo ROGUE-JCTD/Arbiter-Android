@@ -5,13 +5,11 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.IntentFilter;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
@@ -55,8 +53,13 @@ public class AddLayersListLoader extends AsyncTaskLoader<ArrayList<Layer>> {
 		Server server = dialog.getSelectedServer();
 			
 		try {
-			_layers = getCapabilities.getLayers(server,
-					dialog.getLayersInProject());
+			
+			if(server != null && server.getUrl() != null){
+				
+				_layers = getCapabilities.getLayers(server,
+						dialog.getLayersInProject());
+			}
+			
 			connectedOK = true;
 		} catch (IOException e) {
 			connectedOK = false;

@@ -30,6 +30,7 @@ public class ServerListAdapter extends BaseAdapter implements ArbiterAdapter<Spa
 	private int textId;
 	private int dropDownLayout;
 	private final FragmentActivity activity;
+	private boolean viewServerOnClickEnabled;
 	
 	public ServerListAdapter(FragmentActivity activity, int itemLayout, 
 			int textId){
@@ -40,6 +41,7 @@ public class ServerListAdapter extends BaseAdapter implements ArbiterAdapter<Spa
 			this.textId = textId;
 			this.dropDownLayout = R.layout.drop_down_item;
 			this.activity = activity;
+			this.viewServerOnClickEnabled = true;
 			
 			try {
 				mapChangeListener = (MapChangeListener) activity;
@@ -58,6 +60,7 @@ public class ServerListAdapter extends BaseAdapter implements ArbiterAdapter<Spa
 			this.textId = textId;
 			this.dropDownLayout = dropDownLayout;
 			this.activity = activity;
+			this.viewServerOnClickEnabled = false;
 	}
 	
 	public void setData(SparseArray<Server> data){
@@ -84,7 +87,7 @@ public class ServerListAdapter extends BaseAdapter implements ArbiterAdapter<Spa
 				serverName.setText(server.getName());
 			}
 
-			if(!serverName.getText().equals("OpenStreetMap")){
+			if(viewServerOnClickEnabled && !serverName.getText().equals("OpenStreetMap")){
 				view.setOnClickListener(new OnClickListener(){
 					@Override
 					public void onClick(View v) {

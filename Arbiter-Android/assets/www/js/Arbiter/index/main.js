@@ -157,6 +157,7 @@ var app = (function() {
 	
 	var onOffline = function(){
 		app.waitForArbiterInit(function(){
+			var appDb = Arbiter.ApplicationDbHelper.getDatabase();
             Arbiter.PreferencesHelper.get(appDb, Arbiter.NO_CON_CHECKS, this, function(value) {
                 if (value === 'true') {
                     Arbiter.isOnline(true);

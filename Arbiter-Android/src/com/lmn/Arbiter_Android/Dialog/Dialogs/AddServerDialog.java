@@ -157,6 +157,16 @@ public class AddServerDialog extends ArbiterDialogFragment{
 							displayAuthenticationError(R.string.authentication_failed, progressDialog);
 							
 							break;
+						case 403:
+							
+							new ArbiterCookieManager(getActivity().getApplicationContext()).getCookieForServer(
+									urlField.getText().toString(), 
+									usernameField.getText().toString(),
+									passwordField.getText().toString());
+							
+							putServer(progressDialog);
+							
+							break;
 						default:	
 							
 							displayAuthenticationError(R.string.unable_to_connect, progressDialog);

@@ -45,7 +45,7 @@ public class ConnectivityListener extends BroadcastReceiver{
 		
 		String noConnectionChecks = PreferencesHelper.getHelper().get(db,
 				context, "no_con_checks");
-		if (noConnectionChecks.equals("true")) {
+		if (noConnectionChecks != null && noConnectionChecks.equals("true")) {
 			return true;
 		}
 		

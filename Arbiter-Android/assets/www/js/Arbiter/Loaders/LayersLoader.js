@@ -130,8 +130,15 @@ Arbiter.Loaders.LayersLoader = (function(){
 		
 		Arbiter.Layers.addLayer(olLayer);
 		
-		//olLayer.setVisibility(schema.isVisible() && Arbiter.isOnline());
-        olLayer.setVisibility(schema.isVisible());
+		var appDb = Arbiter.ApplicationDbHelper.getDatabase();
+		
+        Arbiter.PreferencesHelper.get(appDb, Arbiter.NO_CON_CHECKS, this, function(value) {
+            if (value === 'true') {
+                olLayer.setVisibility(schema.isVisible());
+            } else {
+                olLayer.setVisibility(schema.isVisible() && Arbiter.isOnline());
+            }
+        });
 		
 		return olLayer;
 	};

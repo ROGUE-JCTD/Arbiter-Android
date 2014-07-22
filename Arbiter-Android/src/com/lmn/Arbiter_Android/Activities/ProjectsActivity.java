@@ -51,8 +51,7 @@ public class ProjectsActivity extends FragmentActivity implements HasThreadPool{
     public boolean onPrepareOptionsMenu(Menu menu){
     	if(!this.menuPrepared){
     		
-    		this.connectivityListener = new CreateProjectConnectivityListener(
-    				this, menu);
+    		this.connectivityListener = new CreateProjectConnectivityListener(this, menu);
     		
     		this.menuPrepared = true;
     	}

@@ -5,8 +5,7 @@ Arbiter = (function(){
 	var aoiHasBeenSet = false;
 	var tileUtil = null;
 	
-	//var isOnline = false;
-	var isOnline = true;
+	var isOnline = false;
 	
 	return {
 		// WFS version for DescribeFeatureType request
@@ -18,6 +17,7 @@ Arbiter = (function(){
 		AOI: "aoi",
 		DISABLE_WMS: "disable_wms",
 		DOWNLOAD_PHOTOS: "download_photos",
+        NO_CON_CHECKS: "no_con_checks",
 		PROJECT_NAME: "project_name",
 		SELECTED_FID: "selected_fid",
 		SELECTED_LAYER: "selected_layer",

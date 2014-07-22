@@ -22,7 +22,7 @@ public class CookieConnectivityListener extends ConnectivityListener{
 	private Map.CordovaMap mapContainer;
 	
 	public CookieConnectivityListener(Activity activity, HasThreadPool threadPoolContainer, Map.CordovaMap mapContainer) {
-		super(activity.getApplicationContext());
+		super(activity);
 		this.activity = activity;
 		this.threadPoolContainer = threadPoolContainer;
 		this.mapContainer = mapContainer;

@@ -16,7 +16,7 @@ public class CreateProjectConnectivityListener extends ConnectivityListener {
 	private MenuItem.OnMenuItemClickListener onDisconnectedListener;
 	
 	public CreateProjectConnectivityListener(FragmentActivity activity, Menu menu){
-		super(activity.getApplicationContext());
+		super(activity);
 		
 		this.activity = activity;
 		this.createProjectBtn = menu.getItem(0);

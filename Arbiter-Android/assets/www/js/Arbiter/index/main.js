@@ -23,8 +23,14 @@ var app = (function() {
 	 * On device ready
 	 */
 	var onDeviceReady = function() {
-		//Arbiter.isOnline('onLine' in navigator && navigator.onLine);
-	    Arbiter.isOnline(true);
+        var appDb = Arbiter.ApplicationDbHelper.getDatabase();
+	    Arbiter.PreferencesHelper.get(appDb, Arbiter.NO_CON_CHECKS, this, function(value) {
+            if (value === 'true') {
+                Arbiter.isOnline(true);
+            } else {
+                Arbiter.isOnline('onLine' in navigator && navigator.onLine);
+            }
+        });
 		Arbiter.Init(function() {
 			
 			// Get the file system for use in TileUtil.js
@@ -51,8 +57,6 @@ var app = (function() {
 								Arbiter.Localization.setLocale(localeCode);
 							
 								var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
-								
-								var appDb = Arbiter.ApplicationDbHelper.getDatabase();
 								
 								// Get the AOI to check to see if it's been set
 								Arbiter.PreferencesHelper.get(projectDb, Arbiter.AOI, this, function(_aoi){
@@ -153,10 +157,14 @@ var app = (function() {
 	
 	var onOffline = function(){
 		app.waitForArbiterInit(function(){
-			//Arbiter.Layers.toggleWMSLayers(false);
-			
-			//Arbiter.isOnline(false);
-            Arbiter.isOnline(true);
+            Arbiter.PreferencesHelper.get(appDb, Arbiter.NO_CON_CHECKS, this, function(value) {
+                if (value === 'true') {
+                    Arbiter.isOnline(true);
+                } else {
+                    Arbiter.Layers.toggleWMSLayers(false);
+                    Arbiter.isOnline(false);
+                }
+            });
 		});
 	};
 	

@@ -161,8 +161,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 		this.cancelOrderLayersBtn = (ImageButton) view.findViewById(R.id.cancelOrderingLayers);
 		this.doneOrderingLayersBtn = (ImageButton) view.findViewById(R.id.doneOrderingLayers);
 		
-		connectivityListener = new AddLayersConnectivityListener(
-				getActivity().getApplicationContext(), this.addLayersBtn);
+		connectivityListener = new AddLayersConnectivityListener(getActivity(), this.addLayersBtn);
 		
 		populateListView(view);
 		

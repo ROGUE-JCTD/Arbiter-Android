@@ -263,4 +263,5 @@
     <string name="required_field">Required field</string>
     <string name="download_photos">Download photos for features</string>
     <string name="disable_wms">Disable WMS for non-base layers</string>
+    <string name="no_con_checks">Ignore connection status (requires restart)</string>
 </resources>

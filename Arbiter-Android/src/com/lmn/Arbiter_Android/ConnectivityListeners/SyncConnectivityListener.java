@@ -2,7 +2,7 @@ package com.lmn.Arbiter_Android.ConnectivityListeners;
 
 import com.lmn.Arbiter_Android.R;
 
-import android.content.Context;
+import android.app.Activity;
 import android.widget.ImageButton;
 
 public class SyncConnectivityListener extends ConnectivityListener {
@@ -10,12 +10,12 @@ public class SyncConnectivityListener extends ConnectivityListener {
 	private int green;
 	private int red;
 	
-	public SyncConnectivityListener(Context context, ImageButton syncButton){
-		super(context);
+	public SyncConnectivityListener(Activity activity, ImageButton syncButton){
+		super(activity);
 		
 		this.syncButton = syncButton;
-		this.green = context.getResources().getColor(R.color.transparent_green);
-		this.red = context.getResources().getColor(R.color.transparent_red);
+		this.green = activity.getApplicationContext().getResources().getColor(R.color.transparent_green);
+		this.red = activity.getApplicationContext().getResources().getColor(R.color.transparent_red);
 	}
 	
 	@Override

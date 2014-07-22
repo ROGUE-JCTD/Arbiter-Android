@@ -1,14 +1,13 @@
 package com.lmn.Arbiter_Android.ConnectivityListeners;
 
-import android.content.Context;
+import android.app.Activity;
 import android.widget.ImageButton;
 
 public class AddLayersConnectivityListener extends ConnectivityListener {
 	private ImageButton addLayersBtn;
 	
-	public AddLayersConnectivityListener(Context context, ImageButton addLayersBtn){
-		super(context);
-		
+	public AddLayersConnectivityListener(Activity activity, ImageButton addLayersBtn){
+		super(activity);
 		this.addLayersBtn = addLayersBtn;
 		
 		onConnectivityChanged(isConnected());
@@ -29,7 +28,6 @@ public class AddLayersConnectivityListener extends ConnectivityListener {
 	}
 	
 	private void onDisconnected(){
-		//addLayersBtn.setEnabled(false);
-		addLayersBtn.setEnabled(true);
+		addLayersBtn.setEnabled(false);
 	}
 }

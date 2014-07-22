@@ -50,7 +50,7 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface,
 		
 		cordovaWebView = (CordovaWebView) findViewById(R.id.aoiWebView);
 		
-		connectivityListener = new ConnectivityListener(getApplicationContext());
+		connectivityListener = new ConnectivityListener(this);
 		
 		Init();
 	}

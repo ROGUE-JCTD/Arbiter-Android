@@ -26,6 +26,7 @@ public class Settings {
 	
 	private boolean disableWMSDBValue = false;
 	private boolean downloadPhotosDBValue = false;
+	private boolean noConnectionChecksDBValue = false;
 	
 	public Settings(Activity activity){
 		this.activity = activity;
@@ -90,6 +91,7 @@ public class Settings {
 		SQLiteDatabase projectDb = ProjectDatabaseHelper.getHelper(activity.getApplicationContext(), path, false).getWritableDatabase();
 		CheckBox downloadPhotos = (CheckBox) view.findViewById(R.id.download_photos);
 		CheckBox disableWMS = (CheckBox) view.findViewById(R.id.disable_wms);
+		CheckBox noConnectionChecks = (CheckBox) view.findViewById(R.id.no_con_checks);
 		
 		String result = PreferencesHelper.getHelper().get(projectDb, activity.getApplicationContext(), PreferencesHelper.DOWNLOAD_PHOTOS);
 		if (result != null) {
@@ -103,6 +105,11 @@ public class Settings {
 		}
 		disableWMS.setChecked(disableWMSDBValue);
 		
+		result = PreferencesHelper.getHelper().get(projectDb, activity.getApplicationContext(), PreferencesHelper.NO_CON_CHECKS);
+		if (result != null) {
+			noConnectionChecksDBValue = Boolean.parseBoolean(result);
+		}
+		noConnectionChecks.setChecked(noConnectionChecksDBValue);
 	}
 	
 	private void saveSettings(View view, boolean newProject) {
@@ -117,6 +124,7 @@ public class Settings {
 		SQLiteDatabase projectDb = ProjectDatabaseHelper.getHelper(activity.getApplicationContext(), path, false).getWritableDatabase();
 		CheckBox downloadPhotos = (CheckBox) view.findViewById(R.id.download_photos);
 		CheckBox disableWMS = (CheckBox) view.findViewById(R.id.disable_wms);
+		CheckBox noConnectionChecks = (CheckBox) view.findViewById(R.id.no_con_checks);
 		
 		if (downloadPhotos.isChecked() != downloadPhotosDBValue) {
 			PreferencesHelper.getHelper().put(projectDb, activity.getApplicationContext(), PreferencesHelper.DOWNLOAD_PHOTOS, Boolean.toString(downloadPhotos.isChecked()));
@@ -127,6 +135,9 @@ public class Settings {
 				Map.MapChangeListener mapListener = (Map.MapChangeListener) activity;
 				mapListener.getMapChangeHelper().reloadMap();
 			}
+		}
+		if (noConnectionChecks.isChecked() != noConnectionChecksDBValue) {
+			PreferencesHelper.getHelper().put(projectDb, activity.getApplicationContext(), PreferencesHelper.NO_CON_CHECKS, Boolean.toString(noConnectionChecks.isChecked()));
 		}
 	}
 }

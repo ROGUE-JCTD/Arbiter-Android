@@ -259,4 +259,13 @@
     <string name="download_photos">Descargar fotos para los elementos</string>
     <string name="disable_wms">Desactivar WMS para las capas de base no</string>
     <string name="no_con_checks">No haga caso de estado de la conexión (requiere reiniciar)</string>
+    <string name="try_again_later">Por favor, inténtelo de nuevo más tarde.  Si el problema persiste, póngase en contacto con el administrador.</string>
+    <string name="arbiter_error">Error inesperado.</string>
+    <string name="unknown_error">Error inesperado.</string>
+    <string name="internal_server_error">Se ha producido un error en el servidor.</string>
+    <string name="timed_out">Tiempo de espera agotado.</string>
+    <string name="unauthorized">No autorizado.</string>
+    <string name="resource_not_found">Recurso no encontrado.</string>
+    <string name="update_error">Se ha producido un error al actualizar la característica.  Por favor revise sus características, y vuelva a intentarlo más tarde.</string>
+    <string name="must_complete_upload_first">Tiene que completar carga primero.</string>
 </resources>

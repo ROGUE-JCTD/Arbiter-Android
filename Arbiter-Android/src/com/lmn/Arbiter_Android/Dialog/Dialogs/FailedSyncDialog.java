@@ -7,7 +7,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.BaseClasses.FailedSyncObj;
 import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FailedSync;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.Map.Map;
@@ -29,18 +31,18 @@ public class FailedSyncDialog extends ArbiterDialogFragment {
 	protected int layout;
 	protected OnClickListener validatingClickListener = null;
 	
-	private String[] failedVectorUploads;
-	private String[] failedVectorDownloads;
+	private FailedSyncObj[] failedVectorUploads;
+	private FailedSyncObj[] failedVectorDownloads;
 	private JSONObject failedMediaUploads;
-	private String[] failedMediaDownloads;
+	private FailedSyncObj[] failedMediaDownloads;
 	private Map.CordovaMap cordovaMap;
 	private ConnectivityListener connectivityListener;
 	
 	public FailedSyncDialog(){}
 	
 	public static FailedSyncDialog newInstance(
-			String[] failedVectorUploads, String[] failedVectorDownloads,
-			JSONObject failedMediaUploads, String[] failedMediaDownloads,
+			FailedSyncObj[] failedVectorUploads, FailedSyncObj[] failedVectorDownloads,
+			JSONObject failedMediaUploads, FailedSyncObj[] failedMediaDownloads,
 			ConnectivityListener connectivityListener){
 		
 		final FailedSyncDialog dialog = new FailedSyncDialog();
@@ -144,15 +146,82 @@ public class FailedSyncDialog extends ArbiterDialogFragment {
 		}
 	}
 	
-	private String buildErrorString(String[] failed){
+	private String getError(int errorType){
+		
+		int resourceId;
+		
+		switch(errorType){
+		
+			case FailedSync.ErrorType.ARBITER_ERROR:
+		
+				resourceId = R.string.arbiter_error;
+				
+				break;
+		
+			case FailedSync.ErrorType.INTERNAL_SERVER_ERROR:
+				
+				resourceId = R.string.internal_server_error;
+				
+				break;
+				
+			case FailedSync.ErrorType.TIMED_OUT:
+				
+				resourceId = R.string.timed_out;
+				
+				break;
+				
+			case FailedSync.ErrorType.RESOURCE_NOT_FOUND:
+				
+				resourceId = R.string.resource_not_found;
+				
+				break;
+				
+			case FailedSync.ErrorType.UNAUTHORIZED:
+				
+				resourceId = R.string.unauthorized;
+				
+				break;
+				
+			case FailedSync.ErrorType.UPDATE_ERROR:
+				
+				resourceId = R.string.update_error;
+				
+				break;
+			
+			case FailedSync.ErrorType.MUST_COMPLETE_UPLOAD_FIRST:
+				
+				resourceId = R.string.must_complete_upload_first;
+				
+				break;
+			default: 
+				resourceId = R.string.unknown_error;
+		}
+		
+		return getActivity().getResources().getString(resourceId);
+	}
+	
+	private String buildErrorString(FailedSyncObj[] failed){
 		String results = "";
 		
 		if(failed == null){
 			return results;
 		}
 		
+		FailedSyncObj failedSyncObj = null;
+		
+		String errorString = null;
+		
 		for(int i = 0; i < failed.length; i++){
-			results += failed[i] + "\n";
+			
+			failedSyncObj = failed[i];
+			
+			errorString = getError(failedSyncObj.getErrorType());
+			
+			if(failedSyncObj.isVector()){
+				results += failedSyncObj.getFeatureType() + ": "  + errorString + "\n";
+			}else{
+				results += failedSyncObj.getKey() + ": " + errorString + "\n";
+			}
 		}
 		
 		return results;
@@ -218,7 +287,7 @@ public class FailedSyncDialog extends ArbiterDialogFragment {
 		return false;
 	}
 	
-	public boolean isFailed(String[] failed){
+	public boolean isFailed(FailedSyncObj[] failed){
 		if(failed != null && failed.length > 0){
 			return true;
 		}

@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.BaseClasses.FailedSyncObj;
 import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FailedSync;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
@@ -50,13 +51,13 @@ public class FailedSyncHelper {
 			@Override
 			public void run(){
 				
-				final String[] failedVectorUploads = getFailedVectorUploads();
+				final FailedSyncObj[] failedVectorUploads = getFailedVectorUploads();
 				
-				final String[] failedVectorDownloads = getFailedVectorDownloads();
+				final FailedSyncObj[] failedVectorDownloads = getFailedVectorDownloads();
 				
 				final JSONObject failedMediaUploads = getFailedMediaUploads();
 				
-				final String[] failedMediaDownloads = getFailedMediaDownloads();
+				final FailedSyncObj[] failedMediaDownloads = getFailedMediaDownloads();
 				
 				final FailedSyncDialog dialog = FailedSyncDialog.newInstance(failedVectorUploads, failedVectorDownloads,
 						failedMediaUploads, failedMediaDownloads, connectivityListener);
@@ -90,12 +91,12 @@ public class FailedSyncHelper {
 		}
 	}
 	
-	private String[] getFailedVectorUploads(){
+	private FailedSyncObj[] getFailedVectorUploads(){
 		
 		return FailedSync.getHelper().getFailedVectorUploads(projectDb);
 	}
 	
-	private String[] getFailedVectorDownloads(){
+	private FailedSyncObj[] getFailedVectorDownloads(){
 		
 		return FailedSync.getHelper().getFailedVectorDownloads(projectDb);
 	}
@@ -120,7 +121,7 @@ public class FailedSyncHelper {
 		return mediaToSend;
 	}
 	
-	private String[] getFailedMediaDownloads(){
+	private FailedSyncObj[] getFailedMediaDownloads(){
 		
 		return FailedSync.getHelper().getFailedMediaDownloads(projectDb);
 	}

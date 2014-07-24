@@ -118,6 +118,23 @@
 				context.startNextUpload();
 			};
 			
+			var schema = Arbiter.Util.getSchemaFromOlLayer(layer);
+			
+			if(Arbiter.Util.existsAndNotNull(schema) && schema.isReadOnly()){
+				
+				Arbiter.FailedSyncHelper.setErrorFor(key, dataType, syncType, key, Arbiter.Error.Sync.UNAUTHORIZED, function(){
+					
+					console.log("vectorDownload updateError success");
+					
+					callback(false);
+				}, function(e){
+					console.log("vectorDownload updateError failed", (e.stack) ? e.stack : e);
+					callback(false);
+				});
+				 
+				return;
+			}
+			
 			var onRequestCancelled = function(){
 				
 				context.onSyncFailure(Arbiter.Error.Sync.TIMED_OUT);
@@ -144,11 +161,23 @@
 						callback(true);
 					}
 				});
-			}, function(requestCancelled){
+			}, function(requestCancelled, error){
 				
+				// Save the type of error that it was.
 				if(requestCancelled){
 					
 					onRequestCancelled();
+				}else if(Arbiter.Util.existsAndNotNull(error)){
+					
+					Arbiter.FailedSyncHelper.setErrorFor(key, dataType, syncType, key, error, function(){
+						
+						console.log("vectorDownload updateError success");
+						
+						callback(false);
+					}, function(e){
+						console.log("vectorDownload updateError failed", (e.stack) ? e.stack : e);
+						callback(false);
+					});
 				}else{
 					callback(false);
 				}
@@ -199,7 +228,11 @@
 			// If the layer failed to upload, don't download
 			if(Arbiter.Util.existsAndNotNull(this.failedOnUpload[key])){
 				
-				callback();
+				Arbiter.FailedSyncHelper.setErrorFor(key, dataType, syncType, key, Arbiter.Error.Sync.MUST_COMPLETE_UPLOAD_FIRST, function(){
+					callback();
+				}, function(e){
+					callback();
+				});
 				
 				return;
 			}
@@ -214,15 +247,28 @@
 					
 					callback();
 				});
-			}, function(e){
+			}, function(error){
 				
-				if(e === Arbiter.Error.Sync.TIMED_OUT){
+				if(error === Arbiter.Error.Sync.TIMED_OUT){
 					
 					// pass in a function for continuing and a function for cancelling. 
 					Arbiter.Cordova.syncOperationTimedOut(callback, function(){
 					
-						context.onSyncFailure(e);
+						context.onSyncFailure(error);
 					});
+				}else if(Arbiter.Util.existsAndNotNull(error)){
+					
+					Arbiter.FailedSyncHelper.setErrorFor(key, dataType, syncType, key, error, function(){
+						
+						console.log("updateError success");
+						
+						callback();
+					}, function(e){
+						console.log("updateError failed", (e.stack) ? e.stack : e);
+						callback();
+					});
+
+					callback();
 				}else{
 					callback();
 				}

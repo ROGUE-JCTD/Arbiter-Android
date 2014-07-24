@@ -16,7 +16,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TileIdsHelper;
 
 public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "arbiter_project.db";
-	private static int DATABASE_VERSION = 4;
+	private static int DATABASE_VERSION = 5;
 	
 	private String currentPath;
 	

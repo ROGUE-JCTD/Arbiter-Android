@@ -142,7 +142,10 @@ Arbiter.Util.Feature = (function(){
                 	gotRequestBack = true;
                 	
                 	if(Arbiter.Util.funcExists(onFailure)){
-    					onFailure();
+                		
+                		var error = Arbiter.Error.Sync.getErrorFromStatusCode(e.status);
+                		
+    					onFailure(error);
     				}
                 }
             };

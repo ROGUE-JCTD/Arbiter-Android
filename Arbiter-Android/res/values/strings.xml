@@ -264,4 +264,13 @@
     <string name="download_photos">Download photos for features</string>
     <string name="disable_wms">Disable WMS for non-base layers</string>
     <string name="no_con_checks">Ignore connection status (requires restart)</string>
+    <string name="try_again_later">Please try again later.  If the problem persists, please contact your administrator.</string>
+    <string name="arbiter_error">Unexpected error.</string>
+    <string name="unknown_error">Unexpected error.</string>
+    <string name="internal_server_error">An error occurred on the server.</string>
+    <string name="timed_out">Request timed out.</string>
+    <string name="unauthorized">Unauthorized.</string>
+    <string name="resource_not_found">Resource not found.</string>
+    <string name="update_error">An error occurred updating the feature.  Please review your features, and try again later.</string>
+    <string name="must_complete_upload_first">Must complete upload first.</string>
 </resources>

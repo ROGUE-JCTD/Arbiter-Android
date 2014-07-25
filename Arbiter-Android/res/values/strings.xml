@@ -236,7 +236,7 @@
     <string name="feature_outside_aoi_warning">You have placed a feature outside of your selected area of interest.  After syncing this feature, it will no longer
          be on the device.</string>
     <string name="confirm_delete_project">Are you sure you want to delete the project?  Any unsynchronized data will be lost.</string>
-    <string name="confirm_delete_layer">Are you sure you want to delete the layer?  Any unsynchronized data will be lost.</string>
+    <string name="confirm_delete_layer">Are you sure you want to delete the layer?</string>
     <string name="added">ADDED</string>
     <string name="modified">MODIFIED</string>
     <string name="removed">REMOVED</string>
@@ -264,4 +264,5 @@
     <string name="download_photos">Download photos for features</string>
     <string name="disable_wms">Disable WMS for non-base layers</string>
     <string name="no_con_checks">Ignore connection status (requires restart)</string>
+    <string name="confirm_delete_layers_unsynced_features">This layer has features that have not been synced.  If you delete the layer, these features will be lost!  Are you sure you want to delete the layer?</string>
 </resources>

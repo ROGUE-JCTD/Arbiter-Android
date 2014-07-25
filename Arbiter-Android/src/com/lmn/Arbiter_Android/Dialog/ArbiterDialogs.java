@@ -8,6 +8,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
@@ -132,13 +133,13 @@ public class ArbiterDialogs {
 		dialog.show(fragManager, "chooseAOIDialog");
 	}
 	
-	public void showLayersDialog(){
+	public void showLayersDialog(HasThreadPool hasThreadPool){
 		String title = resources.getString(R.string.layers_dialog_title);
 		String ok = resources.getString(android.R.string.ok);
 		String cancel = resources.getString(android.R.string.cancel);
 		int layout = R.layout.layers_dialog;
 		
-		DialogFragment dialog = LayersDialog.newInstance(title, ok, cancel, layout);
+		DialogFragment dialog = LayersDialog.newInstance(title, ok, cancel, layout, hasThreadPool);
 		dialog.show(fragManager, "layersDialog");
 	}
 }

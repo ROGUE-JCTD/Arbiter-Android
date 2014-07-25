@@ -23,7 +23,7 @@
 	<string name="error_adding_layers_msg">No se pudo agregar capas seleccionadas!</string>
 	<string name="adding_layers">Adición de capas</string>
 	<string name="adding_layers_msg">Adición de capas al mapa&#8230;</string>
-	<string name="feature_dialog_title">Elemeto</string>
+	<string name="feature_dialog_title">Elemento</string>
 	<string name="latitude">Latitud</string>
 	<string name="longitude">Longitud</string>
 	<string name="example_longitude">ex. </string>
@@ -259,4 +259,5 @@
     <string name="download_photos">Descargar fotos para los elementos</string>
     <string name="disable_wms">Desactivar WMS para las capas de base no</string>
     <string name="no_con_checks">No haga caso de estado de la conexión (requiere reiniciar)</string>
+    <string name="confirm_delete_layers_unsynced_features">Esta capa tiene elementos que no han sido sincronizados.  ¡Si se elimina la capa, estas elementos se perderán! ¿Está seguro que desea eliminar la capa?</string>
 </resources>

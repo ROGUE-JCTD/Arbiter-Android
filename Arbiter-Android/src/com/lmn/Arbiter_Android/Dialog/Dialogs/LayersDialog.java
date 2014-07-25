@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.ConnectivityListeners.AddLayersConnectivityListener;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
@@ -49,14 +50,17 @@ public class LayersDialog extends ArbiterDialogFragment{
 	private ImageButton cancelOrderLayersBtn;
 	private ImageButton doneOrderingLayersBtn;
 	private OrderLayersViewController orderLayersController;
+	private HasThreadPool hasThreadPool;
 	
 	public static LayersDialog newInstance(String title, String ok, 
-			String cancel, int layout){
+			String cancel, int layout, HasThreadPool hasThreadPool){
 		LayersDialog frag = new LayersDialog();
 		
 		frag.setTitle(title);
 		frag.setOk(ok);
 		frag.setLayout(layout);
+		
+		frag.hasThreadPool = hasThreadPool;
 		
 		return frag;
 	}
@@ -121,7 +125,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 	private void populateOverlayList(View view){
 		LinearLayout overlayList =	(LinearLayout) view.findViewById(R.id.overlaysList);
 		
-		this.overlayList = new OverlayList(overlayList, this.getActivity(), R.layout.layers_list_item);
+		this.overlayList = new OverlayList(overlayList, this.getActivity(), R.layout.layers_list_item, hasThreadPool);
 		
 		this.layerLoaderCallbacks = new LayerLoaderCallbacks(this.getActivity(), this.overlayList, R.id.loader_layers);
 	}

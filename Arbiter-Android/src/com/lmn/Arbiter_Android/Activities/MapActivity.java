@@ -175,7 +175,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
 	            		// create new project
 	            		Map.getMap().createNewProject(cordovaWebView);
 	            	} else {
-	        			dialogs.showLayersDialog();
+	        			dialogs.showLayersDialog(activity);
 	            	}
     			}
     		}

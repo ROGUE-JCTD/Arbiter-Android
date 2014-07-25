@@ -4,11 +4,13 @@ import java.util.ArrayList;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.BaseClasses.ColorMap;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FeaturesHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.LayersHelper;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
@@ -23,6 +25,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,8 +43,9 @@ public class OverlayList extends CustomList<ArrayList<Layer>, Layer> {
 	private ArbiterProject arbiterProject;
 	private OrderLayersModel orderLayersModel;
 	private MapChangeListener mapChangeListener;
+    private HasThreadPool hasThreadPool;
     
-	public OverlayList(ViewGroup viewGroup, Activity activity, int itemLayout){
+	public OverlayList(ViewGroup viewGroup, Activity activity, int itemLayout, HasThreadPool hasThreadPool){
 		super(viewGroup);
 		
 		this.activity = activity;
@@ -49,6 +53,7 @@ public class OverlayList extends CustomList<ArrayList<Layer>, Layer> {
 		this.inflater =	LayoutInflater.from(this.context);
 		this.itemLayout = itemLayout;
 		this.arbiterProject = ArbiterProject.getArbiterProject();
+		this.hasThreadPool = hasThreadPool;
 		
 		try {
 			this.orderLayersModel = new OrderLayersModel(this);
@@ -223,23 +228,65 @@ public class OverlayList extends CustomList<ArrayList<Layer>, Layer> {
 	
 	private void confirmDeleteLayer(final Layer layer){
 		
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		String loading = activity.getResources().getString(R.string.loading);
+		String pleaseWait = activity.getResources().getString(R.string.please_wait);
 		
-		builder.setTitle(R.string.warning);
+		Log.w("OverlayList", "OverlayerList before progressDialogShow");
 		
-		builder.setMessage(R.string.confirm_delete_layer);
+		final ProgressDialog progressDialog = ProgressDialog.show(activity, loading, pleaseWait, true);
 		
-		builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
-			
+		Log.w("OverlayList", "OverlayerList after progressDialogShow");
+		
+		hasThreadPool.getThreadPool().execute(new Runnable(){
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				deleteLayer(layer);
+			public void run(){
+				
+				Log.w("OverlayList", "OverlayerList getProjectDatabase");
+				
+				String projectName = arbiterProject.getOpenProject(activity);
+				
+				FeatureDatabaseHelper helper = FeatureDatabaseHelper.getHelper(context, ProjectStructure.getProjectPath(projectName), false);
+				
+				Log.w("OverlayList", "OverlayerList gettingUnsyncedFeatureCount");
+				
+				final int unsyncedFeatureCount = FeaturesHelper.getHelper().getUnsyncedFeatureCount(helper.getWritableDatabase(), layer.getFeatureTypeNoPrefix());
+				
+				Log.w("OverlayList", "OverlayList unsyncedFeatureCount = " + unsyncedFeatureCount);
+				
+				activity.runOnUiThread(new Runnable(){
+					
+					@Override
+					public void run(){
+						
+						Log.w("OverlayerList", "OverlayList showing the alertDialog");
+						
+						AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+						
+						builder.setTitle(R.string.warning);
+						
+						if(unsyncedFeatureCount > 0){
+							builder.setMessage(R.string.confirm_delete_layers_unsynced_features);
+						}else{
+							builder.setMessage(R.string.confirm_delete_layer);
+						}
+						
+						builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								deleteLayer(layer);
+							}
+						});
+						
+						builder.setNegativeButton(android.R.string.cancel, null);
+						
+						builder.create().show();
+						
+						progressDialog.dismiss();
+					}
+				});
 			}
 		});
-		
-		builder.setNegativeButton(android.R.string.cancel, null);
-		
-		builder.create().show();
 	}
 	
 	private void deleteLayer(final Layer layer){

@@ -44,6 +44,27 @@ public class FeaturesHelper{
 		return helper;
 	}
 
+	public int getUnsyncedFeatureCount(SQLiteDatabase db, String featureType){
+		
+		String[] whereArgs = {
+			SYNC_STATES.NOT_SYNCED
+		};
+		
+		String sql = "SELECT COUNT(*) FROM " + featureType + " WHERE " + SYNC_STATE + "=?;";
+		
+		Cursor cursor = db.rawQuery(sql, whereArgs);
+		
+		int count = 0;
+		
+		if(cursor.moveToFirst()){
+			count = cursor.getInt(0);
+		}
+		
+		cursor.close();
+		
+		return count;
+	}
+	
 	public Feature getFeature(SQLiteDatabase db, String id, String featureType) {
 		String whereClause = ID + "=?";
 		String[] whereArgs = {

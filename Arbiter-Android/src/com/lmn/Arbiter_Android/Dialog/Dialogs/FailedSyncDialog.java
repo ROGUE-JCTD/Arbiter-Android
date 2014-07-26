@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
@@ -35,13 +36,14 @@ public class FailedSyncDialog extends ArbiterDialogFragment {
 	private String[] failedMediaDownloads;
 	private Map.CordovaMap cordovaMap;
 	private ConnectivityListener connectivityListener;
+	private HasThreadPool hasThreadPool;
 	
 	public FailedSyncDialog(){}
 	
 	public static FailedSyncDialog newInstance(
 			String[] failedVectorUploads, String[] failedVectorDownloads,
 			JSONObject failedMediaUploads, String[] failedMediaDownloads,
-			ConnectivityListener connectivityListener){
+			ConnectivityListener connectivityListener, HasThreadPool hasThreadPool){
 		
 		final FailedSyncDialog dialog = new FailedSyncDialog();
 		
@@ -51,6 +53,7 @@ public class FailedSyncDialog extends ArbiterDialogFragment {
 		dialog.failedMediaDownloads = failedMediaDownloads;
 		
 		dialog.connectivityListener = connectivityListener;
+		dialog.hasThreadPool = hasThreadPool;
 		
 		return dialog;
 	}
@@ -246,9 +249,21 @@ public class FailedSyncDialog extends ArbiterDialogFragment {
 					public void run(){
 						SyncProgressDialog.show(activity);
 						
-						Map.getMap().sync(cordovaMap.getWebView());
-						
-						dismiss();
+						hasThreadPool.getThreadPool().execute(new Runnable(){
+							@Override
+							public void run(){
+							
+								activity.runOnUiThread(new Runnable(){
+									@Override
+									public void run(){
+										
+										Map.getMap().sync(cordovaMap.getWebView());
+										
+										dismiss();
+									}
+								});
+							}
+						});
 					}
 				});
 			}else{

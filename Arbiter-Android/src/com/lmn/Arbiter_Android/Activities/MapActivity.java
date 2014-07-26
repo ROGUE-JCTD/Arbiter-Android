@@ -19,6 +19,7 @@ import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.ConnectivityListeners.CookieConnectivityListener;
 import com.lmn.Arbiter_Android.ConnectivityListeners.HasConnectivityListener;
 import com.lmn.Arbiter_Android.ConnectivityListeners.SyncConnectivityListener;
+import com.lmn.Arbiter_Android.CookieManager.ArbiterCookieManager;
 import com.lmn.Arbiter_Android.CordovaPlugins.ArbiterCordova;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
@@ -124,7 +125,7 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         clearFindMe();
         
         this.failedSyncHelper = new FailedSyncHelper(this, 
-        		getProjectDatabase(), this.syncConnectivityListener);
+        		getProjectDatabase(), this.syncConnectivityListener, this);
         
         this.failedSyncHelper.checkIncompleteSync();
     }
@@ -190,8 +191,25 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
     		public void onClick(View v){
     			
     			if(syncConnectivityListener.isConnected() && makeSureNotEditing()){
+    				
     				SyncProgressDialog.show(activity);
-            		Map.getMap().sync(cordovaWebView);
+    				
+    				getThreadPool().execute(new Runnable(){
+    					@Override
+    					public void run(){
+    					
+    						new ArbiterCookieManager(getApplicationContext()).updateAllCookies();
+    						
+    						runOnUiThread(new Runnable(){
+    	    					
+    	    					@Override
+    	    					public void run(){
+    	    						
+    	    						Map.getMap().sync(cordovaWebView);
+    	    					}
+    	    				});
+    					}
+    				});
     			}
     		}
     	});
@@ -477,7 +495,23 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
 				    		if(ArbiterState.getArbiterState().isSettingAOI()){
 				    			Log.w(TAG, TAG + ".onResume() setting aoi");
 								SyncProgressDialog.show(getActivity());
-				    			updateProjectAOI();
+								
+								getThreadPool().execute(new Runnable(){
+									
+									@Override
+									public void run(){
+										
+										new ArbiterCookieManager(getApplicationContext()).updateAllCookies();
+										
+										runOnUiThread(new Runnable(){
+											@Override
+											public void run(){
+												
+												updateProjectAOI();
+											}
+										});
+									}
+								});
 				    		}else if(!arbiterProject.isSameProject(getApplicationContext())){
 				    				
 			    				arbiterProject.makeSameProject();

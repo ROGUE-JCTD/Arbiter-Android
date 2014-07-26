@@ -19,6 +19,7 @@ import android.widget.Spinner;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
+import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.BaseClasses.BaseLayer;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
@@ -53,7 +54,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	private boolean creatingProject;
 	private boolean onCreateAlreadyFired;
 	private ConnectivityListener connectivityListener;
-	
+	private HasThreadPool hasThreadPool;
 	private MapChangeListener mapChangeListener;
 	private ArbiterProject arbiterProject;
 	
@@ -65,7 +66,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 	
 	public static AddLayersDialog newInstance(String title, String ok, 
 			String cancel, int layout, ArrayList<Layer> layersInProject,
-			ConnectivityListener connectivityListener){
+			ConnectivityListener connectivityListener, HasThreadPool hasThreadPool){
 		
 		AddLayersDialog frag = new AddLayersDialog();
 		
@@ -77,7 +78,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 		
 		frag.layersInProject = layersInProject;
 		frag.arbiterProject = ArbiterProject.getArbiterProject();
-		
+		frag.hasThreadPool = hasThreadPool;
 		frag.connectivityListener = connectivityListener;
 		
 		return frag;
@@ -196,7 +197,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 						public void run(){
 							
 							mapChangeListener.getMapChangeHelper().onLayersAdded(layers, 
-									layerIds);
+									layerIds, hasThreadPool);
 							
 							dismiss();
 						}
@@ -220,7 +221,7 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 			String cancel = activity.getResources().getString(android.R.string.cancel);
 			
 			ChooseBaselayerDialog dialog = ChooseBaselayerDialog.newInstance(title, ok, cancel, R.layout.choose_baselayer_dialog,
-					creatingProject, BaseLayer.createOSMBaseLayer(), connectivityListener);
+					creatingProject, BaseLayer.createOSMBaseLayer(), connectivityListener, hasThreadPool);
 			
 			dialog.show(activity.getSupportFragmentManager(), ChooseBaselayerDialog.TAG);
 			

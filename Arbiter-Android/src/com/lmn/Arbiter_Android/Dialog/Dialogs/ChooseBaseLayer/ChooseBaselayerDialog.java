@@ -20,11 +20,12 @@ import android.widget.TextView;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
-import com.lmn.Arbiter_Android.Activities.AOIActivity;
+import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.BaseClasses.BaseLayer;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
+import com.lmn.Arbiter_Android.CookieManager.ArbiterCookieManager;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
@@ -53,10 +54,11 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 	private MapChangeListener mapChangeListener;
 	private BaseLayer startingBaseLayer;
 	private ConnectivityListener connectivityListener;
+	private HasThreadPool hasThreadPool;
 	
 	public static ChooseBaselayerDialog newInstance(String title, String ok, 
 			String cancel, int layout, boolean creatingProject, BaseLayer baseLayer,
-			ConnectivityListener connectivityListener){
+			ConnectivityListener connectivityListener, HasThreadPool hasThreadPool){
 		
 		final ChooseBaselayerDialog frag = new ChooseBaselayerDialog();
 		
@@ -71,6 +73,7 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 		frag.arbiterProject = ArbiterProject.getArbiterProject();
 		frag.mapChangeListener = null;
 		frag.connectivityListener = connectivityListener;
+		frag.hasThreadPool = hasThreadPool;
 		
 		Log.w("ChooseBaseLayerDialog", "ChooseBaseLayerDialog connectivityListener " + ((connectivityListener == null) ? "is null" : "isn't null"));
 		
@@ -175,11 +178,25 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 								LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(LayersListLoader.LAYERS_LIST_UPDATED));
 								progressDialog.dismiss();
 								
-								mapChangeListener.getMapChangeHelper().cacheBaseLayer();
-								
 								SyncProgressDialog.show(activity);
 								
-								dismiss();
+								hasThreadPool.getThreadPool().execute(new Runnable(){
+									@Override
+									public void run(){
+										
+										new ArbiterCookieManager(context).updateAllCookies();
+										
+										activity.runOnUiThread(new Runnable(){
+											@Override
+											public void run(){
+												
+												mapChangeListener.getMapChangeHelper().cacheBaseLayer();
+												
+												dismiss();
+											}
+										});
+									}
+								});
 							}
 						});
 					}

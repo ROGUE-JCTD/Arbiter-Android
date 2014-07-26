@@ -133,7 +133,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 	private void populateBaseLayerList(View view){
 		LinearLayout baselayerList = (LinearLayout) view.findViewById(R.id.baselayerList);
 		
-		this.baseLayerList = new BaseLayerList(baselayerList, this.getActivity(), R.layout.base_layer_list_item, connectivityListener);
+		this.baseLayerList = new BaseLayerList(baselayerList, this.getActivity(), R.layout.base_layer_list_item, connectivityListener, hasThreadPool);
 		
 		this.baseLayerLoaderCallbacks = new BaseLayerLoaderCallbacks(this, this.baseLayerList, R.id.loader_base_layer_list);
 	}
@@ -185,7 +185,7 @@ public class LayersDialog extends ArbiterDialogFragment{
 						Log.w("LayersDialog", "LayersDialog connectivityListener " + ((connectivityListener == null) ? "is null" : "isn't null"));
 						// Open the add layers dialog
 						(new ArbiterDialogs(getActivity().getApplicationContext(), getActivity().getResources(), 
-								getActivity().getSupportFragmentManager())).showAddLayersDialog(frag.getCopyOfLayers(), connectivityListener);
+								getActivity().getSupportFragmentManager())).showAddLayersDialog(frag.getCopyOfLayers(), connectivityListener, hasThreadPool);
 					}else{
 						 displayLayersLimit();
 					}

@@ -85,7 +85,7 @@ public class ArbiterDialogs {
 		dialog.show(fragManager, "serversDialog");
 	}
 	
-	public void showAddLayersDialog(ArrayList<Layer> layersInProject, ConnectivityListener connectivityListener){
+	public void showAddLayersDialog(ArrayList<Layer> layersInProject, ConnectivityListener connectivityListener, HasThreadPool hasThreadPool){
 		String title = resources.getString(R.string.add_layers_dialog_title);
 		String ok = resources.getString(android.R.string.ok);
 		String cancel = resources.getString(android.R.string.cancel);
@@ -94,7 +94,7 @@ public class ArbiterDialogs {
 		DialogFragment dialog;
 		
 		dialog = AddLayersDialog.newInstance(title, ok, cancel,
-				layout, layersInProject, connectivityListener);
+				layout, layersInProject, connectivityListener, hasThreadPool);
 		
 		dialog.show(fragManager, "addLayersDialog");
 	}

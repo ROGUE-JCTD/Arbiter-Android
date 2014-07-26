@@ -6,7 +6,9 @@ import org.apache.cordova.CordovaWebView;
 
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.CookieManager.ArbiterCookieManager;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Map.Map;
@@ -54,7 +56,7 @@ public class MapChangeHelper {
 		reloadMap();
 	}
 	
-	public void onLayersAdded(final ArrayList<Layer> layers, final long[] layerIds) {
+	public void onLayersAdded(final ArrayList<Layer> layers, final long[] layerIds, final HasThreadPool hasThreadPool) {
 		
 		activity.runOnUiThread(new Runnable(){
 			@Override
@@ -63,7 +65,20 @@ public class MapChangeHelper {
 					SyncProgressDialog.show(activity);
 				}
 				
-				Map.getMap().addLayers(cordovaWebView, layers, layerIds);
+				hasThreadPool.getThreadPool().execute(new Runnable(){
+					@Override
+					public void run(){
+					
+						new ArbiterCookieManager(activity.getApplicationContext()).updateAllCookies();
+						
+						activity.runOnUiThread(new Runnable(){
+							@Override
+							public void run(){
+								Map.getMap().addLayers(cordovaWebView, layers, layerIds);
+							}
+						});
+					}
+				});
 			}
 		});
 	}

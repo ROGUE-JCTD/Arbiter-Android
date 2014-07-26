@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.FailedSync;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
@@ -22,10 +23,12 @@ public class FailedSyncHelper {
 	private CordovaInterface threadPoolSupplier;
 	private ProgressDialog checkForFailedSync;
 	private ConnectivityListener connectivityListener;
+	private HasThreadPool hasThreadPool;
 	
 	public FailedSyncHelper(FragmentActivity activity, SQLiteDatabase projectDb,
-			ConnectivityListener connectivityListener){
+			ConnectivityListener connectivityListener, HasThreadPool hasThreadPool){
 		this.activity = activity;
+		this.hasThreadPool = hasThreadPool;
 		
 		this.projectDb = projectDb;
 		this.connectivityListener = connectivityListener;
@@ -59,7 +62,7 @@ public class FailedSyncHelper {
 				final String[] failedMediaDownloads = getFailedMediaDownloads();
 				
 				final FailedSyncDialog dialog = FailedSyncDialog.newInstance(failedVectorUploads, failedVectorDownloads,
-						failedMediaUploads, failedMediaDownloads, connectivityListener);
+						failedMediaUploads, failedMediaDownloads, connectivityListener, hasThreadPool);
 				
 				final boolean isFailedVectorUploads = dialog.isFailed(failedVectorUploads);
 				final boolean isFailedVectorDownloads = dialog.isFailed(failedVectorDownloads);

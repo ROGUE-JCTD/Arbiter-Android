@@ -5,14 +5,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.lmn.Arbiter_Android.R;
+import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.BaseClasses.BaseLayer;
 import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseBaseLayer.ChooseBaselayerDialog;
-import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
-import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import com.lmn.Arbiter_Android.OrderLayers.OrderLayersModel;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
@@ -28,10 +26,11 @@ public class BaseLayerList extends CustomList<JSONArray, JSONObject> {
 	private FragmentActivity activity;
 	private Context context;
 	private OrderLayersModel orderLayersModel;
-	private MapChangeListener mapChangeListener;
     private ConnectivityListener connectivityListener;
+    private HasThreadPool hasThreadPool;
     
-	public BaseLayerList(ViewGroup viewGroup, FragmentActivity activity, int itemLayout, ConnectivityListener connectivityListener){
+	public BaseLayerList(ViewGroup viewGroup, FragmentActivity activity, int itemLayout, ConnectivityListener connectivityListener, HasThreadPool hasThreadPool){
+		
 		super(viewGroup);
 		
 		this.activity = activity;
@@ -39,13 +38,7 @@ public class BaseLayerList extends CustomList<JSONArray, JSONObject> {
 		this.inflater =	LayoutInflater.from(this.context);
 		this.itemLayout = itemLayout;
 		this.connectivityListener = connectivityListener;
-		
-		try {
-			mapChangeListener = (MapChangeListener) activity;
-		} catch (ClassCastException e){
-			throw new ClassCastException(activity.toString() 
-					+ " must implement MapChangeListener");
-		}
+		this.hasThreadPool = hasThreadPool;
 	}
 
 	@Override
@@ -106,7 +99,7 @@ public class BaseLayerList extends CustomList<JSONArray, JSONObject> {
 					String cancel = activity.getResources().getString(android.R.string.cancel);
 					
 					ChooseBaselayerDialog dialog = ChooseBaselayerDialog.newInstance(title,
-							ok, cancel, R.layout.choose_baselayer_dialog, false, layer, connectivityListener);
+							ok, cancel, R.layout.choose_baselayer_dialog, false, layer, connectivityListener, hasThreadPool);
 					dialog.show(activity.getSupportFragmentManager(), ChooseBaselayerDialog.TAG);
 				}
 			});
@@ -114,27 +107,6 @@ public class BaseLayerList extends CustomList<JSONArray, JSONObject> {
 		
 		return view;
 	}
-	
-	// Return true if not editing
-    private boolean makeSureNotEditing(){
-    	
-		int editMode = mapChangeListener.getMapChangeHelper().getEditMode();
-		
-		if(editMode == GeometryEditor.Mode.OFF || editMode == GeometryEditor.Mode.SELECT){
-			return true;
-		}
-			
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-		
-		builder.setTitle(R.string.finish_editing_title);
-		builder.setMessage(R.string.finish_editing_message);
-		builder.setIcon(R.drawable.icon);
-		builder.setPositiveButton(android.R.string.ok, null);
-		
-		builder.create().show();
-		
-		return false;
-    }
 	
 	public void setItemLayout(int itemLayout){
 		this.itemLayout = itemLayout;

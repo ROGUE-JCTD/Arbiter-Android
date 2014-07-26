@@ -10,7 +10,6 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -27,6 +26,7 @@ import com.lmn.Arbiter_Android.InsertProjectHelper;
 import com.lmn.Arbiter_Android.OOMWorkaround;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
+import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.Activities.MapChangeHelper;
 import com.lmn.Arbiter_Android.Activities.ProjectsActivity;
 import com.lmn.Arbiter_Android.Activities.TileConfirmation;
@@ -36,7 +36,7 @@ import com.lmn.Arbiter_Android.BaseClasses.Feature;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.ConnectivityListeners.HasConnectivityListener;
-import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
+import com.lmn.Arbiter_Android.CookieManager.ArbiterCookieManager;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ControlPanelHelper;
@@ -1037,10 +1037,12 @@ public class ArbiterCordova extends CordovaPlugin{
 		
 		FragmentActivity fragActivity = null;
 		ConnectivityListener connectivityListener = null;
+		HasThreadPool hasThreadPool = null;
 		
 		try{
 			fragActivity = (FragmentActivity) activity;
 			connectivityListener = ((HasConnectivityListener) activity).getListener();
+			hasThreadPool = (HasThreadPool) activity;
 		}catch(ClassCastException e){
 			e.printStackTrace();
 		}
@@ -1049,7 +1051,7 @@ public class ArbiterCordova extends CordovaPlugin{
 				projectPath, false).getWritableDatabase();
 		
 		FailedSyncHelper failedSyncHelper = new FailedSyncHelper(fragActivity,
-				projectDb, connectivityListener);
+				projectDb, connectivityListener, hasThreadPool);
 		
 		failedSyncHelper.checkIncompleteSync();
 		
@@ -1203,12 +1205,26 @@ public class ArbiterCordova extends CordovaPlugin{
 						
 						SyncProgressDialog.show(activity);
 		    			
-		    			Project newProject = ArbiterProject.getArbiterProject().getNewProject();
-		    			
-		    			ArbiterProject.getArbiterProject().doneCreatingProject(activity.getApplicationContext());
-		    			
-		    			InsertProjectHelper insertHelper = new InsertProjectHelper(activity, newProject);
-		    			insertHelper.insert();
+						cordova.getThreadPool().execute(new Runnable(){
+							@Override
+							public void run(){
+								
+								new ArbiterCookieManager(cordova.getActivity().getApplicationContext()).updateAllCookies();
+								
+								cordova.getActivity().runOnUiThread(new Runnable(){
+									@Override
+									public void run(){
+										
+										Project newProject = ArbiterProject.getArbiterProject().getNewProject();
+						    			
+						    			ArbiterProject.getArbiterProject().doneCreatingProject(activity.getApplicationContext());
+						    			
+						    			InsertProjectHelper insertHelper = new InsertProjectHelper(activity, newProject);
+						    			insertHelper.insert();
+									}
+								});
+							}
+						});
 					}
 				});
 			}

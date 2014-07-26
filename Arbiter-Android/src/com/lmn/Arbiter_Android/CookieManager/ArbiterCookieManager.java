@@ -15,7 +15,13 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 
+import com.lmn.Arbiter_Android.BaseClasses.Server;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
+
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.SparseArray;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
@@ -51,5 +57,41 @@ public class ArbiterCookieManager {
 			}   
 		}
 	    CookieSyncManager.getInstance().sync();
+	}
+	
+	private SQLiteDatabase getAppDb(){
+		
+		return ApplicationDatabaseHelper.getHelper(context).getWritableDatabase();
+	}
+	
+	public SparseArray<Server> updateAllCookies(){
+		
+		SparseArray<Server> servers = ServersHelper.getServersHelper().getAll(getAppDb());
+		
+		Server server = null;
+		
+		for(int i = 0, count = servers.size(); i < count; i++){
+			
+			server = servers.valueAt(i);
+			
+			if(!"".equals(server.getUsername()) && !"".equals(server.getPassword())){
+				
+				try {
+					getCookieForServer(server.getUrl(),
+							server.getUsername(), server.getPassword());
+				} catch (ClientProtocolException e) {
+					
+					e.printStackTrace();
+					
+					servers.removeAt(i--);
+				} catch (IOException e) {
+					
+					e.printStackTrace();
+					servers.removeAt(i--);
+				}
+			}
+		}
+		
+		return servers;
 	}
 }

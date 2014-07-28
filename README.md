@@ -9,14 +9,12 @@ Arbiter has been developed for Android smart phones and tablets. It works best o
 
 License:  all source code is licensed under the [MIT license](http://opensource.org/licenses/MIT)
 
-##Download
+##Install and User Guide
 
-Try it out!
+[Latest stable build / Más reciente versión estable](http://goo.gl/U2GlPe)
 
-[Latest stable build](http://goo.gl/U2GlPe)
-
-[Latest dev build](http://goo.gl/8sZI2u)
+[Latest dev build / Más reciente versión desarollo](http://goo.gl/8sZI2u)
 
 [Arbiter User Doc Download](https://github.com/ROGUE-JCTD/Arbiter-Android/blob/master/How_to_Use_Arbiter.pdf?raw=true)
 
-[Arbiter User Doc - Español Download](https://github.com/ROGUE-JCTD/Arbiter-Android/blob/master/How_to_Use_Arbiter-ESPAN%C3%9EOL.pdf?raw=true)
+[Documento de Usuario de Artiber](https://github.com/ROGUE-JCTD/Arbiter-Android/blob/master/How_to_Use_Arbiter-ESPAN%C3%9EOL.pdf?raw=true)

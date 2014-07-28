@@ -15,9 +15,9 @@ License:  all source code is licensed under the [MIT license](http://opensource.
 
 ##Install and User Guide
 
-[Latest stable build / Más reciente versión estable](http://goo.gl/U2GlPe)
+[Latest stable build / Versión estable más reciente ](http://goo.gl/U2GlPe)
 
-[Latest dev build / Más reciente versión desarollo](http://goo.gl/8sZI2u)
+[Latest dev build / Versión desarollo más reciente ](http://goo.gl/8sZI2u)
 
 [Arbiter User Doc Download](https://github.com/ROGUE-JCTD/Arbiter-Android/blob/master/How_to_Use_Arbiter.pdf?raw=true)
 

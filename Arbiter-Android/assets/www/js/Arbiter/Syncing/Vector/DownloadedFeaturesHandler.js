@@ -81,7 +81,9 @@
 	            failure: function(response){
 	            	gotRequestBack = true;
 	            	
-	            	context.handleFailed("CheckTimeDifference failed");
+	            	var error = Arbiter.Error.Sync.getErrorFromStatusCode(response.status);
+	            	
+	            	context.handleFailed(error);
 	            }
 	        };
 	        
@@ -95,13 +97,7 @@
 				if(!gotRequestBack){
 					request.abort();
 					
-					Arbiter.Cordova.syncOperationTimedOut(function(){
-						// Continue
-						context.handleFailed("CheckTimeDifference timed out, but continue with requests");
-					}, function(){
-						// Cancel
-						context.handleFailed(Arbiter.Error.Sync.TIMED_OUT);
-					});
+					context.handleFailed(Arbiter.Error.Sync.TIMED_OUT);
 				}
 			}, 30000);
 		}else{
@@ -179,7 +175,10 @@
 			context.gmtOffset = gmtOffset;
 			
 			context._storeDownloads();
-		}, context.handleFailed);
+		}, function(e){
+			
+			context.handleFailed(Arbiter.Error.Sync.ARBITER_ERROR);
+		});
 	};
 	
 	prototype._storeDownloads = function(){
@@ -187,6 +186,11 @@
 		console.log("storing downloads");
 		
 		var context = this;
+		
+		var fail = function(e){
+			
+			context.handleFailed(Arbiter.Error.Sync.ARBITER_ERROR);
+		};
 		
 		this.db.transaction(function(tx){
 			
@@ -200,10 +204,10 @@
 						
 						context.storeFeatures(tx);
 						
-					}, context.handleFailed);
-				}, context.handleFailed);
-			}, context.handleFailed);
-		}, context.handleFailed);
+					}, fail);
+				}, fail);
+			}, fail);
+		}, fail);
 	};
 	
 	prototype.storeFeatures = function(tx){
@@ -234,7 +238,7 @@
 			
 			console.log("Failed to store features", e.stack);
 				
-			context.handleFailed(e);
+			context.handleFailed(Arbiter.Error.Sync.ARBITER_ERROR);
 		});
 	};
 	
@@ -371,7 +375,7 @@
 			console.log("Failed to create table for downloads", e.stack);
 			
 			if(Arbiter.Util.existsAndNotNull(onFailure)){
-				onFailure(e);
+				onFailure(Arbiter.Error.Sync.ARBITER_ERROR);
 			}
 		});
 	};
@@ -394,7 +398,7 @@
 			console.log("Couldn't rename table '" + featureType + "' to '" + tempTableName + "'", e.stack);
 			
 			if(Arbiter.Util.existsAndNotNull(onFailure)){
-				onFailure(e);
+				onFailure(Arbiter.Error.Sync.ARBITER_ERROR);
 			}
 		});
 	};
@@ -418,7 +422,7 @@
 		}, function(tx, e){
 			
 			if(Arbiter.Util.existsAndNull(onFailure)){
-				onFailure(e);
+				onFailure(Arbiter.Error.Sync.ARBITER_ERROR);
 			}
 		});
 	};

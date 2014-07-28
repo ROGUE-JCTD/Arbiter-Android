@@ -51,11 +51,11 @@
 			// Call the onDownloadSuccess method
 			context.onDownloadSuccess(features);
 			
-		}, function(e){
+		}, function(error){
 			
-			console.log("Failed to download features", e);
+			console.log("Failed to download features: error = " + error);
 			
-			context.onDownloadFailure(e);
+			context.onDownloadFailure(error);
 		});
 	};
 

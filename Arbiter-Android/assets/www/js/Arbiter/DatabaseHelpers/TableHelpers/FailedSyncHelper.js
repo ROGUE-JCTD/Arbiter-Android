@@ -31,6 +31,7 @@ Arbiter.FailedSyncHelper = (function(){
 		DATA_TYPE: "data_type",
 		SYNC_TYPE: "sync_type",
 		LAYER_ID: "layer_id",
+		ERROR_TYPE: "error_type",
 		
 		DATA_TYPES: {
 			VECTOR: 0,
@@ -110,6 +111,48 @@ Arbiter.FailedSyncHelper = (function(){
 					onFailure(e);
 				}
 			});
+		},
+		
+		setErrorFor: function(key, dataType, syncType, layerId, errorType, onSuccess, onFailure){
+			
+			Arbiter.Util.printKVPairs("setErrorFor: ", {
+				key: key,
+				dataType: dataType,
+				syncType: syncType,
+				layerId: layerId,
+				errorType: errorType
+			});
+			
+			var context = this;
+			
+			var fail = function(e){
+				
+				if(Arbiter.Util.existsAndNotNull(onFailure)){
+					onFailure(e);
+				}
+			};
+			
+			var db = Arbiter.ProjectDbHelper.getProjectDatabase();
+			
+			db.transaction(function(tx){
+				
+				var sql = "UPDATE " + TABLE_NAME + " SET " 
+					+ context.ERROR_TYPE + "=? WHERE " 
+					+ context.KEY + "=? AND "
+					+ context.DATA_TYPE + "=? AND "
+					+ context.SYNC_TYPE + "=? AND "
+					+ context.LAYER_ID + "=?;";
+				
+				tx.executeSql(sql, [errorType, key, dataType, syncType, layerId], function(_tx, res){
+					
+					if(Arbiter.Util.existsAndNotNull(onSuccess)){
+						onSuccess();
+					}
+				}, function(_tx, e){
+					
+					fail(e);
+				});
+			}, fail);
 		},
 		
 		remove: function(key, dataType, syncType, layerId, onSuccess, onFailure){

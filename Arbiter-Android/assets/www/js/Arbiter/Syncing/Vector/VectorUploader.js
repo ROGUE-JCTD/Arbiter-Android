@@ -44,11 +44,11 @@
 		}, function(e){
 			console.log("Could not update sync status for: " + context.schema.getFeatureType());
 			
-			context.onSaveFailure(layer);
+			context.onSaveFailure(layer, Arbiter.Error.Sync.ARBITER_ERROR);
 		});
 	};
 
-	prototype.onSaveFailure = function(layer){
+	prototype.onSaveFailure = function(layer, updateError){
 		console.log("Arbiter.VectorUploader.onSaveFailure");
 		
 		this.requestInProgress = false;
@@ -59,7 +59,7 @@
 			this.clearSaveCallbacks(layer);
 			
 			if(Arbiter.Util.funcExists(this.onFailure)){
-				this.onFailure(this.requestCancelled);
+				this.onFailure(this.requestCancelled, updateError);
 			}
 		}
 	};
@@ -88,9 +88,25 @@
 			context.onSaveSuccess(context.layer);
 		};
 		
-		metadata["onSaveFailure"] = function(){
-			console.log("my onSaveFailure");
-			context.onSaveFailure(context.layer);
+		metadata["onSaveFailure"] = function(event){
+			console.log("my onSaveFailure event", event);
+			
+			var error = false;
+			
+			var statusCode = event.response.priv.status;
+			
+			if((statusCode == 200) && (event.response.priv.responseText.indexOf("Update error") > -1)){
+					
+				error = Arbiter.Error.Sync.UPDATE_ERROR;
+			}else if((statusCode == 200) && (event.response.priv.responseText.indexOf("read-only") > -1)){
+				
+				error = Arbiter.Error.Sync.UNAUTHORIZED;
+			}else{
+				
+				error = Arbiter.Error.Sync.getErrorFromStatusCode(statusCode);
+			}
+			
+			context.onSaveFailure(context.layer, error);
 		};
 		
 		this.wait(true);
@@ -111,7 +127,7 @@
 				
 				this.onSaveSuccess(this.layer);
 			}else{
-				this.onSaveFailure(this.layer);
+				this.onSaveFailure(this.layer, Arbiter.Error.Sync.UNKNOWN_ERROR);
 			}
 		}else{ // Still waiting for the request
 			
@@ -134,7 +150,7 @@
 				
 				this.onSaveSuccess(this.layer);
 			}else{
-				this.onSaveFailure(this.layer);
+				this.onSaveFailure(this.layer, Arbiter.Error.Sync.TIMED_OUT);
 			}
 		}
 		

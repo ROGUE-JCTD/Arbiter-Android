@@ -91,6 +91,12 @@ Arbiter.MediaDownloaderHelper.prototype.updateProgressDialog = function(isMedia)
 Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
 	var context = this;
 	
+	var key = media;
+	
+	var dataType = Arbiter.FailedSyncHelper.DATA_TYPES.MEDIA;
+	
+	var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.DOWNLOAD;
+	
 	var onFailure = function(e){
 		
 		var callback = function(){
@@ -105,22 +111,37 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
 			
 			Arbiter.Cordova.syncOperationTimedOut(callback, function(){
 				
-				if(Arbiter.Util.existsAndNotNull(context.onDownloadFailure)){
-					context.onDownloadFailure(Arbiter.Error.Sync.TIMED_OUT, context.finishedMediaCount);
-				}
+				Arbiter.FailedSyncHelper.setErrorFor(key, dataType, syncType, context.schema.getLayerId(), e, function(){
+					
+					console.log("updateError success");
+					
+					if(Arbiter.Util.existsAndNotNull(context.onDownloadFailure)){
+						context.onDownloadFailure(Arbiter.Error.Sync.TIMED_OUT, context.finishedMediaCount);
+					}
+				}, function(e){
+					console.log("updateError failed", (e.stack) ? e.stack : e);
+					
+					if(Arbiter.Util.existsAndNotNull(context.onDownloadFailure)){
+						context.onDownloadFailure(Arbiter.Error.Sync.TIMED_OUT, context.finishedMediaCount);
+					}
+				});
 			});
 		}else{
-			callback();
+			
+			Arbiter.FailedSyncHelper.setErrorFor(key, dataType, syncType, context.schema.getLayerId(), e, function(){
+				
+				console.log("updateError success");
+				
+				callback();
+			}, function(e){
+				console.log("updateError failed", (e.stack) ? e.stack : e);
+				
+				callback();
+			});
 		}
 	};
 	
 	var onSuccess = function(){
-		
-		var key = media;
-		
-		var dataType = Arbiter.FailedSyncHelper.DATA_TYPES.MEDIA;
-		
-		var syncType = Arbiter.FailedSyncHelper.SYNC_TYPES.DOWNLOAD;
 		
 		context.updateProgressDialog(true);
 		
@@ -134,7 +155,7 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
 			var msg = "Unable to remove " + key 
 				+ " from failed_sync - " + JSON.stringify(e);
 			
-			onFailure(msg);
+			onFailure(Arbiter.Error.Sync.ARBITER_ERROR);
 		});
 	};
 	
@@ -157,7 +178,7 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
                 		fileTransfer.abort();
                 	}
                 	
-                	onFailure("Download timed out");
+                	onFailure(Arbiter.Error.Sync.TIMED_OUT);
                 	
                 });
                 
@@ -190,11 +211,11 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
                         progressListener.stopWatching();
                         
                         if(transferError.code !== FileTransferError.ABORT_ERR){
-                        	onFailure(transferError);
+                        	onFailure(Arbiter.Error.Sync.UNKNOWN_ERROR);
                         }
                     }, undefined, options);
         	}else{
-        		onFailure(error);
+        		onFailure(Arbiter.Error.Sync.ARBITER_ERROR);
         	}
         }
     );

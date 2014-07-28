@@ -169,6 +169,26 @@ Arbiter.Util = (function(){
 		getTempFeatureTableName: function(featureType){
 				
 			return Arbiter.TEMP_FEATURE_TABLE_UUID + '_' + Arbiter.Util.getFeatureTypeNoPrefix(featureType);
+		},
+		
+		printKVPairs: function(msg, obj){
+			
+			if(!Arbiter.Util.existsAndNotNull(msg)){
+				msg = "";
+			}
+			
+			if(!Arbiter.Util.existsAndNotNull(obj)){
+				obj = {};
+			}
+			
+			msg += " ";
+			
+			for(var key in obj){
+				
+				msg += key + " = " + obj[key];
+			}
+			
+			console.log(msg);
 		}
 	};
 })();

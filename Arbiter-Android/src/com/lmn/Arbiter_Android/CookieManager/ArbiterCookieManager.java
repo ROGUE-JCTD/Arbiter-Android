@@ -70,7 +70,7 @@ public class ArbiterCookieManager {
 		
 		Server server = null;
 		
-		for(int i = 0, count = servers.size(); i < count; i++){
+		for(int i = servers.size() - 1; i >= 0; i--){
 			
 			server = servers.valueAt(i);
 			
@@ -83,11 +83,11 @@ public class ArbiterCookieManager {
 					
 					e.printStackTrace();
 					
-					servers.removeAt(i--);
+					servers.removeAt(i);
 				} catch (IOException e) {
 					
 					e.printStackTrace();
-					servers.removeAt(i--);
+					servers.removeAt(i);
 				}
 			}
 		}

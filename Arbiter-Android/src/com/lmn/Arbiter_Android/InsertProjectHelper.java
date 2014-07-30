@@ -81,6 +81,8 @@ public class InsertProjectHelper {
 		// will create the new databases for the new project.
 		ProjectDatabaseHelper helper = getProjectDatabaseHelper(context, projectName);
 		
+		insertProjectSettings(helper.getWritableDatabase(), context, newProject);
+		
 		// Insert the layers into the new project
 		long[] layerIds = insertLayers(helper, context, newProject);
 		
@@ -96,6 +98,13 @@ public class InsertProjectHelper {
 		insertProjectInfo(helper, context, newProject);
 		
 		return layerIds;
+	}
+	
+	private void insertProjectSettings(SQLiteDatabase projectDb, Context context, Project newProject){
+		
+		PreferencesHelper.getHelper().put(projectDb, context, PreferencesHelper.DOWNLOAD_PHOTOS, newProject.shouldDownloadPhotos());
+		PreferencesHelper.getHelper().put(projectDb, context, PreferencesHelper.DISABLE_WMS, newProject.shouldDisableWMS());
+		PreferencesHelper.getHelper().put(projectDb, context, PreferencesHelper.NO_CON_CHECKS, newProject.shouldCheckConnections());
 	}
 	
 	private void insertBaseLayer(SQLiteDatabase db, Context context, BaseLayer baseLayer) throws JSONException{

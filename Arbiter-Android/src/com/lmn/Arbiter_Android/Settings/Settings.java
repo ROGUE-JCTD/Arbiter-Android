@@ -15,6 +15,7 @@ import android.widget.CheckBox;
 import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Activities.AOIActivity;
+import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.Map.Map;
@@ -83,61 +84,84 @@ public class Settings {
 		String projectName = ArbiterProject.getArbiterProject()
 				.getOpenProject(activity);
 		if (newProject) {
-			projectName = ArbiterProject.getArbiterProject().getNewProject().getProjectName();
+			
+			downloadPhotosDBValue = false;
+			
+			disableWMSDBValue = false;
+			
+			noConnectionChecksDBValue = false;
+		}else{
+			
+			String path = ProjectStructure.getProjectPath(projectName);
+			
+			SQLiteDatabase projectDb = ProjectDatabaseHelper.getHelper(activity.getApplicationContext(), path, false).getWritableDatabase();
+			
+			String result = PreferencesHelper.getHelper().get(projectDb, activity.getApplicationContext(), PreferencesHelper.DOWNLOAD_PHOTOS);
+			if (result != null) {
+				downloadPhotosDBValue = Boolean.parseBoolean(result);
+			}
+			
+			result = PreferencesHelper.getHelper().get(projectDb, activity.getApplicationContext(), PreferencesHelper.DISABLE_WMS);
+			if (result != null) {
+				disableWMSDBValue = Boolean.parseBoolean(result);
+			}
+			
+			result = PreferencesHelper.getHelper().get(projectDb, activity.getApplicationContext(), PreferencesHelper.NO_CON_CHECKS);
+			if (result != null) {
+				noConnectionChecksDBValue = Boolean.parseBoolean(result);
+			}
 		}
 		
-		String path = ProjectStructure.getProjectPath(projectName);
-		
-		SQLiteDatabase projectDb = ProjectDatabaseHelper.getHelper(activity.getApplicationContext(), path, false).getWritableDatabase();
 		CheckBox downloadPhotos = (CheckBox) view.findViewById(R.id.download_photos);
 		CheckBox disableWMS = (CheckBox) view.findViewById(R.id.disable_wms);
 		CheckBox noConnectionChecks = (CheckBox) view.findViewById(R.id.no_con_checks);
 		
-		String result = PreferencesHelper.getHelper().get(projectDb, activity.getApplicationContext(), PreferencesHelper.DOWNLOAD_PHOTOS);
-		if (result != null) {
-			downloadPhotosDBValue = Boolean.parseBoolean(result);
-		}
 		downloadPhotos.setChecked(downloadPhotosDBValue);
 		
-		result = PreferencesHelper.getHelper().get(projectDb, activity.getApplicationContext(), PreferencesHelper.DISABLE_WMS);
-		if (result != null) {
-			disableWMSDBValue = Boolean.parseBoolean(result);
-		}
 		disableWMS.setChecked(disableWMSDBValue);
 		
-		result = PreferencesHelper.getHelper().get(projectDb, activity.getApplicationContext(), PreferencesHelper.NO_CON_CHECKS);
-		if (result != null) {
-			noConnectionChecksDBValue = Boolean.parseBoolean(result);
-		}
 		noConnectionChecks.setChecked(noConnectionChecksDBValue);
 	}
 	
 	private void saveSettings(View view, boolean newProject) {
-		String projectName = ArbiterProject.getArbiterProject()
-				.getOpenProject(activity);
-		if (newProject) {
-			projectName = ArbiterProject.getArbiterProject().getNewProject().getProjectName();
-		}
 		
-		String path = ProjectStructure.getProjectPath(projectName);
-		
-		SQLiteDatabase projectDb = ProjectDatabaseHelper.getHelper(activity.getApplicationContext(), path, false).getWritableDatabase();
 		CheckBox downloadPhotos = (CheckBox) view.findViewById(R.id.download_photos);
 		CheckBox disableWMS = (CheckBox) view.findViewById(R.id.disable_wms);
 		CheckBox noConnectionChecks = (CheckBox) view.findViewById(R.id.no_con_checks);
 		
-		if (downloadPhotos.isChecked() != downloadPhotosDBValue) {
-			PreferencesHelper.getHelper().put(projectDb, activity.getApplicationContext(), PreferencesHelper.DOWNLOAD_PHOTOS, Boolean.toString(downloadPhotos.isChecked()));
-		}
-		if (disableWMS.isChecked() != disableWMSDBValue) {
-			PreferencesHelper.getHelper().put(projectDb, activity.getApplicationContext(), PreferencesHelper.DISABLE_WMS, Boolean.toString(disableWMS.isChecked()));
-			if (!newProject) {
+		boolean downloadPhotosValue = downloadPhotos.isChecked();
+		boolean disableWMSValue = disableWMS.isChecked();
+		boolean noConnectionChecksValue = noConnectionChecks.isChecked();
+		
+		if (newProject) {
+			Project project = ArbiterProject.getArbiterProject().getNewProject();
+			
+			project.setDownloadPhotos(Boolean.toString(downloadPhotosValue));
+			project.setDisableWMS(Boolean.toString(disableWMSValue));
+			project.setNoConnectionChecks(Boolean.toString(noConnectionChecksValue));
+			
+			// This will actually get set in the InserProjectHelper's insert method
+		}else{
+			
+			String projectName = ArbiterProject.getArbiterProject()
+					.getOpenProject(activity);
+			
+			String path = ProjectStructure.getProjectPath(projectName);
+			
+			SQLiteDatabase projectDb = ProjectDatabaseHelper.getHelper(activity.getApplicationContext(), path, false).getWritableDatabase();
+			
+			if (downloadPhotosValue != downloadPhotosDBValue) {
+				PreferencesHelper.getHelper().put(projectDb, activity.getApplicationContext(), PreferencesHelper.DOWNLOAD_PHOTOS, Boolean.toString(downloadPhotosValue));
+			}
+			if (disableWMSValue != disableWMSDBValue) {
+				PreferencesHelper.getHelper().put(projectDb, activity.getApplicationContext(), PreferencesHelper.DISABLE_WMS, Boolean.toString(disableWMSValue));
+				
 				Map.MapChangeListener mapListener = (Map.MapChangeListener) activity;
 				mapListener.getMapChangeHelper().reloadMap();
 			}
-		}
-		if (noConnectionChecks.isChecked() != noConnectionChecksDBValue) {
-			PreferencesHelper.getHelper().put(projectDb, activity.getApplicationContext(), PreferencesHelper.NO_CON_CHECKS, Boolean.toString(noConnectionChecks.isChecked()));
+			if (noConnectionChecksValue != noConnectionChecksDBValue) {
+				PreferencesHelper.getHelper().put(projectDb, activity.getApplicationContext(), PreferencesHelper.NO_CON_CHECKS, Boolean.toString(noConnectionChecksValue));
+			}
 		}
 	}
 }

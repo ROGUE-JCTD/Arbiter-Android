@@ -7,12 +7,18 @@ public class Project {
 	private ArrayList<Layer> layers;
 	private String aoi;
 	private BaseLayer baseLayer;
+	private String downloadPhotos;
+	private String disableWMS;
+	private String noConnectionChecks;
 	
 	public Project(String projectName, String aoi){
 		this.projectName = projectName;
 		this.layers = new ArrayList<Layer>();
 		this.aoi = aoi;
 		this.baseLayer = null;
+		this.downloadPhotos = null;
+		this.disableWMS = null;
+		this.noConnectionChecks = null;
 	}
 	
 	public Project(Project project){
@@ -26,6 +32,10 @@ public class Project {
 		}
 		
 		this.baseLayer = project.getBaseLayer();
+		
+		this.downloadPhotos = project.shouldDownloadPhotos();
+		this.disableWMS = project.shouldDisableWMS();
+		this.noConnectionChecks = project.shouldCheckConnections();
 	}
 	
 	public String getAOI(){
@@ -52,6 +62,29 @@ public class Project {
 		return this.baseLayer;
 	}
 	
+	public String shouldDownloadPhotos(){
+		return this.downloadPhotos;
+	}
+	
+	public String shouldDisableWMS(){
+		return this.disableWMS;
+	}
+	
+	public String shouldCheckConnections(){
+		return this.noConnectionChecks;
+	}
+	
+	public void setDownloadPhotos(String downloadPhotos){
+		this.downloadPhotos = downloadPhotos;
+	}
+	
+	public void setDisableWMS(String disableWMS){
+		this.disableWMS = disableWMS;
+	}
+	
+	public void setNoConnectionChecks(String noConnectionChecks){
+		this.noConnectionChecks = noConnectionChecks;
+	}
 	/**
 	 * Convenience method to add more than 1 layer at a time
 	 * @param layer

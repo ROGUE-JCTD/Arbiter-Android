@@ -10,6 +10,7 @@ public class Project {
 	private String downloadPhotos;
 	private String disableWMS;
 	private String noConnectionChecks;
+	private String alwaysShowLocation;
 	
 	public Project(String projectName, String aoi){
 		this.projectName = projectName;
@@ -19,6 +20,7 @@ public class Project {
 		this.downloadPhotos = null;
 		this.disableWMS = null;
 		this.noConnectionChecks = null;
+		this.alwaysShowLocation = null;
 	}
 	
 	public Project(Project project){
@@ -36,6 +38,7 @@ public class Project {
 		this.downloadPhotos = project.shouldDownloadPhotos();
 		this.disableWMS = project.shouldDisableWMS();
 		this.noConnectionChecks = project.shouldCheckConnections();
+		this.alwaysShowLocation = project.shouldAlwaysShowLocation();
 	}
 	
 	public String getAOI(){
@@ -74,6 +77,10 @@ public class Project {
 		return this.noConnectionChecks;
 	}
 	
+	public String shouldAlwaysShowLocation(){
+		return this.alwaysShowLocation;
+	}
+	
 	public void setDownloadPhotos(String downloadPhotos){
 		this.downloadPhotos = downloadPhotos;
 	}
@@ -85,6 +92,11 @@ public class Project {
 	public void setNoConnectionChecks(String noConnectionChecks){
 		this.noConnectionChecks = noConnectionChecks;
 	}
+	
+	public void setAlwaysShowLocation(String alwaysShowLocation){
+		this.alwaysShowLocation = alwaysShowLocation;
+	}
+	
 	/**
 	 * Convenience method to add more than 1 layer at a time
 	 * @param layer

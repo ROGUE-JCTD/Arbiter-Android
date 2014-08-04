@@ -28,6 +28,7 @@ public class Settings {
 	private boolean disableWMSDBValue = false;
 	private boolean downloadPhotosDBValue = false;
 	private boolean noConnectionChecksDBValue = false;
+	private boolean alwaysShowLocationDBValue = false;
 	
 	public Settings(Activity activity){
 		this.activity = activity;
@@ -90,6 +91,8 @@ public class Settings {
 			disableWMSDBValue = false;
 			
 			noConnectionChecksDBValue = false;
+			
+			alwaysShowLocationDBValue = false;
 		}else{
 			
 			String path = ProjectStructure.getProjectPath(projectName);
@@ -110,17 +113,25 @@ public class Settings {
 			if (result != null) {
 				noConnectionChecksDBValue = Boolean.parseBoolean(result);
 			}
+			
+			result = PreferencesHelper.getHelper().get(projectDb, activity.getApplicationContext(), PreferencesHelper.ALWAYS_SHOW_LOCATION);
+			if(result != null){
+				alwaysShowLocationDBValue = Boolean.parseBoolean(result);
+			}
 		}
 		
 		CheckBox downloadPhotos = (CheckBox) view.findViewById(R.id.download_photos);
 		CheckBox disableWMS = (CheckBox) view.findViewById(R.id.disable_wms);
 		CheckBox noConnectionChecks = (CheckBox) view.findViewById(R.id.no_con_checks);
+		CheckBox alwaysShowLocation = (CheckBox) view.findViewById(R.id.always_show_location);
 		
 		downloadPhotos.setChecked(downloadPhotosDBValue);
 		
 		disableWMS.setChecked(disableWMSDBValue);
 		
 		noConnectionChecks.setChecked(noConnectionChecksDBValue);
+		
+		alwaysShowLocation.setChecked(alwaysShowLocationDBValue);
 	}
 	
 	private void saveSettings(View view, boolean newProject) {
@@ -128,10 +139,12 @@ public class Settings {
 		CheckBox downloadPhotos = (CheckBox) view.findViewById(R.id.download_photos);
 		CheckBox disableWMS = (CheckBox) view.findViewById(R.id.disable_wms);
 		CheckBox noConnectionChecks = (CheckBox) view.findViewById(R.id.no_con_checks);
+		CheckBox alwaysShowLocation = (CheckBox) view.findViewById(R.id.always_show_location);
 		
 		boolean downloadPhotosValue = downloadPhotos.isChecked();
 		boolean disableWMSValue = disableWMS.isChecked();
 		boolean noConnectionChecksValue = noConnectionChecks.isChecked();
+		boolean alwaysShowLocationValue = alwaysShowLocation.isChecked();
 		
 		if (newProject) {
 			Project project = ArbiterProject.getArbiterProject().getNewProject();
@@ -139,6 +152,7 @@ public class Settings {
 			project.setDownloadPhotos(Boolean.toString(downloadPhotosValue));
 			project.setDisableWMS(Boolean.toString(disableWMSValue));
 			project.setNoConnectionChecks(Boolean.toString(noConnectionChecksValue));
+			project.setAlwaysShowLocation(Boolean.toString(alwaysShowLocationValue));
 			
 			// This will actually get set in the InserProjectHelper's insert method
 		}else{
@@ -161,6 +175,10 @@ public class Settings {
 			}
 			if (noConnectionChecksValue != noConnectionChecksDBValue) {
 				PreferencesHelper.getHelper().put(projectDb, activity.getApplicationContext(), PreferencesHelper.NO_CON_CHECKS, Boolean.toString(noConnectionChecksValue));
+			}
+			
+			if(alwaysShowLocationValue != alwaysShowLocationDBValue){
+				PreferencesHelper.getHelper().put(projectDb, activity.getApplicationContext(), PreferencesHelper.ALWAYS_SHOW_LOCATION, Boolean.toString(alwaysShowLocationValue));
 			}
 		}
 	}

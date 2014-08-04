@@ -274,4 +274,5 @@
     <string name="resource_not_found">Resource not found.</string>
     <string name="update_error">An error occurred updating the feature.  Please review your features, and try again later.</string>
     <string name="must_complete_upload_first">Must complete upload first.</string>
+    <string name="always_show_location">Always show current location (drains battery)</string>
 </resources>

@@ -503,7 +503,7 @@ public class ArbiterCordova extends CordovaPlugin{
 			return true;
 		}else if("alertGeolocationError".equals(action)){
 			
-			alertGeolocationError(args.getString(0));
+			alertGeolocationError();
 			
 			return true;
 		}else if("featureUnselected".equals(action)){
@@ -840,7 +840,7 @@ public class ArbiterCordova extends CordovaPlugin{
 		}
 	}
 	
-	private void alertGeolocationError(final String msg){
+	private void alertGeolocationError(){
 		final Activity activity = cordova.getActivity();
 		
 		activity.runOnUiThread(new Runnable(){
@@ -851,7 +851,7 @@ public class ArbiterCordova extends CordovaPlugin{
 				
 				builder.setIcon(R.drawable.icon);
 				builder.setTitle(R.string.geolocation_error);
-				builder.setMessage(msg);
+				builder.setMessage(R.string.geolocation_error_msg);
 				builder.setPositiveButton(android.R.string.ok, null);
 				
 				builder.create().show();

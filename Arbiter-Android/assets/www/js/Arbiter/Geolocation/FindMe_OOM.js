@@ -3,13 +3,12 @@ Arbiter.SavedFindMe = function(gotHighAccuracy, position){
 	this.position = position;
 };
 
-Arbiter.FindMe_OOM = function(){
-	
-};
+Arbiter.FindMe_OOM = function(){};
 
 Arbiter.FindMe_OOM.prototype.FINDME = "findme";
 
 Arbiter.FindMe_OOM.prototype.savePoint = function(gotHighAccuracy, position, onSuccess, onFailure){
+	
 	var obj = new Arbiter.SavedFindMe(gotHighAccuracy, position);
 	
 	console.log("saving point: " + obj.gotHighAccuracy);

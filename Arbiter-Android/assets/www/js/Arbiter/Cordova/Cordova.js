@@ -124,6 +124,13 @@ Arbiter.Cordova = (function() {
             var zoom = Arbiter.Map.getZoom();
 			var reset = function(){
 				console.log("resetWebApp: " + JSON.stringify(bbox));
+				
+				if(Arbiter.Util.existsAndNotNull(Arbiter.findme)){
+					Arbiter.findme.clearIntervals();
+					
+					Arbiter.Cordova.finishedGettingLocation();
+				}
+				
 				cordova.exec(null, null, "ArbiterCordova",
 						"resetWebApp", [bbox, zoom]);
 			};
@@ -465,10 +472,10 @@ Arbiter.Cordova = (function() {
 					"dismissDownloadingSchemasProgress", []);
 		},
 		
-		alertGeolocationError: function(msg){
+		alertGeolocationError: function(){
 			
 			cordova.exec(null, null, "ArbiterCordova",
-					"alertGeolocationError", [msg]);
+					"alertGeolocationError", []);
 		},
 		
 		setMultiPartBtnsEnabled: function(enable, enableCollection){

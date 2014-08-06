@@ -338,16 +338,21 @@ Arbiter.Cordova.Project = (function(){
 					var onDone = function(){
 						
 						gettingUsersLocation = false;
+						
+						Arbiter.Cordova.finishedGettingLocation();
 					};
 					
-					var findMe = new Arbiter.FindMe(map, aoiLayer, includeOOMWorkaround, function(position){
+					if(!Arbiter.Util.existsAndNotNull(Arbiter.findme)){
+						Arbiter.findme = new Arbiter.FindMe(map, aoiLayer);
+					}
+					
+					Arbiter.findme.getLocation(onDone, function(e){
 						
 						onDone();
-					}, function(e){
-						onDone();
+						
+						Arbiter.Cordova.alertGeolocationError();
 					});
 					
-					findMe.findMe();
 				}catch(e){
 					console.log(e);
 				}

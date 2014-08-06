@@ -270,4 +270,5 @@
     <string name="update_error">Se ha producido un error al actualizar la característica.  Por favor revise sus características, y vuelva a intentarlo más tarde.</string>
     <string name="must_complete_upload_first">Tiene que completar carga primero.</string>
     <string name="always_show_location">Siempre mostrar la ubicación actual (batería de drenajes)</string>
+    <string name="geolocation_error_msg">No se pudo obtener su ubicación.  Por favor, compruebe la configuración del dispositivo para asegurarse Arbiter tiene acceso a su ubicación.  Si el problema persiste, pruebe a reiniciar el dispositivo.</string>
 </resources>

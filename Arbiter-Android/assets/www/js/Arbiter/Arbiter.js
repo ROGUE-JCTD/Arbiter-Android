@@ -28,10 +28,13 @@ Arbiter = (function(){
 		MEDIA_TO_SEND: "mediaToSend",
 		BASE_LAYER: "base_layer",
 		SWITCHED_PROJECT: "switched_project",
+		ALWAYS_SHOW_LOCATION: "always_show_location",
 		
 		DEFAULT_ZOOM_EXTENT: "-20037508.34,-20037508.34,20037508.34,20037508.34",
 		
 		TEMP_FEATURE_TABLE_UUID: 'f34f2efa-6691-210a-6763-aab91bec3806',
+		
+		findme: null,
 		
 		Init: function(createMapCallback){
 			Arbiter.Map.createMap(createMapCallback);

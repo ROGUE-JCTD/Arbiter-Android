@@ -179,6 +179,9 @@ public class Settings {
 			
 			if(alwaysShowLocationValue != alwaysShowLocationDBValue){
 				PreferencesHelper.getHelper().put(projectDb, activity.getApplicationContext(), PreferencesHelper.ALWAYS_SHOW_LOCATION, Boolean.toString(alwaysShowLocationValue));
+			
+				Map.MapChangeListener mapListener = (Map.MapChangeListener) activity;
+				mapListener.getMapChangeHelper().reloadMap();
 			}
 		}
 	}

@@ -3,7 +3,7 @@ var app = (function() {
 	var waitFuncs = [];
 	var ArbiterInitialized = false;
 
-	var findMeOOM = function(){
+	/*var findMeOOM = function(){
 		
 		var map = Arbiter.Map.getMap();
 		
@@ -17,7 +17,7 @@ var app = (function() {
 		}else{
 			console.log("There is no aoi layer!");
 		}
-	};
+	};*/
 	
 	/**
 	 * On device ready
@@ -31,6 +31,9 @@ var app = (function() {
                 Arbiter.isOnline('onLine' in navigator && navigator.onLine);
             }
         });
+	    
+	    var context = this;
+	    
 		Arbiter.Init(function() {
 			
 			// Get the file system for use in TileUtil.js
@@ -59,11 +62,11 @@ var app = (function() {
 								var projectDb = Arbiter.ProjectDbHelper.getProjectDatabase();
 								
 								// Get the AOI to check to see if it's been set
-								Arbiter.PreferencesHelper.get(projectDb, Arbiter.AOI, this, function(_aoi){
+								Arbiter.PreferencesHelper.get(projectDb, Arbiter.AOI, context, function(_aoi){
 									
 									var bounds = null;
 									
-									Arbiter.PreferencesHelper.get(appDb, Arbiter.SWITCHED_PROJECT, this, function(value) {
+									Arbiter.PreferencesHelper.get(appDb, Arbiter.SWITCHED_PROJECT, context, function(value) {
 										if(value !== "true" && savedBounds !== null && savedBounds !== undefined 
 												&& savedZoom !== null 
 												&& savedZoom !== undefined){
@@ -93,7 +96,7 @@ var app = (function() {
 														bounds[3]);
 											}
 										}
-										Arbiter.PreferencesHelper.put(appDb, Arbiter.SWITCHED_PROJECT, "false", this);
+										Arbiter.PreferencesHelper.put(appDb, Arbiter.SWITCHED_PROJECT, "false", context);
 									}, function(e){
 										console.log("Could not read SWITCHED_PROJECT variable from Preferences database: " + JSON.stringify(e));
 									});
@@ -118,7 +121,29 @@ var app = (function() {
 									
 									Arbiter.Loaders.LayersLoader.load(function(){
 										
-										findMeOOM();
+										Arbiter.PreferencesHelper.get(projectDb, Arbiter.ALWAYS_SHOW_LOCATION, context, function(alwaysShowLocation){
+											
+											if(alwaysShowLocation === true || alwaysShowLocation === "true"){
+												
+												var map = Arbiter.Map.getMap();
+												
+												var aoiLayer = map.getLayersByName(Arbiter.AOI)[0];
+												
+												if(Arbiter.Util.existsAndNotNull(aoiLayer)){
+													
+													Arbiter.findme = new Arbiter.FindMe(map, aoiLayer);
+													
+													Arbiter.findme.watchLocation(function(e){
+														
+														Arbiter.Cordova.alertGeolocationError();
+													});
+												}else{
+													console.log("There is no aoi layer!");
+												}
+											}
+										}, function(e){ console.log((Arbiter.Util.existsAndNotNull(e.stack)) ? e.stack : e); });
+										
+										//findMeOOM();
 										
 										Arbiter.Cordova.appFinishedLoading();
 									}, function(e){

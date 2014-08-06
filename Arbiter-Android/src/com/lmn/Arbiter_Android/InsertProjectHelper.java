@@ -105,6 +105,7 @@ public class InsertProjectHelper {
 		PreferencesHelper.getHelper().put(projectDb, context, PreferencesHelper.DOWNLOAD_PHOTOS, newProject.shouldDownloadPhotos());
 		PreferencesHelper.getHelper().put(projectDb, context, PreferencesHelper.DISABLE_WMS, newProject.shouldDisableWMS());
 		PreferencesHelper.getHelper().put(projectDb, context, PreferencesHelper.NO_CON_CHECKS, newProject.shouldCheckConnections());
+		PreferencesHelper.getHelper().put(projectDb, context, PreferencesHelper.ALWAYS_SHOW_LOCATION, newProject.shouldAlwaysShowLocation());
 	}
 	
 	private void insertBaseLayer(SQLiteDatabase db, Context context, BaseLayer baseLayer) throws JSONException{

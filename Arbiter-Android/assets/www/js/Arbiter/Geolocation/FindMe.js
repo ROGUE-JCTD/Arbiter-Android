@@ -109,6 +109,8 @@
 			lowAccuracyResponded = true;
 			lowAccuracySucceeded = false;
 			
+			// Both the high and the low accuracy attempts to get
+			// the users location failed, so call the failure callback
 			if(highAccuracyResponded && !highAccuracySucceeded){
 				
 				fail(e);

@@ -6,11 +6,12 @@
 		this.timeout = 60000;
 		this.watchInterval = 3000;
 		this.marker = null;
-		this.isWatching = false;
 		this.minimumFindMeZoom = 18;
 		
 		this.styleChangeIntervalId = null;
 		this.styleChangeInterval = 1000;
+		
+		this.removeMarkerTimeout = 10000;
 		
 		this.bigRadius = 20;
 		this.smallRadius = 10;
@@ -38,52 +39,141 @@
 	
 	construct.TESTING = false;
 	
-	prototype.watchLocation = function(onFailure){
-		
-		this.isWatching = true;
+	prototype._startCycle = function(onSuccess, onFailure){
 		
 		var context = this;
 		
+		var highAccuracyResponded = false;
+		var highAccuracySucceeded = false;
+		
+		var lowAccuracyResponded = false;
+		var lowAccuracySucceeded = false;
+		var position = null;
+		
+		var done = function(pos){
+			
+			if(Arbiter.Util.existsAndNotNull(onSuccess)){
+				onSuccess(pos);
+			}
+		};
+		
+		var fail = function(e){
+			if(Arbiter.Util.existsAndNotNull(onFailure)){
+				onFailure(e);
+			}
+		};
+		
 		this._getHighAccuracy(function(pos){
+			
+			// set the high accuracy request responded and succeeded
+			highAccuracyResponded = true;
+			highAccuracySucceeded = true;
+			
+			// Update the location of the marker
+			context._gotLocation(pos, context.highAccuracyStyle);
+			
+			// The cycle has completed
+			done(pos);
+		}, function(e){
+			
+			highAccuracyResponded = true;
+			highAccuracySucceeded = false;
+			
+			// If the low accuracy responded
+			if(lowAccuracyResponded){
 				
-			// don't remove the marker, but instead, set a timeout to start another request
+				if(lowAccuracySucceeded){
+					done(position);
+				}else{
+					fail(e);
+				}
+			}
+		});
+		
+		this._getLowAccuracy(function(pos){
+			
+			lowAccuracyResponded = true;
+			lowAccuracySucceeded = true;
+			
+			// Only update the location of the marker, 
+			// if this cycle's highAccuracy request hasn't
+			// responded yet.
+			if(!highAccuracyResponded){
+			
+				position = pos;
+				
+				context._gotLocation(pos, context.lowAccuracyStyle);
+			}
+		}, function(e){
+			
+			lowAccuracyResponded = true;
+			lowAccuracySucceeded = false;
+			
+			if(highAccuracyResponded && !highAccuracySucceeded){
+				
+				fail(e);
+			}
+		});
+	};
+	
+	prototype.watchLocation = function(onFailure){
+		
+		var context = this;
+		
+		var startNextCycle = function(){
+			
+			// Wait the time of the watchInterval, and then
+			// start a new cycle
 			window.setTimeout(function(){
 				
 				context.watchLocation(onFailure);
 			}, context.watchInterval);
-		}, onFailure);
+		};
+		
+		this._startCycle(function(pos){
+			
+			// Start the next cycle
+			startNextCycle();
+		}, function(e){
+			
+			// This cycle to get the users location failed both on high accuracy
+			// and low accuracy, so execute the onFailure callback
+			if(Arbiter.Util.existsAndNotNull(onFailure)){
+				
+				onFailure(e);
+			}
+			
+			// Start the next cycle
+			startNextCycle();
+		});
 	};
 	
 	prototype.getLocation = function(onSuccess, onFailure){
 		
 		var context = this;
 		
-		this._getHighAccuracy(function(pos){
+		this._startCycle(function(pos){
 			
 			context._zoom(pos);
 			
 			if(Arbiter.Util.existsAndNotNull(onSuccess)){
-				onSuccess();
+				onSuccess(pos);
 			}
 			
 			// remove the marker in ten seconds
 			window.setTimeout(function(){
 				
 				context._removeMarker();
-			}, 10000);
+			}, context.removeMarkerTimeout);
 		}, onFailure);
 	};
 	
-	prototype._gotLocation = function(pos, style, onSuccess){
+	prototype._gotLocation = function(pos, style){
 		
 		this._updateMarker(pos, style);
-		
-		if(Arbiter.Util.existsAndNotNull(onSuccess)){
-			onSuccess(pos);
-		}
 	};
 	
-	prototype._getCurrentPosition = function(enableHighAccuracy, style, onSuccess, onFailure){
+	prototype._getCurrentPosition = function(enableHighAccuracy, onSuccess, onFailure){
 		
 		var context = this;
 		
@@ -105,13 +195,17 @@
 					};
 				}
 				
-				context._gotLocation(pos, style, onSuccess);
+				if(Arbiter.Util.existsAndNotNull(onSuccess)){
+					onSuccess(pos);
+				}
 			}, 10000);
 		}else{
 			
 			navigator.geolocation.getCurrentPosition(function(pos){
 				
-				context._gotLocation(pos, style, onSuccess);
+				if(Arbiter.Util.existsAndNotNull(onSuccess)){
+					onSuccess(pos);
+				}
 			}, function(e){
 				
 				if(Arbiter.Util.existsAndNotNull(onFailure)){
@@ -129,14 +223,16 @@
 		
 		var context = this;
 		
-		this._getCurrentPosition(true, this.highAccuracyStyle, function(pos){
+		this._getCurrentPosition(true, function(pos){
 			
 			if(Arbiter.Util.existsAndNotNull(onSuccess)){
 				onSuccess(pos);
 			}
 		}, function(e){
 			
-			context._getLowAccuracy(onSuccess, onFailure);
+			if(Arbiter.Util.existsAndNotNull(onFailure)){
+				onFailure(e);
+			}
 		});
 	};
 	
@@ -144,7 +240,7 @@
 		
 		var context = this;
 		
-		this._getCurrentPosition(false, this.lowAccuracyStyle, function(pos){
+		this._getCurrentPosition(false, function(pos){
 			
 			if(Arbiter.Util.existsAndNotNull(onSuccess)){
 				onSuccess(pos);

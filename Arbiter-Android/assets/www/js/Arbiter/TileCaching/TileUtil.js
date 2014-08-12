@@ -1247,12 +1247,13 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	    console.log('begining transaction to clear tiles');
 	    appDb.transaction(function(tx){
             // decrement ref_counter
-            var statement = "SELECT id, path, ref_counter FROM tiles;";
-            tx.executeSql(statement, [], function(tx, res){
+            var selectStatement = "SELECT id, path, ref_counter FROM tiles;";
+            tx.executeSql(selectStatement, [], function(tx, res){
                 if (TileUtil.debug) {
                     console.log("!!! clearTiles, selected from tiles, res = ", res);
                 }
-                if(res.rows.length < 1) {
+                var numTiles = res.rows.length;
+                if(numTiles < 1) {
                     if(callback) {
                         callback();
                     }
@@ -1262,6 +1263,36 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
                     // loop condition, but you might as well not even try to execute it.
                 }
                 var completedCounter = 0;
+                var deleteTile = function(tileEntry) {
+                    appDb.transaction(function(tx){
+                        var deleteStatement = "DELETE FROM tiles WHERE id=?;";
+                        
+                        tx.executeSql(deleteStatement, [tileEntry.id], function(tx, res){
+                            console.log('deleted ' + tileEntry + ' from tiles table, result = ', res);
+                            console.log('old res', res);
+                            TileUtil.removeTileFromDevice(tileEntry.path, tileEntry.id, function() {
+                                projectDb.transaction(function(tx) {
+                                    var deleteIdStatement = "DELETE FROM tileIds WHERE id = ?;"
+                                    tx.executeSql(deleteIdStatement, [tileEntry.id], function(tx, res2) {
+                                        completedCounter += 1;
+                                        console.log('done ' + completedCounter + ' of ' + numTiles);
+                                        if(completedCounter === numTiles - 1) {
+                                            if(callback) {
+                                                callback();
+                                            }
+                                        }
+                                    });
+                                });
+                            });
+                        }, function(tx, e) {
+                            console.log("TileUtil.clearUnusedTiles ERROR deleting tile, executeSql", e);
+                            // KZ REVIEW - NEED TO HANDLE THE ERROR
+                        });
+                    }, function(e) {
+                        console.log("TileUtil.clearUnusedTiles ERROR deleting tile, transaction", e);
+                        // KZ REVIEW - NEED TO HANDLE THE ERROR
+                    });
+                };
                 for(var i = 0; i < res.rows.length; ++i) {
                 	
                 	// KZ REVIEW - the smallest scope in javascript is a function
@@ -1278,47 +1309,10 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
                             if(callback) {
                                 callback();
                             }
-                            
-                            // KZ REVIEW - should there be a return here? Otherwise the DELETE transaction will still get called 
-                            // after calling the callback
-                        } else {
-                        	
-                            continue;
                         }
+                    } else {
+                        deleteTile(tileEntry);
                     }
-                    
-                    // KZ REVIEW - you may want to wrap this transaction in a closure
-                    // passing the tileEntry to ensure that the right tileEntry is read.
-                    // For example:
-                    // (function(tileEntry){
-                    //
-                    //	// execute the transaction
-                    //	...
-                    // })(tileEntry);
-                    
-                    appDb.transaction(function(tx){
-                        var statement = "DELETE FROM tiles WHERE id=?;";
-                        
-                        tx.executeSql(statement, [tileEntry.id], function(tx, res2){
-                            console.log('deleted ' + tileEntry + ' from tiles table, result = ', res2);
-                            console.log('old res', res);
-                            TileUtil.removeTileFromDevice(tileEntry.path, tileEntry.id, function() {
-                                completedCounter += 1;
-                                console.log('done ' + completedCounter + ' of ' + res.rows.length);
-                                if(completedCounter === res.rows.length - 1) {
-                                    if(callback) {
-                                        callback();
-                                    }
-                                }
-                            });
-                        }, function(tx, e) {
-                            console.log("TileUtil.clearUnusedTiles ERROR deleting tile, executeSql", e);
-                            // KZ REVIEW - NEED TO HANDLE THE ERROR
-                        });
-                    }, function(e) {
-                        console.log("TileUtil.clearUnusedTiles ERROR deleting tile, transaction", e);
-                        // KZ REVIEW - NEED TO HANDLE THE ERROR
-                    });
                 }
             }, function(tx, e) {
                 console.log("TileUtil.clearUnusedTiles ERROR updating tile ref_counter, executeSql", e);

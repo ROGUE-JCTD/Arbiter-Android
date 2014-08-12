@@ -36,11 +36,14 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	registerOnLayerAdded();
 	
 	this.maxCachingZoom = 19,
-	this.debug = false,
+	this.debug = true,
 	this.debugProgress = false,
+	this.clearOldTiles = true,
+    this.promptedRecache = false,
 	this.cacheTilesTest1Couter = 0,
 	this.counterCacheInProgressMax = 2,
 	this.androidClearWebCacheAfter = 15,
+	this.tileDereferenceCounter = 0;
 	
 	this.setTileDir = function(_tileDir){
 		tileDir = _tileDir;
@@ -177,45 +180,49 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	
 	this.cachingComplete = function(){
 	    console.log("---- caching complete!");
+	    this.promptedRecache = false;
 	    
 	    if(map === null || map === undefined){
 	    	throw "TileUtil.cachingComplete map should not be " + map;
 	    }
 	    
-	    console.log(caching);
-	    
-	    if (caching.counterDownloadFailed > 0){
-	    	//var msg = Arbiter.localizeString("Tile caching completed but {0} of {1} tiles failed to download. Recache if possible.","label","tilesFailed").format(caching.counterDownloadFailed, caching.counterMax);
-			//alert(msg);
-			//Arbiter.warning(msg);
-	    	console.log("Tile caching completed but " + caching.counterDownloadFailed
-	    			+ " of " + caching.counterMax + " failed to download. Recache if possible.");
-		}
-		
-	    var callback = caching.successCallback;
-	    
-	    
-	    // force the map to zoom to a different zoom level than we are about to go to so that it
-	    // 'refreshes' the map and pulls the tiles to display
-	    if (map.zoom === caching.zoomOriginal){
-	    	map.zoomTo((map.zoom + 1) < map.options.numZoomLevels ? map.zoom + 1: map.zoom - 1);
-	    }
-	    
-		// we're done - go back to the view user had before they started caching
-	    //map.zoomTo();
-	    //map.zoomToExtent(caching.extentOriginal, true);
-	    
-	    // keep for debugging
-	    cachingLast = caching;
-		caching = undefined;
-		
-		// Note: caching var is removed before servicing call back as an issue in callback will
-		// leave caching hanging around which will have serious implications 
-		if (callback){
-			callback();
-		}
-		
-		console.log("---- finalized last line of TileUtil.cacheTiles!");
+	    //clear unused tiles
+	    this.clearUnusedTiles(function() {
+	        console.log(caching);
+	        
+	        if (caching.counterDownloadFailed > 0){
+	            //var msg = Arbiter.localizeString("Tile caching completed but {0} of {1} tiles failed to download. Recache if possible.","label","tilesFailed").format(caching.counterDownloadFailed, caching.counterMax);
+	            //alert(msg);
+	            //Arbiter.warning(msg);
+	            console.log("Tile caching completed but " + caching.counterDownloadFailed
+	                    + " of " + caching.counterMax + " failed to download. Recache if possible.");
+	        }
+	        
+	        var callback = caching.successCallback;
+	        
+	        
+	        // force the map to zoom to a different zoom level than we are about to go to so that it
+	        // 'refreshes' the map and pulls the tiles to display
+	        if (map.zoom === caching.zoomOriginal){
+	            map.zoomTo((map.zoom + 1) < map.options.numZoomLevels ? map.zoom + 1: map.zoom - 1);
+	        }
+	        
+	        // we're done - go back to the view user had before they started caching
+	        //map.zoomTo();
+	        //map.zoomToExtent(caching.extentOriginal, true);
+	        
+	        // keep for debugging
+	        cachingLast = caching;
+	        caching = undefined;
+	        
+	        // Note: caching var is removed before servicing call back as an issue in callback will
+	        // leave caching hanging around which will have serious implications 
+	        if (callback){
+	            callback();
+	        }
+	        
+	        console.log("---- finalized last line of TileUtil.cacheTiles!");
+	    });
 	};
 	
 	this.serviceCacheRequests = function(){
@@ -266,7 +273,6 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	 * @param {OpenLayers.Bounds} aoi The aoi for caching
 	 */
 	this.cacheTiles = function(aoi, successCallback, errorCallback){
-		
 		if(aoi === null || aoi === undefined){
 			throw "TileUtil.cacheTiles aoi should not be " + aoi;
 		}
@@ -276,53 +282,74 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 			console.log("Tile caching already in progress.  Aborting new request.");
 			return;
 		} 
-		
+		/*TileUtil.startCachingTiles(aoi,
+                function(){
+                    console.log("~~~~ done caching");
+                    if (successCallback){
+                        TileUtil.clearCache(successCallback);
+                    }
+                }
+            )*/
 		//-- continue with clearing cache and then re downloading tiles 
-		TileUtil.clearCache(function(){
-			
-			if (TileUtil.cacheTilesTest1Couter > 0) {
-				console.log("~~~~ cacheTiles. done clear cache. starting testTilesTableIsEmpty MAKE sure there is only one project in arbiter!");
-				TileUtil.testTilesTableIsEmpty(
-					function(){
-						console.log("---- cacheTiles.clearCache: success no tiles in Tiles table");
-						
-						// once all the cache for this project is cleared, start caching again. 
-						TileUtil.startCachingTiles(aoi,
-							function(){
-								console.log("~~~~ done caching");
-								//Arbiter.hideMessageOverlay();
-								
-								if (successCallback){
-									successCallback();
-								}
-							}
-						);
-					},
-					function(){
-						TileUtil.dumpTilesTable();
-						//Arbiter.error("----[ TEST FAILED: testTilesTableIsEmpty cacheTiles.clearCache: failed! Tiles Table not empty. just dumped tilestable");
-						//Arbiter.hideMessageOverlay();
-		
-						if (errorCallback){
-							errorCallback();
-						}
-					}
-				);
-			} else {
-				console.log("~~~~ cacheTiles, done clearing clearing cache. starting caching");
-				// once all the cache for this project is cleared, start caching again. 
-				TileUtil.startCachingTiles(aoi,
-					function(){
-						console.log("~~~~ done caching");
-						//Arbiter.hideMessageOverlay();
-						
-						if (successCallback){
-							successCallback();
-						}
-					}
-				);
-			}
-		});
+		//if(TileUtil.clearOldTiles === true) {
+		    TileUtil.dereferenceTiles( function() {
+                TileUtil.startCachingTiles(aoi,
+                        function(){
+                            console.log("~~~~ done caching");
+                            if (successCallback){
+                                successCallback();
+                            }
+                        }
+                    );
+                }
+            );
+		/*} else {
+	        TileUtil.clearCache(function(){
+	            
+	            if (TileUtil.cacheTilesTest1Couter > 0) {
+	                console.log("~~~~ cacheTiles. done clear cache. starting testTilesTableIsEmpty MAKE sure there is only one project in arbiter!");
+	                TileUtil.testTilesTableIsEmpty(
+	                    function(){
+	                        console.log("---- cacheTiles.clearCache: success no tiles in Tiles table");
+	                        
+	                        // once all the cache for this project is cleared, start caching again. 
+	                        TileUtil.startCachingTiles(aoi,
+	                            function(){
+	                                console.log("~~~~ done caching");
+	                                //Arbiter.hideMessageOverlay();
+	                                
+	                                if (successCallback){
+	                                    successCallback();
+	                                }
+	                            }
+	                        );
+	                    },
+	                    function(){
+	                        TileUtil.dumpTilesTable();
+	                        //Arbiter.error("----[ TEST FAILED: testTilesTableIsEmpty cacheTiles.clearCache: failed! Tiles Table not empty. just dumped tilestable");
+	                        //Arbiter.hideMessageOverlay();
+	        
+	                        if (errorCallback){
+	                            errorCallback();
+	                        }
+	                    }
+	                );
+	            } else {
+	                console.log("~~~~ cacheTiles, done clearing clearing cache. starting caching");
+	                // once all the cache for this project is cleared, start caching again. 
+	                TileUtil.startCachingTiles(aoi,
+	                    function(){
+	                        console.log("~~~~ done caching");
+	                        //Arbiter.hideMessageOverlay();
+	                        
+	                        if (successCallback){
+	                            successCallback();
+	                        }
+	                    }
+	                );
+	            }
+	        });
+		}*/
 	};
 	
 	this.testCacheTilesRepeatStart = function(millisec, maxRepeat){
@@ -654,7 +681,8 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 				
 				tileoffsetlon += tilelon;
 				tileoffsetx += layer.tileSize.w;
-				
+				//TODO: only count and queue if we don't already have this tile
+				//check tile table
 				count++;
 				if (!onlyCountTile){
 					var tileBounds = new OpenLayers.Bounds(tileBoundsLeft, tileBoundsBottom, tileBoundsRight, tileBoundsTop);
@@ -801,6 +829,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	};
 	
 	this.cacheTile = function(bounds, zoom){
+	    console.log('starting cache tile');
 		
 	    if (TileUtil.debug) {
 	    	console.log("--- TileUtil.cacheTile, bounds & zoom: ", bounds, zoom);
@@ -815,7 +844,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 		
 		var url = '';
 	
-		// If the layer is an OSM (or XYZ) layer, don't call its getURL because it elies on the current 
+		// If the layer is an OSM (or XYZ) layer, don't call its getURL because it relies on the current 
 		// zoom level of the map which we avoid settings since it results in more crashes on android
 		if (caching.layer instanceof OpenLayers.Layer.XYZ) {
 			url = TileUtil.getURLForXYZLayerOnly(caching.layer, xyz);
@@ -849,8 +878,6 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 			}
 			
 			tx.executeSql(selectTileSql, [url], function(tx, res){
-	
-				
 				if (TileUtil.debug) {
 					console.log("getURL.res.rows.length: " + res.rows.length);
 					console.log(TileUtil.rowsToString(res.rows));
@@ -859,53 +886,88 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 				var tileNewRefCounter = -1;
 				var tileId = -1;
 				
+				var continueCaching = function(tileRefCount) {
+	                var ext = TileUtil.getLayerFormatExtension(caching.layer);
+	                
+	                var addTileCallback = function(tileRefCount){
+	                    //TODO: save tile should rely on add tile!!! and if add tile fails, the whole thing fail?
+	                    //alert('addtile callback, ref = ' + tileRefCount);
+                        if(tileRefCount === 0 || TileUtil.clearOldTiles === true) {
+                            console.log('addTile callback recache/initial cache');
+                            var saveTileSuccess = function(url, path){
+                                caching.counterCacheInProgress--;
+                                caching.counterDownloaded++;
+                                console.log(caching.counterDownloaded + " of " + caching.counterMax + " downloaded!");
+                                TileUtil.onUpdateCachingDownloadProgress();
+                                
+                                TileUtil.checkCachingStatus();
+                            };
+                            
+                            var saveTileError = function(url, path, err){
+                                caching.counterDownloadFailed++;
+                                caching.counterCacheInProgress--;
+                                TileUtil.onUpdateCachingDownloadProgress();
+                                console.log("TileUtil.cacheTile WARNING saveTileError filename, path, error", url, path, err);
+                                
+                                TileUtil.checkCachingStatus();
+                                //TODO: failed to download file and save to disk so just remove it from global.tiles and project.tileIds tables
+                                //TileUtil.removeTile(url, path);
+                            };
+                            
+                            // write the tile to device
+                            TileUtil.saveTile(url, xyz.z, xyz.x, xyz.y, ext, saveTileSuccess, saveTileError);
+	                    } else {
+	                        console.log('addTile callback reusing old tile');
+	                        caching.counterCacheInProgress--;
+	                        caching.counterDownloaded++;
+	                        console.log(caching.counterDownloaded + " of " + caching.counterMax + " downloaded!");
+	                        TileUtil.onUpdateCachingDownloadProgress();
+	                        TileUtil.checkCachingStatus();
+	                    }
+	                };
+	    
+	                //TODO: get rid of tile ids in general and just store it as a json array in projectKeyValueDatabase?
+	                
+	                // add the tile to databases immediately so that if multiple getURL calls come in for a given tile, 
+	                // we do not download the tile multiple times
+                    console.log('cacheTile calling addTile');
+	                TileUtil.addTile(url, xyz.z, xyz.x, xyz.y, ext, addTileCallback, tileRefCount, tileId);
+				};
+				
 				// if we do not have this tile already, it'll have ref_count of 1 and
 				// if we already have this tile, we'll increment its ref_counter by one also retrieve the tileId
 				if (res.rows.length === 0) {
-					tileNewRefCounter = 1;
+				    console.log('cacheTile new tile');
+					tileNewRefCounter = 0;
+					continueCaching(tileNewRefCounter);
 				} else if (res.rows.length === 1) {
-					tileNewRefCounter = res.rows.item(0).ref_counter + 1;
-					tileId = res.rows.item(0).id;
+                    console.log('cacheTile certified pre-owned tile');
+                    //prompt user to clear tiles or continue
+				    if(TileUtil.promptedRecache === false) {
+	                    Arbiter.Cordova.tilesAlreadyCached(function() {
+	                        TileUtil.promptedRecache = true;
+	                        TileUtil.clearOldTiles = true;
+	                        tileNewRefCounter = res.rows.item(0).ref_counter + 1;
+	                        tileId = res.rows.item(0).id;
+	                        continueCaching(tileNewRefCounter);
+	                    }, function() {
+	                        TileUtil.promptedRecache = true;
+	                        TileUtil.clearOldTiles = false;
+	                        tileNewRefCounter = res.rows.item(0).ref_counter + 1;
+	                        tileId = res.rows.item(0).id;
+	                        continueCaching(tileNewRefCounter);
+	                    });
+				    } else {
+                        tileNewRefCounter = res.rows.item(0).ref_counter + 1;
+                        tileId = res.rows.item(0).id;
+                        continueCaching(tileNewRefCounter);
+				    }
 				} else {
+                    console.log('cacheTile fucked up tile');
 					// for some reason the tile have been cached under two separate entries!!
 					console.log("====>> ERROR: TileUtil.getURL: Multiple Entries for tile " + TileUtil.rowsToString(res.rows));
 					throw "TileUtil.cacheTile: TileUtil.getURL: Multiple Entries for tile! see console for details. count: " + res.rows.length;
 				}
-				
-				var ext = TileUtil.getLayerFormatExtension(caching.layer);
-				
-				var addTileCallback = function(){
-		    		//TODO: save tile should rely on add tile!!! and if add tile fails, the whole thing fail?
-		    		
-					var saveTileSuccess = function(url, path){
-						caching.counterCacheInProgress--;
-						caching.counterDownloaded++;
-						console.log(caching.counterDownloaded + " of " + caching.counterMax + " downloaded!");
-						TileUtil.onUpdateCachingDownloadProgress();
-						
-						TileUtil.checkCachingStatus();
-					};
-					
-					var saveTileError = function(url, path, err){
-						caching.counterDownloadFailed++;
-						caching.counterCacheInProgress--;
-						TileUtil.onUpdateCachingDownloadProgress();
-						console.log("TileUtil.cacheTile WARNING saveTileError filename, path, error", url, path, err);
-						
-						TileUtil.checkCachingStatus();
-						//TODO: failed to download file and save to disk so just remove it from global.tiles and project.tileIds tables
-						//TileUtil.removeTile(url, path);
-					};
-					
-					// write the tile to device
-					TileUtil.saveTile(url, xyz.z, xyz.x, xyz.y, ext, saveTileSuccess, saveTileError);
-				};
-	
-				//TODO: get rid of tile ids in general and just store it as a json array in projectKeyValueDatabase?
-				
-				// add the tile to databases immediately so that if multiple getURL calls come in for a given tile, 
-				// we do not download the tile multiple times
-	    		TileUtil.addTile(url, xyz.z, xyz.x, xyz.y, ext, addTileCallback, tileNewRefCounter, tileId);
 			}, function(tx, e) {
 				console.log("TileUtil.cacheTile ERROR", e);
 			});	
@@ -917,7 +979,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	
 	this.saveTile = function(fileUrl, z, x, y, ext, successCallback, errorCallback) {
 		if (TileUtil.debug) {
-			console.log("---- TileUtil.saveTile. tileset: " + tileDir.path + ", z: " + z + ", x: " + x + ", y: " + y + ", url: " + fileUrl);
+			//alert("---- TileUtil.saveTile. tileset: " + tileDir.path + ", z: " + z + ", x: " + x + ", y: " + y + ", url: " + fileUrl);
 		}
 		
 		//console.log("---- tilesetDirEntry: " + tilesetDirEntry.toURL());
@@ -941,7 +1003,8 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 						var fileTransfer = new FileTransfer();
 						//var uri = encodeURI(fileUrl);
 						var uri = fileUrl;
-						
+
+                        console.log("TileUtil.saveTile.", uri);
 						fileTransfer.download(
 							uri,
 							filePath,
@@ -979,9 +1042,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 		return;
 	};
 	
-	this.addTile = function(url, z, x, y, ext,
-			successCallback, tileNewRefCounter, tileId) {
-		
+	this.addTile = function(url, z, x, y, ext, successCallback, tileNewRefCounter, tileId) {
 		if(appDb === null || appDb === undefined){
 			throw "TileUtil.addTile appDb should not be " + appDb;
 		}
@@ -990,7 +1051,8 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	    	console.log("---- TileUtil.addTile: ", url, tileDir.path, z, x, y, ext, tileNewRefCounter, tileId );
 	    }
 	
-		if (tileNewRefCounter === 1) {
+	    //because of the change in how tiles are reference counted, a tile used in one project will now have a ref_count of 0
+		if (tileNewRefCounter === 0) {
 			// alert("inserted tile. id: " + res.insertId);
 			appDb.transaction(function(tx) {
 				var path = fileSystem.root.toURL() + "/" + tileDir.path +"/" + z + "/" + x + "/" + y + "." + ext;
@@ -1005,8 +1067,8 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 						res.insertId = 1;
 						//Arbiter.warning("@@@@@@ caught res.insertId == null inserintg into tiles. using 1 as workaround");
 					}
-						
-				    TileUtil.insertIntoTileIds(res.insertId, successCallback);
+					//alert('inserting into tile ids');
+				    TileUtil.insertIntoTileIds(res.insertId, successCallback, tileNewRefCounter);
 	
 					if (TileUtil.debug) {
 						console.log("inserted new url in tiles. res.insertId: " + res.insertId);
@@ -1018,7 +1080,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 				console.log("TileUtil.addTile ERROR", e);
 			});
 	
-		} else if (tileNewRefCounter > 1) {
+		} else if (tileNewRefCounter >= 1) {
 			//TEST NOTE only for testing single project
 			//Arbiter.warning("only a warning if arbiter only has a single project cached. about to increment existing tiles refcounter for id: " + tileId);
 			
@@ -1034,7 +1096,9 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 						Arbiter.error("addTile must be provided tileId when tileNewRefCounter > 1");
 					}
 					
-					TileUtil.insertIntoTileIds(tileId, successCallback);
+					//this needs to not happen
+					//TileUtil.insertIntoTileIds(tileId, successCallback, tileNewRefCounter);
+					successCallback(tileNewRefCounter);
 	
 					if (TileUtil.debug) {
 						console.log("updated tiles. for url : " + url);
@@ -1059,7 +1123,6 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 		
 		//Arbiter.setMessageOverlay(Arbiter.localizeString("Caching Tiles","label","cachingTiles"), Arbiter.localizeString("Removing Tiles","label","removingTiles"));
 	
-		
 		var op = function(tx){
 			var sql = "SELECT id FROM tileIds;";
 			tx.executeSql(sql, [], function(tx, res){
@@ -1106,6 +1169,134 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 				+ projectDb + "'";
 		}
 			
+	};
+	
+	//dereferenceTiles will decrement the ref counters of all tiles in this project so we will know which tiles can be deleted after all is said and done
+	//this will replace clearCache
+	this.dereferenceTiles = function(successCallback) {
+	    var handleTile = function(tileId, numTiles) {
+            appDb.transaction(function(tx){
+                console.log('!!! dereferenceTiles selected from tileIds, opening appdb transaction', tileId);
+                var getTileEntrySQL = "SELECT ref_counter FROM tiles WHERE id=?;";
+                tx.executeSql(getTileEntrySQL, [tileId], function(tx, res2){
+                    console.log('!!! dereferenceTiles selected from tiles', res2.rows.item(0));
+                    var tileEntry = res2.rows.item(0);
+                    if(tileEntry.ref_counter > 0) {
+                        var statement = "UPDATE tiles SET ref_counter=? WHERE id=?;";
+                        tx.executeSql(statement, [(tileEntry.ref_counter - 1), tileId], function(tx, res3){
+                            if (TileUtil.debug) {
+                                console.log("-- decremented ref_counter to: " + (tileEntry.ref_counter - 1));
+                            }
+                            //if this is the last one then call the successCallback
+                            TileUtil.tileDereferenceCounter += 1;
+                            console.log('!!! dereferenceTiles ' + TileUtil.tileDereferenceCounter + ' of ' + numTiles + ' complete');
+                            if(TileUtil.tileDereferenceCounter === numTiles-1) {
+                                TileUtil.tileDereferenceCounter = 0;
+                                successCallback();
+                            }
+                        }, function(tx, e) {
+                            console.log("TileUtil.dereferenceTiles ERROR updating tile ref_counter", e);
+                        });
+                    } else {
+                        //if this is the last one then call the successCallback
+                        TileUtil.tileDereferenceCounter += 1;
+                        if(TileUtil.tileDereferenceCounter === numTiles) {
+                            TileUtil.tileDereferenceCounter = 0;
+                            successCallback();
+                        }
+                    }
+                });
+            });
+	    };
+        var op = function(tx){
+            var getIdSQL = "SELECT id FROM tileIds;";
+            tx.executeSql(getIdSQL, [], function(tx, res){
+                console.log('!!! dereferenceTiles selected from tileIds', res.rows.length);
+                if (res.rows.length > 0) {
+                    for(var i = 0; i < res.rows.length; ++i){
+                        handleTile(res.rows.item(i).id, res.rows.length);
+                    }
+                } else {
+                    if (successCallback){
+                        successCallback();
+                    }               
+                }
+    
+            }, function(tx, e) {
+                console.log("TileUtil.clearCache ERROR", e);
+            });
+        };
+        
+        if(projectDb !== null && projectDb !== undefined){
+            console.log('!!! dereferenceTiles starting proj transaction');
+            projectDb.transaction(op, function(e) {
+                console.log("TileUtil.clearCache ERROR", e);
+            });
+        }else{
+            throw "TileUtil.clearCache projectDb should not be '" 
+                + projectDb + "'";
+        }
+	};
+	
+	//any tile that has a ref_count of 0 by the end of the syncing proccess is 
+	this.clearUnusedTiles = function(callback) {
+	    console.log('begining transaction to clear tiles');
+	    appDb.transaction(function(tx){
+            // decrement ref_counter
+            var statement = "SELECT id, path, ref_counter FROM tiles;";
+            tx.executeSql(statement, [], function(tx, res){
+                if (TileUtil.debug) {
+                    console.log("!!! clearTiles, selected from tiles, res = ", res);
+                }
+                if(res.rows.length < 1) {
+                    if(callback) {
+                        callback();
+                    }
+                }
+                var completedCounter = 0;
+                for(var i = 0; i < res.rows.length; ++i) {
+                    var tileEntry = res.rows.item(i);
+                    console.log("!!! clearTiles, tileEntry = ", tileEntry);
+                    if(res.rows.item(i).ref_counter > 0) {
+                        console.log('this one is ok', tileEntry.id);
+                        completedCounter += 1;
+                        console.log('done ' + completedCounter + ' of ' + res.rows.length);
+                        if(completedCounter === res.rows.length) {
+                            if(callback) {
+                                callback();
+                            }
+                        } else {
+                            continue;
+                        }
+                    }
+                    appDb.transaction(function(tx){
+                        var statement = "DELETE FROM tiles WHERE id=?;";
+                        
+                        tx.executeSql(statement, [tileEntry.id], function(tx, res2){
+                            console.log('deleted ' + tileEntry + ' from tiles table, result = ', res2);
+                            console.log('old res', res);
+                            TileUtil.removeTileFromDevice(tileEntry.path, tileEntry.id, function() {
+                                completedCounter += 1;
+                                console.log('done ' + completedCounter + ' of ' + res.rows.length);
+                                if(completedCounter === res.rows.length - 1) {
+                                    if(callback) {
+                                        callback();
+                                    }
+                                }
+                            });
+                        }, function(tx, e) {
+                            console.log("TileUtil.clearUnusedTiles ERROR deleting tile, executeSql", e);
+                        });
+                    }, function(e) {
+                        console.log("TileUtil.clearUnusedTiles ERROR deleting tile, transaction", e);
+                    });
+                }
+            }, function(tx, e) {
+                console.log("TileUtil.clearUnusedTiles ERROR updating tile ref_counter, executeSql", e);
+            });
+        }, function(e1, e2) {
+            console.log("TileUtil.clearUnusedTiles ERROR updating tile ref_counter, transaction", e);
+        });
 	};
 	
 	this.deleteTileIdsEntries = function(successCallback){
@@ -1191,14 +1382,14 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 		});
 	};
 	
-	this.insertIntoTileIds = function(id, successCallback) {
+	this.insertIntoTileIds = function(id, successCallback, tileNewRefCounter) {
 		if(projectDb === null || projectDb === undefined){
 			throw "TileUtil.insertIntoTileIds projectDb should not be "
 				+ projectDb;
 		}
 		
 	    if (TileUtil.debug) {
-	    	console.log("---- TileUtil.addToTileIds. id: " + id);
+	    	//alert("---- TileUtil.addToTileIds. id: " + id);
 	    }
 	    
 	    //var idsBeforeTx = TileUtil.tableToString(Arbiter.currentProject.variablesDatabase, "tileIds");
@@ -1217,7 +1408,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 				}
 				
 				if (successCallback){
-					successCallback();
+					successCallback(tileNewRefCounter);
 				}
 			}, function(tx, e) {
 				console.log("dumping after error for id: " + id);
@@ -1295,23 +1486,20 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 					var tileEntry = res.rows.item(0);
 					
 					// if the counter is only at 1, we can delete the file from disk
-					if (tileEntry.ref_counter === 1){
-	
+					if (tileEntry.ref_counter === 0){
 						appDb.transaction(function(tx){
-	
 							var statement = "DELETE FROM tiles WHERE id=?;";
+							
 							tx.executeSql(statement, [id], function(tx, res){
-		
 								TileUtil.removeTileFromDevice(tileEntry.path, id, successCallback, errorCallback);
-								
 							}, function(tx, e) {
 								console.log("TileUtil.removeTileById ERROR deleting tile", e);
 							});
 						}, function(e) {
 							console.log("TileUtil.removeTileById ERROR deleting tile", e);
-						});							
-						
-					} else if (tileEntry.ref_counter > 1){
+						});
+					} else if (tileEntry.ref_counter > 60){
+					    //Im just hacking this out now to see if it works
 						appDb.transaction(function(tx){
 							// decrement ref_counter
 							var statement = "UPDATE tiles SET ref_counter=? WHERE id=?;";

@@ -78,6 +78,8 @@
 	<string name="downloading_schemas">Downloading Schemas</string>
 	<string name="downloading_tiles">Downloading Tiles</string>
 	<string name="tile_cache_warning">Tiles to download:</string>
+	<string name="tiles_already_cached_title">Tiles Found on Device</string>
+	<string name="tiles_already_cached_msg">Some of these tiles are already on the device.  Would you like to delete the tiles and re-download them, or only download only the missing tiles?</string>
 	<string name="syncing_media_title">Syncing Media</string>
 	<string name="syncing_vector_data">Syncing Vector Data</string>
 	<string name="downloaded">Downloaded: </string>

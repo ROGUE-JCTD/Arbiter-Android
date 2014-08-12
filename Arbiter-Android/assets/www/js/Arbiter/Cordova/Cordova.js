@@ -70,6 +70,19 @@ Arbiter.Cordova = (function() {
 			}, "ArbiterCordova", "syncOperationTimedOut", []);
 		},
 		
+		tilesAlreadyCached: function(recacheTiles, skipRecache) {
+		    //alert('cordova.js tilesAlreadyCached received');
+		    cordova.exec(function(){
+                if(Arbiter.Util.existsAndNotNull(recacheTiles)){
+                    recacheTiles();
+                }
+            }, function(){
+                if(Arbiter.Util.existsAndNotNull(skipRecache)){
+                    skipRecache();
+                }
+            }, "ArbiterCordova", "tilesAlreadyCached", []);
+		},
+		
 		featureNotInAOI: function(featureId, insertFeature, cancelInsertFeature){
 			
 			Arbiter.Cordova.setState(Arbiter.Cordova.STATES.OUTSIDE_AOI_WARNING);

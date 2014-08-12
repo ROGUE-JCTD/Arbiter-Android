@@ -258,6 +258,42 @@ public class ArbiterCordova extends CordovaPlugin{
 			});
 			
 			return true;
+		}else if("tilesAlreadyCached".equals(action)) {
+			final Activity activity = cordova.getActivity();
+			
+			activity.runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					
+					AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+					
+					builder.setTitle(R.string.tiles_already_cached_title);
+					
+					builder.setMessage(R.string.tiles_already_cached_msg);
+					
+					builder.setNegativeButton("recache", new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							
+							callbackContext.success();
+						}
+					});
+					
+					builder.setPositiveButton("continue", new DialogInterface.OnClickListener(){
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+
+							callbackContext.error(0);
+						}
+					});
+					
+					builder.create().show();
+				}
+			});
+			
+			return true;
 		}else if("layersAlreadyInProject".equals(action)){
 			
 			final JSONArray layersAlreadyInProject = args.getJSONArray(0);

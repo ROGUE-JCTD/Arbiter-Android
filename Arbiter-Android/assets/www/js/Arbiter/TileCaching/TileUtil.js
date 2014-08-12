@@ -292,6 +292,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
             )*/
 		//-- continue with clearing cache and then re downloading tiles 
 		//if(TileUtil.clearOldTiles === true) {
+		// KZ REVIEW - should also pass the error callback in case the db transaction fails
 		    TileUtil.dereferenceTiles( function() {
                 TileUtil.startCachingTiles(aoi,
                         function(){
@@ -1205,8 +1206,8 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
                             successCallback();
                         }
                     }
-                });
-            });
+                }); // KZ REVIEW - NEED TO HANDLE THE ERROR, otherwise in the event of an error, the app will just hang...
+            }); // KZ REVIEW - NEED TO HANDLE THE ERROR HERE AS WELL
 	    };
         var op = function(tx){
             var getIdSQL = "SELECT id FROM tileIds;";
@@ -1224,6 +1225,8 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
     
             }, function(tx, e) {
                 console.log("TileUtil.clearCache ERROR", e);
+                // KZ REVIEW - NEED TO HANDLE THE ERROR HERE AS WELL - have to call an error callback here,
+                // or the app will just hang if theres an error.
             });
         };
         
@@ -1231,6 +1234,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
             console.log('!!! dereferenceTiles starting proj transaction');
             projectDb.transaction(op, function(e) {
                 console.log("TileUtil.clearCache ERROR", e);
+                // KZ REVIEW - NEED TO HANDLE THE ERROR HERE
             });
         }else{
             throw "TileUtil.clearCache projectDb should not be '" 
@@ -1252,9 +1256,18 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
                     if(callback) {
                         callback();
                     }
+                    
+                    // KZ REVIEW - doesn't really matter, but you may want to add a return here
+                    // to skip everything below.  It's not getting executed because of the for
+                    // loop condition, but you might as well not even try to execute it.
                 }
                 var completedCounter = 0;
                 for(var i = 0; i < res.rows.length; ++i) {
+                	
+                	// KZ REVIEW - the smallest scope in javascript is a function
+                	// not a block. The var is evaluated at parse time and the assignment
+                	// is made at runtime, so tileEntry is the same variable each time, just
+                	// getting assigned a new value.
                     var tileEntry = res.rows.item(i);
                     console.log("!!! clearTiles, tileEntry = ", tileEntry);
                     if(res.rows.item(i).ref_counter > 0) {
@@ -1265,10 +1278,24 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
                             if(callback) {
                                 callback();
                             }
+                            
+                            // KZ REVIEW - should there be a return here? Otherwise the DELETE transaction will still get called 
+                            // after calling the callback
                         } else {
+                        	
                             continue;
                         }
                     }
+                    
+                    // KZ REVIEW - you may want to wrap this transaction in a closure
+                    // passing the tileEntry to ensure that the right tileEntry is read.
+                    // For example:
+                    // (function(tileEntry){
+                    //
+                    //	// execute the transaction
+                    //	...
+                    // })(tileEntry);
+                    
                     appDb.transaction(function(tx){
                         var statement = "DELETE FROM tiles WHERE id=?;";
                         
@@ -1286,16 +1313,21 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
                             });
                         }, function(tx, e) {
                             console.log("TileUtil.clearUnusedTiles ERROR deleting tile, executeSql", e);
+                            // KZ REVIEW - NEED TO HANDLE THE ERROR
                         });
                     }, function(e) {
                         console.log("TileUtil.clearUnusedTiles ERROR deleting tile, transaction", e);
+                        // KZ REVIEW - NEED TO HANDLE THE ERROR
                     });
                 }
             }, function(tx, e) {
                 console.log("TileUtil.clearUnusedTiles ERROR updating tile ref_counter, executeSql", e);
+                
+                // KZ REVIEW - NEED TO HANDLE THE ERROR
             });
         }, function(e1, e2) {
             console.log("TileUtil.clearUnusedTiles ERROR updating tile ref_counter, transaction", e);
+            // KZ REVIEW - NEED TO HANDLE THE ERROR
         });
 	};
 	

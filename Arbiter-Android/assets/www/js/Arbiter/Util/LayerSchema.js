@@ -273,6 +273,10 @@ Arbiter.Util.LayerSchema = function(){
 		
 		isReadOnly: function(){
 			return isReadOnly === "true" || isReadOnly === true;
+		},
+		
+		setReadOnly: function(_isReadOnly){
+			isReadOnly = _isReadOnly;
 		}
 	};
 };

@@ -281,6 +281,39 @@ Arbiter.FeatureTableHelper = (function(){
     		});
     	},
     	
+    	getUnsyncedFeatureCount: function(featureType, onSuccess, onFailure){
+    		
+    		var db = Arbiter.FeatureDbHelper.getFeatureDatabase();
+    		var context = this;
+    		
+    		var fail = function(e){
+    			
+    			if(Arbiter.Util.existsAndNotNull(onFailure)){
+    				onFailure(e);
+    			}
+    		};
+    		
+    		db.transaction(function(tx){
+    			
+    			var sql = "select count(*) from " + featureType + " where " + context.SYNC_STATE + "=?";
+    			
+    			tx.executeSql(sql, [context.SYNC_STATES.NOT_SYNCED], function(_tx, res){
+    				
+    				var count = 0;
+    				
+    				if(res.rows.length > 0){
+    					count = res.rows.item(0)["count(*)"];
+    				}
+    				
+    				if(Arbiter.Util.existsAndNotNull(onSuccess)){
+    					onSuccess(count);
+    				}
+    			}, function(_tx, e){
+    				fail(e);
+    			});
+    		}, fail);
+    	},
+    	
     	clearFeatureTable: function(schema, onSuccess, onFailure){
     		var db = Arbiter.FeatureDbHelper.getFeatureDatabase();
     		

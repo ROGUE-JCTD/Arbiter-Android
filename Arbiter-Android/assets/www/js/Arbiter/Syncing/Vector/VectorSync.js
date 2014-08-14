@@ -122,13 +122,37 @@
 			
 			if(Arbiter.Util.existsAndNotNull(schema) && schema.isReadOnly()){
 				
-				Arbiter.FailedSyncHelper.setErrorFor(key, dataType, syncType, key, Arbiter.Error.Sync.UNAUTHORIZED, function(){
+				Arbiter.FeatureTableHelper.getUnsyncedFeatureCount(schema.getFeatureType(), function(count){
 					
-					console.log("vectorDownload updateError success");
+					console.log("getUnsyncedFeatureCount count = " + count);
 					
-					callback(false);
+					if(count > 0){
+						
+						Arbiter.FailedSyncHelper.setErrorFor(key, dataType, syncType, key, Arbiter.Error.Sync.UNAUTHORIZED, function(){
+							
+							console.log("vectorDownload updateError success");
+							
+							callback(false);
+						}, function(e){
+							console.log("vectorDownload updateError failed", (e.stack) ? e.stack : e);
+							callback(false);
+						});
+					}else{
+						
+						Arbiter.FailedSyncHelper.remove(key, dataType, syncType, key, function(){
+							
+							callback(true);
+						}, function(e){
+							
+							console.log("failed to remove failed_sync item: ", e);
+							
+							callback(true);
+						});
+					}
 				}, function(e){
-					console.log("vectorDownload updateError failed", (e.stack) ? e.stack : e);
+					
+					console.log("Error getting unsynced feature count: " , e);
+					
 					callback(false);
 				});
 				 

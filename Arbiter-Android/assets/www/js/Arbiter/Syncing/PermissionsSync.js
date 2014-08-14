@@ -98,7 +98,9 @@
 		
 		var layerPermissionChecker = new Arbiter.LayerPermissionChecker(url, featureType, credentials);
 		
-		layerPermissionChecker.checkReadOnly(function(){
+		layerPermissionChecker.checkReadOnly(function(isReadOnly){
+			
+			schema.setReadOnly(isReadOnly);
 			
 			next();
 		}, function(e){

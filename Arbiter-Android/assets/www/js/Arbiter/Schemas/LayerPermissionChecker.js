@@ -108,9 +108,6 @@
 		
 		var request = new OpenLayers.Request.POST(options);
 		
-		// Couldn't find a way to set timeout for an openlayers
-		// request, so I did this to abort the request after
-		// 15 seconds of not getting a response
 		window.setTimeout(function(){
 			if(!gotRequestBack){
 				request.abort();

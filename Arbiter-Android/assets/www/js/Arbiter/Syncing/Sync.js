@@ -232,12 +232,26 @@
 			
 			console.log("failedToStore: " + JSON.stringify(failedToStore));
 			
-			context.startVectorSync();
+			context.checkLayerPermissions();
 		});
 		
 		storeMediaToDownload.startStoring();
 	};
 
+	prototype.checkLayerPermissions = function(){
+		
+		var context = this;
+		
+		var permissionsSync = new Arbiter.PermissionsSync(this.schemas);
+		
+		permissionsSync.sync(function(){
+			
+			context.startVectorSync();
+		}, function(e){
+			context.onSyncFailed(e);
+		});
+	};
+	
 	prototype.startVectorSync = function(){
 		var context = this;
 		
@@ -272,20 +286,6 @@
 		
 		mediaSync.startSync(function(){
 
-			context.checkLayerPermissions();
-		}, function(e){
-			context.onSyncFailed(e);
-		}, this.downloadOnly);
-	};
-
-	prototype.checkLayerPermissions = function(){
-		
-		var context = this;
-		
-		var permissionsSync = new Arbiter.PermissionsSync(this.schemas);
-		
-		permissionsSync.sync(function(){
-			
 			if(context.cacheTiles === true || context.cacheTiles === "true"){
 				context.startTileCache();
 			}else{
@@ -293,7 +293,7 @@
 			}
 		}, function(e){
 			context.onSyncFailed(e);
-		});
+		}, this.downloadOnly);
 	};
 	
 	prototype.startTileCache = function(){

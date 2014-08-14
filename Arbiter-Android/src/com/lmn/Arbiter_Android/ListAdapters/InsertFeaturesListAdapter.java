@@ -12,9 +12,11 @@ import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseGeometryTypeDialog;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.drawable.Drawable;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -166,29 +168,61 @@ public class InsertFeaturesListAdapter extends BaseAdapter implements ArbiterAda
             TextView layerNameView = (TextView) view.findViewById(R.id.layerName);
             TextView serverNameView = (TextView) view.findViewById(R.id.serverName);
             
-            if(layerNameView != null){
-            	layerNameView.setText(layer.getLayerTitle());
-            }
-            
             if(serverNameView != null){
             	serverNameView.setText(layer.getServerName());
             }
+            
+            if(!layer.isReadOnly()){
+            	
+            	if(layerNameView != null){
+            		
+                	layerNameView.setText(layer.getLayerTitle());
+                }
+            	
+            	view.setBackgroundColor(0x00000000);
+            	
+            	setBackground(view, dialog.getActivity().getResources().getDrawable(R.drawable.list_selector));
+            	
+            	view.setOnClickListener(new OnClickListener(){
+        			@Override
+        			public void onClick(View v){
+        				
+        				dialog.getActivity().runOnUiThread(new Runnable(){
+        					@Override
+        					public void run(){
+        						chooseGeometryHandler(layer.getFeatureTypeNoPrefix(), layer.getLayerId());
+        					}
+        				});
+        			}
+        		});
+            }else{
+            	
+            	if(layerNameView != null){
+            		String readOnlyText = dialog.getActivity().getString(R.string.read_only);
+                	layerNameView.setText(layer.getLayerTitle() + " (" + readOnlyText + ")");
+                }
+            	
+            	setBackground(view, null);
+            	
+            	view.setBackgroundColor(dialog.getActivity().getResources().getColor(android.R.color.darker_gray));
+            	
+            	view.setOnClickListener(null);
+            }
 		}
 		
-		view.setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View v){
-				
-				dialog.getActivity().runOnUiThread(new Runnable(){
-					@Override
-					public void run(){
-						chooseGeometryHandler(layer.getFeatureTypeNoPrefix(), layer.getLayerId());
-					}
-				});
-			}
-		});
-		
 		return view;
+	}
+	
+	@SuppressWarnings("deprecation")
+	@SuppressLint("NewApi")
+	private void setBackground(View view, Drawable drawable){
+		
+		int sdk = android.os.Build.VERSION.SDK_INT;
+    	if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+    	    view.setBackgroundDrawable(drawable);
+    	} else {
+    	    view.setBackground(drawable);
+    	}
 	}
 	
 	@Override

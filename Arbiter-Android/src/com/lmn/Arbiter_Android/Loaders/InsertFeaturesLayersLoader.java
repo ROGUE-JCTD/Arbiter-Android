@@ -57,8 +57,6 @@ public class InsertFeaturesLayersLoader extends AsyncTaskLoader<ArrayList<Layer>
 		
 		layers = removeLayersWithoutGeometryType(featureDb, layers);
 		
-		layers = removeReadOnlyLayers(projectDb, layers);
-		
 		SparseArray<Server> servers = ServersHelper.getServersHelper().
 				getAll(appDb);
 		
@@ -73,23 +71,6 @@ public class InsertFeaturesLayersLoader extends AsyncTaskLoader<ArrayList<Layer>
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
-		return layers;
-	}
-	
-	private ArrayList<Layer> removeReadOnlyLayers(SQLiteDatabase projectDb, ArrayList<Layer> layers){
-		
-		Layer layer = null;
-		
-		for(int i = layers.size() - 1; i >= 0; i--){
-			
-			layer = layers.get(i);
-			
-			if(layer.isReadOnly()){
-				
-				layers.remove(i);
-			}
 		}
 		
 		return layers;

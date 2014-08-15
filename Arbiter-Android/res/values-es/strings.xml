@@ -80,6 +80,8 @@
 	<string name="tile_cache_warning">Teselas para descargar:</string>
 	<string name="tiles_already_cached_title">Teselas Encontrados en el Dispositivo</string>
 	<string name="tiles_already_cached_msg">Algunas de estas teselas ya están en el dispositivo.  ¿Quieres eliminar las teselas y volver a descargarlos, o descargar sólo los azulejos que faltan?</string>
+	<string name="tiles_already_cached_recache">Depositará todas las teselas</string>
+	<string name="tiles_already_cached_skip">Sólo falta teselas</string>
 	<string name="syncing_media_title">Sincronizar Fotos</string>
 	<string name="syncing_vector_data">Sincronización de datos vectoriales</string>
 	<string name="downloaded">Descargado: </string>

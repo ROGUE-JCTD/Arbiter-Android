@@ -44,6 +44,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	this.counterCacheInProgressMax = 2,
 	this.androidClearWebCacheAfter = 15,
 	this.tileDereferenceCounter = 0;
+	this.errorCallback = null;
 	
 	this.setTileDir = function(_tileDir){
 		tileDir = _tileDir;
@@ -276,6 +277,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 		if(aoi === null || aoi === undefined){
 			throw "TileUtil.cacheTiles aoi should not be " + aoi;
 		}
+		this.errorCallback = errorCallback;
 		
 		if (typeof caching !== 'undefined') {
 			//Arbiter.warning(Arbiter.localizeString("Tile Caching already in progress. Aborting new request.","label","cachingInProgress"));
@@ -302,6 +304,10 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
                             }
                         }
                     );
+                }, function() {
+                    if(errorCallback) {
+                        errorCallback();
+                    }
                 }
             );
 		/*} else {
@@ -964,7 +970,6 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
                         continueCaching(tileNewRefCounter);
 				    }
 				} else {
-                    console.log('cacheTile fucked up tile');
 					// for some reason the tile have been cached under two separate entries!!
 					console.log("====>> ERROR: TileUtil.getURL: Multiple Entries for tile " + TileUtil.rowsToString(res.rows));
 					throw "TileUtil.cacheTile: TileUtil.getURL: Multiple Entries for tile! see console for details. count: " + res.rows.length;
@@ -1174,7 +1179,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	
 	//dereferenceTiles will decrement the ref counters of all tiles in this project so we will know which tiles can be deleted after all is said and done
 	//this will replace clearCache
-	this.dereferenceTiles = function(successCallback) {
+	this.dereferenceTiles = function(successCallback, errorCallback) {
 	    var handleTile = function(tileId, numTiles) {
             appDb.transaction(function(tx){
                 console.log('!!! dereferenceTiles selected from tileIds, opening appdb transaction', tileId);
@@ -1191,7 +1196,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
                             //if this is the last one then call the successCallback
                             TileUtil.tileDereferenceCounter += 1;
                             console.log('!!! dereferenceTiles ' + TileUtil.tileDereferenceCounter + ' of ' + numTiles + ' complete');
-                            if(TileUtil.tileDereferenceCounter === numTiles-1) {
+                            if(TileUtil.tileDereferenceCounter === numTiles) {
                                 TileUtil.tileDereferenceCounter = 0;
                                 successCallback();
                             }
@@ -1206,8 +1211,8 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
                             successCallback();
                         }
                     }
-                }); // KZ REVIEW - NEED TO HANDLE THE ERROR, otherwise in the event of an error, the app will just hang...
-            }); // KZ REVIEW - NEED TO HANDLE THE ERROR HERE AS WELL
+                }, errorCallback);
+            }, errorCallback);
 	    };
         var op = function(tx){
             var getIdSQL = "SELECT id FROM tileIds;";
@@ -1225,8 +1230,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
     
             }, function(tx, e) {
                 console.log("TileUtil.clearCache ERROR", e);
-                // KZ REVIEW - NEED TO HANDLE THE ERROR HERE AS WELL - have to call an error callback here,
-                // or the app will just hang if theres an error.
+                errorCallback();
             });
         };
         
@@ -1234,7 +1238,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
             console.log('!!! dereferenceTiles starting proj transaction');
             projectDb.transaction(op, function(e) {
                 console.log("TileUtil.clearCache ERROR", e);
-                // KZ REVIEW - NEED TO HANDLE THE ERROR HERE
+                errorCallback();
             });
         }else{
             throw "TileUtil.clearCache projectDb should not be '" 
@@ -1257,10 +1261,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
                     if(callback) {
                         callback();
                     }
-                    
-                    // KZ REVIEW - doesn't really matter, but you may want to add a return here
-                    // to skip everything below.  It's not getting executed because of the for
-                    // loop condition, but you might as well not even try to execute it.
+                    return;
                 }
                 var completedCounter = 0;
                 var deleteTile = function(tileEntry) {
@@ -1286,32 +1287,27 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
                             });
                         }, function(tx, e) {
                             console.log("TileUtil.clearUnusedTiles ERROR deleting tile, executeSql", e);
-                            // KZ REVIEW - NEED TO HANDLE THE ERROR
+                            if(TileUtil.errorCallback) {
+                                TileUtil.errorCallback();
+                            }
                         });
                     }, function(e) {
                         console.log("TileUtil.clearUnusedTiles ERROR deleting tile, transaction", e);
-                        // KZ REVIEW - NEED TO HANDLE THE ERROR
+                        if(TileUtil.errorCallback) {
+                            TileUtil.errorCallback();
+                        }
                     });
                 };
                 for(var i = 0; i < res.rows.length; ++i) {
-                	
-                	// KZ REVIEW - the smallest scope in javascript is a function
-                	// not a block. The var is evaluated at parse time and the assignment
-                	// is made at runtime, so tileEntry is the same variable each time, just
-                	// getting assigned a new value.
-                    var tileEntry = res.rows.item(i);
-                    console.log("!!! clearTiles, tileEntry = ", tileEntry);
                     if(res.rows.item(i).ref_counter > 0) {
-                        console.log('this one is ok', tileEntry.id);
                         completedCounter += 1;
-                        console.log('done ' + completedCounter + ' of ' + res.rows.length);
                         if(completedCounter === res.rows.length) {
                             if(callback) {
                                 callback();
                             }
                         }
                     } else {
-                        deleteTile(tileEntry);
+                        deleteTile(res.rows.item(i));
                     }
                 }
             }, function(tx, e) {

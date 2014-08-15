@@ -271,7 +271,7 @@ public class ArbiterCordova extends CordovaPlugin{
 					
 					builder.setMessage(R.string.tiles_already_cached_msg);
 					
-					builder.setNegativeButton("recache", new DialogInterface.OnClickListener() {
+					builder.setNegativeButton(R.string.tiles_already_cached_recache, new DialogInterface.OnClickListener() {
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
@@ -280,7 +280,7 @@ public class ArbiterCordova extends CordovaPlugin{
 						}
 					});
 					
-					builder.setPositiveButton("continue", new DialogInterface.OnClickListener(){
+					builder.setPositiveButton(R.string.tiles_already_cached_skip, new DialogInterface.OnClickListener(){
 
 						@Override
 						public void onClick(DialogInterface dialog, int which) {

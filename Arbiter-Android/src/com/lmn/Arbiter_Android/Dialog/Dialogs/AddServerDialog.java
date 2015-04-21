@@ -2,14 +2,13 @@ package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.params.ClientPNames;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
@@ -35,6 +34,8 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.ListAdapters.ServerTypesAdapter;
 import com.lmn.Arbiter_Android.Map.Map;
+import com.lmn.Arbiter_Android.Util;
+
 
 public class AddServerDialog extends ArbiterDialogFragment{
 	private Server server;
@@ -113,23 +114,23 @@ public class AddServerDialog extends ArbiterDialogFragment{
 			((HasThreadPool) this.getActivity()).getThreadPool().execute(new Runnable(){
 				@Override
 				public void run(){
+                    try {
+                        String urlStr = urlField.getText().toString().replace("/wms", "/rest/process/batchdownload/arbiterAuthenticatedUserLoginTest");
+                        String credentials = usernameField.getText().toString() + ":" + passwordField.getText().toString();
+                        credentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+
+                        HttpClient client = Util.getHttpClientWithSSLConsiderations();
+                        HttpParams params = client.getParams();
+                        params.setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false);
+
+                        // THIS URL IS ONLY BEING USED TEMPORARILY.  THE REST ENDPOINT IS LOCKED DOWN SO THAT '/rest' REQUIRES ADMIN PRIVILEGES,
+                        // BUT WE WANT ANY REGISTERED USER.  AT THE TIME I WROTE THIS (5/7/2014), THIS WAS ONE WAY TO CHECK.  COMPLETE HACK, BUT
+                        // IT GOT THE JOB DONE.  IN THE FUTURE, THIS MAY NOT BE A VIABLE ENDPOINT AND SHOULD BE CHANGED TO SOME ENDPOINT THAT ONLY
+                        // REGISTERED USERS CAN ACCESS.
+                        HttpGet request = new HttpGet(urlStr);
+
+                        request.addHeader("Authorization", "Basic " + credentials);
 					
-					DefaultHttpClient client = new DefaultHttpClient();
-					HttpParams params = client.getParams();
-					params.setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false);
-					
-					// THIS URL IS ONLY BEING USED TEMPORARILY.  THE REST ENDPOINT IS LOCKED DOWN SO THAT '/rest' REQUIRES ADMIN PRIVILEGES,
-					// BUT WE WANT ANY REGISTERED USER.  AT THE TIME I WROTE THIS (5/7/2014), THIS WAS ONE WAY TO CHECK.  COMPLETE HACK, BUT
-					// IT GOT THE JOB DONE.  IN THE FUTURE, THIS MAY NOT BE A VIABLE ENDPOINT AND SHOULD BE CHANGED TO SOME ENDPOINT THAT ONLY
-					// REGISTERED USERS CAN ACCESS.
-					HttpGet request = new HttpGet(urlField.getText().toString().replace("/wms", "/rest/process/batchdownload/arbiterAuthenticatedUserLoginTest"));
-					
-					String credentials = usernameField.getText().toString() + ":" + passwordField.getText().toString();
-					credentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
-					
-					request.addHeader("Authorization", "Basic " + credentials);
-					
-					try {
 						HttpResponse response = client.execute(request);
 						int code = response.getStatusLine().getStatusCode();
 						switch (code) {
@@ -177,8 +178,7 @@ public class AddServerDialog extends ArbiterDialogFragment{
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-						
-						displayAuthenticationError(R.string.unable_to_connect, progressDialog);
+						displayAuthenticationError("Unable to connect: " + e.getMessage(), progressDialog);
 					}					
 				}
 			});
@@ -188,30 +188,34 @@ public class AddServerDialog extends ArbiterDialogFragment{
 			progressDialog.dismiss();
 		}
 	}
-	
-	public void displayAuthenticationError(final int errorId, final ProgressDialog progressDialog){
-		final Activity activity = getActivity();
-		final Context context = activity.getApplicationContext();
-		
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-				
-				builder.setTitle(context.getResources().getString(R.string.error));
-				builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
-				builder.setMessage(context.getResources().getString(errorId));
-				
-				builder.create().show();
-				
-				if(progressDialog != null){
-					progressDialog.dismiss();
-				}
-			}
-		});
-	}
-	
-	@Override
+
+    public void displayAuthenticationError(final int errorId, final ProgressDialog progressDialog){
+        displayAuthenticationError(getActivity().getApplicationContext().getResources().getString(errorId), progressDialog);
+    }
+
+    public void displayAuthenticationError(final String msg, final ProgressDialog progressDialog){
+        final Activity activity = getActivity();
+        final Context context = activity.getApplicationContext();
+
+        activity.runOnUiThread(new Runnable(){
+            @Override
+            public void run(){
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+
+                builder.setTitle(context.getResources().getString(R.string.error));
+                builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
+                builder.setMessage(msg);
+
+                builder.create().show();
+
+                if(progressDialog != null){
+                    progressDialog.dismiss();
+                }
+            }
+        });
+    }
+
+    @Override
 	public void onPositiveClick() {
 		Activity activity = getActivity();
 		Context context = activity.getApplicationContext();

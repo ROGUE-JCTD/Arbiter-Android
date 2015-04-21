@@ -25,6 +25,7 @@ import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.Comparators.CompareAddLayersListItems;
 import com.lmn.Arbiter_Android.Map.Helpers.Parsers.ParseGetCapabilities;
+import com.lmn.Arbiter_Android.Util;
 
 public class GetCapabilities {
 	private ParseGetCapabilities parser;
@@ -50,7 +51,7 @@ public class GetCapabilities {
 			HttpConnectionParams.setConnectionTimeout(params, timeout);
 			HttpConnectionParams.setSoTimeout(params, soTimeout);
 			
-			HttpClient client = new DefaultHttpClient();
+			HttpClient client = Util.getHttpClientWithSSLConsiderations();
 			HttpGet request = new HttpGet(url);
 			
 			if(!"".equals(server.getUsername()) && !"".equals(server.getPassword())){

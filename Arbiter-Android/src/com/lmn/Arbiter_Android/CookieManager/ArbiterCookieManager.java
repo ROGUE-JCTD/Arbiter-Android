@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.ClientPNames;
@@ -18,6 +19,7 @@ import org.apache.http.protocol.HTTP;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
+import com.lmn.Arbiter_Android.Util;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -35,7 +37,7 @@ public class ArbiterCookieManager {
 	
 	public void getCookieForServer(String wmsUrl, String username, String password) throws ClientProtocolException, IOException{
 		
-		final DefaultHttpClient postClient = new DefaultHttpClient();
+		final DefaultHttpClient postClient = Util.getHttpClientWithSSLConsiderations();
 		HttpParams params = postClient.getParams();
 		params.setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false);
 		HttpPost postRequest = new HttpPost(wmsUrl.replace("/wms", "/j_spring_security_check"));

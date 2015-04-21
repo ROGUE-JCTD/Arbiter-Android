@@ -1,16 +1,12 @@
 package com.lmn.Arbiter_Android;
 
+import java.security.KeyStore;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.TimeZone;
-
-import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
-import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
-import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -20,6 +16,25 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+
+import org.apache.http.HttpVersion;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.HTTP;
+
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
+import com.lmn.Arbiter_Android.SSL.AllowAllSSLSocketFactory;
 
 public class Util {
 	
@@ -208,4 +223,43 @@ public class Util {
 		String projectPath = ProjectStructure.getProjectPath(projectName);
 		return FeatureDatabaseHelper.getHelper(activity.getApplicationContext(), projectPath, reset).getWritableDatabase();
 	}
+
+
+    // Note: when using SSL endpoints, if the certs are not properly configured and chained in the
+    //       proper order, you can end up with 'No peer certificate' exception when attempting to
+    //       talk to the server. The client here makes it such that so long as an SSL cert is present,
+    //       the connection continues. Since arbiter is meant for collecting open data and reducing
+    //       the technical ability of the organizations involved is beneficial, we are allowing
+    //       arbiter to be more lenient. to change this behavior allowAnySSLCertificate can be
+    //       changed to false
+    static public DefaultHttpClient getHttpClientWithSSLConsiderations() {
+        boolean allowAnySSLCertificate = true;
+
+        if (allowAnySSLCertificate) {
+            try {
+                KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                trustStore.load(null, null);
+
+                AllowAllSSLSocketFactory sf = new AllowAllSSLSocketFactory(trustStore);
+                sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+
+                HttpParams params = new BasicHttpParams();
+                HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+                HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
+
+                SchemeRegistry registry = new SchemeRegistry();
+                registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+                registry.register(new Scheme("https", sf, 443));
+
+                ClientConnectionManager ccm = new ThreadSafeClientConnManager(params, registry);
+
+                return new DefaultHttpClient(ccm, params);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new DefaultHttpClient();
+            }
+        } else {
+            return new DefaultHttpClient();
+        }
+    }
 }

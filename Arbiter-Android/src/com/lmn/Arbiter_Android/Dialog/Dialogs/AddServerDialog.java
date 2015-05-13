@@ -177,9 +177,10 @@ public class AddServerDialog extends ArbiterDialogFragment{
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-						
-						displayAuthenticationError(R.string.unable_to_connect, progressDialog);
-					}					
+
+                        String unableToConnectStr = getActivity().getApplicationContext().getResources().getString(R.string.unable_to_connect);
+                        displayAuthenticationError(unableToConnectStr + ": " + e.getMessage(), progressDialog);
+					}
 				}
 			});
 		}catch(ClassCastException e){
@@ -188,29 +189,34 @@ public class AddServerDialog extends ArbiterDialogFragment{
 			progressDialog.dismiss();
 		}
 	}
-	
-	public void displayAuthenticationError(final int errorId, final ProgressDialog progressDialog){
-		final Activity activity = getActivity();
-		final Context context = activity.getApplicationContext();
-		
-		activity.runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-				
-				builder.setTitle(context.getResources().getString(R.string.error));
-				builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
-				builder.setMessage(context.getResources().getString(errorId));
-				
-				builder.create().show();
-				
-				if(progressDialog != null){
-					progressDialog.dismiss();
-				}
-			}
-		});
-	}
-	
+
+
+    public void displayAuthenticationError(final int errorId, final ProgressDialog progressDialog){
+        displayAuthenticationError(getActivity().getApplicationContext().getResources().getString(errorId), progressDialog);
+    }
+
+    public void displayAuthenticationError(final String msg, final ProgressDialog progressDialog){
+        final Activity activity = getActivity();
+        final Context context = activity.getApplicationContext();
+
+        activity.runOnUiThread(new Runnable(){
+            @Override
+            public void run(){
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+
+                builder.setTitle(context.getResources().getString(R.string.error));
+                builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
+                builder.setMessage(msg);
+
+                builder.create().show();
+
+                if(progressDialog != null){
+                    progressDialog.dismiss();
+                }
+            }
+        });
+    }
+
 	@Override
 	public void onPositiveClick() {
 		Activity activity = getActivity();

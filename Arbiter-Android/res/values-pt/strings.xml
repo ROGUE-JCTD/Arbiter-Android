@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="warning">Aviso</string>
+	<string name="error">Erro</string>
+    <string name="app_name">Arbiter-Android</string>
+    <string name="action_findme">Buscar</string>
+    <string name="default_project_name">_ARBITER_DEFAULT_PROJECT_</string>
+	<string name="delete">Deletar</string>
+	<string name="update">Atualizar</string>
+	<string name="default_layer_name">OpenStreetMap</string>
+	<string name="project_exists_title">Projeto existente</string>
+	<string name="project_already_exists">Projeto já existe. Por favor, crie um novo projeto com um nome diferente.</string>
+	<string name="project_creation_failed">Erro ao criar o projeto</string>
+	<string name="project_creation_failed_message">Could not create project. Check to see if you are out of disk space.</string>
+	<string name="create_project_progress">Criando projeto</string>
+	<string name="create_project_msg">Projeto a ser criado&#8230;</string>
+	<string name="error_aoi_create_project">Você deve criar um projeto antes de selecionar uma área de interesse.</string>
+	<string name="error_creating_project">Erro</string>
+	<string name="error_creating_project_msg">Não foi possível criar o projeto!</string>
+	<string name="error_loading_features">Erro</string>
+	<string name="error_loading_features_msg">Não foi possível criar o projeto!</string>
+	<string name="error_adding_layers">Erro</string>
+	<string name="error_adding_layers_msg">Não pode adicionar camadas selecionadas!</string>
+	<string name="adding_layers">Adicionar camada</string>
+	<string name="adding_layers_msg">Adicionar camada no mapa&#8230;</string>
+	<string name="feature_dialog_title">Recurso</string>
+	<string name="latitude">Latitude</string>
+	<string name="longitude">Longitude</string>
+	<string name="example_longitude">ex. </string>
+	<string name="example_latitude">ex. </string>
+	<string name="back">Voltar</string>
+	<string name="edit_attributes">Editar</string>
+	<string name="done_editing">Salvar</string>
+	<string name="delete_feature">Deletar</string>
+	<string name="edit_feature">Mapa</string>
+	<string name="cancel">Cancelar</string>
+	<string name="update_feature_title">Atualizar</string>
+	<string name="update_feature_msg">Atualizar recurso?</string>
+	<string name="updating">Atualizando</string>
+	<string name="updating_msg">Atualização em prograsso&#8230;</string>
+	<string name="insert_feature_title">Selecione a camada a ser inserida.</string>
+	<string name="insert_layer_title">Inseri-los:</string>
+	<string name="insert_layer_text">Modo: Inserção</string>
+	<string name="feature_saved">Recurso salvo</string>
+	<string name="feature_saved_msg">O recurso foi salvo.</string>
+	<string name="return_to_map">Retorna ao Mapa</string>
+	<string name="picture_source">Selecionar Código</string>
+	<string name="select_picture_source">Adicionar uma foto...</string>
+	<string name="from_camera">Da Camera</string>
+	<string name="from_library">Da Blibliote de Foto</string>
+	<string name="review_feature">Revisar Recurso</string>
+	<string name="insert_feature_warning">Inserir Recurso</string>
+	<string name="insert_feature_warning_msg">Inserir o recurso?</string>
+	<string name="delete_feature_warning">Deletar recurso</string>
+	<string name="delete_feature_warning_msg">Tem certeza que deseja excluir este recurso?</string>
+	<string name="deleting_msg">Exclusão em andamento&#8230;</string>
+	<string name="sync_in_progress">Sincronizando</string>
+	<string name="sync_in_progress_msg">Sincronização em processo&#8230;</string>
+	<string name="error_syncing">Erro</string>
+	<string name="error_syncing_msg">Não é possível sincronizar</string>
+	<string name="project_incomplete_msg">Projeto off-line não está disponível. \n\nPor favor selecione uma área de interesse.</string>
+	<string name="click_me">( Clique-me )</string>
+	<string name="media">mídia</string>
+	<string name="take_picture">Tirar foto</string>
+	<string name="initializing">Inicializando</string>
+	<string name="please_wait">Aguarde&#8230;</string>
+	<string name="update_aoi_alert">Área de interesse</string>
+	<string name="update_aoi_alert_msg">Atualizando a sua área de interesse, também irá sincronizar as alterações que você fez.</string>
+	<string name="error_updating_aoi">Erro</string>
+	<string name="error_updating_aoi_msg">Não foi possível atualizar a área de interesse!</string>
+	<string name="loading_feature_info">Carregando recurso&#8230; Por favor aguarde&#8230;</string>
+	<string name="loading">Carregando</string>
+	<string name="no_network">Nenhuma conexão de rede</string>
+	<string name="check_network_connection">Por favor, verifique sua conexão de rede.</string>
+	<string name="layers_limit">Limite de camada alcançado</string>
+	<string name="too_many_layers">Limite máximo de camada por projeto.</string>
+	
+	<string name="downloading_schemas">Baixando Esquemas</string>
+	<string name="downloading_tiles">Downloading Tiles</string>
+	<string name="tile_cache_warning">Tiles to download:</string>
+	<string name="syncing_media_title">Sincronizando Mídia</string>
+	<string name="syncing_vector_data">Sincronizando Dados do Vetor</string>
+	<string name="downloaded">Baixando: </string>
+	<string name="uploaded">Carregado: </string>
+	<string name="form_error_date">Por favor coloque uma data válida.</string>
+	<string name="form_error_integer">Por favor coloque um valor inteiro.</string>
+	<string name="form_error_double">Por favor coloque um valor numerico.</string>
+	<string name="form_error_long">Por favor coloque um valor numerico.</string>
+	<string name="form_error_float">Por favor coloque um valor numerico.</string>
+	<string name="form_error_bool">Por favor coloque verdadeiro ou falso.</string>
+	<string name="check_errors">Entrada invalida</string>
+	<string name="check_errors_msg">Por favor, corrigir erros antes de continuar.</string>
+	<string name="loading_layers_please_wait">Carregando camadas para o servidor. Por favor aguarde.</string>
+	
+    <!-- MAP ACTIVITY STRINGS -->
+    <string name="map_activity_name">Arbiter</string>
+    <string name="action_new_feature">Desenhar</string>
+    <string name="action_servers">Servidores</string>
+    <string name="action_projects">Projetos</string>
+    <string name="action_aoi">Área de interesse</string>
+    <string name="action_language">Linguagem</string>
+    <string name="layers_button">Camada</string>
+    <string name="sync_button">Sincronizar</string>
+    <string name="location_button">Buscar</string>
+	<string name="aoi_button">Zoom para área</string>
+	
+    <!-- PROJECTS ACTIVITY STRINGS -->
+    <string name="projects_activity_name">Projetos</string>
+    <string name="delete_project">Deletar Projeto</string>
+    <string name="action_new_project">Novo Projeto</string>
+    <string name="switch_project_title">Trocar de projeto</string>
+    <string name="switch_project">Trocar para este projeto?</string>
+
+    <!-- LAYERS DIALOG STRINGS -->
+    <string name="layers_dialog_title">Camadas</string>
+	<string name="add_layers_button">Adicionar Camadas</string>
+    <string name="action_add_layers">Adicionar Camadas</string>
+    <string name="layer_visibility_off">Desligado</string>
+    <string name="layer_visibility_on">Ligado</string>
+    <string name="remove_layer">Remover Camada</string>
+
+    <!-- LAYER INFO DIALOG STRINGS -->
+    <string name="layer_info_dialog_title">Informações de Camada</string>
+
+    <!-- ADD LAYERS DIALOG STRINGS -->
+    <string name="add_layers_dialog_title">Adicionar Camada</string>
+    <string name="layer_filter_hint">Filtro</string>
+    <string name="action_add_server">Adicionar Servidor</string>
+    <string name="choose_server">Servidores</string>
+
+    <!-- WELCOME DIALOG STRINGS -->
+
+    <string name="welcome_dialog_title">Bem vindo</string>
+    <string name="must_create_project">Antes de editar, você deve criar um projeto.</string>
+    <string name="create_project_question">Gostaria de criar agora?</string>
+
+    <!-- PROJECT NAME DIALOG STRINGS -->
+
+    <string name="project_name_dialog_title">Nome do projeto</string>
+    <string name="choose_project_name">Coloque o nome do projeto.</string>
+    <string name="choose_name_hint">Novo nome do projeto*</string>
+
+    <!-- SERVER DIALOG STRINGS -->
+
+    <string name="server_dialog_title">Servidores</string>
+    <string name="add_server_button">Adicionar Servidor</string>
+    <string name="delete_server_alert">Isto irá apagar todas as camadas em todos os projetos associados a este servidor.</string>
+	<string name="update_server_alert">Tem certeza de que deseja atualizar o servidor? Alterações inválidas podem resultar em falhas de sincronização.</string>
+	<string name="deleting_server">Deletando Servidor</string>
+	<string name="deleting_server_msg">Exclusão do servidor em amdamento&#8230;</string>
+	
+    <!-- ADD SERVER DIALOG STRINGS -->
+
+    <string name="add_server_dialog_title">Adicionar Servidor</string>
+    <string name="server_name_hint">Nome</string>
+    <string name="server_url_hint">ex. http://example.com/geoserver</string>
+    <string name="server_username_hint">Usuário</string>
+    <string name="server_password_hint">Senha</string>
+    <string name="server_show_password">Monstar a Senha</string>
+    <string name="validating_server">Validação de servidor</string>
+    <string name="authentication_failed">Falha na autenticação, verifique o nome de usuário e senha.</string>
+    <string name="unable_to_connect">Não é possível conectar ao servidor, verifique se o url está correta.</string>
+
+    <!-- GO OFFLINE DIALOG STRINGS -->
+    <string name="go_offline_dialog_title">Offline</string>
+
+    <!-- CHOOSE AOI DIALOG STRINGS -->
+    <string name="choose_aoi_dialog_title">Escolher Área</string>
+    <string name="title_activity_aoi">AOIActivity</string>
+    <string name="hello_world">Olá Mundo!</string>
+
+    <string name="failed_to_sync">Sincronização incompleta</string>
+    <string name="failed_vector_upload">As seguintes camadas (vetor) falharam ao carregar:</string>
+    <string name="failed_vector_download">As camadas (vetor) a seguinte falharam ao baixar:</string>
+    <string name="failed_media_upload">Os seguintes itens de mídia falharam ao carregar:</string>
+    <string name="failed_media_download">Os seguintes itens de mídia falharam ao baixar:</string>
+    <string name="retry_sync">Tentar agora?</string>
+
+    <string name="vector_upload_errors_label">Camadas (vetor) que falhou no upload:</string>
+    <string name="vector_download_errors_label">Camadas (vetor) que falhou ao baixar:</string>
+    <string name="media_upload_errors_label">Mídia que falha ao carregar:</string>
+    <string name="media_download_errors_label">Mídia que falha ao baixar:</string>
+    <string name="retry">Tente novamente</string>
+    <string name="geolocation_error">Geolocation Erro</string>
+    <string name="layer_order">Ordem de camada</string>
+    <string name="move_down">Mover para baixo</string>
+    <string name="move_up">Mover para cima</string>
+    <string name="settings">Configurações</string>
+    <string name="about">Sobre</string>
+    <string name="version">Commit:</string>
+    <string name="commit_date">Data do commit:</string>
+    <string name="build_date">Data do build:</string>
+    <string name="unknown">Desconhecido</string>
+    <string name="point">Ponto</string>
+    <string name="line">Linha</string>
+    <string name="polygon">Polígono</string>
+    <string name="multipoint">Multi pontos</string>
+    <string name="multiline">Multi linhas</string>
+    <string name="multipolygon">Multi polígono</string>
+    <string name="choose_geometry_type">Tipo Geometrico</string>
+    <string name="done">Feito</string>
+    <string name="add">Adicionar</string>
+    <string name="remove">Remove</string>
+    <string name="inspect">Inspecionar</string>
+    <string name="finish">Acabamento</string>
+    <string name="confirm_part_removal_title">Remover parte</string>
+    <string name="confirm_part_removal_msg">Tem certeza que deseja remover esta parte da geometria?</string>
+    <string name="confirm_geometry_removal_title">Remove geometria</string>
+    <string name="confirm_geometry_removal_msg">Tem certeza que deseja remover esta geometria da coleção?</string>
+    <string name="notify_user_to_add_geometry_title">Deve ter uma geometria</string>
+    <string name="notify_user_to_add_geometry_msg">Adicionar uma geometria ou excluir o recurso.</string>
+    <string name="finish_editing_title">Finalizar a edição</string>
+    <string name="finish_editing_message">Por favor, termine a edição.</string>
+    <string name="unsupported_crs">Sem suporte a CRS</string>
+    <string name="loading_unsupported_crs">Não foi possível carregar as seguintes camadas devido a CRS não suportado:</string>
+    <string name="overlays">Sobreposições</string>
+    <string name="baselayer">Camada Base</string>
+    <string name="base">Base</string>
+    <string name="choose_baselayer">Selecione a Camada Base</string>
+    <string name="change_baselayer_warning">
+        Mudando a sua camada de base irá remover as tiles
+        baixadas anteriormente e baixar novos tiles para sua
+        área de interesse. Tem certeza que deseja continuar?
+    </string>
+    <string name="type">Tipo</string>
+    <string name="notifications">Notificações</string>
+    <string name="clear">limpar</string>
+    <string name="close">fechar</string>
+    <string name="feature_not_in_aoi">Recurso não disponível</string>
+    <string name="feature_not_in_aoi_msg">O recurso tenha sido excluído ou movido para um local fora da área de interesse.</string>
+    <string name="layers_already_in_project">Não pode adicionar as seguintes camadas para o projeto porque camadas com os mesmos tipos de recurso já existem:</string>
+    <string name="invalid_url">URL invalida</string>
+    <string name="invalid_url_slash_wms">\"WMS\" urls de servidor deve terminar com \"/wms\"</string>
+    <string name="invalid_url_slash_tms">\"TMS\" urls de servidor deve terminar com \"/hot/1.0.0/\"</string>
+    <string name="insert">inserir</string>
+    <string name="feature_outside_aoi_warning">Você colocou um recurso fora de sua área selecionada de interesse. Após sincronizar este recurso, já não será
+         sobre o dispositivo.
+    </string>
+    <string name="confirm_delete_project">Tem certeza que deseja excluir o projeto? Quaisquer dados não sincronizados serão perdidos.</string>
+    <string name="confirm_delete_layer">Tem certeza que deseja excluir a camada?</string>
+    <string name="added">ADICIONANDO</string>
+    <string name="modified">MODIFICANDO</string>
+    <string name="removed">REMOVIDO</string>
+    <string name="no_valid_geometries">Não válidas, geometrias presentes.</string>
+    <string name="no_valid_geometries_delete_or_cancel">Não válidas geometrias presentes. Gostaria de excluir o recurso ou cancelar?</string>
+    <string name="valid_point_geometry_description">Uma geometria de ponto deve ter pelo menos um ponto.</string>
+    <string name="valid_line_geometry_description">Uma geometria de linha deve ter pelo menos dois pontos exclusivo.</string>
+    <string name="valid_polygon_geometry_description">Uma geometria polígono deve ter pelo menos três pontos originais.</string>
+    <string name="valid_multipoint_geometry_description">Uma geometria MultiPoint deve ter pelo menos uma geometria de ponto válida.</string>
+    <string name="valid_multiline_geometry_description">Uma geometria de várias linhas deve ter pelo menos uma geometria de linha válida.</string>
+    <string name="valid_multipolygon_geometry_description">Uma MultiPolygon geometria deve ter pelo menos uma geometria de polígono válida.</string>
+    <string name="valid_geometry_collection_description">Uma coleção de geometria deve ter pelo menos uma geometria válida.</string>
+    <string name="delete_media">Deletar Mídia</string>
+    <string name="sure_delete_media">Tem certeza que deseja remover este item a partir do recurso?</string>
+    <string name="read_only">Somente leitura</string>
+    <string name="read_only_msg">Esta camada é somente leitura. Entre em contato com o administrador do servidor para verificar suas permissões.</string>
+    
+    <string name="sync_timed_out">Tempo de sincronização esgotado</string>
+    <string name="sync_timed_out_msg">Tempo de sincronização esgotado. Gostaria de continuar a sincronização ou cancelar as restantes operações de sincronização?</string>
+    <string name="continue_sync">Continuar</string>
+    <string name="loading_getcapabilities">Carregando camadas</string>
+    <string name="could_not_connect">Não foi possível conectar</string>
+    <string name="check_server_and_network">Por favor, verifique os detalhes do servidor e a conexão de rede e tente novamente mais tarde.</string>
+    <string name="required_field">Campo obrigatório</string>
+    <string name="download_photos">Baixar fotos para recursos</string>
+    <string name="disable_wms">Desabilitar o WMS para camadas não-base</string>
+    <string name="no_con_checks">Ignorar o status da conexão (requer reinicialização)</string>
+    <string name="confirm_delete_layers_unsynced_features">Esta camada tem características que não foi sincronizadas. Se você excluir a camada, esses recursos serão perdidos! Tem certeza que deseja excluir a camada?</string>
+    <string name="try_again_later">Por favor, tente novamente mais tarde. Se o problema persistir, contacte o administrador.</string>
+    <string name="arbiter_error">Erro inesperado.</string>
+    <string name="unknown_error">Erro inesperado.</string>
+    <string name="internal_server_error">Ocorreu um erro no servidor.</string>
+    <string name="timed_out">Solicitação expirou.</string>
+    <string name="unauthorized">Não autorizado.</string>
+    <string name="resource_not_found">Recurso não encontrado.</string>
+    <string name="update_error">Erro ao atualizar o recurso. Por favor, reveja suas características e tente novamente mais tarde.</string>
+    <string name="must_complete_upload_first">Deve completar o upload primeiro.</string>
+    <string name="always_show_location">Sempre mostrar localização atual (consome bateria)</string>
+    <string name="geolocation_error_msg">Não foi possível obter sua localização. Por favor, verifique as configurações de dispositivo para certificar-se de que árbitro tem acesso à localização geográfica. Se o problema persistir, tente reiniciar o dispositivo.</string>
+</resources>

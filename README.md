@@ -15,9 +15,9 @@ License:  all source code is licensed under the [MIT license](http://opensource.
 
 ##Install and User Guide
 
-[Latest stable build / Versión estable más reciente ](http://jenkins-nsp.xnicc.noblis.org/job/Arbiter/lastSuccessfulBuild/artifact/Arbiter.apk)
+[Latest stable build / Versión estable más reciente ](http://jenkins.geoshape.org/job/Arbiter/lastSuccessfulBuild/artifact/Arbiter.apk)
 
-[Latest dev build / Versión desarollo más reciente ](http://jenkins-nsp.xnicc.noblis.org/job/Arbiter-dev/lastSuccessfulBuild/artifact/Arbiter.apk)
+[Latest dev build / Versión desarollo más reciente ](http://jenkins.geoshape.org/job/Arbiter-dev/lastSuccessfulBuild/artifact/Arbiter.apk)
 
 [Arbiter User Doc Download](https://github.com/ROGUE-JCTD/Arbiter-Android/blob/master/How_to_Use_Arbiter.pdf?raw=true)
 

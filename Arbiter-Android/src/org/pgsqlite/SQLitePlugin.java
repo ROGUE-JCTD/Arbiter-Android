@@ -21,6 +21,7 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.MBTilesDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
@@ -41,6 +42,7 @@ public class SQLitePlugin extends CordovaPlugin
 	private static final String FEATURE_DATABASE_NAME = "featuredb";
 	private static final String PROJECT_DATABASE_NAME = "projectdb";
 	private static final String APPLICATION_DATABASE_NAME = "appdb";
+	private static final String MBTILES_DATABASE_NAME = "mbtilesdb";
 	
 	private String oldProjectName;
 
@@ -208,8 +210,7 @@ public class SQLitePlugin extends CordovaPlugin
 	 *            The database password or null.
 	 *
 	 */
-	private void openDatabase(String dbname, String password)
-	{
+	private void openDatabase(String dbname, String password) {
 		/*if (this.getDatabase(dbname) != null) this.closeDatabase(dbname);
 
 		File dbfile = this.cordova.getActivity().getDatabasePath(dbname + ".db");
@@ -223,7 +224,7 @@ public class SQLitePlugin extends CordovaPlugin
 		SQLiteDatabase mydb = SQLiteDatabase.openOrCreateDatabase(dbfile, null);
 
 		dbmap.put(dbname, mydb);*/
-		
+
 		// //////////////////////////////
 		// kzusy modifications
 		// //////////////////////////////
@@ -253,6 +254,8 @@ public class SQLitePlugin extends CordovaPlugin
 		} else if (APPLICATION_DATABASE_NAME.equals(dbname)) {
 			dbmap.put(dbname, ApplicationDatabaseHelper.getHelper(context)
 					.getWritableDatabase());
+		} else if (MBTILES_DATABASE_NAME.equals(dbname)) {
+			dbmap.put(dbname, MBTilesDatabaseHelper.getHelper(context).getWritableDatabase());
 		} else {
 			try {
 				throw new Exception("SQLitePlugin: Database '" + dbname

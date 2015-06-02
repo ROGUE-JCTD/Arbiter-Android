@@ -6,6 +6,40 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	var fileSystem = _fileSystem;
 	var tileDir = _tileDir;
 	var METADATA_KEY = "TILE_UTIL_OVERRIDEN";
+
+	// Create mbTilesDb
+	var mbTilesDb = sqlitePlugin.openDatabase("mbtilesdb");
+	Arbiter.SQLiteTransactionManager.push(mbTilesDb);
+
+
+	// Convert String to BlobData
+
+	/// Credit: Jeremy Banks - Stack Overflow
+	/// http://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
+	this.b64toBlob = function(b64Data, contentType, sliceSize) {
+	    contentType = contentType || '';
+	    sliceSize = sliceSize || 512;
+
+	    var byteCharacters = atob(b64Data);
+	    var byteArrays = [];
+
+	    for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+	        var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+	        var byteNumbers = new Array(slice.length);
+	        for (var i = 0; i < slice.length; i++) {
+	            byteNumbers[i] = slice.charCodeAt(i);
+	        }
+
+	        var byteArray = new Uint8Array(byteNumbers);
+
+	        byteArrays.push(byteArray);
+	    }
+
+	    var blob = new Blob(byteArrays, {type: contentType});
+	    return blob;
+	};
+
 	
 	var registerOnLayerAdded = function(){
 		
@@ -545,26 +579,132 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 			console.log("onUpdateCachingDownloadProgress: " + percent + ". counterDownloaded: " + caching.counterDownloaded + ", counterMax: " + caching.counterMax);
 		}
 	};
+
+
 	
-	this.getURL = function(bounds) {
+	this.getURL = function(bounds)
+	{
 		var xyz = TileUtil.getXYZ(bounds, map.baseLayer);
 		
 	    var ext = TileUtil.getLayerFormatExtension(this);
 	    
 	    // use the info we have to derive were the tile would be stored on the device
-	    
-	    var path;
+
+		var path;
 	    
 	    if(Arbiter.hasAOIBeenSet() && Arbiter.Util.existsAndNotNull(this.metadata) && this.metadata.isBaseLayer){
-	    	
-	    	path = Arbiter.FileSystem.NATIVE_ROOT_URL + "/" + tileDir.path +"/" 
-	    		+ xyz.z + "/" + xyz.x + "/" + xyz.y + "." + ext;
+
+	    	// Original folder (Look into OSM folder)
+	    	//path = Arbiter.FileSystem.NATIVE_ROOT_URL + "/" + tileDir.path +"/"
+	    	//	+ xyz.z + "/" + xyz.x + "/" + xyz.y + "." + ext;
+
+	    	// Create fake path to store into HTML img src
+	    	// Optimize to not use new Date()?
+	    	path = "file:///" + "fake_" + xyz.z + "_" + xyz.x + "_" + xyz.y + "?_t=" + new Date().getTime();
+
+			// Using mbTilesDb Database, extract data and store it into DOM src
+			mbTilesDb.transaction(function(trans){
+				var sql = "SELECT tile_data FROM tiles WHERE zoom_level=? AND tile_column=? AND tile_row=?;";
+
+				// Access Zoom, Col, and Row
+				var sqlData = [xyz.z, xyz.x, xyz.y];
+
+				// Runs SQL Query
+				trans.executeSql(sql, sqlData, function(tx, tileData){
+
+					if (tileData.rows.length < 1){
+						return;
+					}
+
+					// Success Case
+					// The file was found inside the Database
+
+					var Elements = document.querySelectorAll(".olTileImage");
+					//TODO: This checks everything more than it probably should. Optimize?
+					for (i = 0; i < Elements.length; i++) {
+						var imgSrc = Elements[i].getAttribute("src");
+
+						// Test for Data or Fake
+						var FakeTest = imgSrc.charAt(0);
+
+						// d for data, f for fake, if data, don't do anything with it
+						if (FakeTest === "d"){
+							continue;
+						}
+
+						// Test for Fake File before comparisons, if fake, replace with data
+						if (FakeTest === "f"){
+							var imgSrcParts = imgSrc.split(/[-_\s:/]+/);
+
+							if (parseInt(imgSrcParts[2]) == xyz.z
+							&& parseInt(imgSrcParts[3]) == xyz.x
+							&& parseInt(imgSrcParts[4]) == xyz.y){
+
+								// Replace the HTML img src with the tile data
+                            	var rawTileData = "data:image/" + ext + ";base64," + tileData.rows.item(0).tile_data;
+
+								Elements[i].setAttribute("src", rawTileData);
+
+								// Sometimes would return olTileImage error, thinking it's a bad file.
+								//    This lets it update & render out the replaced image data.
+								Elements[i].className = "olTileImage";
+
+								break;
+							}
+						}
+					}
+
+					// Write out pngs to disk
+					/*var FileName = xyz.z + "_" + xyz.x + "_" + xyz.y + "." + ext;
+					var NewFilePath = "Arbiter/TileSets/MBTiles/" + FileName;
+					fileSystem.root.getFile(NewFilePath, {create: true},
+					function(file, suc)
+					{
+
+						console.log("Sam - Successfully Created File at " + NewFilePath + "!");
+
+						// Write data to file
+						file.createWriter(function(fileWriter)
+						{
+							fileWriter.seek(fileWriter.length);
+
+							var rawTileData = tileData.rows.item(0).tile_data;
+							var binaryData = TileUtil.b64toBlob(rawTileData);
+							fileWriter.write(binaryData);
+
+							console.log("Sam - " + FileName + " successfully written to!");
+						});
+					},
+					function(err)
+					{
+						console.log("GetURL - getFile - Did not make file at filepath: " + NewFilePath);
+					});*/
+
+				  },
+				  function(tx, error){
+					 // Error Case
+					 console.log("Error - Cannot find data in mbTilesDb with Error: " + error);
+				  });
+
+			   },
+			function(trans, error){
+			   console.log("GetURL - Something went wrong with transaction call. Error: " + error);
+			});
+
 	    }else{
 	    	path = this.getURL_Original(bounds);
 	    }
-	    
+
 	 	return path;
 	};
+
+
+
+	this.extractBlobFromMBTiles = function(xyz){
+
+
+	};
+
 	
 	this.getLayerFormatExtension = function(layer) {
 		var ext = "png"; 

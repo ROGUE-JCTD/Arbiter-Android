@@ -4,9 +4,11 @@
     <item type="id" name="loader_notifications" />
     <item type="id" name="loader_notification_badge" />
 	<item type="id" name="loader_servers_list" />
+	<item type="id" name="loader_tilesets_list" />
 	<item type="id" name="loader_servers_dropdown" />
 	<item type="id" name="loader_base_layer_list" />
 	<item type="id" name="loader_add_layers" />
+	<item type="id" name="loader_add_tilesets"/>
 	<item type="id" name="loader_layers" />
 	<item type="id" name="loader_layers_choose_baselayer" />
 	<item type="id" name="loader_map" />

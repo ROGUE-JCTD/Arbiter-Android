@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class Project {
 	private String projectName;
 	private ArrayList<Layer> layers;
+	private ArrayList<Tileset> tilesets;
 	private String aoi;
 	private BaseLayer baseLayer;
 	private String downloadPhotos;
@@ -15,6 +16,7 @@ public class Project {
 	public Project(String projectName, String aoi){
 		this.projectName = projectName;
 		this.layers = new ArrayList<Layer>();
+		this.tilesets = new ArrayList<Tileset>();
 		this.aoi = aoi;
 		this.baseLayer = null;
 		this.downloadPhotos = null;
@@ -31,6 +33,12 @@ public class Project {
 		ArrayList<Layer> pLayers = project.getLayers();
 		for(int i = 0; i < pLayers.size(); i++){
 			this.layers.add(new Layer(pLayers.get(i)));
+		}
+
+		this.tilesets = new ArrayList<Tileset>();
+		ArrayList<Tileset> pTilesets = project.getTilesets();
+		for(int i = 0; i < pTilesets.size(); i++){
+			this.tilesets.add(new Tileset(pTilesets.get(i)));
 		}
 		
 		this.baseLayer = project.getBaseLayer();
@@ -56,6 +64,8 @@ public class Project {
 	public void addLayer(Layer layer){
 		layers.add(layer);
 	}
+
+	public void addTileset(Tileset tileset) { tilesets.add(tileset); }
 	
 	public void setBaseLayer(BaseLayer baseLayer){
 		this.baseLayer = baseLayer;
@@ -109,5 +119,15 @@ public class Project {
 	
 	public ArrayList<Layer> getLayers(){
 		return layers;
+	}
+
+	public void addTilesets(ArrayList<Tileset> tilesets){
+		for(int i = 0; i < tilesets.size(); i++){
+			addTileset(tilesets.get(i));
+		}
+	}
+
+	public ArrayList<Tileset> getTilesets(){
+		return tilesets;
 	}
 }

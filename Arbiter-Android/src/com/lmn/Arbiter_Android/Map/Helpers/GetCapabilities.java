@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.json.JSONException;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -23,7 +25,9 @@ import android.util.Log;
 
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
+import com.lmn.Arbiter_Android.BaseClasses.Tileset;
 import com.lmn.Arbiter_Android.Comparators.CompareAddLayersListItems;
+import com.lmn.Arbiter_Android.Comparators.CompareAddTilesetsListItems;
 import com.lmn.Arbiter_Android.Map.Helpers.Parsers.ParseGetCapabilities;
 
 public class GetCapabilities {
@@ -114,7 +118,81 @@ public class GetCapabilities {
 		
 		return null;
 	}
-	
+
+	public ArrayList<Tileset> getTilesets(Server server, ArrayList<Tileset> tilesetsInProject) {
+		if(server != null && server.getUrl() != null) {
+			String url = server.getUrl() + "?service=wms&version=1.1.1&request=GetCapabilities";
+
+			HttpParams params = new BasicHttpParams();
+
+			HttpConnectionParams.setConnectionTimeout(params, timeout);
+			HttpConnectionParams.setSoTimeout(params, soTimeout);
+
+			HttpClient client = new DefaultHttpClient();
+			HttpGet request = new HttpGet(url);
+
+			if (!"".equals(server.getUsername()) && !"".equals(server.getPassword())) {
+
+				String credentials = server.getUsername() + ":" + server.getPassword();
+				credentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+
+				request.addHeader("Authorization", "Basic " + credentials);
+			}
+
+			Log.w("GetCapabilities", "GetCapabilities: " + url);
+			HttpResponse response = null;
+
+			try {
+				response = client.execute(request);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			if(response == null){
+				return null;
+			}
+
+			Log.w("ADD_TILESET_LIST_LOADER", "ADD_TILESETS_LIST_LOADER - Sending GET request to URL: " + url);
+			Log.w("ADD_TILESET_LIST_LOADER", "ADD_TILESETS_LIST_LOADER - Response Code: " + response.getStatusLine().getStatusCode());
+
+			BufferedReader reader = null;
+
+			try {
+				reader = new BufferedReader(
+						new InputStreamReader(response.getEntity().getContent()));
+			} catch (IllegalStateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			List<Tileset> tilesets = null;
+
+			try {
+				tilesets = parser.parseGetCapabilitiesTileset(server, reader);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			if(tilesets != null){
+				removeDuplicateTilesets(tilesets, tilesetsInProject);
+
+				Collections.sort(tilesets, new CompareAddTilesetsListItems());
+			}
+
+			return (ArrayList<Tileset>) tilesets;
+		}
+
+		return null;
+	}
+
 	// TODO: CAN AVOID ITERATING THOUGH THE LIST OF PULLED IN LAYERS AGAIN
 	// BY CHECKING THE HASHMAP BEFORE THE LAYER EVEN GETS ADDED TO THE LIST
 	// INSIDE OF THE PARSEGETCAPABILITIES METHOD
@@ -151,6 +229,39 @@ public class GetCapabilities {
 				
 				if(layersInProject.containsKey(key)){
 					pulledLayers.remove(i);
+				}
+			}
+		}
+	}
+
+	private void removeDuplicateTilesets(List<Tileset> pulledTilesets, ArrayList<Tileset> projectTilesets){
+		if(projectTilesets != null){
+			// key: server_id:featuretype
+			// value: Boolean
+			HashMap<String, Boolean> tilesetsInProject = new HashMap<String, Boolean>();
+			String key = null;
+			Tileset currentTileset = null;
+			int i;
+
+			// Add all of the layers in the project already to the hashmap
+			for(i = 0; i < projectTilesets.size(); i++){
+				currentTileset = projectTilesets.get(i);
+
+				key = Tileset.buildTilesetKey(currentTileset);
+
+				if(!tilesetsInProject.containsKey(key)){
+					tilesetsInProject.put(key, true);
+				}
+			}
+
+			// If the layer is already in the project, remove it
+			for(i = pulledTilesets.size() - 1; i >= 0; i--){
+				currentTileset = pulledTilesets.get(i);
+
+				key = Tileset.buildTilesetKey(currentTileset);
+
+				if(tilesetsInProject.containsKey(key)){
+					pulledTilesets.remove(i);
 				}
 			}
 		}

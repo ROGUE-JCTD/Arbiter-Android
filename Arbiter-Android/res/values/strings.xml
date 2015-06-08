@@ -119,6 +119,19 @@
     <string name="layer_visibility_on">On</string>
     <string name="remove_layer">Remove layer</string>
 
+    <!-- TILESETS STRINGS -->
+    <string name="action_tilesets">Tilesets</string>
+    <string name="add_tileset_button">Add Tileset</string>
+    <string name="tileset_dialog_title">Tilesets</string>
+    <string name="add_tileset_dialog_title">Add Tileset</string>
+    <string name="remove_tileset">Remove Tileset</string>
+    <string name="tileset_list_names">Tilesets</string>
+    <string name="loading_tilesets_getcapabilities">Loading Tilesets..</string>
+    <string name="delete_tileset_button">Delete</string>
+    <string name="update_tileset_button">Update</string>
+    <string name="check_update_tilesets">Check for Updates</string>
+    <string name="tileset_name">NAMEME</string>
+
     <!-- LAYER INFO DIALOG STRINGS -->
     <string name="layer_info_dialog_title">Layer Info</string>
 

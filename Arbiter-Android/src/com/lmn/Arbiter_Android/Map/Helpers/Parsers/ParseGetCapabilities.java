@@ -1,6 +1,7 @@
 package com.lmn.Arbiter_Android.Map.Helpers.Parsers;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -8,7 +9,11 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import org.json.*;
+import android.util.Log;
+
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.BaseClasses.Tileset;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 
 public class ParseGetCapabilities {
@@ -133,5 +138,47 @@ public class ParseGetCapabilities {
 		}
 		
 		return layers;
+	}
+
+	public ArrayList<Tileset> parseGetCapabilitiesTileset(Server server, BufferedReader reader) throws JSONException, IOException{
+
+		String finalJSON = "";
+
+		try {
+			// TAKE OVER READER FOR NOW
+			reader = new BufferedReader(new FileReader("sdcard/Arbiter/jsonTest.json"));
+
+			StringBuilder sb = new StringBuilder();
+			String line = reader.readLine();
+			while (line != null) {
+				sb.append(line);
+				line = reader.readLine();
+			}
+			finalJSON = sb.toString();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+
+		ArrayList<Tileset> tilesets = new ArrayList<Tileset>();
+
+		// Tilesets from JSON file
+		JSONObject jObj = new JSONObject(finalJSON.substring(finalJSON.indexOf("{"), finalJSON.lastIndexOf("}") + 1));
+		JSONArray jArr = jObj.getJSONArray("tilesets");
+		for (int i = 0; i < jArr.length(); ++i){
+			JSONObject obj = jArr.getJSONObject(i);
+			Tileset tileset = new Tileset(obj.getString("name"), obj.getInt("created_at"),
+					obj.getString("created_by"), obj.getInt("filesize"), obj.getString("source"));
+
+			tilesets.add(tileset);
+		}
+
+		// Test Tileset from new
+		Tileset newTileset = new Tileset("Brand_New_Test", 10000050, "Sam", 50, "Server_Name");
+		tilesets.add(newTileset);
+
+		// NOTICE: If the JSON has multiple of the same Tilesets (Same name/server), they will show up.
+		// If you have that downloaded, it won't show up on the list TO download.
+
+		return tilesets;
 	}
 }

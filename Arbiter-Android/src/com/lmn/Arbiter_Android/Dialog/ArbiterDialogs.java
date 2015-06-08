@@ -11,14 +11,17 @@ import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
+import com.lmn.Arbiter_Android.BaseClasses.Tileset;
 import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.AddLayersDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.AddServerDialog;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.AddTilesetDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseAOIDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.GoOfflineDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.LayersDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ProjectNameDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ServersDialog;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.TilesetsDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.WelcomeDialog;
 
 public class ArbiterDialogs {
@@ -83,6 +86,28 @@ public class ArbiterDialogs {
 		
 		DialogFragment dialog = ServersDialog.newInstance(title, ok, cancel, layout);
 		dialog.show(fragManager, "serversDialog");
+	}
+
+	public void showAddTilesetDialog(ArrayList<Tileset> tilesetsInProject, ConnectivityListener connectivityListener){
+		String title = resources.getString(R.string.add_tileset_dialog_title);
+		String ok = resources.getString(android.R.string.ok);
+		String cancel = resources.getString(android.R.string.cancel);
+		int layout = R.layout.add_tileset_dialog;
+
+		DialogFragment dialog = AddTilesetDialog.newInstance(title, ok, cancel, layout,
+				tilesetsInProject, connectivityListener);
+
+		dialog.show(fragManager, "addTilesetDialog");
+	}
+
+	public void showTilesetsDialog(){
+		String title = resources.getString(R.string.tileset_dialog_title);
+		String ok = resources.getString(android.R.string.ok);
+		String cancel = resources.getString(android.R.string.cancel);
+		int layout = R.layout.tilesets_dialog;
+
+		DialogFragment dialog = TilesetsDialog.newInstance(title, ok, cancel, layout);
+		dialog.show(fragManager, "tilesetDialog");
 	}
 	
 	public void showAddLayersDialog(ArrayList<Layer> layersInProject, ConnectivityListener connectivityListener, HasThreadPool hasThreadPool){

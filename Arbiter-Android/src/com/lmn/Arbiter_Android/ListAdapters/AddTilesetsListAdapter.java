@@ -1,6 +1,8 @@
 package com.lmn.Arbiter_Android.ListAdapters;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -10,10 +12,13 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.lmn.Arbiter_Android.BaseClasses.Tileset;
+import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesetsHelper;
 import com.lmn.Arbiter_Android.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import android.util.Log;
 
 public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapter<ArrayList<Tileset>>{
 	private ArrayList<Tileset> items;
@@ -29,6 +34,29 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
 		this.items = new ArrayList<Tileset>();
 		this.checkedTilesets = new ArrayList<Tileset>();
 		this.itemLayout = itemLayout;
+	}
+
+	public String convertFilesize(double number){
+		// Will convert from bytes to KB, MB, or GB
+		String result = "Size: ";
+
+		// GB
+		if (number > 1073741824.0){
+			String num = String.format("%.2f", (number / 1073741824.0));
+			result += num + "GB";
+		}
+		// MB
+		else if (number > 1048576.0){
+			String num = String.format("%.2f", (number / 1048576.0));
+			result += num + "MB";
+		}
+		// KB
+		else{
+			String num = String.format("%.2f", (number / 1024.0));
+			result += num + "KB";
+		}
+
+		return result;
 	}
 	
 	public void setData(ArrayList<Tileset> items){
@@ -106,7 +134,8 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
 		if(listItem != null){
 			TextView tilesetName = (TextView) view.findViewById(R.id.tilesetName);
 			TextView serverName = (TextView) view.findViewById(R.id.serverName);
-			CheckBox checkbox = (CheckBox) view.findViewById(R.id.addTilesetCheckbox); //TODO CHANGE VARIABLES
+			TextView fileSize = (TextView) view.findViewById(R.id.tilesetFilesize);
+			CheckBox checkbox = (CheckBox) view.findViewById(R.id.addTilesetCheckbox);
 			
 			if(tilesetName != null){
 				tilesetName.setText(listItem.getName());
@@ -115,12 +144,17 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
 			if(serverName != null){
 				serverName.setText(listItem.getSourceId());
 			}
+
+			if(fileSize != null){
+				String sizeText = convertFilesize(listItem.getFilesize());
+				fileSize.setText(sizeText);
+			}
 			
 			view.setOnClickListener(new OnClickListener(){
 				
 				@Override
 				public void onClick(View v) {
-					CheckBox checkbox = (CheckBox) v.findViewById(R.id.addTilesetCheckbox); // TODO
+					CheckBox checkbox = (CheckBox) v.findViewById(R.id.addTilesetCheckbox);
 					checkbox.performClick();
 				}
 				
@@ -153,6 +187,7 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
 		
 		return view;
 	}
+
 
 	@Override
 	public int getCount() {

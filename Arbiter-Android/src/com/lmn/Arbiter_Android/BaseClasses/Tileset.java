@@ -1,7 +1,5 @@
 package com.lmn.Arbiter_Android.BaseClasses;
 
-import java.util.ArrayList;
-
 public class Tileset {
 	public static final String DEFAULT_TILESET_NAME = "UndefinedTileset";
 
@@ -11,14 +9,11 @@ public class Tileset {
 
 	//private int fingerprint;
 	private String tilesetName;
-	private int created_at_time;
+	private long created_at_time;
 	private String created_by;
-	private int filesize;
+	private double filesize;
 	private String source_id;
-
-	// TODO: Add polygon data. ArrayList of ints?
-	// That doesn't take care of MultiPolygon bounds. ^
-	//private ArrayList<int> bounds;
+	private String bounds;
 
 	private boolean checked;
 
@@ -33,7 +28,7 @@ public class Tileset {
 		this.created_by = null;
 		this.filesize = -1;
 		this.source_id = null;
-		//this.bounds = null;
+		this.bounds = null;
 
 		this.checked = false;
 
@@ -42,14 +37,14 @@ public class Tileset {
 		this.serverUrl = null;
 	}
 
-	public Tileset(String name, int created_at, String created_by,
-				   int filesize, String source_id /*,ArrayList<int> bounds*/){
+	public Tileset(String name, long created_at, String created_by,
+				   double filesize, String source_id, String bounds){
 		this.tilesetName = name;
 		this.created_at_time = created_at;
 		this.created_by = created_by;
 		this.filesize = filesize;
 		this.source_id = source_id;
-		//this.bounds = bounds;
+		this.bounds = bounds;
 
 		// This will be setup later
 		this.serverId = -1;
@@ -64,7 +59,7 @@ public class Tileset {
 		this.created_by = item.getCreatedBy();
 		this.filesize = item.getFilesize();
 		this.source_id = item.getSourceId();
-		//this.bounds = item.getBounds();
+		this.bounds = item.getBounds();
 
 		this.serverId = item.getServerId();
 		this.serverName = item.getServerName();
@@ -82,11 +77,11 @@ public class Tileset {
 		this.tilesetName = name;
 	}
 
-	public int getCreatedTime(){
+	public long getCreatedTime(){
 		return created_at_time;
 	}
 
-	public void setCreatedTime(int time){
+	public void setCreatedTime(long time){
 		this.created_at_time = time;
 	}
 
@@ -99,11 +94,11 @@ public class Tileset {
 	}
 
 	
-	public int getFilesize(){
+	public double getFilesize(){
 		return filesize;
 	}
 
-	public void setFilesize(int size){
+	public void setFilesize(double size){
 		this.filesize = size;
 	}
 	
@@ -115,13 +110,13 @@ public class Tileset {
 		this.source_id = id;
 	}
 
-	/*public ArrayList<int> getBounds() {
+	public String getBounds() {
 		return bounds;
 	}
 
-	public void setBounds(ArrayList<int> bounds){
+	public void setBounds(String bounds){
 		this.bounds = bounds;
-	}*/
+	}
 
 	public String getServerName() { return serverName; }
 	public void setServerName(String name) { this.serverName = name; }
@@ -140,7 +135,7 @@ public class Tileset {
 				"\tcreated_by: " + created_by + "\n" +
 				"\tfilesize: " + filesize + "\n" +
 				"\tsource_id: " + source_id + "\n" +
-				//"\bounds: " + bounds + "\n" +
+				"\tbounds: " + bounds + "\n" +
 				"}";
 	}
 }

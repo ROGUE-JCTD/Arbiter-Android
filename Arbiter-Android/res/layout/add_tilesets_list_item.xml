@@ -33,6 +33,20 @@
 	        android:textSize="12sp"
 	        android:layout_marginTop="1dip"
 	        android:text="@string/server_name_hint" />
+
+		<!-- Filesize -->
+		<TextView
+			android:id="@+id/tilesetFilesize"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:layout_centerVertical="true"
+			android:paddingLeft="45dp"
+			android:paddingRight="15dp"
+			android:paddingBottom="8dp"
+			android:textColor="#222222"
+			android:textSize="12sp"
+			android:text="@string/tileset_filesize"/>
     </RelativeLayout>
 	
    
@@ -45,5 +59,6 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="20dip" />
+
     
 </RelativeLayout>

@@ -36,7 +36,7 @@ public class TilesetLoaderCallbacks implements LoaderManager.LoaderCallbacks<Arr
 	
 	@Override
 	public void onLoadFinished(Loader<ArrayList<Tileset>> loader, ArrayList<Tileset> data) {
-		Log.w("LayerLoaderCallbacks", "LayerLoaderCallbacks data length = " + data.size());
+		Log.w("TilesetLoaderCallbacks", "TilesetLoaderCallbacks data length = " + data.size());
 		tilesetAdapter.setData(data);
 	}
 

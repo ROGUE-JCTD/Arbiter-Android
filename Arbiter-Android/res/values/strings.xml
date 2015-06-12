@@ -131,6 +131,15 @@
     <string name="update_tileset_button">Update</string>
     <string name="check_update_tilesets">Check for Updates</string>
     <string name="tileset_name">NAMEME</string>
+    <string name="deleting_tileset">Deleting Tileset</string>
+    <string name="deleting_tileset_msg">Tileset deletion in progress..</string>
+    <string name="delete_tileset_alert">Are you sure you want to delete </string>
+    <string name="tileset_filesize">Size: 007GB</string>
+    <string name="downloading_tileset">Download</string>
+    <string name="downloading_tileset_msg">This download will be </string>
+    <string name="downloading_tileset_msg2">Are you sure you want to continue?</string>
+    <string name="space_available">Available Space: </string>
+    <string name="space_after_download">After Download: </string>
 
     <!-- LAYER INFO DIALOG STRINGS -->
     <string name="layer_info_dialog_title">Layer Info</string>

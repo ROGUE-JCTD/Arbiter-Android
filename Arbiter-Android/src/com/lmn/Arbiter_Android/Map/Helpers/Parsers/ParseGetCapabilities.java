@@ -166,14 +166,15 @@ public class ParseGetCapabilities {
 		JSONArray jArr = jObj.getJSONArray("tilesets");
 		for (int i = 0; i < jArr.length(); ++i){
 			JSONObject obj = jArr.getJSONObject(i);
-			Tileset tileset = new Tileset(obj.getString("name"), obj.getInt("created_at"),
-					obj.getString("created_by"), obj.getInt("filesize"), obj.getString("source"));
+			Tileset tileset = new Tileset(obj.getString("name"), obj.getLong("created_at"),
+					obj.getString("created_by"), obj.getInt("filesize"),
+					obj.getString("source"), obj.getString("bounds"));
 
 			tilesets.add(tileset);
 		}
 
 		// Test Tileset from new
-		Tileset newTileset = new Tileset("Brand_New_Test", 10000050, "Sam", 50, "Server_Name");
+		Tileset newTileset = new Tileset("Brand_New_Test", 10000050, "Sam", 600.0, "Server_Name", "1000");
 		tilesets.add(newTileset);
 
 		// NOTICE: If the JSON has multiple of the same Tilesets (Same name/server), they will show up.

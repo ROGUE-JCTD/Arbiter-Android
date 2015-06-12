@@ -10,6 +10,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.Migrations.Migration;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesetsHelper;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class ApplicationDatabaseHelper extends SQLiteOpenHelper {
@@ -35,6 +36,7 @@ public class ApplicationDatabaseHelper extends SQLiteOpenHelper {
 		ServersHelper.getServersHelper().createTable(db);
 		TilesHelper.getHelper().createTable(db);
 		PreferencesHelper.getHelper().createTable(db);
+		TilesetsHelper.getTilesetsHelper().createTable(db);
 	}
 
 	@Override

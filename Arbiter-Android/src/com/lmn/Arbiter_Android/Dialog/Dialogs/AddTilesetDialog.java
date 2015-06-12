@@ -17,6 +17,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesetsHelper;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.Activities.HasThreadPool;
@@ -24,6 +25,7 @@ import com.lmn.Arbiter_Android.BaseClasses.Project;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.BaseClasses.Tileset;
 import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
+import com.lmn.Arbiter_Android.ConnectivityListeners.AddTilesetsConnectivityListener;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
@@ -152,81 +154,39 @@ public class AddTilesetDialog extends ArbiterDialogFragment{
 
 		final ArrayList<Tileset> tilesets = new ArrayList<Tileset>();
 		ArrayList<Tileset> checked = this.addTilesetAdapter.getCheckedTilesets();
+		final TilesetsHelper tilesetHelper = TilesetsHelper.getTilesetsHelper();
 
-//		int highestColorIndex = -1;
-//		if(tilesetsInProject != null) {
-//			for(int i = 0; i < tilesetsInProject.size(); i++) {
-//				String tileColor = tilesetsInProject.get(i).getColor();
-//				if(tileColor != null) {
-//					for(int j = 0; j < colors.length; j++) {
-//						if(tileColor.equals(colors[j])) {
-//							if(j > highestColorIndex) {
-//								highestColorIndex = j;
-//							}
-//							break;
-//						}
-//					}
-//				}
-//			}
-//		}
-
-		// Create a deep copy of the list of the checked layers
+		double tempFilesize = 0.0;
 		for(int i = 0; i < checked.size(); i++){
-			//highestColorIndex++;
 			Tileset tileset = new Tileset(checked.get(i));
-			//layer.setColor(colors[highestColorIndex%colors.length]);
+			tempFilesize += tileset.getFilesize();
 			tilesets.add(tileset);
 		}
 
-		if(!creatingProject){
+		tilesetHelper.downloadSizeDialog(getActivity(), new Runnable() {
 
-			final String projectName = arbiterProject.getOpenProject(getActivity());
+			@Override
+			public void run() {
+				CommandExecutor.runProcess(new Runnable() {
+					@Override
+					public void run() {
 
-			// TODO: write the added tilesets to the APPLICATION database
-			CommandExecutor.runProcess(new Runnable(){
-				@Override
-				public void run() {
-					ApplicationDatabaseHelper helper = ApplicationDatabaseHelper
-							.getHelper(context);
+						ApplicationDatabaseHelper helper = ApplicationDatabaseHelper
+								.getHelper(context);
 
-					//final long[] tilesetIds = LayersHelper.getLayersHelper().
-				//			insert(helper.getWritableDatabase(), context, tilesets);
+						// Start Downloading
 
-					getActivity().runOnUiThread(new Runnable(){
-						@Override
-						public void run(){
+						// Finish Downloading
+						tilesetHelper.insert(helper.getWritableDatabase(), context, tilesets);
 
-							//mapChangeListener.getMapChangeHelper().onLayersAdded(layers,
-						//			layerIds, hasThreadPool);
+						dismiss();
+					}
+				});
+			}
+		}, tempFilesize);
 
-							dismiss();
-						}
-					});
-				}
 
-			});
-
-		}else{
-			// Add the tilesets to the ProjectListItem
-			//Project newProject = ArbiterProject.getArbiterProject().getNewProject();
-			//newProject.addTilesets(tilesets);
-
-			//Intent projectsIntent = new Intent(getActivity(), AOIActivity.class);
-			//this.startActivity(projectsIntent);
-
-			//FragmentActivity activity = getActivity();
-
-			//String title = activity.getResources().getString(R.string.choose_baselayer);
-			//String ok = activity.getResources().getString(android.R.string.ok);
-			//String cancel = activity.getResources().getString(android.R.string.cancel);
-
-			//ChooseBaselayerDialog dialog = ChooseBaselayerDialog.newInstance(title, ok, cancel, R.layout.choose_baselayer_dialog,
-			//		creatingProject, BaseLayer.createOSMBaseLayer(), connectivityListener, hasThreadPool);
-
-			//dialog.show(activity.getSupportFragmentManager(), ChooseBaselayerDialog.TAG);
-
-			dismiss();
-		}
+		dismiss();
 	}
 
 	@Override
@@ -300,6 +260,7 @@ public class AddTilesetDialog extends ArbiterDialogFragment{
 	/**
 	 * Get the selected server from the dropdown
 	 * @return The selected server
+	 *
 	 */
 	public Server getSelectedServer(){
 		int selectedIndex = getSpinner().getSelectedItemPosition();

@@ -34,7 +34,6 @@ public class TilesetsListLoader extends AsyncTaskLoader<ArrayList<Tileset>> {
 	private ApplicationDatabaseHelper appDbHelper = null;
 	private Activity activity;
 	private Context context;
-	private String projectName;
 
 	public TilesetsListLoader(Activity activity) {
 		super(activity.getApplicationContext());
@@ -44,29 +43,25 @@ public class TilesetsListLoader extends AsyncTaskLoader<ArrayList<Tileset>> {
 		this.appDbHelper = ApplicationDatabaseHelper.getHelper(this.context);
 	}
 
-	public void updateProjectDbHelper(){
-		this.projectName = ArbiterProject.
-				getArbiterProject().getOpenProject(activity);
-		
-		this.projectDbHelper = ProjectDatabaseHelper.getHelper(context,
-				ProjectStructure.getProjectPath(projectName), false);
+	public void updateAppDbHelper(){
+		this.appDbHelper = ApplicationDatabaseHelper.getHelper(this.context);
 	}
 	
 	@Override
 	public ArrayList<Tileset> loadInBackground() {
-		updateProjectDbHelper();
+		updateAppDbHelper();
 		
-		SQLiteDatabase db = getProjectDbHelper().getWritableDatabase();
+		SQLiteDatabase db = getAppDbHelper().getWritableDatabase();
 		
 		ArrayList<Tileset> tilesets = TilesetsHelper.getTilesetsHelper().
 				getAll(db);
 		
-		SparseArray<Server> servers = ServersHelper.getServersHelper().
-				getAll(getAppDbHelper().getWritableDatabase());
+		//SparseArray<Server> servers = ServersHelper.getServersHelper().
+		//		getAll(getAppDbHelper().getWritableDatabase());
 		
-		tilesets = addServerInfoToTilesets(tilesets, servers);
+		//tilesets = addServerInfoToTilesets(tilesets, servers);
 		
-		String json = PreferencesHelper.getHelper().get(db, context, PreferencesHelper.BASE_LAYER);
+		//String json = PreferencesHelper.getHelper().get(db, context, PreferencesHelper.BASE_LAYER);
 		
 		/*try {
 			BaseLayer baseLayer = getBaseLayerFromJSON(json);
@@ -111,13 +106,13 @@ public class TilesetsListLoader extends AsyncTaskLoader<ArrayList<Tileset>> {
 	
 	protected ArrayList<Tileset> addServerInfoToTilesets(ArrayList<Tileset> tilesets,
 			SparseArray<Server> servers){
-		Server server;
+		//Server server;
 		
-		for(Tileset tileset : tilesets){
-			server = servers.get(tileset.getServerId());
-			tileset.setServerName(server.getName());
-			tileset.setServerUrl(server.getUrl());
-		}
+		//for(Tileset tileset : tilesets){
+		//	server = servers.get(tileset.getServerId());
+		//	tileset.setServerName(server.getName());
+		//	tileset.setServerUrl(server.getUrl());
+		//}
 		
 		return tilesets;
 	}

@@ -1,5 +1,7 @@
 package com.lmn.Arbiter_Android.ListAdapters;
 
+import java.util.ArrayList;
+
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -13,18 +15,18 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.lmn.Arbiter_Android.BaseClasses.Server;
+import com.lmn.Arbiter_Android.BaseClasses.Tileset;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
-import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.ServersHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesetsHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import com.lmn.Arbiter_Android.R;
 
-public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<SparseArray<Server>>{
+public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<ArrayList<Tileset>>{
 	private MapChangeListener mapChangeListener;
 
-	private SparseArray<Server> items;
+	private ArrayList<Tileset> items;
 	private final LayoutInflater inflater;
 	private int itemLayout;
 	private int textId;
@@ -36,7 +38,7 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Sp
 							  int textId){
 
 			inflater = LayoutInflater.from(activity.getApplicationContext());
-			items = new SparseArray<Server>();
+			items = new ArrayList<Tileset>();
 			this.itemLayout = itemLayout;
 			this.textId = textId;
 			this.dropDownLayout = R.layout.drop_down_item;
@@ -55,7 +57,7 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Sp
 							  int textId, Integer dropDownLayout){
 		
 			inflater = LayoutInflater.from(activity.getApplicationContext());
-			items = new SparseArray<Server>();
+			items = new ArrayList<Tileset>();
 			this.itemLayout = itemLayout;
 			this.textId = textId;
 			this.dropDownLayout = dropDownLayout;
@@ -63,7 +65,7 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Sp
 			this.viewServerOnClickEnabled = true;
 	}
 	
-	public void setData(SparseArray<Server> data){
+	public void setData(ArrayList<Tileset> data){
 		items = data;
 		
 		notifyDataSetChanged();
@@ -78,16 +80,16 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Sp
 			view = inflater.inflate(itemLayout, null);
 		}
 		
-		final Server server = getItem(position);
+		final Tileset tileset = getItem(position);
 		
-		if(server != null){
-			TextView serverName = (TextView) view.findViewById(textId);
+		if(tileset != null){
+			TextView tilesetName = (TextView) view.findViewById(textId);
 			
-			if(serverName != null){
-				serverName.setText(server.getName());
+			if(tilesetName != null){
+				tilesetName.setText(tileset.getName());
 			}
 
-			if(viewServerOnClickEnabled && !serverName.getText().equals("OpenStreetMap")){
+			/*if(viewServerOnClickEnabled && !serverName.getText().equals("OpenStreetMap")){
 				view.setOnClickListener(new OnClickListener(){
 					@Override
 					public void onClick(View v) {
@@ -97,9 +99,9 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Sp
 								activity.getSupportFragmentManager())).showAddServerDialog(server);
 					}
 				});
-			}
+			}*/
 			
-			ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteServer);
+			ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteTileset);
 			
 			if(deleteButton != null){
 				deleteButton.setEnabled(true);
@@ -108,7 +110,7 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Sp
 					@Override
 					public void onClick(View v) {
 						if(makeSureNotEditing()){
-							displayDeletionAlert(server);
+							displayDeletionAlert(tileset);
 						}
 					}
             		
@@ -140,37 +142,37 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Sp
 		return false;
     }
     
-	private void displayDeletionAlert(final Server server){
+	private void displayDeletionAlert(final Tileset tileset){
 		final Context context = activity.getApplicationContext();
 		
-		ServersHelper.getServersHelper().deletionAlert(activity, new Runnable(){
+		TilesetsHelper.getTilesetsHelper().deletionAlert(activity, new Runnable(){
 
 			@Override
 			public void run() {
-				final String deletingServerTitle = context.getResources().getString(R.string.deleting_server);
-				final String deletingServerMsg = context.getResources().getString(R.string.deleting_server_msg);
+				final String deletingTilesetTitle = context.getResources().getString(R.string.deleting_tileset);
+				final String deletingTilesetMsg = context.getResources().getString(R.string.deleting_tileset_msg);
 				
-				final ProgressDialog dialog = ProgressDialog.show(activity, 
-						deletingServerTitle, deletingServerMsg, true);
+				final ProgressDialog dialog = ProgressDialog.show(activity,
+						deletingTilesetTitle, deletingTilesetMsg, true);
 				
 				CommandExecutor.runProcess(new Runnable(){
 					@Override
 					public void run() {
 						
-						ServersHelper.getServersHelper().delete(
-								activity, server);
+						TilesetsHelper.getTilesetsHelper().delete(
+								activity, tileset);
 						
-						if(mapChangeListener != null){
+						/*if(mapChangeListener != null){
 							mapChangeListener.getMapChangeHelper()
-								.onServerDeleted(server.getId());
-						}
+								.onTilesetDeleted(tileset.getId());
+						}*/
 						
 						dialog.dismiss();
 					}
 					
 				});
 			}
-		});
+		}, tileset.getName());
 	}
 	
 	@Override
@@ -181,13 +183,13 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Sp
 			view = inflater.inflate(dropDownLayout, null);
 		}
 		
-		Server listItem = getItem(position);
+		Tileset listItem = getItem(position);
 	
 		if(listItem != null){
-			TextView serverName = (TextView) view.findViewById(textId);
+			TextView tilesetName = (TextView) view.findViewById(textId);
 		
-			if(serverName != null){
-				serverName.setText(listItem.getName());
+			if(tilesetName != null){
+				tilesetName.setText(listItem.getName());
 			}
 		}
 		
@@ -204,8 +206,8 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Sp
 	}
 
 	@Override
-	public Server getItem(int position) {
-		return items.valueAt(position);
+	public Tileset getItem(int position) {
+		return items.get(position);
 	}
 
 	@Override

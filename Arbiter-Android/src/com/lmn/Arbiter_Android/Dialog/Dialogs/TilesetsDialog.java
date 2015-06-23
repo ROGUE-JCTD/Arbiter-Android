@@ -1,39 +1,37 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
-
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
+import com.lmn.Arbiter_Android.BaseClasses.Tileset;
 import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.ListAdapters.TilesetListAdapter;
 import com.lmn.Arbiter_Android.LoaderCallbacks.TilesetLoaderCallbacks;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesetsHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.R;
+
+import java.util.ArrayList;
 
 public class TilesetsDialog extends ArbiterDialogFragment{
 
 	private TilesetListAdapter tilesetListAdapter;
 	private ListView listView;
-
 	private ConnectivityListener connectivityListener;
-
-	//@SuppressWarnings("unused")
-
 	private TilesetLoaderCallbacks tilesetLoaderCallbacks;
 	
-	public static TilesetsDialog newInstance(String title, String ok,
-			String cancel, int layout){
+	public static TilesetsDialog newInstance(String title, String done, int layout){
 		TilesetsDialog frag = new TilesetsDialog();
 		
 		frag.setTitle(title);
-		frag.setOk(ok);
-		frag.setCancel(cancel);
+		frag.setOk(done);
 		frag.setLayout(layout);
-		
+
 		return frag;
 	}
 
@@ -72,7 +70,6 @@ public class TilesetsDialog extends ArbiterDialogFragment{
 		this.connectivityListener = new ConnectivityListener(this.getActivity());
 
 		ImageButton button = (ImageButton) view.findViewById(R.id.add_tileset_button);
-		
 		if(button != null){
 			button.setOnClickListener(new OnClickListener(){
 
@@ -80,11 +77,15 @@ public class TilesetsDialog extends ArbiterDialogFragment{
 				public void onClick(View view) {
 					// Open the add server dialog
 					(new ArbiterDialogs(getActivity().getApplicationContext(), getActivity().getResources(),
-							getActivity().getSupportFragmentManager())).showAddTilesetDialog(null, connectivityListener);
+							getActivity().getSupportFragmentManager())).showAddTilesetDialog(connectivityListener);
 				}
 				
 			});
 		}
+
+		// Prepare TilesetHelper (restart any downloads)
+		this.tilesetListAdapter.Init();
+		TilesetsHelper.getTilesetsHelper().Init(getActivity());
 		
 		// Prepare the loader.  Either re-connect with an existing one,
         // or start a new one.

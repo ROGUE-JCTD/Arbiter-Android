@@ -12,16 +12,21 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ProgressBar;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.lmn.Arbiter_Android.BaseClasses.Tileset;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesetsHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.FileDownloader.DownloadListener;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
 import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import com.lmn.Arbiter_Android.R;
+
+
+import android.util.Log;
 
 public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<ArrayList<Tileset>>{
 	private MapChangeListener mapChangeListener;
@@ -64,7 +69,11 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Ar
 			this.activity = activity;
 			this.viewServerOnClickEnabled = true;
 	}
-	
+
+	public void Init(){
+		DownloadListener.getListener().addToListenerList(updateView());
+	}
+
 	public void setData(ArrayList<Tileset> data){
 		items = data;
 		
@@ -89,32 +98,67 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Ar
 				tilesetName.setText(tileset.getName());
 			}
 
-			/*if(viewServerOnClickEnabled && !serverName.getText().equals("OpenStreetMap")){
-				view.setOnClickListener(new OnClickListener(){
-					@Override
-					public void onClick(View v) {
-					
-						// Open the add server dialog
-						(new ArbiterDialogs(activity.getApplicationContext(), activity.getResources(),
-								activity.getSupportFragmentManager())).showAddServerDialog(server);
-					}
-				});
-			}*/
-			
-			ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteTileset);
-			
-			if(deleteButton != null){
-				deleteButton.setEnabled(true);
-				deleteButton.setOnClickListener(new OnClickListener(){
+			// When clicking on Tileset, show info
+			view.setOnClickListener(new OnClickListener(){
 
-					@Override
-					public void onClick(View v) {
-						if(makeSureNotEditing()){
-							displayDeletionAlert(tileset);
+				@Override
+				public void onClick(View v) {
+					(new ArbiterDialogs(activity.getApplicationContext(),
+							activity.getResources(),
+							activity.getSupportFragmentManager())).showTilesetInfoDialog(tileset);
+				}
+			});
+
+			ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteTileset);
+			if(deleteButton != null){
+
+				ProgressBar downloadBar = (ProgressBar)view.findViewById(R.id.downloading_tileset_bar);
+
+				// Change button if downloading
+				if (tileset.getIsDownloading()){
+
+					// Work around from ProgressBar bug (set progress to 0 then back to current to invalidate)
+					downloadBar.setProgress(0);
+					downloadBar.setProgress(tileset.getDownloadProgress());
+
+					// Make visible/refresh
+					downloadBar.setAlpha(1.0f);
+					downloadBar.invalidate();
+
+					// Debug
+					deleteButton.setColorFilter(0xFFFF0000);
+
+					// Allow user to Stop Download
+					deleteButton.setEnabled(true);
+					deleteButton.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							if (makeSureNotEditing()) {
+								// Cancel download dialog
+								displayCancellationAlert(tileset);
+							}
 						}
-					}
-            		
-            	});
+					});
+				} else {
+					//downloadBar.setProgress(0);
+					downloadBar.setAlpha(0.0f);
+
+					// Debug
+					deleteButton.setColorFilter(0xFFFFFFFF);
+
+					// Allow user to Delete Tileset
+					deleteButton.setEnabled(true);
+					deleteButton.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							if (makeSureNotEditing()) {
+								displayDeletionAlert(tileset);
+							}
+						}
+					});
+				}
             }
 		}
 		
@@ -145,31 +189,54 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Ar
 	private void displayDeletionAlert(final Tileset tileset){
 		final Context context = activity.getApplicationContext();
 		
-		TilesetsHelper.getTilesetsHelper().deletionAlert(activity, new Runnable(){
+		TilesetsHelper.getTilesetsHelper().deletionAlert(activity, new Runnable() {
 
 			@Override
 			public void run() {
 				final String deletingTilesetTitle = context.getResources().getString(R.string.deleting_tileset);
 				final String deletingTilesetMsg = context.getResources().getString(R.string.deleting_tileset_msg);
-				
+
 				final ProgressDialog dialog = ProgressDialog.show(activity,
 						deletingTilesetTitle, deletingTilesetMsg, true);
-				
-				CommandExecutor.runProcess(new Runnable(){
+
+				CommandExecutor.runProcess(new Runnable() {
 					@Override
 					public void run() {
-						
+
 						TilesetsHelper.getTilesetsHelper().delete(
 								activity, tileset);
-						
-						/*if(mapChangeListener != null){
-							mapChangeListener.getMapChangeHelper()
-								.onTilesetDeleted(tileset.getId());
-						}*/
-						
+
 						dialog.dismiss();
 					}
-					
+
+				});
+			}
+		}, tileset.getName());
+	}
+
+	private void displayCancellationAlert(final Tileset tileset){
+		final Context context = activity.getApplicationContext();
+
+		TilesetsHelper.getTilesetsHelper().cancellationAlert(activity, new Runnable() {
+
+			@Override
+			public void run() {
+				final String cancelDownloadTitle = context.getResources().getString(R.string.tileset_cancel_download_title);
+				final String cancelDownloadMsg = context.getResources().getString(R.string.tileset_cancel_download_msg);
+
+				final ProgressDialog dialog = ProgressDialog.show(activity,
+						cancelDownloadTitle, cancelDownloadMsg, true);
+
+				CommandExecutor.runProcess(new Runnable() {
+					@Override
+					public void run() {
+
+						TilesetsHelper.getTilesetsHelper().delete(
+								activity, tileset);
+
+						dialog.dismiss();
+					}
+
 				});
 			}
 		}, tileset.getName());
@@ -195,6 +262,38 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Ar
 		
 		return view;
 	}
+
+	public Runnable updateView(){
+
+		// This returns a Runnable to be executed later
+
+		return new Runnable() {
+			@Override
+			public void run() {
+
+				ArrayList<Tileset> tilesets = TilesetsHelper.getTilesetsHelper().getTilesetsInProject();
+
+				// Find Tileset in ListAdapter's items, update with correct information
+				Tileset Item, InProject;
+				for (int i = 0; i < items.size(); i++){
+					Item = getItem(i);
+
+					// Only check if downloading
+					if (Item.getIsDownloading()) {
+						for (int j = 0; j < tilesets.size(); j++) {
+							InProject = tilesets.get(j);
+							if (Item.getName().equals(InProject.getName())) {
+								Item.setDownloadProgress(InProject.getDownloadProgress());
+								notifyDataSetInvalidated();
+							}
+						}
+					}
+				}
+			}
+		};
+	}
+
+
 	
 	@Override
 	public int getCount() {

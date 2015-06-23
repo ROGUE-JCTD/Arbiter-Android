@@ -58,7 +58,7 @@ public class AddTilesetsListLoader extends AsyncTaskLoader<ArrayList<Tileset>> {
 			if(server != null && server.getUrl() != null) {
 
 				_tilesets = getCapabilities.getTilesets(server,
-						dialog.getTilesetsInProject());
+						activity);
 			}
 
 			connectedOK = true;

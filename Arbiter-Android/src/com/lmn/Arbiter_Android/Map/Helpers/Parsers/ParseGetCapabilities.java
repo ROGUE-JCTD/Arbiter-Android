@@ -168,17 +168,18 @@ public class ParseGetCapabilities {
 			JSONObject obj = jArr.getJSONObject(i);
 			Tileset tileset = new Tileset(obj.getString("name"), obj.getLong("created_at"),
 					obj.getString("created_by"), obj.getInt("filesize"),
-					obj.getString("source"), obj.getString("bounds"));
+					obj.getString("source"), obj.getString("bounds"),
+					0, 0);
+			// is_downloading(0 - false), downloadProgress(0%)
 
 			tilesets.add(tileset);
 		}
 
 		// Test Tileset from new
-		Tileset newTileset = new Tileset("Brand_New_Test", 10000050, "Sam", 600.0, "Server_Name", "1000");
+		Tileset newTileset = new Tileset("Brand_New_Test", 10000050, "Sam", 6000.0, "Server_Name", "1000", 0, 0);
 		tilesets.add(newTileset);
 
 		// NOTICE: If the JSON has multiple of the same Tilesets (Same name/server), they will show up.
-		// If you have that downloaded, it won't show up on the list TO download.
 
 		return tilesets;
 	}

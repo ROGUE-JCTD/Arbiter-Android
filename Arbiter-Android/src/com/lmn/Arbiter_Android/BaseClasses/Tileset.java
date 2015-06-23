@@ -15,7 +15,9 @@ public class Tileset {
 	private String source_id;
 	private String bounds;
 
-	private boolean checked;
+	private boolean checked;	// deprecated
+	private boolean isDownloading;
+	private int downloadProgress;
 
 	// Server stuff
 	private String serverName;
@@ -35,16 +37,27 @@ public class Tileset {
 		this.serverId = -1;
 		this.serverName = null;
 		this.serverUrl = null;
+
+		this.isDownloading = false;
+		this.downloadProgress = 0;
 	}
 
 	public Tileset(String name, long created_at, String created_by,
-				   double filesize, String source_id, String bounds){
+				   double filesize, String source_id, String bounds,
+				   int isDownloading, int downloadProgress){
 		this.tilesetName = name;
 		this.created_at_time = created_at;
 		this.created_by = created_by;
 		this.filesize = filesize;
 		this.source_id = source_id;
 		this.bounds = bounds;
+
+		if (isDownloading == 0)
+			this.isDownloading = false;
+		else
+			this.isDownloading = true;
+
+		this.downloadProgress = downloadProgress;
 
 		// This will be setup later
 		this.serverId = -1;
@@ -60,6 +73,8 @@ public class Tileset {
 		this.filesize = item.getFilesize();
 		this.source_id = item.getSourceId();
 		this.bounds = item.getBounds();
+		this.isDownloading = item.getIsDownloading();
+		this.downloadProgress = item.getDownloadProgress();
 
 		this.serverId = item.getServerId();
 		this.serverName = item.getServerName();
@@ -68,6 +83,12 @@ public class Tileset {
 
 	public boolean isChecked() { return checked; }
 	public void setChecked(boolean check) { this.checked = check; }
+
+	public boolean getIsDownloading() { return isDownloading; }
+	public void setIsDownloading(boolean d) { this.isDownloading = d; }
+
+	public int getDownloadProgress() { return downloadProgress; }
+	public void setDownloadProgress(int p) { this.downloadProgress = p; }
 	
 	public String getName(){
 		return tilesetName;
@@ -96,6 +117,41 @@ public class Tileset {
 	
 	public double getFilesize(){
 		return filesize;
+	}
+
+	public String getFilesizeAfterConversion(){
+		// Will convert from bytes to bytes, KB, MB, or GB
+		String result = "";
+
+		if (filesize > 0.0) {
+			if (filesize > 1073741824.0) {
+				String num = String.format("%.2f", (filesize / 1073741824.0));
+				result += num + "GB";
+			} else if (filesize > 1048576.0) {
+				String num = String.format("%.2f", (filesize / 1048576.0));
+				result += num + "MB";
+			} else if (filesize > 1024.0) {
+				String num = String.format("%.2f", (filesize / 1024.0));
+				result += num + "KB";
+			} else {
+				result += filesize + " bytes";
+			}
+		} else {
+			if (filesize < -1073741824.0) {
+				String num = String.format("%.2f", (filesize / 1073741824.0));
+				result += num + "GB";
+			} else if (filesize < -1048576.0) {
+				String num = String.format("%.2f", (filesize / 1048576.0));
+				result += num + "MB";
+			} else if (filesize < -1024.0) {
+				String num = String.format("%.2f", (filesize / 1024.0));
+				result += num + "KB";
+			} else {
+				result += filesize + " bytes";
+			}
+		}
+
+		return result;
 	}
 
 	public void setFilesize(double size){
@@ -136,6 +192,7 @@ public class Tileset {
 				"\tfilesize: " + filesize + "\n" +
 				"\tsource_id: " + source_id + "\n" +
 				"\tbounds: " + bounds + "\n" +
+				"\tisDownloading: " + isDownloading + "\n" +
 				"}";
 	}
 }

@@ -1,11 +1,14 @@
 package com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers;
 
+import java.io.File;
 import java.util.ArrayList;
+
 import com.lmn.Arbiter_Android.BaseClasses.Tileset;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.FileDownloader.DownloadListener;
+import com.lmn.Arbiter_Android.DatabaseHelpers.FileDownloader.FileDownloader;
 import com.lmn.Arbiter_Android.Loaders.TilesetsListLoader;
 import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.Util;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -17,285 +20,567 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
 import android.os.StatFs;
+import android.os.Build.VERSION;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 public class TilesetsHelper {
-	public static final String TABLE_NAME = "tilesets";
-	public static final String TILESET_NAME = "tileset_name";
-	public static final String TIME_CREATED = "time_created";
-	public static final String CREATED_BY = "created_by";
-	public static final String FILESIZE = "filesize";
-	public static final String BOUNDS = "bounds";
-	public static final String SOURCE_ID = "source_id";
+    public static final String TABLE_NAME = "tilesets";
+    public static final String TILESET_NAME = "tileset_name";
+    public static final String TIME_CREATED = "time_created";
+    public static final String CREATED_BY = "created_by";
+    public static final String FILESIZE = "filesize";
+    public static final String BOUNDS = "bounds";
+    public static final String SOURCE_ID = "source_id";
+    public static final String IS_DOWNLOADING = "is_downloading";
+    public static final String DOWNLOAD_PROGRESS = "download_progress";
 
-	private TilesetsHelper(){}
-	
-	private static TilesetsHelper helper = null;
-	
-	public static TilesetsHelper getTilesetsHelper(){
-		if(helper == null){
-			helper = new TilesetsHelper();
-		}
-		
-		return helper;
-	}
-	
-	public void createTable(SQLiteDatabase db){
-		String sql = "CREATE TABLE " + TABLE_NAME + " (" +
-				TILESET_NAME + " TEXT NOT NULL, " +
-				TIME_CREATED + " INTEGER NOT NULL, " +
-				CREATED_BY + " TEXT NOT NULL, " +
-				FILESIZE + " INTEGER NOT NULL, " +
-				BOUNDS + " TEXT NOT NULL, " +
-				SOURCE_ID + " TEXT NOT NULL);";
-		
-		db.execSQL(sql);
-	}
+    private ArrayList<Tileset> tilesetsInProject;
 
-	public void delete(Activity activity, Tileset tileset) {
-		Context context = activity.getApplicationContext();
+    private TilesetsHelper() {
+    }
 
-		SQLiteDatabase appDb = ApplicationDatabaseHelper.
-				getHelper(context).getWritableDatabase();
+    private static TilesetsHelper helper = null;
 
-		appDb.beginTransaction();
+    public static TilesetsHelper getTilesetsHelper() {
+        if (helper == null) {
+            helper = new TilesetsHelper();
 
-		try {
+            // On startup will reflect current Database
+            helper.tilesetsInProject = new ArrayList<Tileset>();
+        }
 
-			String whereClause = TILESET_NAME + "=?";
-			String[] whereArgs = {tileset.getName()};
+        return helper;
+    }
 
-			// Delete the tileset
-			appDb.delete(TABLE_NAME, whereClause, whereArgs);
+    public void Init(final Activity activity){
+        tilesetsInProject = getAll(ApplicationDatabaseHelper.getHelper(activity.getApplicationContext()).getReadableDatabase());
 
-			appDb.setTransactionSuccessful();
+        // Restart any downloads that may have been cancelled/interrupted
+        String URL = "http://download.piriform.com/mac/CCMacSetup109.dmg";
+        String output;
 
-			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(TilesetsListLoader.TILESETS_LIST_UPDATED));
-		} catch (Exception e){
-			e.printStackTrace();
-		} finally {
-			appDb.endTransaction();
-		}
-	}
+        for (int i = 0; i < tilesetsInProject.size(); i++) {
+            final Tileset tileset = tilesetsInProject.get(i);
 
-	public long[] insert(SQLiteDatabase db, Context context, ArrayList<Tileset> newTilesets){
-		db.beginTransaction();
+            if (tileset.getIsDownloading()) {
+                tileset.setDownloadProgress(0);
 
-		long[] tilesetIds = new long[newTilesets.size()];
+                output = "/Arbiter/TestFolder/";
+                output += tileset.getName() + ".txt";
 
-		try {
-			ContentValues values;
-			Tileset tileset;
+                new FileDownloader(URL, output, (FragmentActivity) activity, tileset,
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                // Each update cycle
 
-			boolean somethingWentWrong = false;
-			int i;
+                                // Tell TilesetListAdapter that the download is progressing
+                                DownloadListener.getListener().execute();
+                            }
+                        },
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                // Completely finished
 
-			for(i = 0; i < newTilesets.size(); i++) {
-				values = new ContentValues();
-				tileset = newTilesets.get(i);
+                                // Set finished downloading
+                                tileset.setIsDownloading(false);
 
-				values.put(TILESET_NAME, tileset.getName());
-				values.put(TIME_CREATED, tileset.getCreatedTime());
-				values.put(CREATED_BY, tileset.getCreatedBy());
-				values.put(FILESIZE, tileset.getFilesize());
-				values.put(BOUNDS, tileset.getBounds());
-				values.put(SOURCE_ID, tileset.getSourceId());
+                                // Update tileset / add to local ArrayList
+                                Context context = activity.getApplicationContext();
+                                ApplicationDatabaseHelper appHelper = ApplicationDatabaseHelper.getHelper(context);
+                                update(appHelper.getWritableDatabase(), context, tileset);
+                            }
+                        });
+            }
+        }
+    }
 
-				String testIfInDb = "SELECT " + TILESET_NAME + " FROM " + TABLE_NAME + " WHERE " + TILESET_NAME + "=" + "\"" + tileset.getName() + "\"";
-				Cursor inDbCheck = db.rawQuery(testIfInDb, null);
-				boolean foundCopy = false;
-				if (inDbCheck.moveToFirst()) {
-					for (int j = 0; j < inDbCheck.getCount(); j++) {
-						if (inDbCheck.getString(j).equals(tileset.getName())) {
-							foundCopy = true;
+    public void createTable(SQLiteDatabase db) {
+        String sql = "CREATE TABLE " + TABLE_NAME + " (" +
+                TILESET_NAME + " TEXT NOT NULL, " +
+                TIME_CREATED + " INTEGER NOT NULL, " +
+                CREATED_BY + " TEXT NOT NULL, " +
+                FILESIZE + " INTEGER NOT NULL, " +
+                BOUNDS + " TEXT NOT NULL, " +
+                SOURCE_ID + " TEXT NOT NULL, " +
+                IS_DOWNLOADING + " INTEGER NOT NULL, " +
+                DOWNLOAD_PROGRESS + " INTEGER NOT NULL);";
 
-							/*if (context != null) {
-								AlertDialog.Builder existsDialog = new AlertDialog.Builder(context);
-								existsDialog.setTitle("Found Copy");
-								existsDialog.setIcon(context.getResources().getDrawable(R.drawable.icon));
-								existsDialog.setMessage("Found " + tileset.getName() + " in TileSets already!!!");
-								existsDialog.setPositiveButton("OK", null);
-								existsDialog.create().show();
-							}*/
+        db.execSQL(sql);
+    }
 
-							break;
-						}
-						inDbCheck.moveToNext();
-					}
-				}
+    public void delete(Activity activity, Tileset tileset) {
+        Context context = activity.getApplicationContext();
 
-				if (!foundCopy) {
-					tilesetIds[i] = db.insert(TABLE_NAME, null, values);
+        SQLiteDatabase appDb = ApplicationDatabaseHelper.
+                getHelper(context).getWritableDatabase();
 
-					if (tilesetIds[i] == -1) {
-						somethingWentWrong = true;
-						break;
-					}
-				}
-				else
-					tilesetIds[i] = -1;
-			}
+        appDb.beginTransaction();
 
-			if (!somethingWentWrong) {
-				db.setTransactionSuccessful();
+        try {
 
-				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(TilesetsListLoader.TILESETS_LIST_UPDATED));
-			} else {
-				Log.w("TILESETSHELPER", "TILESETSHELPER Something went wrong inserting tileset: " + newTilesets.get(i));
-			}
+            String whereClause = TILESET_NAME + "=?";
+            String[] whereArgs = {tileset.getName()};
 
-		} catch (Exception e){
-			e.printStackTrace();
-		} finally {
-			db.endTransaction();
-		}
+            // Remove from tilesets in project
+            for (int i = 0; i < tilesetsInProject.size(); i++){
+                if (tilesetsInProject.get(i).getName().equals(tileset.getName())){
+                    tilesetsInProject.remove(i);
+                }
+            }
 
-		return tilesetIds;
-	}
+            // Delete the tileset from DB
+            appDb.delete(TABLE_NAME, whereClause, whereArgs);
 
-	public String convertFilesize(double number){
-		// Will convert from bytes to bytes, KB, MB, or GB
-		String result = "";
+            // Stop downloading file
+            tileset.setIsDownloading(false);
 
-		if (number > 0.0) {
-			if (number > 1073741824.0) {
-				String num = String.format("%.2f", (number / 1073741824.0));
-				result += num + "GB";
-			} else if (number > 1048576.0) {
-				String num = String.format("%.2f", (number / 1048576.0));
-				result += num + "MB";
-			} else if (number > 1024.0) {
-				String num = String.format("%.2f", (number / 1024.0));
-				result += num + "KB";
-			} else {
-				result += number + " bytes";
-			}
-		} else {
-			if (number < -1073741824.0) {
-				String num = String.format("%.2f", (number / 1073741824.0));
-				result += num + "GB";
-			} else if (number < -1048576.0) {
-				String num = String.format("%.2f", (number / 1048576.0));
-				result += num + "MB";
-			} else if (number < -1024.0) {
-				String num = String.format("%.2f", (number / 1024.0));
-				result += num + "KB";
-			} else {
-				result += number + " bytes";
-			}
-		}
+            // Delete downloaded file
+            String envPath = Environment.getExternalStorageDirectory().toString();
+            String debugLocation = "/Arbiter/TestFolder/";
+            debugLocation += tileset.getName() + ".txt";
+            envPath += debugLocation;
+            File file = new File(envPath);
+            if (file.exists())
+                file.delete();
 
-		return result;
-	}
+            appDb.setTransactionSuccessful();
 
-	private double availableSpaceOnPhone(){
-		StatFs stat = new StatFs(Environment.getDataDirectory().getPath());
+            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(TilesetsListLoader.TILESETS_LIST_UPDATED));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            appDb.endTransaction();
+        }
+    }
 
-		return stat.getAvailableBlocksLong() * stat.getBlockSizeLong();
-	}
+    public long[] insert(SQLiteDatabase db, Context context, Tileset newTileset) {
+        db.beginTransaction();
 
-	public void deletionAlert(Activity activity, final Runnable deleteIt, String tilesetName){
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        long[] tilesetIds = new long[1];
 
-		builder.setTitle(R.string.warning);
-		builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
-		String deleteTilesetStr = activity.getApplicationContext().getResources().getString(R.string.delete_tileset_alert);
-		builder.setMessage(deleteTilesetStr + " " + tilesetName + "?");
-		builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+        try {
+            ContentValues values;
+            Tileset tileset;
 
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				deleteIt.run();
-			}
-		});
+            boolean somethingWentWrong = false;
 
-		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener(){
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
+            values = new ContentValues();
+            tileset = newTileset;
 
-			}
-		});
+            values.put(TILESET_NAME, tileset.getName());
+            values.put(TIME_CREATED, tileset.getCreatedTime());
+            values.put(CREATED_BY, tileset.getCreatedBy());
+            values.put(FILESIZE, tileset.getFilesize());
+            values.put(BOUNDS, tileset.getBounds());
+            values.put(SOURCE_ID, tileset.getSourceId());
+            if (tileset.getIsDownloading() == false)
+                values.put(IS_DOWNLOADING, 0);
+            else
+                values.put(IS_DOWNLOADING, 1);
+            values.put(DOWNLOAD_PROGRESS, tileset.getDownloadProgress());
 
-		builder.create().show();
-	}
+            String testIfInDb = "SELECT " + TILESET_NAME + " FROM " + TABLE_NAME + " WHERE " + TILESET_NAME + "=" + "\"" + tileset.getName() + "\"";
+            Cursor inDbCheck = db.rawQuery(testIfInDb, null);
 
-	public void downloadSizeDialog(Context context, final Runnable downloadIt,
-								   final double filesize){
-		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            // TODO: Make sure to test against date + bounds, only check is against names
+            boolean foundCopy = false;
+            if (inDbCheck.moveToFirst()) {
+                for (int j = 0; j < inDbCheck.getCount(); j++) {
+                    if (inDbCheck.getString(j).equals(tileset.getName())) {
+                        foundCopy = true;
+                        Log.w("TilesetHelper",
+                                "Found copy of tileset.. " +
+                                        "Database: " + inDbCheck.getString(j) + ", " +
+                                        "newTileset: " + newTileset.getName());
 
-		final double freeSpace = availableSpaceOnPhone();
-		final String strFilesize = convertFilesize(filesize);
-		final String strAvailableSpace = convertFilesize(freeSpace);
-		final String strSpaceAfterDL = convertFilesize(freeSpace - filesize);
+                        break;
+                    }
+                    inDbCheck.moveToNext();
+                }
+            }
 
-		builder.setTitle(R.string.downloading_tileset);
-		builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
+            if (!foundCopy) {
+                tilesetsInProject.add(tileset);
+                tilesetIds[0] = db.insert(TABLE_NAME, null, values);
 
-		String downloadMsg = context.getResources().getString(R.string.downloading_tileset_msg);
-		String downloadMsg2 = context.getResources().getString(R.string.downloading_tileset_msg2);
-		String availableSpace = context.getResources().getString(R.string.space_available);
-		String spaceAfterDownload = context.getResources().getString(R.string.space_after_download);
+                if (tilesetIds[0] == -1) {
+                    somethingWentWrong = true;
+                }
+            } else
+                tilesetIds[0] = -1;
 
-		builder.setMessage(downloadMsg + " " + strFilesize + ". \n"
-				+ downloadMsg2 + "\n\n"
-				+ availableSpace + " " + strAvailableSpace
-				+ "\n" + spaceAfterDownload + " " + strSpaceAfterDL);
+            if (!somethingWentWrong) {
+                db.setTransactionSuccessful();
 
-		builder.setPositiveButton(R.string.downloading_tileset, new DialogInterface.OnClickListener() {
+                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(TilesetsListLoader.TILESETS_LIST_UPDATED));
+            } else {
+                Log.w("TILESETSHELPER", "TILESETSHELPER Something went wrong inserting tileset: " + newTileset);
+            }
 
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if ((freeSpace - filesize) <= 0.0) {
-					// Can't download it
-					// Need AlertDialog
-				} else {
-					// Can download it
-					downloadIt.run();
-				}
-			}
-		});
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
 
-		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
+        return tilesetIds;
+    }
 
-			}
-		});
+    private ContentValues getValuesFromTileset(Tileset tileset){
 
-		builder.create().show();
-	}
+        ContentValues values = new ContentValues();
 
-	public ArrayList<Tileset> getAll(SQLiteDatabase db){
-		Util util = new Util();
+        values.put(TILESET_NAME, tileset.getName());
+        values.put(TIME_CREATED, tileset.getCreatedTime());
+        values.put(CREATED_BY, tileset.getCreatedBy());
+        values.put(FILESIZE, tileset.getFilesize());
+        values.put(BOUNDS, tileset.getBounds());
+        values.put(SOURCE_ID, tileset.getSourceId());
+        if (!tileset.getIsDownloading())
+            values.put(IS_DOWNLOADING, 0);
+        else
+            values.put(IS_DOWNLOADING, 1);
+        values.put(DOWNLOAD_PROGRESS, tileset.getDownloadProgress());
 
-		// Projection - columns to get back
-		String[] columns = {
-				TILESET_NAME, // 0
-				TIME_CREATED, // 1
-				CREATED_BY, // 2
-				FILESIZE, // 3
-				SOURCE_ID, // 4
-				BOUNDS // 5
-		};
+        return values;
+    }
 
-		// get all of the tilesets and
-		// How to sort the results
-		String orderBy = TILESET_NAME + " COLLATE NOCASE";
+    private ContentValues getProgressValueFromTileset(Tileset tileset){
 
-		Cursor cursor = db.query(TABLE_NAME, columns, null, null, null, null, orderBy);
+        ContentValues values = new ContentValues();
 
-		// Create an array list with initial capacity equal to the number of tilesets +1 for the default tileset
-		ArrayList<Tileset> tilesets = new ArrayList<Tileset>(cursor.getCount() + 1);
+        values.put(DOWNLOAD_PROGRESS, tileset.getDownloadProgress());
 
-		//Traverse the cursors to populate the projects array
-		for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-			tilesets.add(new Tileset(cursor.getString(0), cursor.getLong(1), cursor.getString(2),
-					cursor.getDouble(3), cursor.getString(4), cursor.getString(5)));
-		}
+        return values;
+    }
 
-		cursor.close();
+    public void update(SQLiteDatabase db, Context context, Tileset tileset){
+        db.beginTransaction();
 
-		return tilesets;
-	}
+        try {
+
+            updateAttributeValues(db, tileset.getName(),
+                    getValuesFromTileset(tileset), null);
+
+
+            db.setTransactionSuccessful();
+
+            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(TilesetsListLoader.TILESETS_LIST_UPDATED));
+        } catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    public void updateProgress(SQLiteDatabase db, Context context, Tileset tileset){
+        db.beginTransaction();
+
+        try {
+
+            updateProgressValue(db, tileset.getName(),
+                    getProgressValueFromTileset(tileset), null);
+
+
+            db.setTransactionSuccessful();
+
+            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(TilesetsListLoader.TILESETS_LIST_UPDATED));
+        } catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    public void updateAttributeValues(SQLiteDatabase db, String tilesetName,
+                                      ContentValues values, Runnable callback){
+        db.beginTransaction();
+        try {
+
+            String whereClause = TILESET_NAME + "=?";
+            String[] whereArgs = {
+                    tilesetName
+            };
+
+            db.update(TABLE_NAME, values, whereClause, whereArgs);
+
+            db.setTransactionSuccessful();
+
+            if(callback != null){
+                callback.run();
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    public void updateProgressValue(SQLiteDatabase db, String tilesetName,
+                                      ContentValues values, Runnable callback){
+
+        db.beginTransaction();
+
+        try {
+
+            String whereClause = TILESET_NAME + "=?";
+            String[] whereArgs = {
+                    tilesetName
+            };
+
+            db.update(TABLE_NAME, values, whereClause, whereArgs);
+
+            db.setTransactionSuccessful();
+
+            if(callback != null){
+                callback.run();
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    public String convertFilesize(double number) {
+        // Will convert from bytes to bytes, KB, MB, or GB
+        String result = "";
+
+        if (number > 0.0) {
+            if (number > 1073741824.0) {
+                String num = String.format("%.2f", (number / 1073741824.0));
+                result += num + "GB";
+            } else if (number > 1048576.0) {
+                String num = String.format("%.2f", (number / 1048576.0));
+                result += num + "MB";
+            } else if (number > 1024.0) {
+                String num = String.format("%.2f", (number / 1024.0));
+                result += num + "KB";
+            } else {
+                result += number + " bytes";
+            }
+        } else {
+            if (number < -1073741824.0) {
+                String num = String.format("%.2f", (number / 1073741824.0));
+                result += num + "GB";
+            } else if (number < -1048576.0) {
+                String num = String.format("%.2f", (number / 1048576.0));
+                result += num + "MB";
+            } else if (number < -1024.0) {
+                String num = String.format("%.2f", (number / 1024.0));
+                result += num + "KB";
+            } else {
+                result += number + " bytes";
+            }
+        }
+
+        return result;
+    }
+
+    private long availableSpaceOnPhone() {
+        StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+
+        if (VERSION.SDK_INT >= 18)
+            return stat.getBlockCountLong() * stat.getBlockSizeLong();
+        else
+            return (long)stat.getBlockCount() * (long)stat.getBlockSize();
+    }
+
+    public void notEnoughSpaceAlert(Activity activity, String tilesetName){
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+
+        String title = activity.getResources().getString(R.string.not_enough_space);
+        String message1 = activity.getResources().getString(R.string.not_enough_space_msg1);
+        String message2 = activity.getResources().getString(R.string.not_enough_space_msg2);
+
+        builder.setTitle(title);
+        builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
+        builder.setMessage(message1 + " " + tilesetName + ". " + message2);
+        builder.setPositiveButton(R.string.back, null);
+
+        builder.create().show();
+    }
+
+    public void deletionAlert(Activity activity, final Runnable deleteIt, String tilesetName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+
+        builder.setTitle(R.string.warning);
+        builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
+        String deleteTilesetStr = activity.getApplicationContext().getResources().getString(R.string.delete_tileset_alert);
+        builder.setMessage(deleteTilesetStr + " " + tilesetName + "?");
+        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                deleteIt.run();
+            }
+        });
+
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+        builder.create().show();
+    }
+
+    public void cancellationAlert(Activity activity, final Runnable deleteIt, String tilesetName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+
+        builder.setTitle(R.string.warning);
+        builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
+        String deleteTilesetStr = activity.getApplicationContext().getResources().getString(R.string.cancel_download_tileset_alert);
+        builder.setMessage(deleteTilesetStr + " " + tilesetName + "?");
+        builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                deleteIt.run();
+            }
+        });
+
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+        builder.create().show();
+    }
+
+    public void serverResponseDialog(Context context, String serverName){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+        builder.setTitle(R.string.error_retrieving_tileset);
+
+        String errorMsg1 = context.getString(R.string.error_connecting_tileset1);
+        String errorMsg2 = context.getString(R.string.error_connecting_tileset2);
+        builder.setMessage(errorMsg1 + " " + serverName + ". " + errorMsg2);
+        builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
+        builder.setPositiveButton(android.R.string.ok, null);
+
+        builder.create().show();
+    }
+
+    public void downloadSizeDialog(final Activity activity, final Runnable downloadIt,
+                                   final double filesize, final String tilesetName) {
+        Context context = activity;
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+        final long freeSpace = availableSpaceOnPhone();
+        final String strFilesize = convertFilesize(filesize);
+        final String strAvailableSpace = convertFilesize(freeSpace);
+        final String strSpaceAfterDL = convertFilesize(freeSpace - filesize);
+
+        builder.setTitle(R.string.downloading_tileset);
+        builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
+
+        String downloadMsg = context.getResources().getString(R.string.downloading_tileset_msg);
+        String downloadMsg2 = context.getResources().getString(R.string.downloading_tileset_msg2);
+        String availableSpace = context.getResources().getString(R.string.space_available);
+        String spaceAfterDownload = context.getResources().getString(R.string.space_after_download);
+
+        builder.setMessage(downloadMsg + " " + strFilesize + ". \n"
+                + downloadMsg2 + "\n\n"
+                + availableSpace + " " + strAvailableSpace
+                + "\n" + spaceAfterDownload + " " + strSpaceAfterDL);
+
+        builder.setPositiveButton(R.string.downloading_tileset, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if ((freeSpace - filesize) <= 0.0) {
+                    // Can't download it
+                    notEnoughSpaceAlert(activity, tilesetName);
+                } else {
+                    // Can download it
+                    downloadIt.run();
+                }
+            }
+        });
+
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+        builder.create().show();
+    }
+
+    public ArrayList<Tileset> getAll(SQLiteDatabase db) {
+
+        // Projection - columns to get back
+        String[] columns = {
+                TILESET_NAME, // 0
+                TIME_CREATED, // 1
+                CREATED_BY, // 2
+                FILESIZE, // 3
+                SOURCE_ID, // 4
+                BOUNDS, // 5
+                IS_DOWNLOADING, // 6
+                DOWNLOAD_PROGRESS // 7
+        };
+
+        // get all of the tilesets and
+        // How to sort the results
+        String orderBy = TILESET_NAME + " COLLATE NOCASE";
+
+        Cursor cursor = db.query(TABLE_NAME, columns, null, null, null, null, orderBy);
+
+        // Create an array list with initial capacity equal to the number of tilesets +1 for the default tileset
+        ArrayList<Tileset> tilesets = new ArrayList<Tileset>(cursor.getCount() + 1);
+
+        //Traverse the cursors to populate the projects array
+        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+            tilesets.add(new Tileset(cursor.getString(0), cursor.getLong(1), cursor.getString(2),
+                    cursor.getDouble(3), cursor.getString(4), cursor.getString(5), cursor.getInt(6), cursor.getInt(7)));
+        }
+
+        cursor.close();
+
+        return tilesets;
+    }
+
+    public boolean checkInDatabase(SQLiteDatabase db, Tileset tileset){
+
+        // Projection - columns to get back
+        String[] columns = {
+                TILESET_NAME, // 0
+                TIME_CREATED, // 1
+                CREATED_BY, // 2
+                FILESIZE, // 3
+                SOURCE_ID, // 4
+                BOUNDS, // 5
+                IS_DOWNLOADING, // 6
+                DOWNLOAD_PROGRESS // 7
+        };
+
+        // get all of the tilesets and
+        // How to sort the results
+        String orderBy = TILESET_NAME + " COLLATE NOCASE";
+
+        Cursor cursor = db.query(TABLE_NAME, columns, null, null, null, null, orderBy);
+
+        String tilesetName;
+        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
+            tilesetName = cursor.getString(0);
+            if (tilesetName.equals(tileset.getName())){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public ArrayList<Tileset> getTilesetsInProject() { return tilesetsInProject; }
+    public void setTilesetsInProject(ArrayList<Tileset> tilesets) { tilesetsInProject = tilesets; }
 }

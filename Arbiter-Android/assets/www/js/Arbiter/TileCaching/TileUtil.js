@@ -591,8 +591,11 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	    // use the info we have to derive were the tile would be stored on the device
 
 		var path;
+
+		var test = false;
 	    
-	    if(Arbiter.hasAOIBeenSet() && Arbiter.Util.existsAndNotNull(this.metadata) && this.metadata.isBaseLayer){
+	    if(Arbiter.hasAOIBeenSet() && Arbiter.Util.existsAndNotNull(this.metadata) && this.metadata.isBaseLayer
+	    	&& test === true){
 
 	    	// Original folder (Look into OSM folder)
 	    	//path = Arbiter.FileSystem.NATIVE_ROOT_URL + "/" + tileDir.path +"/"

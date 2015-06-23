@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="15dp" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp">
+
+        <TextView
+            android:id="@+id/tileset_info_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name: airport_nsr"/>
+
+        <TextView
+            android:id="@+id/tileset_info_time_created"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_name"
+            android:paddingTop="5dp"
+            android:text="Time Created: Today"/>
+
+        <TextView
+            android:id="@+id/tileset_info_created_by"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_time_created"
+            android:paddingTop="5dp"
+            android:text="Created By: Me"/>
+
+        <TextView
+            android:id="@+id/tileset_info_filesize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_created_by"
+            android:paddingTop="5dp"
+            android:text="Filesize: 100 hours"/>
+
+        <TextView
+            android:id="@+id/tileset_info_server"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_filesize"
+            android:paddingTop="5dp"
+            android:text="Server: Malukah.org"/>
+
+
+        <TextView
+            android:id="@+id/tileset_info_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/tileset_info_server"
+            android:paddingTop="20dp"
+            android:text="Status: "/>
+    </RelativeLayout>
+
+    
+</LinearLayout>

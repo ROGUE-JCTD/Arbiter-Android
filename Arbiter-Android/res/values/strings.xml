@@ -2,6 +2,8 @@
 <resources>
 	<string name="warning">Warning</string>
 	<string name="error">Error</string>
+    <string name="confirm">Confirm</string>
+    <string name="stop">Stop</string>
     <string name="app_name">Arbiter-Android</string>
     <string name="action_findme">Find me</string>
     <string name="default_project_name">_ARBITER_DEFAULT_PROJECT_</string>
@@ -140,6 +142,27 @@
     <string name="downloading_tileset_msg2">Are you sure you want to continue?</string>
     <string name="space_available">Available Space: </string>
     <string name="space_after_download">After Download: </string>
+    <string name="tileset_info_name">Name: </string>
+    <string name="tileset_info_time_created">Time Created: </string>
+    <string name="tileset_info_created_by">Created By: </string>
+    <string name="tileset_info_filesize">Filesize: </string>
+    <string name="tileset_info_server">Server: </string>
+    <string name="tileset_info_status">Status: </string>
+    <string name="tileset_cancel_download_title">Cancelling Download</string>
+    <string name="tileset_cancel_download_msg">Stopping download..</string>
+    <string name="cancel_download_tileset_alert">Are you sure you want to cancel the download for</string>
+    <string name="error_retrieving_tileset">Error Retrieving Tileset</string>
+    <string name="tileset_info_title">Tileset Info</string>
+    <string name="error_connecting_tileset1">Error when trying to connect to</string>
+    <string name="error_connecting_tileset2">Please check your connection and try again.</string>
+    <string name="tileset_status_downloading">Downloading..</string>
+    <string name="tileset_status_in_database">In Database</string>
+    <string name="tileset_status_on_server">On Server</string>
+    <string name="tileset_started_downloading_msg">Started downloading</string>
+    <string name="tileset_finished_downloading_msg">Finished downloading</string>
+    <string name="not_enough_space">Not Enough Space</string>
+    <string name="not_enough_space_msg1">You do not have enough free space to download</string>
+    <string name="not_enough_space_msg2">Consider freeing up space and trying again.</string>
 
     <!-- LAYER INFO DIALOG STRINGS -->
     <string name="layer_info_dialog_title">Layer Info</string>

@@ -22,12 +22,14 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.util.Base64;
 import android.util.Log;
+import android.app.Activity;
 
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.BaseClasses.Tileset;
 import com.lmn.Arbiter_Android.Comparators.CompareAddLayersListItems;
 import com.lmn.Arbiter_Android.Comparators.CompareAddTilesetsListItems;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesetsHelper;
 import com.lmn.Arbiter_Android.Map.Helpers.Parsers.ParseGetCapabilities;
 
 public class GetCapabilities {
@@ -119,14 +121,16 @@ public class GetCapabilities {
 		return null;
 	}
 
-	public ArrayList<Tileset> getTilesets(Server server, ArrayList<Tileset> tilesetsInProject) {
+	public ArrayList<Tileset> getTilesets(Server server, final Activity activity) {
 		if(server != null && server.getUrl() != null) {
 			String url = server.getUrl() + "?service=wms&version=1.1.1&request=GetCapabilities";
 
 			HttpParams params = new BasicHttpParams();
 
-			HttpConnectionParams.setConnectionTimeout(params, timeout);
-			HttpConnectionParams.setSoTimeout(params, soTimeout);
+			int connectionTimeout = 15000; //15s
+			int socketTimeout = 25000; //25s
+			HttpConnectionParams.setConnectionTimeout(params, connectionTimeout);
+			HttpConnectionParams.setSoTimeout(params, socketTimeout);
 
 			HttpClient client = new DefaultHttpClient();
 			HttpGet request = new HttpGet(url);
@@ -147,6 +151,14 @@ public class GetCapabilities {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+
+				final String serverName = server.getName();
+				activity.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						TilesetsHelper.getTilesetsHelper().serverResponseDialog(activity, serverName);
+					}
+				});
 			}
 
 			if(response == null){
@@ -182,7 +194,8 @@ public class GetCapabilities {
 			}
 
 			if(tilesets != null){
-				removeDuplicateTilesets(tilesets, tilesetsInProject);
+				//TODO: Fix this function
+				//removeDuplicateTilesets(tilesets, tilesetsInProject);
 
 				Collections.sort(tilesets, new CompareAddTilesetsListItems());
 			}

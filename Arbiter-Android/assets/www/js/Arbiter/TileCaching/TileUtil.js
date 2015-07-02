@@ -299,64 +299,16 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	/**
 	 * @param {OpenLayers.Bounds} aoi The aoi for caching
 	 */
+
+	 /*
+	 * Was previously caching tiles, functionality wasn't needed anymore
+	 *   because we converted from downloading tiles to an MBTiles Database
+	 * -7/2/15
+	 */
 	this.cacheTiles = function(aoi, successCallback, errorCallback){
-		
-		if(aoi === null || aoi === undefined){
-			throw "TileUtil.cacheTiles aoi should not be " + aoi;
-		}
-		
-		if (typeof caching !== 'undefined') {
-			//Arbiter.warning(Arbiter.localizeString("Tile Caching already in progress. Aborting new request.","label","cachingInProgress"));
-			console.log("Tile caching already in progress.  Aborting new request.");
-			return;
-		} 
-		
-		//-- continue with clearing cache and then re downloading tiles 
-		TileUtil.clearCache(function(){
-			
-			if (TileUtil.cacheTilesTest1Couter > 0) {
-				console.log("~~~~ cacheTiles. done clear cache. starting testTilesTableIsEmpty MAKE sure there is only one project in arbiter!");
-				TileUtil.testTilesTableIsEmpty(
-					function(){
-						console.log("---- cacheTiles.clearCache: success no tiles in Tiles table");
-						
-						// once all the cache for this project is cleared, start caching again. 
-						TileUtil.startCachingTiles(aoi,
-							function(){
-								console.log("~~~~ done caching");
-								//Arbiter.hideMessageOverlay();
-								
-								if (successCallback){
-									successCallback();
-								}
-							}
-						);
-					},
-					function(){
-						TileUtil.dumpTilesTable();
-						//Arbiter.error("----[ TEST FAILED: testTilesTableIsEmpty cacheTiles.clearCache: failed! Tiles Table not empty. just dumped tilestable");
-						//Arbiter.hideMessageOverlay();
-		
-						if (errorCallback){
-							errorCallback();
-						}
-					}
-				);
-			} else {
-				console.log("~~~~ cacheTiles, done clearing clearing cache. starting caching");
-				// once all the cache for this project is cleared, start caching again. 
-				TileUtil.startCachingTiles(aoi,
-					function(){
-						console.log("~~~~ done caching");
-						//Arbiter.hideMessageOverlay();
-						
-						if (successCallback){
-							successCallback();
-						}
-					}
-				);
-			}
-		});
+		if (successCallback){
+        	successCallback();
+        }
 	};
 	
 	this.testCacheTilesRepeatStart = function(millisec, maxRepeat){
@@ -588,11 +540,13 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 		
 	    var ext = TileUtil.getLayerFormatExtension(this);
 	    
-	    // use the info we have to derive were the tile would be stored on the device
+	    // use the info we have to derive where the tile would be stored on the device
 
 		var path;
 
-		var test = false;
+		var test = true;
+
+		var i = 0;
 	    
 	    if(Arbiter.hasAOIBeenSet() && Arbiter.Util.existsAndNotNull(this.metadata) && this.metadata.isBaseLayer
 	    	&& test === true){
@@ -624,7 +578,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 
 					var Elements = document.querySelectorAll(".olTileImage");
 					//TODO: This checks everything more than it probably should. Optimize?
-					for (i = 0; i < Elements.length; i++) {
+					for (; i < Elements.length; i++) {
 						var imgSrc = Elements[i].getAttribute("src");
 
 						// Test for Data or Fake

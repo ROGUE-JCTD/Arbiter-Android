@@ -9,6 +9,6 @@ public class CompareAddTilesetsListItems implements Comparator<Tileset>{
 	@Override
 	public int compare(Tileset item1, Tileset item2) {
 		
-		return item1.getName().compareToIgnoreCase(item2.getName());
+		return item1.getTilesetName().compareToIgnoreCase(item2.getTilesetName());
 	}
 }

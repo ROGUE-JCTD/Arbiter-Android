@@ -40,15 +40,65 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/tileset_info_created_by"
             android:paddingTop="5dp"
-            android:text="Filesize: 100 hours"/>
+            android:text="Filesize: 100 million"/>
+
+        <TextView
+            android:id="@+id/tileset_info_resourceURI"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_filesize"
+            android:paddingTop="5dp"
+            android:text="Resource URI: This"/>
+
+        <TextView
+            android:id="@+id/tileset_info_service_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_resourceURI"
+            android:paddingTop="5dp"
+            android:text="Service Type: TSM"/>
+
+        <TextView
+            android:id="@+id/tileset_info_download_url"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_service_type"
+            android:paddingTop="5dp"
+            android:text="Download URL: 600.com"/>
+
+        <TextView
+            android:id="@+id/tileset_info_server_url"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_download_url"
+            android:paddingTop="5dp"
+            android:text="Server URL: 700.com"/>
+
+        <TextView
+            android:id="@+id/tileset_info_server_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_server_url"
+            android:paddingTop="5dp"
+            android:text="Server Username: rogue"/>
+
+        <TextView
+            android:id="@+id/tileset_info_server_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_server_username"
+            android:paddingTop="5dp"
+            android:text="Server ID: L"/>
 
         <TextView
             android:id="@+id/tileset_info_server"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tileset_info_filesize"
+            android:layout_below="@+id/tileset_info_server_id"
             android:paddingTop="5dp"
             android:text="Server: Malukah.org"/>
+
+
 
 
         <TextView

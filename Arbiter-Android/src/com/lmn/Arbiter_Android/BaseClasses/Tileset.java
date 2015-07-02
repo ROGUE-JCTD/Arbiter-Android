@@ -4,121 +4,122 @@ public class Tileset {
 	public static final String DEFAULT_TILESET_NAME = "UndefinedTileset";
 
 	public static String buildTilesetKey(Tileset tileset){
-		return Integer.valueOf(tileset.getName() + tileset.getSourceId()).toString();
+		return Integer.valueOf(tileset.getTilesetName() + tileset.getServerURL()).toString();
 	}
 
-	//private int fingerprint;
 	private String tilesetName;
-	private long created_at_time;
-	private String created_by;
+	private long createdAtTime;
+	private String createdBy;
 	private double filesize;
-	private String source_id;
-	private String bounds;
+	private String geom;
+	private String layerName;
+	private int layerZoomStart;
+	private int layerZoomStop;
+	private String resourceURI;
+	private String serverServiceType;
+	private String downloadURL;
 
-	private boolean checked;	// deprecated
+	private int serverID;
+	private String serverURL;
+	private String serverUsername;
+
+	// Private for downloading
 	private boolean isDownloading;
 	private int downloadProgress;
 
-	// Server stuff
-	private String serverName;
-	private String serverUrl;
-	private int serverId;
-
 	public Tileset(){
 		this.tilesetName = null;
-		this.created_at_time = -1;
-		this.created_by = null;
+		this.createdAtTime = -1;
+		this.geom = null;
+		this.layerName = null;
+		this.layerZoomStart = -1;
+		this.layerZoomStop = -1;
+		this.resourceURI = null;
+		this.serverServiceType = null;
+		this.downloadURL = null;
+
+		this.createdBy = null;
 		this.filesize = -1;
-		this.source_id = null;
-		this.bounds = null;
 
-		this.checked = false;
-
-		this.serverId = -1;
-		this.serverName = null;
-		this.serverUrl = null;
+		this.serverID = -1;
+		this.serverURL = null;
+		this.serverUsername = null;
 
 		this.isDownloading = false;
 		this.downloadProgress = 0;
 	}
 
-	public Tileset(String name, long created_at, String created_by,
-				   double filesize, String source_id, String bounds,
-				   int isDownloading, int downloadProgress){
-		this.tilesetName = name;
-		this.created_at_time = created_at;
-		this.created_by = created_by;
+	public Tileset(String tilesetName, long created_at, String created_by, double filesize, String geom,
+				   String layerName, int layerZoomStart, int layerZoomStop, String resourceURI,
+				   String serverServiceType, String downloadURL, int serverID, String serverURL, String serverUsername){
+		this.tilesetName = tilesetName;
+		this.createdAtTime = created_at;
+		this.createdBy = created_by;
 		this.filesize = filesize;
-		this.source_id = source_id;
-		this.bounds = bounds;
+		this.geom = geom;
+		this.layerName = layerName;
+		this.layerZoomStart = layerZoomStart;
+		this.layerZoomStop = layerZoomStop;
+		this.resourceURI = resourceURI;
+		this.serverServiceType = serverServiceType;
+		this.downloadURL = downloadURL;
 
-		if (isDownloading == 0)
-			this.isDownloading = false;
-		else
-			this.isDownloading = true;
+		this.serverID = serverID;
+		this.serverUsername = serverUsername;
+		this.serverURL = serverURL;
 
-		this.downloadProgress = downloadProgress;
-
-		// This will be setup later
-		this.serverId = -1;
-		this.serverName = null;
-		this.serverUrl = null;
+		// Will be defaulted to false, if it needs to be downloaded, it will be after creation.
+		this.isDownloading = false;
 	}
 
 	public Tileset(Tileset item)
 	{
-		this.tilesetName = item.getName();
-		this.created_at_time = item.getCreatedTime();
-		this.created_by = item.getCreatedBy();
+		this.tilesetName = item.getTilesetName();
+		this.createdAtTime = item.getCreatedTime();
+		this.createdBy = item.getCreatedBy();
 		this.filesize = item.getFilesize();
-		this.source_id = item.getSourceId();
-		this.bounds = item.getBounds();
+		this.geom = item.getGeom();
+		this.layerName = item.getLayerName();
+		this.layerZoomStart = item.getLayerZoomStart();
+		this.layerZoomStop = item.getLayerZoomStop();
+		this.resourceURI = item.getResourceURI();
+		this.serverServiceType = item.getServerServiceType();
+		this.downloadURL = item.getDownloadURL();
+
+		this.serverID = item.getServerID();
+		this.serverUsername = item.getServerUsername();
+		this.serverURL = item.getServerURL();
+
 		this.isDownloading = item.getIsDownloading();
 		this.downloadProgress = item.getDownloadProgress();
-
-		this.serverId = item.getServerId();
-		this.serverName = item.getServerName();
-		this.serverUrl = item.getServerUrl();
 	}
 
-	public boolean isChecked() { return checked; }
-	public void setChecked(boolean check) { this.checked = check; }
-
-	public boolean getIsDownloading() { return isDownloading; }
-	public void setIsDownloading(boolean d) { this.isDownloading = d; }
-
-	public int getDownloadProgress() { return downloadProgress; }
-	public void setDownloadProgress(int p) { this.downloadProgress = p; }
 	
-	public String getName(){
+	public String getTilesetName(){
 		return tilesetName;
 	}
-	
-	public void setName(String name){
+	public void setTilesetName(String name){
 		this.tilesetName = name;
 	}
 
 	public long getCreatedTime(){
-		return created_at_time;
+		return createdAtTime;
 	}
-
 	public void setCreatedTime(long time){
-		this.created_at_time = time;
+		this.createdAtTime = time;
 	}
 
 	public String getCreatedBy(){
-		return created_by;
+		return createdBy;
 	}
-	
 	public void setCreatedBy(String createdby){
-		this.created_by = createdby;
+		this.createdBy = createdby;
 	}
 
 	
 	public double getFilesize(){
 		return filesize;
 	}
-
 	public String getFilesizeAfterConversion(){
 		// Will convert from bytes to bytes, KB, MB, or GB
 		String result = "";
@@ -153,46 +154,86 @@ public class Tileset {
 
 		return result;
 	}
+	public void setFilesize(double size){ this.filesize = size; }
 
-	public void setFilesize(double size){
-		this.filesize = size;
+	public String getGeom() { return geom; }
+	public void setGeom(String bounds){ this.geom = bounds; }
+
+	public String getLayerName(){return layerName;}
+	public void setLayerName(String name){this.layerName = name;}
+
+	public int getLayerZoomStart() { return layerZoomStart; }
+	public void setLayerZoomStart(int start) { this.layerZoomStart = start; }
+
+	public int getLayerZoomStop() { return layerZoomStop; }
+	public void setLayerZoomStop(int stop) { this.layerZoomStop = stop; }
+
+	public String getResourceURI() { return resourceURI; }
+	public void setResourceURI(String uri) { this.resourceURI = uri; }
+
+	public String getServerServiceType() { return serverServiceType; }
+	public void setServerServiceType(String sst) { this.serverServiceType = sst; }
+
+	public String getDownloadURL() {
+		// override real quick
+		String url = "http://192.168.99.100/api/tileset/" + this.getServerID() + "/download";
+		return url;
+		//return downloadURL;
 	}
-	
-	public String getSourceId(){
-		return source_id;
+	public void setDownloadURL(String url) { this.downloadURL = url; }
+
+	// Server stuff
+	public int getServerID() { return serverID; }
+	public void setServerID(int id) { this.serverID = id; }
+
+	public String getServerUsername() { return serverUsername; }
+	public void setServerUsername(String name) { this.serverUsername = name; }
+
+	public String getServerURL() { return serverURL; }
+	public void setServerURL(String url) { this.serverURL = url; }
+
+	// Private stuff
+	public boolean getIsDownloading() { return isDownloading; }
+	public void setIsDownloading(boolean d) { this.isDownloading = d; }
+
+	public int getDownloadProgress() { return downloadProgress; }
+	public void setDownloadProgress(int p) { this.downloadProgress = p; }
+
+	public Layer toLayer(){
+
+		// Extra datamembers
+		int layerID = 0;
+		String workspace = "workspace";
+		String color = "magenta";
+		int layerOrder = 0;
+		boolean checked = false;
+		String readOnly = "true";
+
+		Layer layer = new Layer(layerID, this.getServerServiceType(), workspace, this.getServerID(),
+				this.getLayerName(), this.getServerURL(), this.getTilesetName(), this.getGeom(), color, layerOrder, checked, readOnly);
+
+		return layer;
 	}
-	
-	public void setSourceId(String id){
-		this.source_id = id;
-	}
-
-	public String getBounds() {
-		return bounds;
-	}
-
-	public void setBounds(String bounds){
-		this.bounds = bounds;
-	}
-
-	public String getServerName() { return serverName; }
-	public void setServerName(String name) { this.serverName = name; }
-
-	public String getServerUrl() { return serverUrl; }
-	public void setServerUrl(String url) { this.serverUrl = url; }
-
-	public int getServerId() { return serverId; }
-	public void setServerId(int id) { this.serverId = id; }
 	
 	@Override
 	public String toString(){
 		return "{" +
 				"\ttilesetName: " + tilesetName + "\n" +
-				"\tcreated_at_time: " + created_at_time + "\n" +
-				"\tcreated_by: " + created_by + "\n" +
+				"\tcreatedAtTime: " + createdAtTime + "\n" +
+				"\tcreatedBy: " + createdBy + "\n" +
 				"\tfilesize: " + filesize + "\n" +
-				"\tsource_id: " + source_id + "\n" +
-				"\tbounds: " + bounds + "\n" +
+				"\tgeom: " + geom + "\n" +
+				"\tlayerName: " + layerName + "\n" +
+				"\tlayerZoomStart: " + layerZoomStart + "\n" +
+				"\tlayerZoomStop: " + layerZoomStop + "\n" +
+				"\tresourceURI: " + resourceURI + "\n" +
+				"\tserverServiceType: " + serverServiceType + "\n" +
+				"\tdownloadURL: " + downloadURL + "\n" +
+				"\tserverID: " + serverID + "\n" +
+				"\tserverURL: " + serverURL + "\n" +
+				"\tserverUsername: " + serverUsername + "\n" +
 				"\tisDownloading: " + isDownloading + "\n" +
+				"\tdownloadProgress: " + downloadProgress + "\n" +
 				"}";
 	}
 }

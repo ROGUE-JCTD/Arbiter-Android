@@ -255,7 +255,8 @@ public class SQLitePlugin extends CordovaPlugin
 			dbmap.put(dbname, ApplicationDatabaseHelper.getHelper(context)
 					.getWritableDatabase());
 		} else if (MBTILES_DATABASE_NAME.equals(dbname)) {
-			dbmap.put(dbname, MBTilesDatabaseHelper.getHelper(context).getWritableDatabase());
+			dbmap.put(dbname, MBTilesDatabaseHelper.getHelper(context)
+					.getWritableDatabase());
 		} else {
 			try {
 				throw new Exception("SQLitePlugin: Database '" + dbname

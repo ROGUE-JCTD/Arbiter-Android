@@ -13,16 +13,15 @@ import java.util.ArrayList;
 
 import com.lmn.Arbiter_Android.BaseClasses.Tileset;
 
+import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.DialogFragment;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesetsHelper;
 import com.lmn.Arbiter_Android.R;
-import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 
 /**
  * Created by SBird on 6/15/15.
@@ -40,7 +39,6 @@ public class FileDownloader implements OnTaskCompleted{
     private String fileNameStr;
     private String outputStr;
     private DownloadFileFromURL downloader;
-    private DialogFragment dialogFrag;
     private FragmentActivity activity;
     private String file_url = " ";
 
@@ -50,13 +48,9 @@ public class FileDownloader implements OnTaskCompleted{
         this.file_url = url;
         this.outputStr = _outputStr;
         this.activity = activity;
-        this.fileNameStr = tileset.getName();
+        this.fileNameStr = tileset.getTilesetName();
         this.updater = updater;
         this.runnable = runMeAfter;
-
-        //this.dialogFrag = new ArbiterDialogs(activity.getApplicationContext(),
-        //       activity.getResources(),
-        //        activity.getSupportFragmentManager()).showDownloadingTilesetDialog(nameOfFile);
 
         this.showSysMessage = new boolean[2];
         this.showSysMessage[0] = true;
@@ -65,8 +59,6 @@ public class FileDownloader implements OnTaskCompleted{
         this.downloader = new DownloadFileFromURL();
         downloader.execute(file_url);
     }
-
-    public DownloadFileFromURL getDownloader() { return downloader; }
 
     public void onTaskCompleted(){
         runnable.run();
@@ -98,10 +90,18 @@ public class FileDownloader implements OnTaskCompleted{
                     // Get Length of file + Input/Output Streams
                     int lengthOfFile = connection.getContentLength();
                     InputStream inputStream = new BufferedInputStream(url.openStream(), 8192);
-                    String filePath = Environment.getExternalStorageDirectory().toString() + outputStr;
+
+                    // Create directory in case it isn't available
+                    String filePath = Environment.getExternalStorageDirectory().toString();
+                    if (!new File(filePath + TilesetsHelper.getTilesetsHelper().getTilesetDownloadLocation()).mkdir());
+                        Log.w("Path created", "Hooray!");
+
+                    // Create file to download
+                    filePath += outputStr;
                     File file = new File(filePath);
-                    if (!file.exists())
+                    if (!file.exists()) {
                         file.createNewFile();
+                    }
                     OutputStream outputStream = new FileOutputStream(filePath);
 
                     byte data[] = new byte[1024];
@@ -130,11 +130,20 @@ public class FileDownloader implements OnTaskCompleted{
                     outputStream.close();
                     inputStream.close();
 
-                } catch (IOException e){
+                } catch (final IOException e){
                     Log.w("Error downloading file", strURL[0] + " Exception: " + e.getMessage());
 
-                    //AlertDialog dialog = new AlertDialog();
-                    //dialog.setMessage("There was a problem: " + e.getMessage());
+                    // TODO: Remove from database and reverse download (File is never created)
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
+                            dialog.setTitle(R.string.error);
+                            dialog.setMessage("There was a problem with the download: " + e.getMessage() +
+                                    "\n\nThe file was not downloaded. Please delete and try again.");
+                            dialog.create().show();
+                        }
+                    });
                 }
 
             return null;
@@ -150,7 +159,7 @@ public class FileDownloader implements OnTaskCompleted{
                 // Find tileset and update progress locally
                 for (int i = 0; i < tilesets.size(); i++){
                     tileset = tilesets.get(i);
-                    if (tileset.getName().equals(fileNameStr)){
+                    if (tileset.getTilesetName().equals(fileNameStr)){
                         tileset.setDownloadProgress(progress[0]);
                     }
                 }

@@ -123,7 +123,8 @@ public class GetCapabilities {
 
 	public ArrayList<Tileset> getTilesets(Server server, final Activity activity) {
 		if(server != null && server.getUrl() != null) {
-			String url = server.getUrl() + "?service=wms&version=1.1.1&request=GetCapabilities";
+			//String url = server.getUrl() + "?service=wms&version=1.1.1&request=GetCapabilities";
+			String url = "http://192.168.99.100/api/tileset/";
 
 			HttpParams params = new BasicHttpParams();
 
@@ -184,7 +185,7 @@ public class GetCapabilities {
 			List<Tileset> tilesets = null;
 
 			try {
-				tilesets = parser.parseGetCapabilitiesTileset(server, reader);
+				tilesets = parser.parseGetCapabilitiesTileset(server, reader, activity);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

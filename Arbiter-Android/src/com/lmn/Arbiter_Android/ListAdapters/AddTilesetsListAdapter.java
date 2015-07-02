@@ -15,6 +15,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FileDownloader.FileDownloader;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FileDownloader.DownloadListener;
+import com.lmn.Arbiter_Android.DatabaseHelpers.MBTilesDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesetsHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.R;
@@ -35,42 +36,6 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
         this.inflater = LayoutInflater.from(this.activity.getApplicationContext());
         this.items = new ArrayList<Tileset>();
         this.itemLayout = itemLayout;
-    }
-
-    public String convertFilesize(double number) {
-        // Will convert from bytes to bytes, KB, MB, or GB
-        String result = "";
-
-        // Can be reformatted to multiple >= 1024's, if so
-        if (number > 0.0) {
-            if (number > 1073741824.0) {
-                String num = String.format("%.2f", (number / 1073741824.0));
-                result += num + "GB";
-            } else if (number > 1048576.0) {
-                String num = String.format("%.2f", (number / 1048576.0));
-                result += num + "MB";
-            } else if (number > 1024.0) {
-                String num = String.format("%.2f", (number / 1024.0));
-                result += num + "KB";
-            } else {
-                result += number + " bytes";
-            }
-        } else {
-            if (number < -1073741824.0) {
-                String num = String.format("%.2f", (number / 1073741824.0));
-                result += num + "GB";
-            } else if (number < -1048576.0) {
-                String num = String.format("%.2f", (number / 1048576.0));
-                result += num + "MB";
-            } else if (number < -1024.0) {
-                String num = String.format("%.2f", (number / 1024.0));
-                result += num + "KB";
-            } else {
-                result += number + " bytes";
-            }
-        }
-
-        return result;
     }
 
     public void setData(ArrayList<Tileset> items) {
@@ -101,15 +66,15 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
                 final ImageButton downloadButton = (ImageButton) view.findViewById(R.id.download_tileset_button);
 
                 if (tilesetName != null) {
-                    tilesetName.setText(listItem.getName());
+                    tilesetName.setText(listItem.getTilesetName());
                 }
 
                 if (serverName != null) {
-                    serverName.setText(listItem.getSourceId());
+                    serverName.setText(listItem.getLayerName());
                 }
 
                 if (fileSize != null) {
-                    String sizeText = convertFilesize(listItem.getFilesize());
+                    String sizeText = TilesetsHelper.getTilesetsHelper().convertFilesize(listItem.getFilesize());
                     fileSize.setText(sizeText);
                 }
 
@@ -135,7 +100,7 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
                     for (int i = 0; i < tilesetsInProject.size(); i++) {
                         Tileset tileset = tilesetsInProject.get(i);
 
-                        if (tileset.getName().equals(listItem.getName())) {
+                        if (tileset.getTilesetName().equals(listItem.getTilesetName())) {
                             // Found in database
                             isInDatabase = true;
 
@@ -207,6 +172,8 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
                     @Override
                     public void run() {
 
+                       // MBTilesDatabaseHelper.getHelper(context).setDatabase("mbtilesdb.mbtiles");
+
                         // Set started downloading
                         downloadButton.setOnClickListener(null);
                         downloadButton.setColorFilter(0xFF0000FF); // debug
@@ -217,15 +184,10 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
                             @Override
                             public void run() {
 
-                                // Once Download is pressed (debug URL)
-                                // 100MB
-                                //String URL = "http://jenkins.geoshape.org/userContent/geoshape-2.x/geogig-cli-app-1.0.zip";
-                                // 2MB
-                                String URL = "http://download.piriform.com/mac/CCMacSetup109.dmg";
+                                String URL = listItem.getDownloadURL();
 
-                                // debug output folder
-                                String output = "/Arbiter/TestFolder/";
-                                output += listItem.getName() + ".txt";
+                                String output = tilesetHelper.getTilesetDownloadLocation();
+                                output += listItem.getTilesetName() + tilesetHelper.getTilesetDownloadExtension();
 
                                 startDownloadingTileset(URL, output, listItem, downloadButton);
 
@@ -238,7 +200,7 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
                         notifyDataSetChanged();
 
                     }
-                }, listItem.getFilesize(), listItem.getName());
+                }, listItem.getFilesize(), listItem.getTilesetName());
             }
         });
     }

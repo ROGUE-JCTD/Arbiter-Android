@@ -95,7 +95,7 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Ar
 			TextView tilesetName = (TextView) view.findViewById(textId);
 			
 			if(tilesetName != null){
-				tilesetName.setText(tileset.getName());
+				tilesetName.setText(tileset.getTilesetName());
 			}
 
 			// When clicking on Tileset, show info
@@ -211,7 +211,7 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Ar
 
 				});
 			}
-		}, tileset.getName());
+		}, tileset.getTilesetName());
 	}
 
 	private void displayCancellationAlert(final Tileset tileset){
@@ -239,7 +239,7 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Ar
 
 				});
 			}
-		}, tileset.getName());
+		}, tileset.getTilesetName());
 	}
 	
 	@Override
@@ -256,7 +256,7 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Ar
 			TextView tilesetName = (TextView) view.findViewById(textId);
 		
 			if(tilesetName != null){
-				tilesetName.setText(listItem.getName());
+				tilesetName.setText(listItem.getTilesetName());
 			}
 		}
 		
@@ -282,7 +282,7 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Ar
 					if (Item.getIsDownloading()) {
 						for (int j = 0; j < tilesets.size(); j++) {
 							InProject = tilesets.get(j);
-							if (Item.getName().equals(InProject.getName())) {
+							if (Item.getTilesetName().equals(InProject.getTilesetName())) {
 								Item.setDownloadProgress(InProject.getDownloadProgress());
 								notifyDataSetInvalidated();
 							}

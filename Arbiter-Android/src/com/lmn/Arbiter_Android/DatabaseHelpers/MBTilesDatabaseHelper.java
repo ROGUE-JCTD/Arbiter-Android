@@ -13,7 +13,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesHelper;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class MBTilesDatabaseHelper extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME = "mbTilesdb.mbtiles";
+    private static String DATABASE_NAME = "TileSets/osm.mbtiles";
     private static int DATABASE_VERSION = 4;
 
     private MBTilesDatabaseHelper(Context context){

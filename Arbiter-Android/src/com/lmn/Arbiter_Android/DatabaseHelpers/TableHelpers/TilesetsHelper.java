@@ -32,9 +32,20 @@ public class TilesetsHelper {
     public static final String CREATED_BY = "created_by";
     public static final String FILESIZE = "filesize";
     public static final String BOUNDS = "bounds";
-    public static final String SOURCE_ID = "source_id";
+    //public static final String LAYER_NAME = "layer_name";
+    //public static final String LAYER_ZOOM_START = "layer_zoom_start";
+    //public static final String LAYER_ZOOM_STOP = "layer_zoom_stop";
+    public static final String RESOURCE_URI = "resource_uri";
+    public static final String SERVICE_TYPE = "service_type";
+    public static final String DOWNLOAD_URL = "download_url";
+
+    public static final String SERVER_URL = "server_url";
+    public static final String SERVER_USERNAME = "server_username";
+    public static final String SERVER_ID = "server_id";
     public static final String IS_DOWNLOADING = "is_downloading";
-    public static final String DOWNLOAD_PROGRESS = "download_progress";
+
+    public static final String TILESET_DOWNLOAD_LOCATION = "/Arbiter/TileSets/";
+    public static final String TILESET_EXT = ".mbtiles";
 
     private ArrayList<Tileset> tilesetsInProject;
 
@@ -58,17 +69,21 @@ public class TilesetsHelper {
         tilesetsInProject = getAll(ApplicationDatabaseHelper.getHelper(activity.getApplicationContext()).getReadableDatabase());
 
         // Restart any downloads that may have been cancelled/interrupted
-        String URL = "http://download.piriform.com/mac/CCMacSetup109.dmg";
+        String URL;
         String output;
 
         for (int i = 0; i < tilesetsInProject.size(); i++) {
             final Tileset tileset = tilesetsInProject.get(i);
 
+            // Check if was previously downloading
             if (tileset.getIsDownloading()) {
+
+                // Restart downloading
                 tileset.setDownloadProgress(0);
 
-                output = "/Arbiter/TestFolder/";
-                output += tileset.getName() + ".txt";
+                URL = tileset.getDownloadURL();
+                output = TILESET_DOWNLOAD_LOCATION;
+                output += tileset.getTilesetName() + TILESET_EXT;
 
                 new FileDownloader(URL, output, (FragmentActivity) activity, tileset,
                         new Runnable() {
@@ -105,9 +120,13 @@ public class TilesetsHelper {
                 CREATED_BY + " TEXT NOT NULL, " +
                 FILESIZE + " INTEGER NOT NULL, " +
                 BOUNDS + " TEXT NOT NULL, " +
-                SOURCE_ID + " TEXT NOT NULL, " +
-                IS_DOWNLOADING + " INTEGER NOT NULL, " +
-                DOWNLOAD_PROGRESS + " INTEGER NOT NULL);";
+                RESOURCE_URI + " TEXT NOT NULL, " +
+                SERVICE_TYPE + " TEXT NOT NULL, " +
+                DOWNLOAD_URL + " TEXT NOT NULL, " +
+                SERVER_ID + " INTEGER NOT NULL, " +
+                SERVER_URL + " TEXT NOT NULL, " +
+                SERVER_USERNAME + " TEXT NOT NULL, " +
+                IS_DOWNLOADING + " INTEGER NOT NULL);";
 
         db.execSQL(sql);
     }
@@ -123,11 +142,11 @@ public class TilesetsHelper {
         try {
 
             String whereClause = TILESET_NAME + "=?";
-            String[] whereArgs = {tileset.getName()};
+            String[] whereArgs = {tileset.getTilesetName()};
 
             // Remove from tilesets in project
             for (int i = 0; i < tilesetsInProject.size(); i++){
-                if (tilesetsInProject.get(i).getName().equals(tileset.getName())){
+                if (tilesetsInProject.get(i).getTilesetName().equals(tileset.getTilesetName())){
                     tilesetsInProject.remove(i);
                 }
             }
@@ -140,9 +159,9 @@ public class TilesetsHelper {
 
             // Delete downloaded file
             String envPath = Environment.getExternalStorageDirectory().toString();
-            String debugLocation = "/Arbiter/TestFolder/";
-            debugLocation += tileset.getName() + ".txt";
-            envPath += debugLocation;
+            String Location = TILESET_DOWNLOAD_LOCATION;
+            Location += tileset.getTilesetName() + TILESET_EXT;
+            envPath += Location;
             File file = new File(envPath);
             if (file.exists())
                 file.delete();
@@ -171,31 +190,36 @@ public class TilesetsHelper {
             values = new ContentValues();
             tileset = newTileset;
 
-            values.put(TILESET_NAME, tileset.getName());
+            values.put(TILESET_NAME, tileset.getTilesetName());
             values.put(TIME_CREATED, tileset.getCreatedTime());
             values.put(CREATED_BY, tileset.getCreatedBy());
             values.put(FILESIZE, tileset.getFilesize());
-            values.put(BOUNDS, tileset.getBounds());
-            values.put(SOURCE_ID, tileset.getSourceId());
-            if (tileset.getIsDownloading() == false)
+            values.put(BOUNDS, tileset.getGeom());
+            values.put(RESOURCE_URI, tileset.getResourceURI());
+            values.put(SERVICE_TYPE, tileset.getServerServiceType());
+            values.put(DOWNLOAD_URL, tileset.getDownloadURL());
+            values.put(SERVER_URL, tileset.getServerURL());
+            values.put(SERVER_USERNAME, tileset.getServerUsername());
+            values.put(SERVER_ID, tileset.getServerID());
+            if (!tileset.getIsDownloading())
                 values.put(IS_DOWNLOADING, 0);
             else
                 values.put(IS_DOWNLOADING, 1);
-            values.put(DOWNLOAD_PROGRESS, tileset.getDownloadProgress());
 
-            String testIfInDb = "SELECT " + TILESET_NAME + " FROM " + TABLE_NAME + " WHERE " + TILESET_NAME + "=" + "\"" + tileset.getName() + "\"";
+            String testIfInDb = "SELECT " + TILESET_NAME + " FROM " + TABLE_NAME
+                    + " WHERE " + TILESET_NAME + "=" + "\"" + tileset.getTilesetName() + "\"";
             Cursor inDbCheck = db.rawQuery(testIfInDb, null);
 
-            // TODO: Make sure to test against date + bounds, only check is against names
+            //TODO: This might be checking if the name is the same twice..?
             boolean foundCopy = false;
             if (inDbCheck.moveToFirst()) {
                 for (int j = 0; j < inDbCheck.getCount(); j++) {
-                    if (inDbCheck.getString(j).equals(tileset.getName())) {
+                    if (inDbCheck.getString(j).equals(tileset.getTilesetName())) {
                         foundCopy = true;
                         Log.w("TilesetHelper",
                                 "Found copy of tileset.. " +
                                         "Database: " + inDbCheck.getString(j) + ", " +
-                                        "newTileset: " + newTileset.getName());
+                                        "newTileset: " + newTileset.getTilesetName());
 
                         break;
                     }
@@ -234,26 +258,21 @@ public class TilesetsHelper {
 
         ContentValues values = new ContentValues();
 
-        values.put(TILESET_NAME, tileset.getName());
+        values.put(TILESET_NAME, tileset.getTilesetName());
         values.put(TIME_CREATED, tileset.getCreatedTime());
         values.put(CREATED_BY, tileset.getCreatedBy());
         values.put(FILESIZE, tileset.getFilesize());
-        values.put(BOUNDS, tileset.getBounds());
-        values.put(SOURCE_ID, tileset.getSourceId());
+        values.put(BOUNDS, tileset.getGeom());
+        values.put(RESOURCE_URI, tileset.getResourceURI());
+        values.put(SERVICE_TYPE, tileset.getServerServiceType());
+        values.put(DOWNLOAD_URL, tileset.getDownloadURL());
+        values.put(SERVER_URL, tileset.getServerURL());
+        values.put(SERVER_USERNAME, tileset.getServerUsername());
+        values.put(SERVER_ID, tileset.getServerID());
         if (!tileset.getIsDownloading())
             values.put(IS_DOWNLOADING, 0);
         else
             values.put(IS_DOWNLOADING, 1);
-        values.put(DOWNLOAD_PROGRESS, tileset.getDownloadProgress());
-
-        return values;
-    }
-
-    private ContentValues getProgressValueFromTileset(Tileset tileset){
-
-        ContentValues values = new ContentValues();
-
-        values.put(DOWNLOAD_PROGRESS, tileset.getDownloadProgress());
 
         return values;
     }
@@ -263,27 +282,8 @@ public class TilesetsHelper {
 
         try {
 
-            updateAttributeValues(db, tileset.getName(),
+            updateAttributeValues(db, tileset.getTilesetName(),
                     getValuesFromTileset(tileset), null);
-
-
-            db.setTransactionSuccessful();
-
-            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(TilesetsListLoader.TILESETS_LIST_UPDATED));
-        } catch (Exception e){
-            e.printStackTrace();
-        } finally {
-            db.endTransaction();
-        }
-    }
-
-    public void updateProgress(SQLiteDatabase db, Context context, Tileset tileset){
-        db.beginTransaction();
-
-        try {
-
-            updateProgressValue(db, tileset.getName(),
-                    getProgressValueFromTileset(tileset), null);
 
 
             db.setTransactionSuccessful();
@@ -320,31 +320,6 @@ public class TilesetsHelper {
         }
     }
 
-    public void updateProgressValue(SQLiteDatabase db, String tilesetName,
-                                      ContentValues values, Runnable callback){
-
-        db.beginTransaction();
-
-        try {
-
-            String whereClause = TILESET_NAME + "=?";
-            String[] whereArgs = {
-                    tilesetName
-            };
-
-            db.update(TABLE_NAME, values, whereClause, whereArgs);
-
-            db.setTransactionSuccessful();
-
-            if(callback != null){
-                callback.run();
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-        } finally {
-            db.endTransaction();
-        }
-    }
 
     public String convertFilesize(double number) {
         // Will convert from bytes to bytes, KB, MB, or GB
@@ -382,12 +357,14 @@ public class TilesetsHelper {
     }
 
     private long availableSpaceOnPhone() {
-        StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+        //StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
 
-        if (VERSION.SDK_INT >= 18)
-            return stat.getBlockCountLong() * stat.getBlockSizeLong();
-        else
-            return (long)stat.getBlockCount() * (long)stat.getBlockSize();
+        //if (VERSION.SDK_INT >= 18)
+        return Environment.getExternalStorageDirectory().getUsableSpace();
+
+       // return stat.getAvailableBlocksLong() * stat.getBlockSizeLong();
+        //else
+        //    return (long)stat.getAvailableBlocks() * (long)stat.getBlockSize();
     }
 
     public void notEnoughSpaceAlert(Activity activity, String tilesetName){
@@ -469,6 +446,19 @@ public class TilesetsHelper {
         builder.create().show();
     }
 
+    public void serverNoTilesetsResponseDialog(Context context, String serverName){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+        builder.setTitle(R.string.no_available_tileset_title);
+
+        String errorMsg = context.getString(R.string.no_available_tileset_msg);
+        builder.setMessage(serverName + " " + errorMsg);
+        builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
+        builder.setPositiveButton(android.R.string.ok, null);
+
+        builder.create().show();
+    }
+
     public void downloadSizeDialog(final Activity activity, final Runnable downloadIt,
                                    final double filesize, final String tilesetName) {
         Context context = activity;
@@ -524,10 +514,14 @@ public class TilesetsHelper {
                 TIME_CREATED, // 1
                 CREATED_BY, // 2
                 FILESIZE, // 3
-                SOURCE_ID, // 4
-                BOUNDS, // 5
-                IS_DOWNLOADING, // 6
-                DOWNLOAD_PROGRESS // 7
+                BOUNDS, // 4
+                RESOURCE_URI, // 5
+                SERVICE_TYPE, // 6
+                DOWNLOAD_URL, // 7
+                SERVER_ID, // 8
+                SERVER_URL, // 9
+                SERVER_USERNAME, // 10
+                IS_DOWNLOADING, // 11
         };
 
         // get all of the tilesets and
@@ -539,10 +533,16 @@ public class TilesetsHelper {
         // Create an array list with initial capacity equal to the number of tilesets +1 for the default tileset
         ArrayList<Tileset> tilesets = new ArrayList<Tileset>(cursor.getCount() + 1);
 
+        // temporary
+        String layerName = "x";
+        int layerZoom = 0;
+
         //Traverse the cursors to populate the projects array
         for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
             tilesets.add(new Tileset(cursor.getString(0), cursor.getLong(1), cursor.getString(2),
-                    cursor.getDouble(3), cursor.getString(4), cursor.getString(5), cursor.getInt(6), cursor.getInt(7)));
+                    cursor.getDouble(3), cursor.getString(4), layerName, layerZoom, layerZoom,
+                    cursor.getString(5), cursor.getString(6), cursor.getString(7),
+                    cursor.getInt(8), cursor.getString(9), cursor.getString(10)));
         }
 
         cursor.close();
@@ -558,10 +558,14 @@ public class TilesetsHelper {
                 TIME_CREATED, // 1
                 CREATED_BY, // 2
                 FILESIZE, // 3
-                SOURCE_ID, // 4
-                BOUNDS, // 5
-                IS_DOWNLOADING, // 6
-                DOWNLOAD_PROGRESS // 7
+                BOUNDS, // 4
+                RESOURCE_URI, // 5
+                SERVICE_TYPE, // 6
+                DOWNLOAD_URL, // 7
+                SERVER_ID, // 8
+                SERVER_URL, // 9
+                SERVER_USERNAME, // 10
+                IS_DOWNLOADING, // 11
         };
 
         // get all of the tilesets and
@@ -573,7 +577,7 @@ public class TilesetsHelper {
         String tilesetName;
         for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
             tilesetName = cursor.getString(0);
-            if (tilesetName.equals(tileset.getName())){
+            if (tilesetName.equals(tileset.getTilesetName())){
                 return true;
             }
         }
@@ -582,5 +586,7 @@ public class TilesetsHelper {
     }
 
     public ArrayList<Tileset> getTilesetsInProject() { return tilesetsInProject; }
-    public void setTilesetsInProject(ArrayList<Tileset> tilesets) { tilesetsInProject = tilesets; }
+
+    public String getTilesetDownloadLocation() { return TILESET_DOWNLOAD_LOCATION; }
+    public String getTilesetDownloadExtension() { return TILESET_EXT; }
 }

@@ -1,7 +1,6 @@
 package com.lmn.Arbiter_Android.Map.Helpers.Parsers;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -10,11 +9,12 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import org.json.*;
-import android.util.Log;
+import android.app.Activity;
 
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Tileset;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesetsHelper;
 
 public class ParseGetCapabilities {
 	private static final String LAYER_TAG = "Layer";
@@ -140,14 +140,11 @@ public class ParseGetCapabilities {
 		return layers;
 	}
 
-	public ArrayList<Tileset> parseGetCapabilitiesTileset(Server server, BufferedReader reader) throws JSONException, IOException{
+	public ArrayList<Tileset> parseGetCapabilitiesTileset(Server server, BufferedReader reader, final Activity activity) throws JSONException, IOException{
 
 		String finalJSON = "";
 
 		try {
-			// TAKE OVER READER FOR NOW
-			reader = new BufferedReader(new FileReader("sdcard/Arbiter/jsonTest.json"));
-
 			StringBuilder sb = new StringBuilder();
 			String line = reader.readLine();
 			while (line != null) {
@@ -161,25 +158,43 @@ public class ParseGetCapabilities {
 
 		ArrayList<Tileset> tilesets = new ArrayList<Tileset>();
 
-		// Tilesets from JSON file
-		JSONObject jObj = new JSONObject(finalJSON.substring(finalJSON.indexOf("{"), finalJSON.lastIndexOf("}") + 1));
-		JSONArray jArr = jObj.getJSONArray("tilesets");
-		for (int i = 0; i < jArr.length(); ++i){
-			JSONObject obj = jArr.getJSONObject(i);
-			Tileset tileset = new Tileset(obj.getString("name"), obj.getLong("created_at"),
-					obj.getString("created_by"), obj.getInt("filesize"),
-					obj.getString("source"), obj.getString("bounds"),
-					0, 0);
-			// is_downloading(0 - false), downloadProgress(0%)
+		if (!finalJSON.equals("")) {
 
-			tilesets.add(tileset);
+			// Tilesets from JSON file
+			JSONObject jObj = new JSONObject(finalJSON.substring(finalJSON.indexOf("{"), finalJSON.lastIndexOf("}") + 1));
+			JSONArray jArr = jObj.getJSONArray("objects");
+			for (int i = 0; i < jArr.length(); ++i) {
+				JSONObject obj = jArr.getJSONObject(i);
+
+				String downloadURL = server.getUrl() + obj.getString("resource_uri") + "download";
+
+				// temp
+				long created_at = 25912L;
+				double filesize = 34;
+				String createdBy = "snoop dogg";
+
+				Tileset tileset = new Tileset(obj.getString("name"), created_at/*obj.getLong("created_at")*/, createdBy/*obj.getString("created_by")*/,
+						filesize/*obj.getDouble("filesize")*/, obj.getString("geom"), obj.getString("layer_name"), obj.getInt("layer_zoom_start"),
+						obj.getInt("layer_zoom_stop"), obj.getString("resource_uri"), obj.getString("server_service_type"), downloadURL,
+						obj.getInt("id"), obj.getString("server_url"), obj.getString("server_username"));
+
+				tilesets.add(tileset);
+			}
+
+			// Test Tileset from new
+			Tileset newTileset = new Tileset("Brand_New_Test", 10000050, "Sam", 6000.0, "6000", "LayeR_Name", 0, 0,
+					"resourceUri", "server_service_type", "downloadURL", 2, "server_url", "server_username");
+			tilesets.add(newTileset);
+
+		} else {
+			final String serverName = server.getName();
+			activity.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					TilesetsHelper.getTilesetsHelper().serverNoTilesetsResponseDialog(activity, serverName);
+				}
+			});
 		}
-
-		// Test Tileset from new
-		Tileset newTileset = new Tileset("Brand_New_Test", 10000050, "Sam", 6000.0, "Server_Name", "1000", 0, 0);
-		tilesets.add(newTileset);
-
-		// NOTICE: If the JSON has multiple of the same Tilesets (Same name/server), they will show up.
 
 		return tilesets;
 	}

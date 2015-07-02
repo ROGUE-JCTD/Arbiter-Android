@@ -148,6 +148,12 @@
     <string name="tileset_info_filesize">Filesize: </string>
     <string name="tileset_info_server">Server: </string>
     <string name="tileset_info_status">Status: </string>
+    <string name="tileset_info_resource_uri">Resource URI: </string>
+    <string name="tileset_info_service_type">Service Type: </string>
+    <string name="tileset_info_download_url">Download URL: </string>
+    <string name="tileset_info_server_url">Server URL: </string>
+    <string name="tileset_info_server_username">Server Username: </string>
+    <string name="tileset_info_server_id">Server ID: </string>
     <string name="tileset_cancel_download_title">Cancelling Download</string>
     <string name="tileset_cancel_download_msg">Stopping download..</string>
     <string name="cancel_download_tileset_alert">Are you sure you want to cancel the download for</string>
@@ -163,6 +169,8 @@
     <string name="not_enough_space">Not Enough Space</string>
     <string name="not_enough_space_msg1">You do not have enough free space to download</string>
     <string name="not_enough_space_msg2">Consider freeing up space and trying again.</string>
+    <string name="no_available_tileset_title">Error Retrieving Tilesets</string>
+    <string name="no_available_tileset_msg">did not return any tilesets. Please check your connection or the server information and try again.</string>
 
     <!-- LAYER INFO DIALOG STRINGS -->
     <string name="layer_info_dialog_title">Layer Info</string>

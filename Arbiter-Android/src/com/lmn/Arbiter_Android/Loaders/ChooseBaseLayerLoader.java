@@ -31,15 +31,15 @@ public class ChooseBaseLayerLoader extends LayersListLoader {
 		
 		SparseArray<Server> servers = ServersHelper.getServersHelper().
 				getAll(getAppDbHelper().getWritableDatabase());
-		
-		layers = addServerInfoToLayers(layers, servers);
-		
-		layers.add(new Layer(BaseLayer.createOSMBaseLayer()));
 
 		ArrayList<Tileset> tilesets = TilesetsHelper.getTilesetsHelper().getAll(getAppDbHelper().getWritableDatabase());
+		
+		layers = addServerInfoToLayers(layers, servers);
 
 		for (int i = 0; i < tilesets.size(); i++)
-			layers.add(tilesets.get(i).toLayer());
+			layers.add(new Layer(tilesets.get(i).toBaseLayer()));
+		
+		layers.add(new Layer(BaseLayer.createOSMBaseLayer()));
 		
 		return layers;
 	}

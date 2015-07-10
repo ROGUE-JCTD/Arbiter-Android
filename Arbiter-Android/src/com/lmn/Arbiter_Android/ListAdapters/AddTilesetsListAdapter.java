@@ -187,9 +187,11 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
                                 String URL = listItem.getDownloadURL();
 
                                 String output = tilesetHelper.getTilesetDownloadLocation();
-                                output += listItem.getTilesetName() + tilesetHelper.getTilesetDownloadExtension();
+                                String file = listItem.getTilesetName() + tilesetHelper.getTilesetDownloadExtension();
 
-                                startDownloadingTileset(URL, output, listItem, downloadButton);
+                                startDownloadingTileset(URL, output + file, listItem, downloadButton);
+
+                                listItem.setFileLocation("file://TileSets/" + file);
 
                                 // Put JSON into Database BS (to keep track of it)
                                 insertTilesetIntoDB(context, tilesetHelper, listItem);
@@ -233,6 +235,14 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
                         Context context = activity.getApplicationContext();
                         updateTilesetInDB(context, tileset);
                     }
+                },
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        // In case of Error
+                        removeTilesetFromDB(tileset);
+                        //notifyDataSetChanged();
+                    }
                 });
     }
 
@@ -247,6 +257,10 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
         ApplicationDatabaseHelper appHelper = ApplicationDatabaseHelper.getHelper(context);
 
         TilesetsHelper.getTilesetsHelper().update(appHelper.getWritableDatabase(), context, tileset);
+    }
+
+    private void removeTilesetFromDB(Tileset tileset){
+        TilesetsHelper.getTilesetsHelper().delete(activity, tileset);
     }
 
     @Override

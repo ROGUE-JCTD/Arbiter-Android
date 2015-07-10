@@ -42,6 +42,8 @@ public class TilesetsHelper {
     public static final String SERVER_URL = "server_url";
     public static final String SERVER_USERNAME = "server_username";
     public static final String SERVER_ID = "server_id";
+
+    public static final String FILE_LOCATION = "file_location";
     public static final String IS_DOWNLOADING = "is_downloading";
 
     public static final String TILESET_DOWNLOAD_LOCATION = "/Arbiter/TileSets/";
@@ -108,6 +110,13 @@ public class TilesetsHelper {
                                 ApplicationDatabaseHelper appHelper = ApplicationDatabaseHelper.getHelper(context);
                                 update(appHelper.getWritableDatabase(), context, tileset);
                             }
+                        },
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                // In case of Error
+                                delete(activity, tileset);
+                            }
                         });
             }
         }
@@ -126,7 +135,8 @@ public class TilesetsHelper {
                 SERVER_ID + " INTEGER NOT NULL, " +
                 SERVER_URL + " TEXT NOT NULL, " +
                 SERVER_USERNAME + " TEXT NOT NULL, " +
-                IS_DOWNLOADING + " INTEGER NOT NULL);";
+                IS_DOWNLOADING + " INTEGER NOT NULL, " +
+                FILE_LOCATION + " TEXT NOT NULL);";
 
         db.execSQL(sql);
     }
@@ -201,6 +211,7 @@ public class TilesetsHelper {
             values.put(SERVER_URL, tileset.getServerURL());
             values.put(SERVER_USERNAME, tileset.getServerUsername());
             values.put(SERVER_ID, tileset.getServerID());
+            values.put(FILE_LOCATION, tileset.getFileLocation());
             if (!tileset.getIsDownloading())
                 values.put(IS_DOWNLOADING, 0);
             else
@@ -269,6 +280,7 @@ public class TilesetsHelper {
         values.put(SERVER_URL, tileset.getServerURL());
         values.put(SERVER_USERNAME, tileset.getServerUsername());
         values.put(SERVER_ID, tileset.getServerID());
+        values.put(FILE_LOCATION, tileset.getFileLocation());
         if (!tileset.getIsDownloading())
             values.put(IS_DOWNLOADING, 0);
         else
@@ -522,6 +534,7 @@ public class TilesetsHelper {
                 SERVER_URL, // 9
                 SERVER_USERNAME, // 10
                 IS_DOWNLOADING, // 11
+                FILE_LOCATION, // 12
         };
 
         // get all of the tilesets and
@@ -534,7 +547,7 @@ public class TilesetsHelper {
         ArrayList<Tileset> tilesets = new ArrayList<Tileset>(cursor.getCount() + 1);
 
         // temporary
-        String layerName = "x";
+        String layerName = "MBTile";
         int layerZoom = 0;
 
         //Traverse the cursors to populate the projects array
@@ -542,7 +555,7 @@ public class TilesetsHelper {
             tilesets.add(new Tileset(cursor.getString(0), cursor.getLong(1), cursor.getString(2),
                     cursor.getDouble(3), cursor.getString(4), layerName, layerZoom, layerZoom,
                     cursor.getString(5), cursor.getString(6), cursor.getString(7),
-                    cursor.getInt(8), cursor.getString(9), cursor.getString(10)));
+                    cursor.getInt(8), cursor.getString(9), cursor.getString(10), cursor.getString(12)));
         }
 
         cursor.close();
@@ -566,6 +579,7 @@ public class TilesetsHelper {
                 SERVER_URL, // 9
                 SERVER_USERNAME, // 10
                 IS_DOWNLOADING, // 11
+                FILE_LOCATION, // 12
         };
 
         // get all of the tilesets and

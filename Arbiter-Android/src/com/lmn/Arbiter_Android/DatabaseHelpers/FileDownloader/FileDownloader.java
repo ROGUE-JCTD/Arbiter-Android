@@ -35,6 +35,7 @@ public class FileDownloader implements OnTaskCompleted{
 
     private Runnable runnable;
     private Runnable updater;
+    private Runnable errorRun;
 
     private String fileNameStr;
     private String outputStr;
@@ -44,13 +45,15 @@ public class FileDownloader implements OnTaskCompleted{
 
     private boolean[] showSysMessage;
 
-    public FileDownloader(String url, String _outputStr, FragmentActivity activity, Tileset tileset, Runnable updater, Runnable runMeAfter) {
+    public FileDownloader(String url, String _outputStr, FragmentActivity activity,
+                          Tileset tileset, Runnable updater, Runnable runMeAfter, Runnable errorRun) {
         this.file_url = url;
         this.outputStr = _outputStr;
         this.activity = activity;
         this.fileNameStr = tileset.getTilesetName();
         this.updater = updater;
         this.runnable = runMeAfter;
+        this.errorRun = errorRun;
 
         this.showSysMessage = new boolean[2];
         this.showSysMessage[0] = true;
@@ -139,11 +142,16 @@ public class FileDownloader implements OnTaskCompleted{
                         public void run() {
                             AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
                             dialog.setTitle(R.string.error);
-                            dialog.setMessage("There was a problem with the download: " + e.getMessage() +
-                                    "\n\nThe file was not downloaded. Please delete and try again.");
+                            dialog.setPositiveButton(R.string.back, null);
+                            String errorMsg = activity.getResources().getString(R.string.tileset_download_error_msg);
+                            dialog.setMessage(errorMsg);
                             dialog.create().show();
                         }
                     });
+
+                    if (errorRun != null){
+                        errorRun.run();
+                    }
                 }
 
             return null;

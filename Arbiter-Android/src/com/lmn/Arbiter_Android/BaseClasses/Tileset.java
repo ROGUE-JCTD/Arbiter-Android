@@ -23,6 +23,8 @@ public class Tileset {
 	private String serverURL;
 	private String serverUsername;
 
+	private String fileLocation;
+
 	// Private for downloading
 	private boolean isDownloading;
 	private int downloadProgress;
@@ -45,13 +47,16 @@ public class Tileset {
 		this.serverURL = null;
 		this.serverUsername = null;
 
+		this.fileLocation = null;
+
 		this.isDownloading = false;
 		this.downloadProgress = 0;
 	}
 
 	public Tileset(String tilesetName, long created_at, String created_by, double filesize, String geom,
 				   String layerName, int layerZoomStart, int layerZoomStop, String resourceURI,
-				   String serverServiceType, String downloadURL, int serverID, String serverURL, String serverUsername){
+				   String serverServiceType, String downloadURL, int serverID, String serverURL, String serverUsername,
+				   String fileLocation){
 		this.tilesetName = tilesetName;
 		this.createdAtTime = created_at;
 		this.createdBy = created_by;
@@ -67,6 +72,8 @@ public class Tileset {
 		this.serverID = serverID;
 		this.serverUsername = serverUsername;
 		this.serverURL = serverURL;
+
+		this.fileLocation = fileLocation;
 
 		// Will be defaulted to false, if it needs to be downloaded, it will be after creation.
 		this.isDownloading = false;
@@ -89,6 +96,8 @@ public class Tileset {
 		this.serverID = item.getServerID();
 		this.serverUsername = item.getServerUsername();
 		this.serverURL = item.getServerURL();
+
+		this.fileLocation = item.getFileLocation();
 
 		this.isDownloading = item.getIsDownloading();
 		this.downloadProgress = item.getDownloadProgress();
@@ -192,6 +201,9 @@ public class Tileset {
 	public String getServerURL() { return serverURL; }
 	public void setServerURL(String url) { this.serverURL = url; }
 
+	public String getFileLocation() { return fileLocation; }
+	public void setFileLocation(String loc) { this.fileLocation = loc; }
+
 	// Private stuff
 	public boolean getIsDownloading() { return isDownloading; }
 	public void setIsDownloading(boolean d) { this.isDownloading = d; }
@@ -199,18 +211,16 @@ public class Tileset {
 	public int getDownloadProgress() { return downloadProgress; }
 	public void setDownloadProgress(int p) { this.downloadProgress = p; }
 
-	public Layer toLayer(){
+	public BaseLayer toBaseLayer(){
 
 		// Extra datamembers
-		int layerID = 0;
-		String workspace = "workspace";
-		String color = "magenta";
-		int layerOrder = 0;
-		boolean checked = false;
-		String readOnly = "true";
+		String name = this.getTilesetName();
+		String url = this.getFileLocation(); // "file://TileSets/osm.mbtiles";
+		String serverId = this.getLayerName();
+		String serverName = "OpenStreetMap";
+		String featuretype = "";
 
-		Layer layer = new Layer(layerID, this.getServerServiceType(), workspace, this.getServerID(),
-				this.getLayerName(), this.getServerURL(), this.getTilesetName(), this.getGeom(), color, layerOrder, checked, readOnly);
+		BaseLayer layer = new BaseLayer(name, url, serverName, serverId, featuretype);
 
 		return layer;
 	}

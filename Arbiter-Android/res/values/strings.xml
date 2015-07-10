@@ -171,6 +171,7 @@
     <string name="not_enough_space_msg2">Consider freeing up space and trying again.</string>
     <string name="no_available_tileset_title">Error Retrieving Tilesets</string>
     <string name="no_available_tileset_msg">did not return any tilesets. Please check your connection or the server information and try again.</string>
+    <string name="tileset_download_error_msg">The file was not downloaded. The download link was invalid or the current network connection is unavailable.</string>
 
     <!-- LAYER INFO DIALOG STRINGS -->
     <string name="layer_info_dialog_title">Layer Info</string>

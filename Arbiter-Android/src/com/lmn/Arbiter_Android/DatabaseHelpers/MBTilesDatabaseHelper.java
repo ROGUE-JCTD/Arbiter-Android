@@ -13,18 +13,18 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesHelper;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
 public class MBTilesDatabaseHelper extends SQLiteOpenHelper {
-    private static String DATABASE_NAME = "TileSets/osm.mbtiles";
     private static int DATABASE_VERSION = 4;
 
-    private MBTilesDatabaseHelper(Context context){
-        super(context, ProjectStructure.getApplicationRoot() + File.separator + DATABASE_NAME, null, DATABASE_VERSION);
+
+    private MBTilesDatabaseHelper(Context context, String DBNAME){
+        super(context, ProjectStructure.getApplicationRoot() + File.separator + "TileSets" + File.separator + DBNAME, null, DATABASE_VERSION);
     }
 
     private static MBTilesDatabaseHelper helper = null;
 
-    public static MBTilesDatabaseHelper getHelper(Context context){
+    public static MBTilesDatabaseHelper getHelper(Context context, String name){
         if(helper == null){
-            helper = new MBTilesDatabaseHelper(context);
+            helper = new MBTilesDatabaseHelper(context, name);
         }
 
         return helper;
@@ -32,9 +32,7 @@ public class MBTilesDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        //ServersHelper.getServersHelper().createTable(db);
-        //TilesHelper.getHelper().createTable(db);
-        //PreferencesHelper.getHelper().createTable(db);
+
     }
 
     @Override

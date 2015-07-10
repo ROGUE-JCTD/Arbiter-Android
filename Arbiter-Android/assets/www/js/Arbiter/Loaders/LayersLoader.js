@@ -210,7 +210,9 @@ Arbiter.Loaders.LayersLoader = (function(){
 		var disableWMS = false;
 		
 		var doWork = function() {
-			if(!Arbiter.Util.existsAndNotNull(baseLayer) || (Arbiter.Util.existsAndNotNull(baseLayer) && baseLayer[Arbiter.BaseLayer.NAME] === "OpenStreetMap")){
+			if(!Arbiter.Util.existsAndNotNull(baseLayer)
+			|| (Arbiter.Util.existsAndNotNull(baseLayer)
+			&& baseLayer[Arbiter.BaseLayer.SERVER_NAME] === "OpenStreetMap")){
 				
 				olBaseLayer = Arbiter.Layers.addDefaultLayer(true);
 			}

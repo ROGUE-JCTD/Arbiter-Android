@@ -7,10 +7,45 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	var tileDir = _tileDir;
 	var METADATA_KEY = "TILE_UTIL_OVERRIDEN";
 
-	// Create mbTilesDb
-	var mbTilesDb = sqlitePlugin.openDatabase("mbtilesdb");
-	Arbiter.SQLiteTransactionManager.push(mbTilesDb);
+	var currentDatabase = null;
+	var mbTilesDb = null;
 
+	Arbiter.PreferencesHelper.get(projectDb, Arbiter.BASE_LAYER, this, function(baseLayer){
+
+		// Helper function
+		if(!String.prototype.startsWith){
+		    String.prototype.startsWith = function (str) {
+		        return !this.indexOf(str);
+		    }
+		}
+
+		if(Arbiter.Util.existsAndNotNull(baseLayer)){
+			try{
+				// base layer is stored as an array of json objects
+				baseLayer = JSON.parse(baseLayer)[0];
+			}catch(e){
+				console.log(e.stack);
+			}
+
+			var urlString = baseLayer.url;
+			if (urlString.startsWith("file")){
+				// Open Database
+				currentDatabase = urlString.substring("file://TileSets/".length);
+
+				mbTilesDb = sqlitePlugin.openDatabase(currentDatabase);
+				Arbiter.SQLiteTransactionManager.push(mbTilesDb);
+			} else if (urlString.startsWith("http")){
+				// Use URL
+			} else {
+				// Use OpenStreetMap
+			}
+		}
+
+	}, function(e){
+		if(Arbiter.Util.funcExists(onFailure)){
+			onFailure(e);
+		}
+	});
 
 	// Convert String to BlobData
 
@@ -543,17 +578,15 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	    // use the info we have to derive where the tile would be stored on the device
 
 		var path;
-
-		var test = true;
-
-		var i = 0;
 	    
 	    if(Arbiter.hasAOIBeenSet() && Arbiter.Util.existsAndNotNull(this.metadata) && this.metadata.isBaseLayer
-	    	&& test === true){
+	    	&& Arbiter.Util.existsAndNotNull(mbTilesDb)){
 
 	    	// Original folder (Look into OSM folder)
 	    	//path = Arbiter.FileSystem.NATIVE_ROOT_URL + "/" + tileDir.path +"/"
 	    	//	+ xyz.z + "/" + xyz.x + "/" + xyz.y + "." + ext;
+
+			var i = 0;
 
 	    	// Create fake path to store into HTML img src
 	    	// Optimize to not use new Date()?
@@ -683,8 +716,10 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 	};
 	
 	this.queueCacheRequests = function(bounds, onlyCountTile) {
-		
-		// store current zoom since the function will change zoom level
+
+		return 1;
+
+		/*// store current zoom since the function will change zoom level
 		var currentZoom = map.zoom;
 		
 		var count = 0;
@@ -699,7 +734,7 @@ Arbiter.TileUtil = function(_appDb, _projectDb, _map, _fileSystem, _tileDir){
 			count += TileUtil.queueCacheRequestsForZoom(map.baseLayer, bounds, i, onlyCountTile);
 		}
 	
-		return count;
+		return count;*/
 	};
 	
 	this.queueCacheRequestsForZoom = function(layer, bounds, zoomLevel, onlyCountTile) {

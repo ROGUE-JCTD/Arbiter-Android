@@ -40,6 +40,7 @@ public class Layer extends NotificationListItem{
 	// Only for the adapter, for displaying
     private String serverName;
     private String serverUrl;
+	private String serverOrigin;
 	
 	private String title;
 	private String boundingBox;
@@ -100,6 +101,7 @@ public class Layer extends NotificationListItem{
 		this.layerOrder = item.getLayerOrder();
 		this.syncId = item.getSyncId();
 		this.readOnly = item.isReadOnly();
+		this.serverOrigin = item.getServerOrigin();
 	}
 	
 	public Layer(BaseLayer baseLayer){
@@ -107,6 +109,7 @@ public class Layer extends NotificationListItem{
 		this.title = baseLayer.getName();
 		this.serverName = baseLayer.getServerName();
 		this.serverUrl = baseLayer.getUrl();
+		this.serverOrigin = baseLayer.getServerId();
 	}
 	
 	public int getSyncId(){
@@ -172,6 +175,9 @@ public class Layer extends NotificationListItem{
 	public int getServerId(){
 		return this.serverId;
 	}
+
+	public String getServerOrigin() { return this.serverOrigin; }
+	public void setServerOrigin(String origin) { this.serverOrigin = origin; }
 	
 	public String getServerUrl(){
         return this.serverUrl;

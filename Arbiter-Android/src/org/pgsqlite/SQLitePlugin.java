@@ -42,7 +42,6 @@ public class SQLitePlugin extends CordovaPlugin
 	private static final String FEATURE_DATABASE_NAME = "featuredb";
 	private static final String PROJECT_DATABASE_NAME = "projectdb";
 	private static final String APPLICATION_DATABASE_NAME = "appdb";
-	private static final String MBTILES_DATABASE_NAME = "mbtilesdb";
 	
 	private String oldProjectName;
 
@@ -254,8 +253,8 @@ public class SQLitePlugin extends CordovaPlugin
 		} else if (APPLICATION_DATABASE_NAME.equals(dbname)) {
 			dbmap.put(dbname, ApplicationDatabaseHelper.getHelper(context)
 					.getWritableDatabase());
-		} else if (MBTILES_DATABASE_NAME.equals(dbname)) {
-			dbmap.put(dbname, MBTilesDatabaseHelper.getHelper(context)
+		} else if (dbname.endsWith(".mbtiles")) {
+			dbmap.put(dbname, MBTilesDatabaseHelper.getHelper(context, dbname)
 					.getWritableDatabase());
 		} else {
 			try {

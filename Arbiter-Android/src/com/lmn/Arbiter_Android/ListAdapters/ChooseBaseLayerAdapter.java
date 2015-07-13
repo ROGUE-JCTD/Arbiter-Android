@@ -106,7 +106,7 @@ public class ChooseBaseLayerAdapter extends BaseAdapter implements ArbiterAdapte
         	Log.w("ChooseBaseLayer", "ChooseBaseLayer layername = " + layerName + ", url = " 
         			+ layer.getServerUrl() + ", server name = " + serverName + ", serverId = " 
         			+ serverId + ", featureType = " + featureType);
-        	final BaseLayer baseLayer = new BaseLayer(layerName, layer.getServerUrl(), serverName, serverId, featureType);
+        	final BaseLayer baseLayer = new BaseLayer(layerName, layer.getServerUrl(), serverName, serverOrigin, featureType);
 		
 			view.setOnClickListener(new OnClickListener(){
 				@Override

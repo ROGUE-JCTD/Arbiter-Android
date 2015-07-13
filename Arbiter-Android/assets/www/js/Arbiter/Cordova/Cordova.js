@@ -148,7 +148,7 @@ Arbiter.Cordova = (function() {
 		getTileCount: function(){
 			var bbox = Arbiter.Map.getCurrentExtent();
 			
-			var count = Arbiter.getTileUtil().getTileCount(bbox);
+			var count = 0;
 			
 			cordova.exec(null, null, "ArbiterCordova",
 					"confirmTileCount", [count]);
@@ -161,7 +161,7 @@ Arbiter.Cordova = (function() {
 		setProjectsAOI : function(layers) {
 			var bbox = Arbiter.Map.getCurrentExtent();
 			
-			var count = Arbiter.getTileUtil().getTileCount(bbox);
+			var count = 0;
 			
 			cordova.exec(null, null, "ArbiterCordova",
 					"setProjectsAOI", [bbox.toBBOX(), count]);

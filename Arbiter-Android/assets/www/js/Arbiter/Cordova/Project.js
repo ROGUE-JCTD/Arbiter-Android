@@ -153,7 +153,7 @@ Arbiter.Cordova.Project = (function(){
 			
 			Arbiter.Cordova.Project.updateBaseLayer(function(){
 				
-				console.log("updated base layer: ", Arbiter.getTileUtil().getTileDir().path);
+				//console.log("updated base layer: ", Arbiter.getTileUtil().getTileDir().path);
 				
 				var baseLayerLoader = new Arbiter.Loaders.BaseLayer();
 				
@@ -209,8 +209,6 @@ Arbiter.Cordova.Project = (function(){
 				var tileDir = new Arbiter.TileDir(Arbiter.FileSystem.getFileSystem(), baseLayer);
 				
 				tileDir.getTileDir(function(dir){
-					
-					Arbiter.getTileUtil().setTileDir(dir);
 					
 					if(Arbiter.Util.existsAndNotNull(onSuccess)){
 						onSuccess();

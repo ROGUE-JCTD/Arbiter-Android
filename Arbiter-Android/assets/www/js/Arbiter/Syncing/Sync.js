@@ -300,20 +300,8 @@
 		var context = this;
 		
 		this.initialize(function(){
-			
-			var olBounds = new OpenLayers.Bounds(context.bounds.getLeft(),
-					context.bounds.getBottom(),
-					context.bounds.getRight(),
-					context.bounds.getTop());
-				
-			Arbiter.getTileUtil().cacheTiles(olBounds, function(){
-				
-				context.getNotifications();
-			}, function(e){
-				context.onSyncFailed("Sync failed to cache tiles: " + e);
-			});
+			context.getNotifications();
 		}, function(e){
-			
 			context.onSyncFailed(e);
 		});
 	};

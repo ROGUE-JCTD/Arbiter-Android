@@ -31,7 +31,7 @@ public class BaseLayerLoaderCallbacks implements LoaderManager.LoaderCallbacks<J
 
 	@Override
 	public void onLoadFinished(Loader<JSONArray> loader, JSONArray data) {
-		Log.w("BaseLayerLoaderCallbacks", "BaseLayerLoaderCallbacks.onLoadFinished");
+		Log.w("BaseLayerLoaderCallback", "BaseLayerLoaderCallbacks.onLoadFinished");
 		baseLayerAdapter.setData(data);
 	}
 

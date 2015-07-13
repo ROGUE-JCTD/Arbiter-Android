@@ -43,10 +43,8 @@ var app = (function() {
 					
 						Arbiter.setTileUtil(
 							new Arbiter.TileUtil(
-								Arbiter.ApplicationDbHelper.getDatabase(),
 								Arbiter.ProjectDbHelper.getProjectDatabase(),
-								Arbiter.Map.getMap(),
-								Arbiter.FileSystem.getFileSystem()
+								Arbiter.Map.getMap()
 							)
 						);
 						

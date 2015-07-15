@@ -166,7 +166,8 @@ public class ParseGetCapabilities {
 			for (int i = 0; i < jArr.length(); ++i) {
 				JSONObject obj = jArr.getJSONObject(i);
 
-				String downloadURL = server.getUrl() + obj.getString("resource_uri") + "download";
+				String[] thisUrl = server.getUrl().split("/");
+				String downloadURL = "http://" + thisUrl[2] + "/api/tileset/" + Integer.toString(obj.getInt("id")) + "/download/";
 
 				// temp
 				long created_at = 25912L;

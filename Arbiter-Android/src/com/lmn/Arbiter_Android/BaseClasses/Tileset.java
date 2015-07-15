@@ -183,12 +183,7 @@ public class Tileset {
 	public String getServerServiceType() { return serverServiceType; }
 	public void setServerServiceType(String sst) { this.serverServiceType = sst; }
 
-	public String getDownloadURL() {
-		// override real quick
-		String url = "http://192.168.99.100/api/tileset/" + this.getServerID() + "/download";
-		return url;
-		//return downloadURL;
-	}
+	public String getDownloadURL() { return downloadURL; }
 	public void setDownloadURL(String url) { this.downloadURL = url; }
 
 	// Server stuff

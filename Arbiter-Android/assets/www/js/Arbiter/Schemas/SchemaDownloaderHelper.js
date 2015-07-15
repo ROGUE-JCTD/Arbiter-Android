@@ -71,7 +71,10 @@
 			url: url + "/wfs?service=wfs&version=" + context.wfsVersion + "&request=DescribeFeatureType&typeName=" + context.featureType,
 			success: function(response){
 				gotRequestBack = true;
-				
+
+				//var JSONStr = '{"attributes":{"enumeration":["Flood","Fire","LOCATION"],"enumeration":["Florida","Virginia"],"city":{"state":{"Florida":["Orlando","Tampa"],"Virginia":["Arlington","Fairfax"]}}}}';
+				//var JSONObj = JSON.parse(JSONStr);
+
 				var results = context.describeFeatureTypeReader.read(response.responseText);
 				
 				// If there are no feature types, return.
@@ -83,6 +86,20 @@
 				}
 				
 				try{
+				    /*for (var i = 0; i < results.featureTypes[0].properties.length; i++){
+                        for (var j = 0; j < JSONObj.attributes.event.length; j++){
+                            if (results.featureTypes[0].properties[i].name === JSONObj.attributes.event[j]){
+                                // Found match
+                                //console.log("OH MY LORD.. featureType: " + results.featureTypes[0].properties[i].name);
+                                //console.log("JSON: " + JSONObj.attributes.event[j]);
+
+                                // Set to dropdown
+
+                                break;
+                            }
+                        }
+                    }*/
+
 					context.schema = new Arbiter.Util.LayerSchema(context.layerId, context.url,
 							results.targetNamespace, context.featureType, context.srid,
 							results.featureTypes[0].properties, context.serverId,

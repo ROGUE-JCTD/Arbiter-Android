@@ -1,8 +1,11 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs.FeatureDialog;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Iterator;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -95,12 +98,44 @@ public class FeatureDialogBuilder {
 				
 				String _enumeration = GeometryColumnsHelper.getHelper()
 						.getEnumeration(db, feature.getFeatureType());
-				
+
 				nillableHelper = GeometryColumnsHelper.getHelper().checkIfNillable(db, feature.getFeatureType());
-				
+
+				JSONObject jsonObj = null;
 				try {
-					
 					enumeration = new JSONObject(_enumeration);
+
+					// debug
+					//jsonObj = new JSONObject("{\"LOCATION\":{\"enumeration\":[\"Flood\",\"Fire\",\"help\"]}, \"ON_STREET\":{\"type\":\"xsd:string\"}, \"AT_STREET\":{\"type\":\"xsd:string\"}}");
+					//enumeration = new JSONObject("{\"attributes\":{\"enumeration\":[\"Flood\",\"Fire\",\"LOCATION\"],\"enumeration\":[\"Florida\",\"Virginia\"],\"city\":{\"state\":{\"Florida\":[\"Orlando\",\"Tampa\"],\"Virginia\":[\"Arlington\",\"Fairfax\"]}}}}");
+
+					jsonObj = new JSONObject("{\"ON_STREET\":{\"enumeration\":[\"Flood\",\"Fire\",\"Test1\",\"Test2\", \"Test3\"]}}");
+
+					Iterator<String> iter = jsonObj.keys();
+					while (iter.hasNext()){
+						String attribute = iter.next();
+						if (enumeration.has(attribute)){
+
+							// Make dropdown - remove current entry, re-add with enumeration tag + Data-members
+							enumeration.remove(attribute);
+
+							List<String> debugStrings = Arrays.asList(jsonObj.getString(attribute).split("[\\[,\\]]"));
+
+							String hasEnumeration = "{\"enumeration\":[";
+							for (int i = 1; i < debugStrings.size() - 1; i++){ 	// ignore 0
+								hasEnumeration += debugStrings.get(i);
+
+								if (i == debugStrings.size() - 2) // End of array, no need for comma
+									break;
+
+								hasEnumeration += ",";
+							}
+							hasEnumeration += "]}";
+
+							enumeration.put(attribute, new JSONObject(hasEnumeration));
+						}
+					}
+
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

@@ -33,8 +33,8 @@ public class TilesetInfoDialog extends ArbiterDialogFragment{
 		if (tileset.getIsDownloading())
 			frag.setOk(stop);
 
-		frag.date = new Date();
-		frag.calendar = Calendar.getInstance();
+		//frag.date = new Date();
+		//frag.calendar = Calendar.getInstance();
 		
 		return frag;
 	}
@@ -84,14 +84,15 @@ public class TilesetInfoDialog extends ArbiterDialogFragment{
 		TextView serverIDTV 		= (TextView)view.findViewById(R.id.tileset_info_server_id);
 
 		// Get Time
-		date.setTime(thisTileset.getCreatedTime());
-		calendar.setTime(date);
+		//date.setTime(thisTileset.getCreatedTime());
+		//calendar.setTime(date);
 
 		// Set TextViews
 		nameTV.setText			(nameStr + " " + thisTileset.getTilesetName());
-		timeCreatedTV.setText	(timeCreatedStr + " " + Integer.toString(calendar.get(Calendar.MONTH)) + "/"
-													+ Integer.toString(calendar.get(Calendar.DAY_OF_MONTH)) + "/"
-													+ Integer.toString(calendar.get(Calendar.YEAR)));
+		timeCreatedTV.setText	(timeCreatedStr + " " + thisTileset.getCreatedTime());
+		//timeCreatedTV.setText	(timeCreatedStr + " " + Integer.toString(calendar.get(Calendar.MONTH)) + "/"
+		//											+ Integer.toString(calendar.get(Calendar.DAY_OF_MONTH)) + "/"
+		//											+ Integer.toString(calendar.get(Calendar.YEAR)));
 		createdByTV.setText		(createdByStr + " " + thisTileset.getCreatedBy());
 		filesizeTV.setText		(filesizeStr + " " + thisTileset.getFilesizeAfterConversion());
 		serverTV.setText		(serverStr + " " + thisTileset.getLayerName());

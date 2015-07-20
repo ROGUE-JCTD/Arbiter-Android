@@ -112,7 +112,8 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
                             }
 
                             // See if it's updatable
-                            if (tileset.getCreatedTime() < listItem.getCreatedTime()) {
+                            if (!tileset.getCreatedTime().equals(listItem.getCreatedTime())) {
+                                // need to check for more recent
                                 updatable = true;
                             }
 
@@ -166,52 +167,57 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
             @Override
             public void onClick(final View v) {
 
-                // Bring up download dialog (activity, function to download checked tiles, final filesize)
-                tilesetHelper.downloadSizeDialog(activity, new Runnable() {
+                //if (listItem.getFilesize() > 0) {
 
-                    @Override
-                    public void run() {
+                    // Bring up download dialog (activity, function to download checked tiles, final filesize, tilesetName)
+                    tilesetHelper.downloadSizeDialog(activity, new Runnable() {
 
-                       // MBTilesDatabaseHelper.getHelper(context).setDatabase("mbtilesdb.mbtiles");
+                        @Override
+                        public void run() {
 
-                        // Set started downloading
-                        downloadButton.setOnClickListener(null);
-                        downloadButton.setColorFilter(0xFF0000FF); // debug
-                        listItem.setIsDownloading(true);
-                        listItem.setDownloadProgress(0);
+                            // Set started downloading
+                            downloadButton.setOnClickListener(null);
+                            downloadButton.setColorFilter(0xFF0000FF); // debug
+                            listItem.setIsDownloading(true);
+                            listItem.setDownloadProgress(0);
 
-                        CommandExecutor.runProcess(new Runnable() {
-                            @Override
-                            public void run() {
+                            CommandExecutor.runProcess(new Runnable() {
+                                @Override
+                                public void run() {
 
-                                String URL = listItem.getDownloadURL();
+                                    String URL = listItem.getDownloadURL();
 
-                                String output = tilesetHelper.getTilesetDownloadLocation();
-                                String file = listItem.getTilesetName() + tilesetHelper.getTilesetDownloadExtension();
+                                    String output = tilesetHelper.getTilesetDownloadLocation();
+                                    String file = listItem.getTilesetName() + tilesetHelper.getTilesetDownloadExtension();
 
-                                startDownloadingTileset(URL, output + file, listItem, downloadButton);
+                                    startDownloadingTileset(URL, output + file, listItem, downloadButton);
 
-                                listItem.setFileLocation("file://TileSets/" + file);
+                                    listItem.setFileLocation("file://TileSets/" + file);
 
-                                // Put JSON into Database BS (to keep track of it)
-                                insertTilesetIntoDB(context, tilesetHelper, listItem);
-                            }
-                        });
+                                    // Put JSON into Database BS (to keep track of it)
+                                    insertTilesetIntoDB(context, tilesetHelper, listItem);
+                                }
+                            });
 
-                        // Check if needed
-                        notifyDataSetChanged();
+                            // Check if needed
+                            notifyDataSetChanged();
 
-                    }
-                }, listItem.getFilesize(), listItem.getTilesetName());
+                        }
+                    }, listItem.getFilesize(), listItem.getTilesetName());
+
+                //} else {
+                //    tilesetHelper.badFileDialog(activity, listItem.getTilesetName());
+                //}
             }
         });
+
     }
 
     private void startDownloadingTileset(String URL, String output, final Tileset tileset, final ImageButton downloadButton) {
 
         // Start Downloading Files
         //TODO: get specific links
-        new FileDownloader( URL, output, activity, tileset,
+        new FileDownloader(URL, output, activity, tileset,
                 new Runnable() {
                     @Override
                     public void run() {
@@ -253,13 +259,13 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
         helper.insert(appHelper.getWritableDatabase(), context, tilesetToAdd);
     }
 
-    private void updateTilesetInDB(Context context, Tileset tileset){
+    private void updateTilesetInDB(Context context, Tileset tileset) {
         ApplicationDatabaseHelper appHelper = ApplicationDatabaseHelper.getHelper(context);
 
         TilesetsHelper.getTilesetsHelper().update(appHelper.getWritableDatabase(), context, tileset);
     }
 
-    private void removeTilesetFromDB(Tileset tileset){
+    private void removeTilesetFromDB(Tileset tileset) {
         TilesetsHelper.getTilesetsHelper().delete(activity, tileset);
     }
 

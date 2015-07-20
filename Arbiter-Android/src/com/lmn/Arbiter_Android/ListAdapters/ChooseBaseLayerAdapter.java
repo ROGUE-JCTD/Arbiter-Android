@@ -136,28 +136,7 @@ public class ChooseBaseLayerAdapter extends BaseAdapter implements ArbiterAdapte
 					}
 					
 					if(selectedName != Name && !selectedName.equals(Name)){
-						
-						if(creatingProject){
-							changeBaseLayer.run();
-						}else{
-							AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-							
-							String title = activity.getResources().getString(R.string.warning);
-							String message = activity.getResources().getString(R.string.change_baselayer_warning);
-							
-							builder.setTitle(title);
-							builder.setMessage(message);
-							builder.setNegativeButton(android.R.string.cancel, null);
-							builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener(){
-		
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									changeBaseLayer.run();
-								}
-							});
-							
-							builder.create().show();
-						}
+						changeBaseLayer.run();
 					}
 				}
 			});

@@ -32,9 +32,9 @@ public class TilesetsHelper {
     public static final String CREATED_BY = "created_by";
     public static final String FILESIZE = "filesize";
     public static final String BOUNDS = "bounds";
-    //public static final String LAYER_NAME = "layer_name";
-    //public static final String LAYER_ZOOM_START = "layer_zoom_start";
-    //public static final String LAYER_ZOOM_STOP = "layer_zoom_stop";
+    public static final String LAYER_NAME = "layer_name";
+    public static final String LAYER_ZOOM_START = "layer_zoom_start";
+    public static final String LAYER_ZOOM_STOP = "layer_zoom_stop";
     public static final String RESOURCE_URI = "resource_uri";
     public static final String SERVICE_TYPE = "service_type";
     public static final String DOWNLOAD_URL = "download_url";
@@ -125,10 +125,13 @@ public class TilesetsHelper {
     public void createTable(SQLiteDatabase db) {
         String sql = "CREATE TABLE " + TABLE_NAME + " (" +
                 TILESET_NAME + " TEXT NOT NULL, " +
-                TIME_CREATED + " INTEGER NOT NULL, " +
+                TIME_CREATED + " TEXT NOT NULL, " +
                 CREATED_BY + " TEXT NOT NULL, " +
                 FILESIZE + " INTEGER NOT NULL, " +
                 BOUNDS + " TEXT NOT NULL, " +
+                LAYER_NAME + " TEXT NOT NULL, " +
+                LAYER_ZOOM_START + " INTEGER NOT NULL, " +
+                LAYER_ZOOM_STOP + " INTEGER NOT NULL, " +
                 RESOURCE_URI + " TEXT NOT NULL, " +
                 SERVICE_TYPE + " TEXT NOT NULL, " +
                 DOWNLOAD_URL + " TEXT NOT NULL, " +
@@ -193,29 +196,11 @@ public class TilesetsHelper {
 
         try {
             ContentValues values;
-            Tileset tileset;
+            Tileset tileset = newTileset;
 
             boolean somethingWentWrong = false;
 
-            values = new ContentValues();
-            tileset = newTileset;
-
-            values.put(TILESET_NAME, tileset.getTilesetName());
-            values.put(TIME_CREATED, tileset.getCreatedTime());
-            values.put(CREATED_BY, tileset.getCreatedBy());
-            values.put(FILESIZE, tileset.getFilesize());
-            values.put(BOUNDS, tileset.getGeom());
-            values.put(RESOURCE_URI, tileset.getResourceURI());
-            values.put(SERVICE_TYPE, tileset.getServerServiceType());
-            values.put(DOWNLOAD_URL, tileset.getDownloadURL());
-            values.put(SERVER_URL, tileset.getServerURL());
-            values.put(SERVER_USERNAME, tileset.getServerUsername());
-            values.put(SERVER_ID, tileset.getServerID());
-            values.put(FILE_LOCATION, tileset.getFileLocation());
-            if (!tileset.getIsDownloading())
-                values.put(IS_DOWNLOADING, 0);
-            else
-                values.put(IS_DOWNLOADING, 1);
+            values = getValuesFromTileset(newTileset);
 
             String testIfInDb = "SELECT " + TILESET_NAME + " FROM " + TABLE_NAME
                     + " WHERE " + TILESET_NAME + "=" + "\"" + tileset.getTilesetName() + "\"";
@@ -274,6 +259,9 @@ public class TilesetsHelper {
         values.put(CREATED_BY, tileset.getCreatedBy());
         values.put(FILESIZE, tileset.getFilesize());
         values.put(BOUNDS, tileset.getGeom());
+        values.put(LAYER_NAME, tileset.getLayerName());
+        values.put(LAYER_ZOOM_START, tileset.getLayerZoomStart());
+        values.put(LAYER_ZOOM_STOP, tileset.getLayerZoomStop());
         values.put(RESOURCE_URI, tileset.getResourceURI());
         values.put(SERVICE_TYPE, tileset.getServerServiceType());
         values.put(DOWNLOAD_URL, tileset.getDownloadURL());
@@ -394,6 +382,20 @@ public class TilesetsHelper {
         builder.create().show();
     }
 
+    public void noTilesetsAvailableDialog(Activity activity, String nameOfServer){
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+
+        String title = activity.getResources().getString(R.string.error);
+        String message = activity.getResources().getString(R.string.no_tilesets_returned_msg);
+
+        builder.setTitle(title);
+        builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
+        builder.setMessage(nameOfServer + " " + message);
+        builder.setPositiveButton(R.string.back, null);
+
+        builder.create().show();
+    }
+
     public void deletionAlert(Activity activity, final Runnable deleteIt, String tilesetName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
@@ -471,6 +473,19 @@ public class TilesetsHelper {
         builder.create().show();
     }
 
+    public void badFileDialog(final Activity activity, final String tilesetName){
+        Context context = activity;
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(R.string.error);
+        builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
+
+        String errorMsg = "Filesize for " + tilesetName + " is 0. Please make sure the tileset was generated correctly.";
+
+        builder.setMessage(errorMsg);
+        builder.setNegativeButton(android.R.string.ok, null);
+        builder.create().show();
+    }
+
     public void downloadSizeDialog(final Activity activity, final Runnable downloadIt,
                                    final double filesize, final String tilesetName) {
         Context context = activity;
@@ -527,14 +542,17 @@ public class TilesetsHelper {
                 CREATED_BY, // 2
                 FILESIZE, // 3
                 BOUNDS, // 4
-                RESOURCE_URI, // 5
-                SERVICE_TYPE, // 6
-                DOWNLOAD_URL, // 7
-                SERVER_ID, // 8
-                SERVER_URL, // 9
-                SERVER_USERNAME, // 10
-                IS_DOWNLOADING, // 11
-                FILE_LOCATION, // 12
+                LAYER_NAME, // 5
+                LAYER_ZOOM_START, // 6
+                LAYER_ZOOM_STOP, // 7
+                RESOURCE_URI, // 8
+                SERVICE_TYPE, // 9
+                DOWNLOAD_URL, // 10
+                SERVER_ID, // 11
+                SERVER_URL, // 12
+                SERVER_USERNAME, // 13
+                IS_DOWNLOADING, // 14
+                FILE_LOCATION, // 15
         };
 
         // get all of the tilesets and
@@ -546,16 +564,12 @@ public class TilesetsHelper {
         // Create an array list with initial capacity equal to the number of tilesets +1 for the default tileset
         ArrayList<Tileset> tilesets = new ArrayList<Tileset>(cursor.getCount() + 1);
 
-        // temporary
-        String layerName = "MBTile";
-        int layerZoom = 0;
-
         //Traverse the cursors to populate the projects array
         for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-            tilesets.add(new Tileset(cursor.getString(0), cursor.getLong(1), cursor.getString(2),
-                    cursor.getDouble(3), cursor.getString(4), layerName, layerZoom, layerZoom,
-                    cursor.getString(5), cursor.getString(6), cursor.getString(7),
-                    cursor.getInt(8), cursor.getString(9), cursor.getString(10), cursor.getString(12)));
+            tilesets.add(new Tileset(cursor.getString(0), cursor.getString(1), cursor.getString(2),
+                    cursor.getDouble(3), cursor.getString(4), cursor.getString(5), cursor.getInt(6), cursor.getInt(7),
+                    cursor.getString(8), cursor.getString(9), cursor.getString(10),
+                    cursor.getInt(11), cursor.getString(12), cursor.getString(13), cursor.getString(15)));
         }
 
         cursor.close();

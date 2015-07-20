@@ -34,7 +34,6 @@ public class ApplicationDatabaseHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		ServersHelper.getServersHelper().createTable(db);
-		TilesHelper.getHelper().createTable(db);
 		PreferencesHelper.getHelper().createTable(db);
 		TilesetsHelper.getTilesetsHelper().createTable(db);
 	}

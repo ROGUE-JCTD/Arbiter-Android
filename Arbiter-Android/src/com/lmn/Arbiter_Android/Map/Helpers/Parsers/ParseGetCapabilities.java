@@ -168,25 +168,15 @@ public class ParseGetCapabilities {
 
 				String[] thisUrl = server.getUrl().split("/");
 				String downloadURL = "http://" + thisUrl[2] + "/api/tileset/" + Integer.toString(obj.getInt("id")) + "/download/";
+				String fileLocation = "willBeSetLater";
 
-				// temp
-				long created_at = 25912L;
-				double filesize = 34;
-				String createdBy = "Sam";
-				String fileLocation = "nothing";
-
-				Tileset tileset = new Tileset(obj.getString("name"), created_at/*obj.getLong("created_at")*/, createdBy/*obj.getString("created_by")*/,
-						filesize/*obj.getDouble("filesize")*/, obj.getString("geom"), obj.getString("layer_name"), obj.getInt("layer_zoom_start"),
+				Tileset tileset = new Tileset(obj.getString("name"), obj.getString("created_at"), obj.getString("created_by"),
+						obj.getDouble("filesize"), obj.getString("geom"), obj.getString("layer_name"), obj.getInt("layer_zoom_start"),
 						obj.getInt("layer_zoom_stop"), obj.getString("resource_uri"), obj.getString("server_service_type"), downloadURL,
 						obj.getInt("id"), obj.getString("server_url"), obj.getString("server_username"), fileLocation);
 
 				tilesets.add(tileset);
 			}
-
-			// Test Tileset from new
-			Tileset newTileset = new Tileset("Brand_New_Test", 10000050, "Sam", 6000.0, "6000", "LayeR_Name", 0, 0,
-					"resourceUri", "server_service_type", "downloadURL", 2, "server_url", "server_username", "Not Right");
-			tilesets.add(newTileset);
 
 		} else {
 			final String serverName = server.getName();

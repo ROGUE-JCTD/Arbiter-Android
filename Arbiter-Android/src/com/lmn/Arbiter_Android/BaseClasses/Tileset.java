@@ -8,7 +8,7 @@ public class Tileset {
 	}
 
 	private String tilesetName;
-	private long createdAtTime;
+	private String createdAtTime;
 	private String createdBy;
 	private double filesize;
 	private String geom;
@@ -31,7 +31,7 @@ public class Tileset {
 
 	public Tileset(){
 		this.tilesetName = null;
-		this.createdAtTime = -1;
+		this.createdAtTime = null;
 		this.geom = null;
 		this.layerName = null;
 		this.layerZoomStart = -1;
@@ -53,7 +53,7 @@ public class Tileset {
 		this.downloadProgress = 0;
 	}
 
-	public Tileset(String tilesetName, long created_at, String created_by, double filesize, String geom,
+	public Tileset(String tilesetName, String created_at, String created_by, double filesize, String geom,
 				   String layerName, int layerZoomStart, int layerZoomStop, String resourceURI,
 				   String serverServiceType, String downloadURL, int serverID, String serverURL, String serverUsername,
 				   String fileLocation){
@@ -111,10 +111,10 @@ public class Tileset {
 		this.tilesetName = name;
 	}
 
-	public long getCreatedTime(){
+	public String getCreatedTime(){
 		return createdAtTime;
 	}
-	public void setCreatedTime(long time){
+	public void setCreatedTime(String time){
 		this.createdAtTime = time;
 	}
 

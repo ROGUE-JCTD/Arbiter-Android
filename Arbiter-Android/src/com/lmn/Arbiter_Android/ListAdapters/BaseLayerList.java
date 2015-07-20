@@ -89,6 +89,7 @@ public class BaseLayerList extends CustomList<JSONArray, JSONObject> {
             }
             
             if(serverNameView != null){
+				// TODO: This will always be OpenStreetMap..
             	serverNameView.setText(layer.getServerName());
             }
 		

@@ -11,6 +11,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.lmn.Arbiter_Android.BaseClasses.Tileset;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
 import com.lmn.Arbiter_Android.BroadcastReceivers.AddTilesetsBroadcastReceiver;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesetsHelper;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.AddTilesetDialog;
 import com.lmn.Arbiter_Android.Map.Helpers.GetCapabilities;
 import com.lmn.Arbiter_Android.R;
@@ -62,6 +63,17 @@ public class AddTilesetsListLoader extends AsyncTaskLoader<ArrayList<Tileset>> {
 			}
 
 			connectedOK = true;
+
+			// Nothing was returned
+			if (_tilesets == null && server != null) {
+				final String serverName = server.getName();
+				activity.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						TilesetsHelper.getTilesetsHelper().noTilesetsAvailableDialog(activity, serverName);
+					}
+				});
+			}
 		} catch (NullPointerException e) {
 			connectedOK = false;
 		}finally{

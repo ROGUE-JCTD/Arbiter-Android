@@ -87,7 +87,7 @@
 	            android:layout_below="@id/overlaysList"
 	            android:layout_marginTop="15dp"
 	            android:textSize="15sp"
-	            android:text="@string/baselayer"/>
+	            android:text="@string/background_map"/>
 	        
 	        <LinearLayout
 		        android:id="@+id/baselayerList"

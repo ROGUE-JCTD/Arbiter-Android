@@ -173,6 +173,13 @@
     <string name="no_available_tileset_msg">did not return any tilesets. Please check your connection or the server information and try again.</string>
     <string name="tileset_download_error_msg">The file was not downloaded. The download link was invalid or the current network connection is unavailable.</string>
     <string name="no_tilesets_returned_msg">was found, but did not return any tilesets. Please make sure the server has valid Tilesets.</string>
+    <string name="tileset_zero_filesize">has a filesize of 0. Please make sure the tileset was generated correctly.</string>
+    <string name="tileset_new_project_msg_downloaded">Tilesets currently downloaded: </string>
+    <string name="tileset_new_project_msg_confirmation">\n\nTo ensure that this project can have a background map while there is no Internet connectivity,
+        a Tileset with the appropriate data should be downloaded.\n\nIf the background map "OpenStreetMap" is selected, the map data will be pulled from the Internet.
+        \n**Data Charges may apply**\n\nWould you like to download tilesets?</string>
+    <string name="tileset_no_connection_msg">Arbiter is currently offline, and did not find any Tilesets.\n\nIf you would like to have a background map to be available offline:
+        reconnect Arbiter, and download a Tileset.\n\nThis feature is available at:\nSettings > Tilesets</string>
 
     <!-- LAYER INFO DIALOG STRINGS -->
     <string name="layer_info_dialog_title">Layer Info</string>
@@ -194,6 +201,9 @@
     <string name="project_name_dialog_title">Project Name</string>
     <string name="choose_project_name">Enter project name.</string>
     <string name="choose_name_hint">New project name*</string>
+    <string name="disconnected_no_projects">It seems you are not connected to a network, and don\'t have any projects created.\n
+        \nIf you would like to take full advantage of Arbiter, please connect to a network and create a new project.\n
+        \nYou will know if you\'re connected if the red sync icon turns green.</string>
 
     <!-- SERVER DIALOG STRINGS -->
 
@@ -268,14 +278,15 @@
     <string name="finish_editing_message">Please finish editing.</string>
     <string name="unsupported_crs">Unsupported CRS</string>
     <string name="loading_unsupported_crs">Could not load the following layers due to unsupported CRS:</string>
-    <string name="overlays">Overlays</string>
-    <string name="baselayer">Base layer</string>
+    <string name="overlays">Overlays:</string>
+    <string name="baselayer">Current:</string>
+    <string name="background_map">Background Map:</string>
     <string name="base">Base</string>
-    <string name="choose_baselayer">Select base layer</string>
+    <string name="choose_baselayer">Select background map</string>
     <string name="change_baselayer_warning">
-        Changing your base layer will remove the previously 
-        downloaded tiles and download new tiles
-         for your area of interest.  Are you sure you want to continue?
+        Changing your background map will remove the previously
+        downloaded tiles for your area of interest.
+        Are you sure you want to continue?
     </string>
     <string name="type">Type</string>
     <string name="notifications">Notifications</string>

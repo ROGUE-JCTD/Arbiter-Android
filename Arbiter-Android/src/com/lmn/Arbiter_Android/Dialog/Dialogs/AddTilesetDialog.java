@@ -29,7 +29,6 @@ import com.lmn.Arbiter_Android.LoaderCallbacks.AddTilesetsLoaderCallbacks;
 import com.lmn.Arbiter_Android.LoaderCallbacks.AddServerCallbacks;
 import com.lmn.Arbiter_Android.LoaderCallbacks.ServerLoaderCallbacks;
 import com.lmn.Arbiter_Android.Loaders.AddTilesetsListLoader;
-import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 
 public class AddTilesetDialog extends ArbiterDialogFragment{
 	@SuppressWarnings("unused")
@@ -45,11 +44,8 @@ public class AddTilesetDialog extends ArbiterDialogFragment{
 	private boolean onCreateAlreadyFired;
 	private ConnectivityListener connectivityListener;
 
-	private MapChangeListener mapChangeListener;
-
-
 	public static AddTilesetDialog newInstance(String title, String done, int layout,
-											  ConnectivityListener connectivityListener){
+											  ConnectivityListener connectivityListener, boolean newProject){
 
 		AddTilesetDialog frag = new AddTilesetDialog();
 
@@ -57,22 +53,8 @@ public class AddTilesetDialog extends ArbiterDialogFragment{
 		frag.setCancel(done);
 		frag.setLayout(layout);
 
+		frag.creatingProject = newProject;
 		frag.onCreateAlreadyFired = false;
-		frag.connectivityListener = connectivityListener;
-
-		return frag;
-	}
-
-	public static AddTilesetDialog newInstance(String title, String cancel, int layout, boolean creatingProject,
-											  ConnectivityListener connectivityListener){
-
-		AddTilesetDialog frag = new AddTilesetDialog();
-
-		frag.setTitle(title);
-		frag.setCancel(cancel);
-		frag.setLayout(layout);
-
-		frag.creatingProject = creatingProject;
 		frag.connectivityListener = connectivityListener;
 
 		return frag;
@@ -96,16 +78,6 @@ public class AddTilesetDialog extends ArbiterDialogFragment{
 				}
 			}
 		});
-
-		if(!creatingProject){
-			try {
-				mapChangeListener = (MapChangeListener) getActivity();
-			} catch (ClassCastException e){
-				e.printStackTrace();
-				throw new ClassCastException(getActivity().toString()
-						+ " must implement MapChangeListener");
-			}
-		}
 	}
 
 	@Override
@@ -128,10 +100,7 @@ public class AddTilesetDialog extends ArbiterDialogFragment{
 
 	@Override
 	public void onNegativeClick() {
-		if(creatingProject){
-			Log.w("AddTilesetsDialog", "AddTilesetsDialog dismissed!");
-			ArbiterProject.getArbiterProject().doneCreatingProject(getActivity().getApplicationContext());
-		}
+
 	}
 
 	@Override

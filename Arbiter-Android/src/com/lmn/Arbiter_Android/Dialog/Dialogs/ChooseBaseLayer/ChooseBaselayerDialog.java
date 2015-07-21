@@ -88,7 +88,10 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 				if(frag.connectivityListener != null && frag.connectivityListener.isConnected()){
 					frag.onPositiveClick();
 				}else{
-					Util.showNoNetworkDialog(frag.getActivity());
+					// TODO: Check if Base Layer needs network?
+					frag.onPositiveClick();
+
+					//Util.showNoNetworkDialog(frag.getActivity());
 				}
 			}
 		});

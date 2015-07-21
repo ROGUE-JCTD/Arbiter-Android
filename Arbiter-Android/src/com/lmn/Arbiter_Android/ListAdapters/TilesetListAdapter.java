@@ -22,14 +22,12 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesetsHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FileDownloader.DownloadListener;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
 import com.lmn.Arbiter_Android.GeometryEditor.GeometryEditor;
-import com.lmn.Arbiter_Android.Map.Map.MapChangeListener;
 import com.lmn.Arbiter_Android.R;
 
 
 import android.util.Log;
 
 public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<ArrayList<Tileset>>{
-	private MapChangeListener mapChangeListener;
 
 	private ArrayList<Tileset> items;
 	private final LayoutInflater inflater;
@@ -49,13 +47,6 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Ar
 			this.dropDownLayout = R.layout.drop_down_item;
 			this.activity = activity;
 			this.viewServerOnClickEnabled = true;
-
-			try {
-				mapChangeListener = (MapChangeListener) activity;
-			} catch (ClassCastException e){
-				throw new ClassCastException(activity.toString()
-						+ " must implement MapChangeListener");
-			}
 	}
 
 	public TilesetListAdapter(FragmentActivity activity, int itemLayout,
@@ -134,10 +125,8 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Ar
 
 						@Override
 						public void onClick(View v) {
-							if (makeSureNotEditing()) {
 								// Cancel download dialog
 								displayCancellationAlert(tileset);
-							}
 						}
 					});
 				} else {
@@ -153,9 +142,7 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Ar
 
 						@Override
 						public void onClick(View v) {
-							if (makeSureNotEditing()) {
 								displayDeletionAlert(tileset);
-							}
 						}
 					});
 				}
@@ -164,28 +151,7 @@ public class TilesetListAdapter extends BaseAdapter implements ArbiterAdapter<Ar
 		
 		return view;
 	}
-	
-	// Return true if not editing
-    private boolean makeSureNotEditing(){
-    		
-		int editMode = mapChangeListener.getMapChangeHelper().getEditMode();
-		
-		if(editMode == GeometryEditor.Mode.OFF || editMode == GeometryEditor.Mode.SELECT){
-			return true;
-		}
-			
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-		
-		builder.setTitle(R.string.finish_editing_title);
-		builder.setMessage(R.string.finish_editing_message);
-		builder.setIcon(R.drawable.icon);
-		builder.setPositiveButton(android.R.string.ok, null);
-		
-		builder.create().show();
-		
-		return false;
-    }
-    
+
 	private void displayDeletionAlert(final Tileset tileset){
 		final Context context = activity.getApplicationContext();
 		

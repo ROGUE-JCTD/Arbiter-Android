@@ -1291,7 +1291,7 @@ public class ArbiterCordova extends CordovaPlugin{
 		cordova.getActivity().runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
-				
+
 				showAOIConfirmationDialog(aoi);
 			}
 		});

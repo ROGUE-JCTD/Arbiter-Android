@@ -90,12 +90,12 @@ public class ArbiterDialogs {
 		dialog.show(fragManager, "serversDialog");
 	}
 
-	public void showAddTilesetDialog(ConnectivityListener connectivityListener){
+	public void showAddTilesetDialog(boolean newProject, ConnectivityListener connectivityListener){
 		String title = resources.getString(R.string.add_tileset_dialog_title);
 		String done = resources.getString(R.string.done);
 		int layout = R.layout.add_tileset_dialog;
 
-		DialogFragment dialog = AddTilesetDialog.newInstance(title, done, layout, connectivityListener);;
+		DialogFragment dialog = AddTilesetDialog.newInstance(title, done, layout, connectivityListener, newProject);;
 		dialog.show(fragManager, "addTilesetDialog");
 	}
 
@@ -104,7 +104,7 @@ public class ArbiterDialogs {
 		String done = resources.getString(R.string.done);
 		int layout = R.layout.tilesets_dialog;
 
-		DialogFragment dialog = TilesetsDialog.newInstance(title, done, layout);;
+		DialogFragment dialog = TilesetsDialog.newInstance(title, done, layout, false, null, null);;
 		dialog.show(fragManager, "tilesetDialog");
 	}
 

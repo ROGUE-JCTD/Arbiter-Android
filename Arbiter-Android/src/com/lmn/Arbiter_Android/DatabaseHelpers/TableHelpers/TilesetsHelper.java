@@ -3,10 +3,15 @@ package com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers;
 import java.io.File;
 import java.util.ArrayList;
 
+import com.lmn.Arbiter_Android.Activities.HasThreadPool;
+import com.lmn.Arbiter_Android.BaseClasses.BaseLayer;
 import com.lmn.Arbiter_Android.BaseClasses.Tileset;
+import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FileDownloader.DownloadListener;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FileDownloader.FileDownloader;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseBaseLayer.ChooseBaselayerDialog;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.TilesetsDialog;
 import com.lmn.Arbiter_Android.Loaders.TilesetsListLoader;
 import com.lmn.Arbiter_Android.R;
 
@@ -19,8 +24,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
-import android.os.StatFs;
-import android.os.Build.VERSION;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -460,15 +463,68 @@ public class TilesetsHelper {
         builder.create().show();
     }
 
-    public void serverNoTilesetsResponseDialog(Context context, String serverName){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+    public void noConnectionTilesetDialog(Activity activity){
+        // Here in case this is called before Init
+        tilesetsInProject = getAll(ApplicationDatabaseHelper.getHelper(activity.getApplicationContext()).getReadableDatabase());
 
-        builder.setTitle(R.string.no_available_tileset_title);
+        if (tilesetsInProject.size() <= 0) {
+            Context context = activity;
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-        String errorMsg = context.getString(R.string.no_available_tileset_msg);
-        builder.setMessage(serverName + " " + errorMsg);
+            builder.setTitle(R.string.error);
+            String errorMsg = context.getString(R.string.tileset_no_connection_msg);
+            builder.setMessage(errorMsg);
+            builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
+            builder.setPositiveButton(android.R.string.ok, null);
+
+            builder.create().show();
+        }
+    }
+
+    public void newProjectTilesetsDialog(final Activity activity, final boolean newProject,
+                                         final ConnectivityListener connectivityListener, final HasThreadPool hasThreadPool){
+        Context context = activity;
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+        builder.setTitle("Download Tilesets");
         builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
-        builder.setPositiveButton(android.R.string.ok, null);
+
+        String DownloadedStr = context.getString(R.string.tileset_new_project_msg_downloaded);
+        String ConfirmationStr = context.getString(R.string.tileset_new_project_msg_confirmation);
+
+        String Msg = DownloadedStr + " " + tilesetsInProject.size() + ConfirmationStr;
+
+        builder.setMessage(Msg);
+
+        builder.setNegativeButton("Skip", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Go to Base Layer
+                String title = activity.getResources().getString(R.string.choose_baselayer);
+                String ok = activity.getResources().getString(android.R.string.ok);
+                String cancel = activity.getResources().getString(android.R.string.cancel);
+
+                ChooseBaselayerDialog newDialog = ChooseBaselayerDialog.newInstance(title, ok, cancel, R.layout.choose_baselayer_dialog,
+                        newProject, BaseLayer.createOSMBaseLayer(), connectivityListener, hasThreadPool);
+
+                FragmentActivity fragActivity = (FragmentActivity)activity;
+                newDialog.show(fragActivity.getSupportFragmentManager(), ChooseBaselayerDialog.TAG);
+            }
+        });
+
+        builder.setPositiveButton(R.string.tileset_dialog_title, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Go to Tilesets
+                TilesetsDialog newDialog = TilesetsDialog.newInstance(activity.getString(R.string.tileset_dialog_title),
+                        activity.getString(R.string.done), R.layout.tilesets_dialog, newProject, connectivityListener, hasThreadPool);
+
+                FragmentActivity fragActivity = (FragmentActivity)activity;
+                newDialog.show(fragActivity.getSupportFragmentManager(), "tilesetDialog");
+
+                dialog.dismiss();
+            }
+        });
 
         builder.create().show();
     }
@@ -479,10 +535,24 @@ public class TilesetsHelper {
         builder.setTitle(R.string.error);
         builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
 
-        String errorMsg = "Filesize for " + tilesetName + " is 0. Please make sure the tileset was generated correctly.";
+        String errorStr = context.getResources().getString(R.string.tileset_zero_filesize);
+        String errorMsg = tilesetName + " " + errorStr;
 
         builder.setMessage(errorMsg);
         builder.setNegativeButton(android.R.string.ok, null);
+        builder.create().show();
+    }
+
+    public void serverNoTilesetsResponseDialog(Context context, String serverName){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+        builder.setTitle(R.string.no_available_tileset_title);
+
+        String errorMsg = context.getString(R.string.no_available_tileset_msg);
+        builder.setMessage(serverName + " " + errorMsg);
+        builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
+        builder.setPositiveButton(android.R.string.ok, null);
+
         builder.create().show();
     }
 

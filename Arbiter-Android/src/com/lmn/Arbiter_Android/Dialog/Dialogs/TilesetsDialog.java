@@ -1,15 +1,22 @@
 package com.lmn.Arbiter_Android.Dialog.Dialogs;
 
+import android.content.Intent;
+import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
+import com.lmn.Arbiter_Android.Activities.AOIActivity;
+import com.lmn.Arbiter_Android.Activities.HasThreadPool;
+import com.lmn.Arbiter_Android.BaseClasses.BaseLayer;
 import com.lmn.Arbiter_Android.BaseClasses.Tileset;
 import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseBaseLayer.ChooseBaselayerDialog;
 import com.lmn.Arbiter_Android.ListAdapters.TilesetListAdapter;
 import com.lmn.Arbiter_Android.LoaderCallbacks.TilesetLoaderCallbacks;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesetsHelper;
@@ -23,14 +30,20 @@ public class TilesetsDialog extends ArbiterDialogFragment{
 	private TilesetListAdapter tilesetListAdapter;
 	private ListView listView;
 	private ConnectivityListener connectivityListener;
+	private HasThreadPool hasThreadPool;
 	private TilesetLoaderCallbacks tilesetLoaderCallbacks;
+	private boolean newProject;
 	
-	public static TilesetsDialog newInstance(String title, String done, int layout){
+	public static TilesetsDialog newInstance(String title, String done, int layout, boolean newProject,
+											 ConnectivityListener connectivityListener, HasThreadPool hasThreadPool){
 		TilesetsDialog frag = new TilesetsDialog();
 		
 		frag.setTitle(title);
 		frag.setOk(done);
 		frag.setLayout(layout);
+		frag.newProject = newProject;
+		frag.connectivityListener = connectivityListener;
+		frag.hasThreadPool = hasThreadPool;
 
 		return frag;
 	}
@@ -51,7 +64,19 @@ public class TilesetsDialog extends ArbiterDialogFragment{
 	
 	@Override
 	public void onPositiveClick() {
-		
+		if (newProject){
+			// Go to Base Layer
+			Activity activity = getActivity();
+			String title = activity.getResources().getString(R.string.choose_baselayer);
+			String ok = activity.getResources().getString(android.R.string.ok);
+			String cancel = activity.getResources().getString(android.R.string.cancel);
+
+			ChooseBaselayerDialog newDialog = ChooseBaselayerDialog.newInstance(title, ok, cancel, R.layout.choose_baselayer_dialog,
+					newProject, BaseLayer.createOSMBaseLayer(), connectivityListener, hasThreadPool);
+
+			FragmentActivity fragActivity = (FragmentActivity)activity;
+			newDialog.show(fragActivity.getSupportFragmentManager(), ChooseBaselayerDialog.TAG);
+		}
 	}
 
 	@Override
@@ -77,7 +102,7 @@ public class TilesetsDialog extends ArbiterDialogFragment{
 				public void onClick(View view) {
 					// Open the add server dialog
 					(new ArbiterDialogs(getActivity().getApplicationContext(), getActivity().getResources(),
-							getActivity().getSupportFragmentManager())).showAddTilesetDialog(connectivityListener);
+							getActivity().getSupportFragmentManager())).showAddTilesetDialog(newProject, connectivityListener);
 				}
 				
 			});

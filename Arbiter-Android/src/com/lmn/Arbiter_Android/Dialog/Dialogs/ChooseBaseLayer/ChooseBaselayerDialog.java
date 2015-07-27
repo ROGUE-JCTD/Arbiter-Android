@@ -270,7 +270,9 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 					ApplicationDatabaseHelper.getHelper(
 							getActivity().getApplicationContext()).getWritableDatabase());
 			for (int i = 0; i < tilesets.size(); i++){
-				deepCopy.add(new Layer(tilesets.get(i).toBaseLayer()));
+				if (tilesets.get(i).getFilesize() > 0) {
+					deepCopy.add(new Layer(tilesets.get(i).toBaseLayer()));
+				}
 			}
 			
 			this.layersAdapter.setData(deepCopy);

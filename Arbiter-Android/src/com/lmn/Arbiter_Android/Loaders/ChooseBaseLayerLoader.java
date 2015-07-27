@@ -36,9 +36,11 @@ public class ChooseBaseLayerLoader extends LayersListLoader {
 		
 		layers = addServerInfoToLayers(layers, servers);
 
-		for (int i = 0; i < tilesets.size(); i++)
-			layers.add(new Layer(tilesets.get(i).toBaseLayer()));
-		
+		for (int i = 0; i < tilesets.size(); i++) {
+			if (tilesets.get(i).getFilesize() > 0)
+				layers.add(new Layer(tilesets.get(i).toBaseLayer()));
+		}
+
 		layers.add(new Layer(BaseLayer.createOSMBaseLayer()));
 		
 		return layers;

@@ -18,6 +18,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.FileDownloader.DownloadListener;
 import com.lmn.Arbiter_Android.DatabaseHelpers.MBTilesDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesetsHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogs;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 import com.lmn.Arbiter_Android.R;
 
 import java.util.ArrayList;
@@ -167,7 +168,7 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
             @Override
             public void onClick(final View v) {
 
-                //if (listItem.getFilesize() > 0) {
+                if (listItem.getFilesize() > 0) {
 
                     // Bring up download dialog (activity, function to download checked tiles, final filesize, tilesetName)
                     tilesetHelper.downloadSizeDialog(activity, new Runnable() {
@@ -186,12 +187,10 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
                                 public void run() {
 
                                     String URL = listItem.getDownloadURL();
+                                    String output = ProjectStructure.getTileSetsRoot();
+                                    startDownloadingTileset(URL, output, listItem, downloadButton);
 
-                                    String output = tilesetHelper.getTilesetDownloadLocation();
                                     String file = listItem.getTilesetName() + tilesetHelper.getTilesetDownloadExtension();
-
-                                    startDownloadingTileset(URL, output + file, listItem, downloadButton);
-
                                     listItem.setFileLocation("file://TileSets/" + file);
 
                                     // Put JSON into Database BS (to keep track of it)
@@ -205,9 +204,9 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
                         }
                     }, listItem.getFilesize(), listItem.getTilesetName());
 
-                //} else {
-                //    tilesetHelper.badFileDialog(activity, listItem.getTilesetName());
-                //}
+                } else {
+                    tilesetHelper.badFileDialog(activity, listItem.getTilesetName());
+                }
             }
         });
 
@@ -216,7 +215,6 @@ public class AddTilesetsListAdapter extends BaseAdapter implements ArbiterAdapte
     private void startDownloadingTileset(String URL, String output, final Tileset tileset, final ImageButton downloadButton) {
 
         // Start Downloading Files
-        //TODO: get specific links
         new FileDownloader(URL, output, activity, tileset,
                 new Runnable() {
                     @Override

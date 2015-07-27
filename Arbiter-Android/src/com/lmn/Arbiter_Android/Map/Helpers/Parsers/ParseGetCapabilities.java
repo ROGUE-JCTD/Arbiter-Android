@@ -168,10 +168,15 @@ public class ParseGetCapabilities {
 
 				String[] thisUrl = server.getUrl().split("/");
 				String downloadURL = "http://" + thisUrl[2] + "/api/tileset/" + Integer.toString(obj.getInt("id")) + "/download/";
+				double filesize = 0;
 				String fileLocation = "willBeSetLater";
 
+				if (obj.has("file_size")){
+					filesize = obj.getDouble("file_size");
+				}
+
 				Tileset tileset = new Tileset(obj.getString("name"), obj.getString("created_at"), obj.getString("created_by"),
-						obj.getDouble("filesize"), obj.getString("geom"), obj.getString("layer_name"), obj.getInt("layer_zoom_start"),
+						filesize, obj.getString("geom"), obj.getString("layer_name"), obj.getInt("layer_zoom_start"),
 						obj.getInt("layer_zoom_stop"), obj.getString("resource_uri"), obj.getString("server_service_type"), downloadURL,
 						obj.getInt("id"), obj.getString("server_url"), obj.getString("server_username"), fileLocation);
 

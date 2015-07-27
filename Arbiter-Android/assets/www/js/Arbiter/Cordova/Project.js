@@ -152,9 +152,7 @@ Arbiter.Cordova.Project = (function(){
 			Arbiter.Cordova.setState(Arbiter.Cordova.STATES.UPDATING);
 			
 			Arbiter.Cordova.Project.updateBaseLayer(function(){
-				
-				//console.log("updated base layer: ", Arbiter.getTileUtil().getTileDir().path);
-				
+
 				var baseLayerLoader = new Arbiter.Loaders.BaseLayer();
 				
 				baseLayerLoader.load(function(baseLayer){
@@ -196,25 +194,13 @@ Arbiter.Cordova.Project = (function(){
 			var baseLayerLoader = new Arbiter.Loaders.BaseLayer();
 			
 			var fail = function(e){
-				
 				console.log("Error changing base layer: " + e);
-				
 				if(Arbiter.Util.existsAndNotNull(onFailure)){
 					onFailure(e);
 				}
 			};
 			
-			baseLayerLoader.load(function(baseLayer){
-				
-				var tileDir = new Arbiter.TileDir(Arbiter.FileSystem.getFileSystem(), baseLayer);
-				
-				tileDir.getTileDir(function(dir){
-					
-					if(Arbiter.Util.existsAndNotNull(onSuccess)){
-						onSuccess();
-					}
-				}, fail);
-			}, fail);
+			baseLayerLoader.load(onSuccess, fail);
 		},
 		
 		addLayers: function(layers){

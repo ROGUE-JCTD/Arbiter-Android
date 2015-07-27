@@ -38,6 +38,7 @@ public class FileDownloader implements OnTaskCompleted{
     private Runnable errorRun;
 
     private String fileNameStr;
+    private String fileNameStrNoExt;
     private String outputStr;
     private DownloadFileFromURL downloader;
     private FragmentActivity activity;
@@ -50,7 +51,8 @@ public class FileDownloader implements OnTaskCompleted{
         this.file_url = url;
         this.outputStr = _outputStr;
         this.activity = activity;
-        this.fileNameStr = tileset.getTilesetName();
+        this.fileNameStr = tileset.getTilesetName() + TilesetsHelper.getTilesetsHelper().getTilesetDownloadExtension();
+        this.fileNameStrNoExt = tileset.getTilesetName();
         this.updater = updater;
         this.runnable = runMeAfter;
         this.errorRun = errorRun;
@@ -72,9 +74,6 @@ public class FileDownloader implements OnTaskCompleted{
 
         boolean keepDownloading = true;
 
-        public boolean getKeepDownloading() { return this.keepDownloading; }
-        public void setKeepDownloading(boolean dl) { this.keepDownloading = dl; }
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -95,17 +94,15 @@ public class FileDownloader implements OnTaskCompleted{
                     InputStream inputStream = new BufferedInputStream(url.openStream(), 8192);
 
                     // Create directory in case it isn't available
-                    String filePath = Environment.getExternalStorageDirectory().toString();
-                    if (!new File(filePath + TilesetsHelper.getTilesetsHelper().getTilesetDownloadLocation()).mkdir());
-                        Log.w("Path created", "Hooray!");
+                    if (!new File(outputStr).mkdir());
+                        Log.w("Path created - Tileset:", outputStr);
 
                     // Create file to download
-                    filePath += outputStr;
-                    File file = new File(filePath);
+                    File file = new File(outputStr + fileNameStr);
                     if (!file.exists()) {
                         file.createNewFile();
                     }
-                    OutputStream outputStream = new FileOutputStream(filePath);
+                    OutputStream outputStream = new FileOutputStream(outputStr + fileNameStr);
 
                     byte data[] = new byte[1024];
                     long total = 0;
@@ -136,7 +133,7 @@ public class FileDownloader implements OnTaskCompleted{
                 } catch (final IOException e){
                     Log.w("Error downloading file", strURL[0] + " Exception: " + e.getMessage());
 
-                    // TODO: Remove from database and reverse download (File is never created)
+                    // Remove from database and reverse download (File is never created)
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -182,7 +179,7 @@ public class FileDownloader implements OnTaskCompleted{
                     // Show sysMessage
                     Toast sysMessage = new Toast(activity);
                     String startedDownloading = activity.getString(R.string.tileset_started_downloading_msg);
-                    sysMessage.makeText(activity, startedDownloading + " " + fileNameStr + "!", Toast.LENGTH_SHORT).show();
+                    sysMessage.makeText(activity, startedDownloading + " " + fileNameStrNoExt + "!", Toast.LENGTH_SHORT).show();
 
                     showSysMessage[0] = false;
                 }
@@ -193,7 +190,7 @@ public class FileDownloader implements OnTaskCompleted{
                     // Show sysMessage
                     Toast sysMessage = new Toast(activity);
                     String finishedDownloading = activity.getString(R.string.tileset_finished_downloading_msg);
-                    sysMessage.makeText(activity, finishedDownloading + " " + fileNameStr + "!", Toast.LENGTH_SHORT).show();
+                    sysMessage.makeText(activity, finishedDownloading + " " + fileNameStrNoExt + "!", Toast.LENGTH_SHORT).show();
 
                     showSysMessage[1] = false;
                 }

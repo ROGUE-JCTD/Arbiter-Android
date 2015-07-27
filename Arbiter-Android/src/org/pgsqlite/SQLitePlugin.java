@@ -13,6 +13,8 @@ import org.json.JSONObject;
 import java.io.File;
 import java.lang.Number;
 import java.util.HashMap;
+import java.util.Collection;
+import java.util.Iterator;
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
@@ -65,6 +67,20 @@ public class SQLitePlugin extends CordovaPlugin
 	/**
 	 * NOTE: Using default constructor, explicit constructor no longer required.
 	 */
+
+	public static void removeDBFromMap(String db) {
+		Collection<SQLiteDatabase> DBValues = dbmap.values();
+		Iterator<SQLiteDatabase> iter = DBValues.iterator();
+		SQLiteDatabase Database = dbmap.get(db);
+
+		while (iter.hasNext()){
+			SQLiteDatabase iter_db = iter.next();
+			if (iter_db.equals(Database)){
+				iter.remove();
+				break;
+			}
+		}
+	}
 
 	/**
 	 * Executes the request and returns PluginResult.
@@ -254,6 +270,11 @@ public class SQLitePlugin extends CordovaPlugin
 			dbmap.put(dbname, ApplicationDatabaseHelper.getHelper(context)
 					.getWritableDatabase());
 		} else if (dbname.endsWith(".mbtiles")) {
+			// Reset Helper in case there is a new MBTiles coming in
+			MBTilesDatabaseHelper DBHelper = MBTilesDatabaseHelper.getHelper(context, null);
+			DBHelper.close();
+
+			// Create a 'new' static helper
 			dbmap.put(dbname, MBTilesDatabaseHelper.getHelper(context, dbname)
 					.getWritableDatabase());
 		} else {

@@ -13,6 +13,7 @@ import com.lmn.Arbiter_Android.DatabaseHelpers.FileDownloader.FileDownloader;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseBaseLayer.ChooseBaselayerDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.TilesetsDialog;
 import com.lmn.Arbiter_Android.Loaders.TilesetsListLoader;
+import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 import com.lmn.Arbiter_Android.R;
 
 import android.app.Activity;
@@ -28,12 +29,14 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
+import org.pgsqlite.SQLitePlugin;
+
 public class TilesetsHelper {
     public static final String TABLE_NAME = "tilesets";
     public static final String TILESET_NAME = "tileset_name";
     public static final String TIME_CREATED = "time_created";
     public static final String CREATED_BY = "created_by";
-    public static final String FILESIZE = "filesize";
+    public static final String FILESIZE = "file_size";
     public static final String BOUNDS = "bounds";
     public static final String LAYER_NAME = "layer_name";
     public static final String LAYER_ZOOM_START = "layer_zoom_start";
@@ -49,7 +52,6 @@ public class TilesetsHelper {
     public static final String FILE_LOCATION = "file_location";
     public static final String IS_DOWNLOADING = "is_downloading";
 
-    public static final String TILESET_DOWNLOAD_LOCATION = "/Arbiter/TileSets/";
     public static final String TILESET_EXT = ".mbtiles";
 
     private ArrayList<Tileset> tilesetsInProject;
@@ -87,7 +89,7 @@ public class TilesetsHelper {
                 tileset.setDownloadProgress(0);
 
                 URL = tileset.getDownloadURL();
-                output = TILESET_DOWNLOAD_LOCATION;
+                output = ProjectStructure.getTileSetsRoot();
                 output += tileset.getTilesetName() + TILESET_EXT;
 
                 new FileDownloader(URL, output, (FragmentActivity) activity, tileset,
@@ -174,13 +176,14 @@ public class TilesetsHelper {
             tileset.setIsDownloading(false);
 
             // Delete downloaded file
-            String envPath = Environment.getExternalStorageDirectory().toString();
-            String Location = TILESET_DOWNLOAD_LOCATION;
+            String Location = ProjectStructure.getTileSetsRoot();
             Location += tileset.getTilesetName() + TILESET_EXT;
-            envPath += Location;
-            File file = new File(envPath);
+            File file = new File(Location);
             if (file.exists())
                 file.delete();
+
+            // Remove from list of Tilesets
+            SQLitePlugin.removeDBFromMap(tileset.getTilesetName() + TILESET_EXT);
 
             appDb.setTransactionSuccessful();
 
@@ -685,6 +688,5 @@ public class TilesetsHelper {
 
     public ArrayList<Tileset> getTilesetsInProject() { return tilesetsInProject; }
 
-    public String getTilesetDownloadLocation() { return TILESET_DOWNLOAD_LOCATION; }
     public String getTilesetDownloadExtension() { return TILESET_EXT; }
 }

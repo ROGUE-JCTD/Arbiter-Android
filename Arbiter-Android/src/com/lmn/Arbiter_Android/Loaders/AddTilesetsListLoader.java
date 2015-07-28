@@ -63,17 +63,6 @@ public class AddTilesetsListLoader extends AsyncTaskLoader<ArrayList<Tileset>> {
 			}
 
 			connectedOK = true;
-
-			// Nothing was returned
-			if (_tilesets == null && server != null) {
-				final String serverName = server.getName();
-				activity.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						TilesetsHelper.getTilesetsHelper().noTilesetsAvailableDialog(activity, serverName);
-					}
-				});
-			}
 		} catch (NullPointerException e) {
 			connectedOK = false;
 		}finally{

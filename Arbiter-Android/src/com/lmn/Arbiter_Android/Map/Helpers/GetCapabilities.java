@@ -200,6 +200,17 @@ public class GetCapabilities {
 				//removeDuplicateTilesets(tilesets, tilesetsInProject);
 
 				Collections.sort(tilesets, new CompareAddTilesetsListItems());
+
+				if (tilesets.size() <= 0){
+					// Nothing was returned
+					final String serverName = server.getName();
+					activity.runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							TilesetsHelper.getTilesetsHelper().serverNoTilesetsResponseDialog(activity, serverName);
+						}
+					});
+				}
 			}
 
 			return (ArrayList<Tileset>) tilesets;

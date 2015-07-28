@@ -146,7 +146,7 @@
     <string name="tileset_info_time_created">Time Created: </string>
     <string name="tileset_info_created_by">Created By: </string>
     <string name="tileset_info_filesize">Filesize: </string>
-    <string name="tileset_info_server">Server: </string>
+    <string name="tileset_info_layer_name">Layer Name: </string>
     <string name="tileset_info_status">Status: </string>
     <string name="tileset_info_resource_uri">Resource URI: </string>
     <string name="tileset_info_service_type">Service Type: </string>
@@ -170,9 +170,8 @@
     <string name="not_enough_space_msg1">You do not have enough free space to download</string>
     <string name="not_enough_space_msg2">Consider freeing up space and trying again.</string>
     <string name="no_available_tileset_title">Error Retrieving Tilesets</string>
-    <string name="no_available_tileset_msg">did not return any tilesets. Please check your connection or the server information and try again.</string>
+    <string name="no_available_tileset_msg">was found, but did not return any valid tilesets. Please make sure Tilesets have been correctly generated.</string>
     <string name="tileset_download_error_msg">The file was not downloaded. The download link was invalid or the current network connection is unavailable.</string>
-    <string name="no_tilesets_returned_msg">was found, but did not return any tilesets. Please make sure the server has valid Tilesets.</string>
     <string name="tileset_zero_filesize">has a filesize of 0. Please make sure the tileset was generated correctly.</string>
     <string name="tileset_new_project_msg_downloaded">Tilesets currently downloaded: </string>
     <string name="tileset_new_project_msg_confirmation">\n\nTo ensure that this project can have a background map while there is no Internet connectivity,

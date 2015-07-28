@@ -212,7 +212,6 @@ public class TilesetsHelper {
                     + " WHERE " + TILESET_NAME + "=" + "\"" + tileset.getTilesetName() + "\"";
             Cursor inDbCheck = db.rawQuery(testIfInDb, null);
 
-            //TODO: This might be checking if the name is the same twice..?
             boolean foundCopy = false;
             if (inDbCheck.moveToFirst()) {
                 for (int j = 0; j < inDbCheck.getCount(); j++) {
@@ -383,20 +382,6 @@ public class TilesetsHelper {
         builder.setTitle(title);
         builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
         builder.setMessage(message1 + " " + tilesetName + ". " + message2);
-        builder.setPositiveButton(R.string.back, null);
-
-        builder.create().show();
-    }
-
-    public void noTilesetsAvailableDialog(Activity activity, String nameOfServer){
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-
-        String title = activity.getResources().getString(R.string.error);
-        String message = activity.getResources().getString(R.string.no_tilesets_returned_msg);
-
-        builder.setTitle(title);
-        builder.setIcon(activity.getResources().getDrawable(R.drawable.icon));
-        builder.setMessage(nameOfServer + " " + message);
         builder.setPositiveButton(R.string.back, null);
 
         builder.create().show();

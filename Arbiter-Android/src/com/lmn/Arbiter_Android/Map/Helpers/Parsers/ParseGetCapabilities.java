@@ -183,14 +183,6 @@ public class ParseGetCapabilities {
 				tilesets.add(tileset);
 			}
 
-		} else {
-			final String serverName = server.getName();
-			activity.runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					TilesetsHelper.getTilesetsHelper().serverNoTilesetsResponseDialog(activity, serverName);
-				}
-			});
 		}
 
 		return tilesets;

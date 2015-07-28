@@ -31,9 +31,9 @@ Arbiter.TileUtil = function(_projectDb, _map){
 				mbTilesDb = sqlitePlugin.openDatabase(currentDatabase);
 				Arbiter.SQLiteTransactionManager.push(mbTilesDb);
 			} else if (urlString.startsWith("http")){
-				// Use URL
+				// Use URL - taken care of in GetURL
 			} else {
-				// Use OpenStreetMap
+				// Use OpenStreetMap - also taken care of
 			}
 		}
 

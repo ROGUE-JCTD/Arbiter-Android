@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+	android:background="@drawable/list_selector"
+   	android:clickable="false">
+
+
+   	
+    <RelativeLayout
+        android:id="@+id/tilesetNameContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="0dp">
+        
+        <!-- Tileset name-->
+	    <TextView
+	        android:id="@+id/tilesetName"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="5dip"
+	        android:text="@string/tileset_name"
+	        android:textColor="#040404"
+			android:paddingLeft="10dp"
+			android:paddingRight="10dp"
+	        android:typeface="sans"
+	        android:textSize="14sp"
+	        android:textStyle="bold"/>
+	    
+	    <!-- Server name -->
+	    <TextView
+	        android:id="@+id/serverName"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/tilesetName"
+			android:paddingLeft="10dp"
+			android:paddingRight="10dp"
+	        android:textColor="#343434"
+	        android:textSize="12sp"
+	        android:layout_marginTop="1dip"
+	        android:text="@string/server_name_hint" />
+
+		<!-- Filesize -->
+		<TextView
+			android:id="@+id/tilesetFilesize"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:layout_centerVertical="true"
+			android:paddingLeft="60dp"
+			android:paddingRight="15dp"
+			android:paddingBottom="10dp"
+			android:textColor="#222222"
+			android:textSize="12sp"
+			android:text="@string/tileset_filesize"/>
+    </RelativeLayout>
+	
+   
+    <!--  ListRow Left side ToggleButton -->
+
+    <ImageButton
+        android:id="@+id/download_tileset_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+		android:width="20dp"
+		android:src="@drawable/ic_action_refresh"
+		android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="20dip" />
+
+
+</RelativeLayout>

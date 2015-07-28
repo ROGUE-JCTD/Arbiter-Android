@@ -83,9 +83,9 @@ public class ArbiterCordova extends CordovaPlugin{
 		if("setProjectsAOI".equals(action)){
 			
 			String aoi = args.getString(0);
-			String tileCount = args.getString(1);
+			//String tileCount = args.getString(1);
 			
-			setProjectsAOI(aoi, tileCount);
+			setProjectsAOI(aoi);
 			
 			return true;
 		}else if("invalidGeometriesEntered".equals(action)){
@@ -1245,14 +1245,11 @@ public class ArbiterCordova extends CordovaPlugin{
 		cordova.getActivity().finish();
 	}
 	
-	private void showAOIConfirmationDialog(final String aoi, final String count){
+	private void showAOIConfirmationDialog(final String aoi){
 		final Activity activity = cordova.getActivity();
 		
 		String message = activity.getResources()
 				.getString(R.string.update_aoi_alert_msg);
-		
-		message += "\n\n" + activity.getResources().getString(
-				R.string.tile_cache_warning) + " " + count;
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 		
@@ -1290,12 +1287,12 @@ public class ArbiterCordova extends CordovaPlugin{
 	/**
 	 * Set the ArbiterProject Singleton's newProject aoi, commit the project, and return to the map
 	 */
-	private void setProjectsAOI(final String aoi, final String count){
+	private void setProjectsAOI(final String aoi){
 		cordova.getActivity().runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
-				
-				showAOIConfirmationDialog(aoi, count);
+
+				showAOIConfirmationDialog(aoi);
 			}
 		});
 	} 

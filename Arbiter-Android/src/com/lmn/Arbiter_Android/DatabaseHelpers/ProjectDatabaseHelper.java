@@ -51,7 +51,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		LayersHelper.getLayersHelper().createTable(db);
 		PreferencesHelper.getHelper().createTable(db);
-		TileIdsHelper.getHelper().createTable(db);
 		FailedSync.getHelper().createTable(db);
 		
 		(new SyncTableHelper(db)).createTable();

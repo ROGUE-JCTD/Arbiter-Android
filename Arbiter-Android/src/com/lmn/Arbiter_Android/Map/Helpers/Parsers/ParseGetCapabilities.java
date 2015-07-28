@@ -8,8 +8,13 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import org.json.*;
+import android.app.Activity;
+
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
+import com.lmn.Arbiter_Android.BaseClasses.Tileset;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesetsHelper;
 
 public class ParseGetCapabilities {
 	private static final String LAYER_TAG = "Layer";
@@ -133,5 +138,53 @@ public class ParseGetCapabilities {
 		}
 		
 		return layers;
+	}
+
+	public ArrayList<Tileset> parseGetCapabilitiesTileset(Server server, BufferedReader reader, final Activity activity) throws JSONException, IOException{
+
+		String finalJSON = "";
+
+		try {
+			StringBuilder sb = new StringBuilder();
+			String line = reader.readLine();
+			while (line != null) {
+				sb.append(line);
+				line = reader.readLine();
+			}
+			finalJSON = sb.toString();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+
+		ArrayList<Tileset> tilesets = new ArrayList<Tileset>();
+
+		if (!finalJSON.equals("")) {
+
+			// Tilesets from JSON file
+			JSONObject jObj = new JSONObject(finalJSON.substring(finalJSON.indexOf("{"), finalJSON.lastIndexOf("}") + 1));
+			JSONArray jArr = jObj.getJSONArray("objects");
+			for (int i = 0; i < jArr.length(); ++i) {
+				JSONObject obj = jArr.getJSONObject(i);
+
+				String[] thisUrl = server.getUrl().split("/");
+				String downloadURL = "http://" + thisUrl[2] + "/api/tileset/" + Integer.toString(obj.getInt("id")) + "/download/";
+				double filesize = 0;
+				String fileLocation = "willBeSetLater";
+
+				if (obj.has("file_size")){
+					filesize = obj.getDouble("file_size");
+				}
+
+				Tileset tileset = new Tileset(obj.getString("name"), obj.getString("created_at"), obj.getString("created_by"),
+						filesize, obj.getString("geom"), obj.getString("layer_name"), obj.getInt("layer_zoom_start"),
+						obj.getInt("layer_zoom_stop"), obj.getString("resource_uri"), obj.getString("server_service_type"), downloadURL,
+						obj.getInt("id"), obj.getString("server_url"), obj.getString("server_username"), fileLocation);
+
+				tilesets.add(tileset);
+			}
+
+		}
+
+		return tilesets;
 	}
 }

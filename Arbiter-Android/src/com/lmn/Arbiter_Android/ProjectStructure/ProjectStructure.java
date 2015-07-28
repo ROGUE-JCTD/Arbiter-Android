@@ -185,19 +185,7 @@ public class ProjectStructure {
 	}
 	
 	public static String getTileSetsRoot(){
-		return getApplicationRoot() + File.separator + TILESETS_PATH;
-	}
-	
-	public static String getTileDir(String serverId, String featureType){
-		String path = getTileSetsRoot() + File.separator + serverId;
-		
-		String[] parts = featureType.split(":");
-		
-		for(int i = 0; i < parts.length; i++){
-			path += File.separator + parts[i];
-		}
-		
-		return path;
+		return getApplicationRoot() + File.separator + TILESETS_PATH + File.separator;
 	}
 	
 	public static String getProjectPath(String projectName){

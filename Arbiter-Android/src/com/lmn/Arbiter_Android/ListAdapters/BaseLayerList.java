@@ -4,6 +4,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.lmn.Arbiter_Android.BaseClasses.Tileset;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesetsHelper;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.BaseClasses.BaseLayer;
@@ -18,6 +21,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 
 public class BaseLayerList extends CustomList<JSONArray, JSONObject> {
 
@@ -84,7 +89,9 @@ public class BaseLayerList extends CustomList<JSONArray, JSONObject> {
             }
             
             if(serverNameView != null){
-            	serverNameView.setText(layer.getName());
+				// TODO: This will always be OpenStreetMap..
+				//serverNameView.setText(layer.getServerName());
+				serverNameView.setText("");
             }
 		
 			view.setOnClickListener(new OnClickListener(){
@@ -97,7 +104,7 @@ public class BaseLayerList extends CustomList<JSONArray, JSONObject> {
 					String title = activity.getResources().getString(R.string.choose_baselayer);
 					String ok = activity.getResources().getString(android.R.string.ok);
 					String cancel = activity.getResources().getString(android.R.string.cancel);
-					
+
 					ChooseBaselayerDialog dialog = ChooseBaselayerDialog.newInstance(title,
 							ok, cancel, R.layout.choose_baselayer_dialog, false, layer, connectivityListener, hasThreadPool);
 					dialog.show(activity.getSupportFragmentManager(), ChooseBaselayerDialog.TAG);

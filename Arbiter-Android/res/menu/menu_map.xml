@@ -21,13 +21,18 @@
         android:id="@+id/action_projects"
         android:showAsAction="never"
         android:title="@string/action_projects"/>
+
+    <item
+        android:id="@+id/action_tilesets"
+        android:showAsAction="never"
+        android:title="@string/action_tilesets"/>
     
     <item
         android:id="@+id/action_aoi"
         android:showAsAction="never"
         android:title="@string/action_aoi"/>
     
-        <item
+    <item
         android:id="@+id/action_settings"
         android:showAsAction="never"
         android:title="@string/settings"/>

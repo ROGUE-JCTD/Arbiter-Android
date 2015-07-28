@@ -17,6 +17,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 
 import com.lmn.Arbiter_Android.ArbiterProject;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesetsHelper;
 import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Util;
 import com.lmn.Arbiter_Android.Activities.HasThreadPool;
@@ -213,17 +214,9 @@ public class AddLayersDialog extends ArbiterDialogFragment{
 			
 			//Intent projectsIntent = new Intent(getActivity(), AOIActivity.class);
     		//this.startActivity(projectsIntent);
-			
-			FragmentActivity activity = getActivity();
-			
-			String title = activity.getResources().getString(R.string.choose_baselayer);
-			String ok = activity.getResources().getString(android.R.string.ok);
-			String cancel = activity.getResources().getString(android.R.string.cancel);
-			
-			ChooseBaselayerDialog dialog = ChooseBaselayerDialog.newInstance(title, ok, cancel, R.layout.choose_baselayer_dialog,
-					creatingProject, BaseLayer.createOSMBaseLayer(), connectivityListener, hasThreadPool);
-			
-			dialog.show(activity.getSupportFragmentManager(), ChooseBaselayerDialog.TAG);
+
+			TilesetsHelper.getTilesetsHelper().newProjectTilesetsDialog(getActivity(), creatingProject,
+					connectivityListener, hasThreadPool);
 			
 			dismiss();
 		}

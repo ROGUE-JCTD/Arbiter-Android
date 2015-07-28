@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="15dp" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp">
+
+        <TextView
+            android:id="@+id/tileset_info_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tileset_info_name"/>
+
+        <TextView
+            android:id="@+id/tileset_info_time_created"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_name"
+            android:paddingTop="5dp"
+            android:text="@string/tileset_info_time_created"/>
+
+        <TextView
+            android:id="@+id/tileset_info_created_by"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_time_created"
+            android:paddingTop="5dp"
+            android:text="@string/tileset_info_created_by"/>
+
+        <TextView
+            android:id="@+id/tileset_info_filesize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_created_by"
+            android:paddingTop="5dp"
+            android:text="@string/tileset_info_filesize"/>
+
+        <!--
+        <TextView
+            android:id="@+id/tileset_info_resourceURI"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_filesize"
+            android:paddingTop="5dp"
+            android:text="@string/tileset_info_resource_uri"/>
+
+        <TextView
+            android:id="@+id/tileset_info_service_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_resourceURI"
+            android:paddingTop="5dp"
+            android:text="@string/tileset_info_service_type"/>
+
+        <TextView
+            android:id="@+id/tileset_info_download_url"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_service_type"
+            android:paddingTop="5dp"
+            android:text="@string/tileset_info_download_url"/>
+
+        <TextView
+            android:id="@+id/tileset_info_server_url"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_download_url"
+            android:paddingTop="5dp"
+            android:text="@string/tileset_info_server_url"/>
+
+        <TextView
+            android:id="@+id/tileset_info_server_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_server_url"
+            android:paddingTop="5dp"
+            android:text="@string/tileset_info_server_username"/>
+
+        <TextView
+            android:id="@+id/tileset_info_server_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_server_username"
+            android:paddingTop="5dp"
+            android:text="@string/tileset_info_server_id"/>
+        -->
+
+        <TextView
+            android:id="@+id/tileset_info_layer_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tileset_info_filesize"
+            android:paddingTop="5dp"
+            android:text="@string/tileset_info_layer_name"/>
+
+
+        <TextView
+            android:id="@+id/tileset_info_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/tileset_info_layer_name"
+            android:paddingTop="20dp"
+            android:text="@string/tileset_info_status"/>
+    </RelativeLayout>
+
+    
+</LinearLayout>

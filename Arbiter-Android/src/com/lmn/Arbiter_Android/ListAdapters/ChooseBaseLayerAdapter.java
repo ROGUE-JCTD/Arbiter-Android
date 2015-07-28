@@ -85,33 +85,28 @@ public class ChooseBaseLayerAdapter extends BaseAdapter implements ArbiterAdapte
             TextView layerNameView = (TextView) view.findViewById(R.id.layerName);
             TextView serverNameView = (TextView) view.findViewById(R.id.serverName);
             
-            String layerName = null;
-            String serverName = null;
-            String serverId = null;
-            String featureType = null;
-            String layerTitle = layer.getLayerTitle();
-            
-            Log.w("ChooseBAseLayerADapter", "ChooseBaseLayerAdapter name = " + layer.getLayerTitle());
-            
-        	if(layerTitle == null || (layerTitle != null && layerTitle.equals("OpenStreetMap"))){
+            String layerName = layer.getLayerTitle();
+            String serverName = layer.getServerName();
+            String serverId = Integer.toString(layer.getServerId());
+            String featureType = layer.getFeatureType();
+			String serverOrigin = layer.getServerOrigin();
+            //String layerTitle = null;
+
+			// If OpenStreetMap, default
+        	if(layerName == null || (layerName != null && layerName.equals("OpenStreetMap"))){
         		layerName = "OpenStreetMap";
         		serverName ="OpenStreetMap";
         		serverId = "OpenStreetMap";
         		featureType = "";
-        	}else{
-        		layerName = layerTitle;
-        		serverName = layer.getServerName();
-        		serverId = Integer.toString(layer.getServerId());
-        		featureType = layer.getFeatureType();
         	}
         	
         	layerNameView.setText(layerName);
-        	serverNameView.setText(serverName);
+        	serverNameView.setText(serverOrigin);
         	
         	Log.w("ChooseBaseLayer", "ChooseBaseLayer layername = " + layerName + ", url = " 
         			+ layer.getServerUrl() + ", server name = " + serverName + ", serverId = " 
         			+ serverId + ", featureType = " + featureType);
-        	final BaseLayer baseLayer = new BaseLayer(layerName, layer.getServerUrl(), serverName, serverId, featureType);
+        	final BaseLayer baseLayer = new BaseLayer(layerName, layer.getServerUrl(), serverName, serverOrigin, featureType);
 		
 			view.setOnClickListener(new OnClickListener(){
 				@Override
@@ -129,40 +124,19 @@ public class ChooseBaseLayerAdapter extends BaseAdapter implements ArbiterAdapte
 						}
 					};
 					
-					String selectedFeatureType = selectedBaseLayer.getFeatureType(); // null
-					String featureType = baseLayer.getFeatureType(); // null
+					String selectedName = selectedBaseLayer.getName(); // null
+					String Name = baseLayer.getName(); // null
 					
-					if(selectedFeatureType == null){
-						selectedFeatureType = "null";
+					if(selectedName == null){
+						selectedName = "null";
 					}
 					
-					if(featureType == null){
-						featureType = "null";
+					if(Name == null){
+						Name = "null";
 					}
 					
-					if(selectedFeatureType != featureType && !selectedFeatureType.equals(featureType)){
-						
-						if(creatingProject){
-							changeBaseLayer.run();
-						}else{
-							AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-							
-							String title = activity.getResources().getString(R.string.warning);
-							String message = activity.getResources().getString(R.string.change_baselayer_warning);
-							
-							builder.setTitle(title);
-							builder.setMessage(message);
-							builder.setNegativeButton(android.R.string.cancel, null);
-							builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener(){
-		
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									changeBaseLayer.run();
-								}
-							});
-							
-							builder.create().show();
-						}
+					if(selectedName != Name && !selectedName.equals(Name)){
+						changeBaseLayer.run();
 					}
 				}
 			});

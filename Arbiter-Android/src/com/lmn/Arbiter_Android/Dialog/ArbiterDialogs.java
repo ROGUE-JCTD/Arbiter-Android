@@ -11,15 +11,20 @@ import com.lmn.Arbiter_Android.R;
 import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Server;
+import com.lmn.Arbiter_Android.BaseClasses.Tileset;
 import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.AddLayersDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.AddServerDialog;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.AddTilesetDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ChooseAOIDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.GoOfflineDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.LayersDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ProjectNameDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.ServersDialog;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.TilesetsDialog;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.TilesetInfoDialog;
 import com.lmn.Arbiter_Android.Dialog.Dialogs.WelcomeDialog;
+import com.lmn.Arbiter_Android.Dialog.Dialogs.DownloadingTilesetsDialog;
 
 public class ArbiterDialogs {
 	private Resources resources;
@@ -70,7 +75,7 @@ public class ArbiterDialogs {
 		String ok = resources.getString(android.R.string.ok);
 		String cancel = resources.getString(android.R.string.cancel);
 		int layout = R.layout.add_server_dialog;
-		
+
 		DialogFragment dialog = AddServerDialog.newInstance(title, ok, cancel, layout, server);
 		dialog.show(fragManager, "addServerDialog");
 	}
@@ -83,6 +88,34 @@ public class ArbiterDialogs {
 		
 		DialogFragment dialog = ServersDialog.newInstance(title, ok, cancel, layout);
 		dialog.show(fragManager, "serversDialog");
+	}
+
+	public void showAddTilesetDialog(boolean newProject, ConnectivityListener connectivityListener){
+		String title = resources.getString(R.string.add_tileset_dialog_title);
+		String done = resources.getString(R.string.done);
+		int layout = R.layout.add_tileset_dialog;
+
+		DialogFragment dialog = AddTilesetDialog.newInstance(title, done, layout, connectivityListener, newProject);;
+		dialog.show(fragManager, "addTilesetDialog");
+	}
+
+	public void showTilesetsDialog(){
+		String title = resources.getString(R.string.tileset_dialog_title);
+		String done = resources.getString(R.string.done);
+		int layout = R.layout.tilesets_dialog;
+
+		DialogFragment dialog = TilesetsDialog.newInstance(title, done, layout, false, null, null);;
+		dialog.show(fragManager, "tilesetDialog");
+	}
+
+	public void showTilesetInfoDialog(Tileset tileset){
+		String title = resources.getString(R.string.tileset_info_title);
+		String back = resources.getString(android.R.string.ok);
+		String stop = resources.getString(R.string.stop);
+		int layout = R.layout.tileset_info_dialog;
+
+		DialogFragment dialog = TilesetInfoDialog.newInstance(title, back, stop, layout, tileset);
+		dialog.show(fragManager, "tilesetInfoDialog");
 	}
 	
 	public void showAddLayersDialog(ArrayList<Layer> layersInProject, ConnectivityListener connectivityListener, HasThreadPool hasThreadPool){
@@ -131,6 +164,17 @@ public class ArbiterDialogs {
 		
 		DialogFragment dialog = ChooseAOIDialog.newInstance(title, ok, cancel, layout);
 		dialog.show(fragManager, "chooseAOIDialog");
+	}
+
+	public DialogFragment showDownloadingTilesetDialog(String tilesetName){
+		String title = "Preparing Tileset";
+		String cancel = resources.getString(android.R.string.cancel);
+		int layout = R.layout.downloading_tileset_dialog;
+
+		DialogFragment dialog = DownloadingTilesetsDialog.newInstance(title, cancel, layout, tilesetName);
+		dialog.show(fragManager, "downloadingTilesetDialog");
+
+		return dialog;
 	}
 	
 	public void showLayersDialog(HasThreadPool hasThreadPool){

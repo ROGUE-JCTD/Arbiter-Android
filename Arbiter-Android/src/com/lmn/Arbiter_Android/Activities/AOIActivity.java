@@ -183,12 +183,14 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface,
     @Override
     public void confirmTileCount(final String count){
     	final AOIActivity activity = this;
-    	
+
     	this.runOnUiThread(new Runnable(){
     		@Override
     		public void run(){
-    			
-    			AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+
+				Map.getMap().setNewProjectsAOI(cordovaWebView);
+
+    			/*AlertDialog.Builder builder = new AlertDialog.Builder(activity);
     			
     			builder.setIcon(R.drawable.icon);
     			builder.setTitle(R.string.warning);
@@ -208,7 +210,7 @@ public class AOIActivity extends FragmentActivity implements CordovaInterface,
 	        			Map.getMap().setNewProjectsAOI(cordovaWebView);
 					}
     			});
-    			builder.create().show();
+    			builder.create().show();*/
     		}
     	});
     }

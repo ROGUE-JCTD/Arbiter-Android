@@ -24,11 +24,14 @@ import com.lmn.Arbiter_Android.Activities.HasThreadPool;
 import com.lmn.Arbiter_Android.BaseClasses.BaseLayer;
 import com.lmn.Arbiter_Android.BaseClasses.Layer;
 import com.lmn.Arbiter_Android.BaseClasses.Project;
+import com.lmn.Arbiter_Android.BaseClasses.Tileset;
 import com.lmn.Arbiter_Android.ConnectivityListeners.ConnectivityListener;
 import com.lmn.Arbiter_Android.CookieManager.ArbiterCookieManager;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.PreferencesHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.TableHelpers.TilesetsHelper;
 import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.Dialog.ProgressDialog.SyncProgressDialog;
 import com.lmn.Arbiter_Android.ListAdapters.ChooseBaseLayerAdapter;
@@ -85,7 +88,9 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 				if(frag.connectivityListener != null && frag.connectivityListener.isConnected()){
 					frag.onPositiveClick();
 				}else{
-					Util.showNoNetworkDialog(frag.getActivity());
+					frag.onPositiveClick();
+
+					//Util.showNoNetworkDialog(frag.getActivity());
 				}
 			}
 		});
@@ -136,18 +141,18 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 				return;
 			}
 			
-			String selectedFeatureType = baseLayer.getFeatureType();
-			String featureType = startingBaseLayer.getFeatureType();
+			String selectedName = baseLayer.getName();
+			String Name = startingBaseLayer.getName();
 			
-			if(selectedFeatureType == null){
-				selectedFeatureType = "null";
+			if(selectedName == null){
+				selectedName = "null";
 			}
 			
-			if(featureType == null){
-				featureType = "null";
+			if(Name == null){
+				Name = "null";
 			}
 			
-			if(selectedFeatureType != featureType && !selectedFeatureType.equals(featureType)){
+			if(selectedName != Name && !selectedName.equals(Name)){
 				final String projectName = arbiterProject.getOpenProject(activity);
 				
 				String title = context.getResources().getString(R.string.loading);
@@ -259,6 +264,15 @@ public class ChooseBaselayerDialog extends ArbiterDialogFragment implements Base
 			BaseLayer baseLayer = BaseLayer.createOSMBaseLayer();
 			
 			deepCopy.add(new Layer(baseLayer));
+
+			ArrayList<Tileset> tilesets = TilesetsHelper.getTilesetsHelper().getAll(
+					ApplicationDatabaseHelper.getHelper(
+							getActivity().getApplicationContext()).getWritableDatabase());
+			for (int i = 0; i < tilesets.size(); i++){
+				if (tilesets.get(i).getFilesize() > 0) {
+					deepCopy.add(new Layer(tilesets.get(i).toBaseLayer()));
+				}
+			}
 			
 			this.layersAdapter.setData(deepCopy);
 		}

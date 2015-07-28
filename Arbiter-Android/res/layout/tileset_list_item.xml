@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="false"
+    android:clickable="false" >
+	
+	<RelativeLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="56dip"
+	    android:background="@drawable/list_selector"
+   		android:focusable="false"
+    	android:clickable="false">
+
+	    
+	    <!-- Server name -->
+
+	    <TextView
+	        android:id="@+id/tilesetName"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_centerVertical="true"
+	        android:layout_marginLeft="8dp"
+			android:layout_marginStart="8dp"
+	        android:text="@string/tileset_list_names"
+	        android:textColor="#040404"
+	        android:textSize="18sp"
+	        android:textStyle="bold"
+	        android:typeface="sans"
+	        android:focusable="false"
+    		android:clickable="false" />
+
+		<ProgressBar
+			android:id="@+id/downloading_tileset_bar"
+			style="@android:style/Widget.ProgressBar.Horizontal"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"
+			android:paddingLeft="5dp"
+			android:paddingRight="5dp"
+			android:layout_alignBottom="@+id/tilesetName" />
+
+		<!-- Remove Tileset button -->
+		<ImageButton
+			android:id="@+id/deleteTileset"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentEnd="true"
+			android:layout_alignParentRight="true"
+			android:layout_centerVertical="true"
+			android:paddingTop="5dp"
+			android:paddingBottom="5dp"
+			android:paddingLeft="6dp"
+			android:paddingRight="7dp"
+			android:paddingEnd="7dp"
+			android:src="@drawable/ic_action_delete"
+			android:contentDescription="@string/remove_tileset"
+			android:focusable="false"
+			android:clickable="false"/>
+
+	</RelativeLayout>
+
+    
+</RelativeLayout>

@@ -9,9 +9,9 @@ import org.apache.http.params.HttpParams;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
+import android.text.TextWatcher;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.Selection;
@@ -36,7 +36,7 @@ import com.lmn.Arbiter_Android.Dialog.ArbiterDialogFragment;
 import com.lmn.Arbiter_Android.ListAdapters.ServerTypesAdapter;
 import com.lmn.Arbiter_Android.Map.Map;
 
-public class AddServerDialog extends ArbiterDialogFragment{
+public class AddServerDialog extends ArbiterDialogFragment {
 	private Server server;
 	private Spinner serverTypeSpinner;
 	private EditText nameField;
@@ -72,31 +72,31 @@ public class AddServerDialog extends ArbiterDialogFragment{
 			@Override
 			public void run() {
 				Context context = getActivity().getApplicationContext();
-				
-				ApplicationDatabaseHelper helper = 
+
+				ApplicationDatabaseHelper helper =
 						ApplicationDatabaseHelper.getHelper(context);
-				
+
 				boolean insert = false;
-				
+
 				if(server == null){
 					insert = true;
 					server = new Server();
 				}
-				
+
 				setServer(server);
-				
+
 				if(!insert){
 					updateServer(helper, context, server);
 				}else{
 					insertServer(helper, context, server);
 				}
-				
+
 				getActivity().runOnUiThread(new Runnable(){
 					@Override
 					public void run(){
-						
+
 						dismiss();
-						
+
 						if(progressDialog != null){
 							progressDialog.dismiss();
 						}
@@ -199,22 +199,22 @@ public class AddServerDialog extends ArbiterDialogFragment{
         final Activity activity = getActivity();
         final Context context = activity.getApplicationContext();
 
-        activity.runOnUiThread(new Runnable(){
-            @Override
-            public void run(){
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        activity.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
-                builder.setTitle(context.getResources().getString(R.string.error));
-                builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
-                builder.setMessage(msg);
+				builder.setTitle(context.getResources().getString(R.string.error));
+				builder.setIcon(context.getResources().getDrawable(R.drawable.icon));
+				builder.setMessage(msg);
 
-                builder.create().show();
+				builder.create().show();
 
-                if(progressDialog != null){
-                    progressDialog.dismiss();
-                }
-            }
-        });
+				if (progressDialog != null) {
+					progressDialog.dismiss();
+				}
+			}
+		});
     }
 
 	@Override
@@ -314,28 +314,28 @@ public class AddServerDialog extends ArbiterDialogFragment{
 	private void updateServer(final ApplicationDatabaseHelper helper, final Context context, final Server server){
 		final FragmentActivity activity = this.getActivity();
 		
-		ServersHelper.getServersHelper().updateAlert(activity, new Runnable(){
+		ServersHelper.getServersHelper().updateAlert(activity, new Runnable() {
 
 			@Override
 			public void run() {
-				CommandExecutor.runProcess(new Runnable(){
+				CommandExecutor.runProcess(new Runnable() {
 					@Override
 					public void run() {
 						ServersHelper.getServersHelper().update(helper.getWritableDatabase(),
 								context, server);
-						
-						activity.runOnUiThread(new Runnable(){
+
+						activity.runOnUiThread(new Runnable() {
 							@Override
-							public void run(){
-								try{
+							public void run() {
+								try {
 									((Map.MapChangeListener) activity).getMapChangeHelper().onServerUpdated();
-								}catch(ClassCastException e){
+								} catch (ClassCastException e) {
 									e.printStackTrace();
 								}
 							}
 						});
 					}
-					
+
 				});
 			}
 		});
@@ -356,24 +356,24 @@ public class AddServerDialog extends ArbiterDialogFragment{
 		this.usernameField = (EditText) view.findViewById(R.id.server_username);
 		this.passwordField = (EditText) view.findViewById(R.id.server_password);
 		this.showPassword = (CheckBox) view.findViewById(R.id.server_show_password);
-		
+
 		this.serverTypeAdapter = new ServerTypesAdapter(getActivity());
 		
 		this.serverTypeSpinner.setAdapter(this.serverTypeAdapter);
 		
-		this.serverTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener(){
+		this.serverTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view,
-					int position, long id) {
+									   int position, long id) {
 				// TODO Auto-generated method stub
-				
+
 				String type = serverTypeAdapter.getItem(position);
-				
-				if(type.equals(ServerTypesAdapter.Types.WMS)){
-					
+
+				if (type.equals(ServerTypesAdapter.Types.WMS)) {
+
 					urlField.setHint(ServerTypesAdapter.Hints.WMS);
-				}else{
+				} else {
 					urlField.setHint(ServerTypesAdapter.Hints.TMS);
 				}
 			}
@@ -381,15 +381,16 @@ public class AddServerDialog extends ArbiterDialogFragment{
 			@Override
 			public void onNothingSelected(AdapterView<?> parent) {
 				// TODO Auto-generated method stub
-				
+
 			}
 		});
-		
+
+		this.showPassword.setEnabled(false);
 		this.showPassword.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View arg0) {
-				if(showPassword.isChecked()) {
+				if (showPassword.isChecked()) {
 					passwordField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
 				} else {
 					passwordField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -398,11 +399,36 @@ public class AddServerDialog extends ArbiterDialogFragment{
 				Editable etext = passwordField.getText();
 				Selection.setSelection(etext, position);
 			}
-			
+
+		});
+
+		this.passwordField.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void afterTextChanged(Editable s) {
+
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+										  int after) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+									  int count) {
+				if (passwordField.length() > 0)
+					showPassword.setEnabled(true);
+				else
+					showPassword.setEnabled(false);
+			}
 		});
 		
 		if(server != null){
 			setFields(server);
 		}
 	}
+
+
 }

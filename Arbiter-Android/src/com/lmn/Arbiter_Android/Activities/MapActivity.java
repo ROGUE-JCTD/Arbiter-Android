@@ -368,6 +368,10 @@ public class MapActivity extends FragmentActivity implements CordovaInterface,
         		}	
         		
         		return true;
+
+			case R.id.action_tilesets:
+				dialogs.showTilesetsDialog();
+				return true;
         	
         	case R.id.action_aoi:
         		if(makeSureNotEditing()){

@@ -13,6 +13,8 @@ import org.json.JSONObject;
 import java.io.File;
 import java.lang.Number;
 import java.util.HashMap;
+import java.util.Collection;
+import java.util.Iterator;
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
@@ -21,6 +23,7 @@ import com.lmn.Arbiter_Android.ArbiterProject;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ApplicationDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.FeatureDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.ProjectDatabaseHelper;
+import com.lmn.Arbiter_Android.DatabaseHelpers.MBTilesDatabaseHelper;
 import com.lmn.Arbiter_Android.DatabaseHelpers.CommandExecutor.CommandExecutor;
 import com.lmn.Arbiter_Android.ProjectStructure.ProjectStructure;
 
@@ -64,6 +67,20 @@ public class SQLitePlugin extends CordovaPlugin
 	/**
 	 * NOTE: Using default constructor, explicit constructor no longer required.
 	 */
+
+	public static void removeDBFromMap(String db) {
+		Collection<SQLiteDatabase> DBValues = dbmap.values();
+		Iterator<SQLiteDatabase> iter = DBValues.iterator();
+		SQLiteDatabase Database = dbmap.get(db);
+
+		while (iter.hasNext()){
+			SQLiteDatabase iter_db = iter.next();
+			if (iter_db.equals(Database)){
+				iter.remove();
+				break;
+			}
+		}
+	}
 
 	/**
 	 * Executes the request and returns PluginResult.
@@ -208,8 +225,7 @@ public class SQLitePlugin extends CordovaPlugin
 	 *            The database password or null.
 	 *
 	 */
-	private void openDatabase(String dbname, String password)
-	{
+	private void openDatabase(String dbname, String password) {
 		/*if (this.getDatabase(dbname) != null) this.closeDatabase(dbname);
 
 		File dbfile = this.cordova.getActivity().getDatabasePath(dbname + ".db");
@@ -223,7 +239,7 @@ public class SQLitePlugin extends CordovaPlugin
 		SQLiteDatabase mydb = SQLiteDatabase.openOrCreateDatabase(dbfile, null);
 
 		dbmap.put(dbname, mydb);*/
-		
+
 		// //////////////////////////////
 		// kzusy modifications
 		// //////////////////////////////
@@ -252,6 +268,14 @@ public class SQLitePlugin extends CordovaPlugin
 							.getWritableDatabase());
 		} else if (APPLICATION_DATABASE_NAME.equals(dbname)) {
 			dbmap.put(dbname, ApplicationDatabaseHelper.getHelper(context)
+					.getWritableDatabase());
+		} else if (dbname.endsWith(".mbtiles")) {
+			// Reset Helper in case there is a new MBTiles coming in
+			MBTilesDatabaseHelper DBHelper = MBTilesDatabaseHelper.getHelper(context, null);
+			DBHelper.close();
+
+			// Create a 'new' static helper
+			dbmap.put(dbname, MBTilesDatabaseHelper.getHelper(context, dbname)
 					.getWritableDatabase());
 		} else {
 			try {

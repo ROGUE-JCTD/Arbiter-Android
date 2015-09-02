@@ -231,26 +231,29 @@ public class OverlayList extends CustomList<ArrayList<Layer>, Layer> {
 		String loading = activity.getResources().getString(R.string.loading);
 		String pleaseWait = activity.getResources().getString(R.string.please_wait);
 		
-		Log.w("OverlayList", "OverlayerList before progressDialogShow");
+		//Log.w("OverlayList", "OverlayerList before progressDialogShow");
 		
 		final ProgressDialog progressDialog = ProgressDialog.show(activity, loading, pleaseWait, true);
 		
-		Log.w("OverlayList", "OverlayerList after progressDialogShow");
+		//Log.w("OverlayList", "OverlayerList after progressDialogShow");
 		
 		hasThreadPool.getThreadPool().execute(new Runnable(){
 			@Override
 			public void run(){
 				
-				Log.w("OverlayList", "OverlayerList getProjectDatabase");
+				//Log.w("OverlayList", "OverlayerList getProjectDatabase");
 				
 				String projectName = arbiterProject.getOpenProject(activity);
 				
 				FeatureDatabaseHelper helper = FeatureDatabaseHelper.getHelper(context, ProjectStructure.getProjectPath(projectName), false);
 				
 				Log.w("OverlayList", "OverlayerList gettingUnsyncedFeatureCount");
-				
-				final int unsyncedFeatureCount = FeaturesHelper.getHelper().getUnsyncedFeatureCount(helper.getWritableDatabase(), layer.getFeatureTypeNoPrefix());
-				
+
+				int UFC = 0;
+				if (FeaturesHelper.getHelper().isInDatabase(helper.getWritableDatabase(), layer.getLayerTitle()))
+					UFC = FeaturesHelper.getHelper().getUnsyncedFeatureCount(helper.getWritableDatabase(), layer.getFeatureTypeNoPrefix());
+
+				final int unsyncedFeatureCount = UFC;
 				Log.w("OverlayList", "OverlayList unsyncedFeatureCount = " + unsyncedFeatureCount);
 				
 				activity.runOnUiThread(new Runnable(){
@@ -263,7 +266,7 @@ public class OverlayList extends CustomList<ArrayList<Layer>, Layer> {
 						AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 						
 						builder.setTitle(R.string.warning);
-						
+
 						if(unsyncedFeatureCount > 0){
 							builder.setMessage(R.string.confirm_delete_layers_unsynced_features);
 						}else{
@@ -271,17 +274,17 @@ public class OverlayList extends CustomList<ArrayList<Layer>, Layer> {
 						}
 						
 						builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
-							
+
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								deleteLayer(layer);
 							}
 						});
-						
+
 						builder.setNegativeButton(android.R.string.cancel, null);
-						
+
 						builder.create().show();
-						
+
 						progressDialog.dismiss();
 					}
 				});

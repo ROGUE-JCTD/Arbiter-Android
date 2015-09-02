@@ -55,9 +55,11 @@ public class FeaturesHelper{
 		Cursor cursor = db.rawQuery(sql, whereArgs);
 		
 		int count = 0;
-		
-		if(cursor.moveToFirst()){
-			count = cursor.getInt(0);
+
+		if(cursor.getCount() > 0) {
+			if (cursor.moveToFirst()) {
+				count = cursor.getInt(0);
+			}
 		}
 		
 		cursor.close();
@@ -99,6 +101,22 @@ public class FeaturesHelper{
 		cursor.close();
 
 		return new Feature(id, featureType, geometryColumn, attributes);
+	}
+
+	public boolean isInDatabase(SQLiteDatabase db, String layerName){
+		boolean foundFeature = false;
+
+		String testIfInDb = "SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name = \"" + layerName + "\";";
+		Cursor inDbCheck = db.rawQuery(testIfInDb, null);
+
+		if (inDbCheck != null) {
+			if (inDbCheck.getCount() > 0) {
+				foundFeature = true;
+			}
+			inDbCheck.close();
+		}
+
+		return foundFeature;
 	}
 	
 	public Feature getFeatureByFid(SQLiteDatabase db, String fid, String featureType){

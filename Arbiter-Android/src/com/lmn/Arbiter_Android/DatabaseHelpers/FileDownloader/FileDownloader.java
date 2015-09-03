@@ -189,8 +189,8 @@ public class FileDownloader implements OnTaskCompleted{
                 ArrayList<Tileset> tilesets = TilesetsHelper.getTilesetsHelper().getTilesetsInProject();
                 Tileset tileset;
 
-                // Tell app that progress has been updated (every 5% for performance)
-                if (progress[0] % 5 == 0){
+                // Tell app that progress has been updated (every 1% for performance)
+                if (progress[0] % 1 == 0){
                     onUpdate();
 
                     // Find tileset and update progress locally

@@ -37,6 +37,7 @@ public class FileDownloader implements OnTaskCompleted{
     private Runnable updater;
     private Runnable errorRun;
 
+    private long Filesize;
     private String fileNameStr;
     private String fileNameStrNoExt;
     private String outputStr;
@@ -45,12 +46,14 @@ public class FileDownloader implements OnTaskCompleted{
     private String file_url = " ";
 
     private boolean[] showSysMessage;
+    private boolean[] logConsole;
 
     public FileDownloader(String url, String _outputStr, FragmentActivity activity,
                           Tileset tileset, Runnable updater, Runnable runMeAfter, Runnable errorRun) {
         this.file_url = url;
         this.outputStr = _outputStr;
         this.activity = activity;
+        this.Filesize = (long)tileset.getFilesize();
         this.fileNameStr = tileset.getTilesetName() + TilesetsHelper.getTilesetsHelper().getTilesetDownloadExtension();
         this.fileNameStrNoExt = tileset.getTilesetName();
         this.updater = updater;
@@ -60,6 +63,11 @@ public class FileDownloader implements OnTaskCompleted{
         this.showSysMessage = new boolean[2];
         this.showSysMessage[0] = true;
         this.showSysMessage[1] = true;
+
+        this.logConsole = new boolean[10];
+        for (int i = 0; i < 10; i++){
+            this.logConsole[i] = true;
+        }
 
         this.downloader = new DownloadFileFromURL();
         downloader.execute(file_url);
@@ -86,15 +94,17 @@ public class FileDownloader implements OnTaskCompleted{
                     // Open URL Connection
                     URL url = new URL(strURL[0]);
                     URLConnection connection = url.openConnection();
-                    connection.setConnectTimeout(3000);
+                    connection.setConnectTimeout(10000);
+                    connection.setReadTimeout(20000);
+                    connection.setDoInput(true); //Indicates that the connection should read data
                     connection.connect();
 
                     // Get Length of file + Input/Output Streams
-                    int lengthOfFile = connection.getContentLength();
-                    InputStream inputStream = new BufferedInputStream(url.openStream(), 8192);
+                    long lengthOfFile = Filesize;
+                    InputStream inputStream = new BufferedInputStream(connection.getInputStream(), 8192);
 
                     // Create directory in case it isn't available
-                    if (!new File(outputStr).mkdir());
+                    if (!new File(outputStr).mkdir())
                         Log.w("Path created - Tileset:", outputStr);
 
                     // Create file to download
@@ -104,7 +114,7 @@ public class FileDownloader implements OnTaskCompleted{
                     }
                     OutputStream outputStream = new FileOutputStream(outputStr + fileNameStr);
 
-                    byte data[] = new byte[1024];
+                    byte data[] = new byte[2048];
                     long total = 0;
 
                     try {
@@ -112,12 +122,30 @@ public class FileDownloader implements OnTaskCompleted{
                         while ((count = inputStream.read(data)) != -1 && keepDownloading) {
                             total += count;
 
-                            publishProgress((int) ((total * 100) / lengthOfFile));
+                            int progress = (int)((total * 100) / lengthOfFile);
+                            publishProgress(progress);
 
                             outputStream.write(data, 0, count);
                         }
                     } catch (SocketTimeoutException e) {
-                        Log.w("Error downloading file", strURL[0] + " SocketException: " + e.getMessage());
+                        Log.w("Error downloading file", strURL[0] + " SocketTimeoutException: " + e.getMessage());
+
+                        // Remove from database and reverse download (File is never created)
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
+                                dialog.setTitle(R.string.error);
+                                dialog.setPositiveButton(R.string.back, null);
+                                String errorMsg = activity.getResources().getString(R.string.tileset_download_error_msg) + "\nErrorType: SocketTimeoutException";
+                                dialog.setMessage(errorMsg);
+                                dialog.create().show();
+                            }
+                        });
+
+                        if (errorRun != null){
+                            errorRun.run();
+                        }
                     }
 
                     // Cancel download?
@@ -140,7 +168,7 @@ public class FileDownloader implements OnTaskCompleted{
                             AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
                             dialog.setTitle(R.string.error);
                             dialog.setPositiveButton(R.string.back, null);
-                            String errorMsg = activity.getResources().getString(R.string.tileset_download_error_msg);
+                            String errorMsg = activity.getResources().getString(R.string.tileset_download_error_msg) + "\nErrorType: IOException";
                             dialog.setMessage(errorMsg);
                             dialog.create().show();
                         }
@@ -161,17 +189,17 @@ public class FileDownloader implements OnTaskCompleted{
                 ArrayList<Tileset> tilesets = TilesetsHelper.getTilesetsHelper().getTilesetsInProject();
                 Tileset tileset;
 
-                // Find tileset and update progress locally
-                for (int i = 0; i < tilesets.size(); i++){
-                    tileset = tilesets.get(i);
-                    if (tileset.getTilesetName().equals(fileNameStr)){
-                        tileset.setDownloadProgress(progress[0]);
-                    }
-                }
-
                 // Tell app that progress has been updated (every 5% for performance)
                 if (progress[0] % 5 == 0){
                     onUpdate();
+
+                    // Find tileset and update progress locally
+                    for (int i = 0; i < tilesets.size(); i++){
+                        tileset = tilesets.get(i);
+                        if (tileset.getTilesetName().equals(fileNameStrNoExt)){
+                            tilesets.get(i).setDownloadProgress(progress[0]);
+                        }
+                    }
                 }
 
                 // Show Started Download (once)
@@ -193,6 +221,14 @@ public class FileDownloader implements OnTaskCompleted{
                     sysMessage.makeText(activity, finishedDownloading + " " + fileNameStrNoExt + "!", Toast.LENGTH_SHORT).show();
 
                     showSysMessage[1] = false;
+                }
+
+                // DEBUG CONSOLE LOG
+                for (int i = 0; i < 10; i++){
+                    if (progress[0] >= (10*i) && logConsole[i]){
+                        Log.w("Download Progress:", progress[0].toString());
+                        logConsole[i] = false;
+                    }
                 }
             }
         }

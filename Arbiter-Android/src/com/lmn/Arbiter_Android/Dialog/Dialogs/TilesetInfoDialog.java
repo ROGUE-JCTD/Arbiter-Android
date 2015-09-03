@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.ArrayList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -126,15 +127,22 @@ public class TilesetInfoDialog extends ArbiterDialogFragment{
 		//serverIDTV.setText		(serverIDStr + " " + thisTileset.getServerID());
 
 		// Status
-		String tilesetStatus;
+		String tilesetStatus = "";
 		ApplicationDatabaseHelper appHelper = ApplicationDatabaseHelper.getHelper(context);
 		TilesetsHelper helper = TilesetsHelper.getTilesetsHelper();
 
 		if (helper.checkInDatabase(appHelper.getReadableDatabase(), thisTileset)) {
-			if (thisTileset.getIsDownloading())
-				tilesetStatus = context.getString(R.string.tileset_status_downloading);
-			else
-				tilesetStatus = context.getString(R.string.tileset_status_in_database);
+			ArrayList<Tileset> allTilesets = helper.getTilesetsInProject();
+			for (int i = 0; i < allTilesets.size(); i++){
+				Tileset tileset = allTilesets.get(i);
+				if (tileset.getTilesetName().equals(thisTileset.getTilesetName())) {
+					if (tileset.getIsDownloading()) {
+						tilesetStatus = context.getString(R.string.tileset_status_downloading);
+						tilesetStatus += " " + tileset.getDownloadProgress() + "%";
+					} else
+						tilesetStatus = context.getString(R.string.tileset_status_in_database);
+				}
+			}
 		} else
 			tilesetStatus = context.getString(R.string.tileset_status_on_server);
 

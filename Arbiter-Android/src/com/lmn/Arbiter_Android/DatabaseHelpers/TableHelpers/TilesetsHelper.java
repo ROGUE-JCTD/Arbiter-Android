@@ -672,6 +672,7 @@ public class TilesetsHelper {
     }
 
     public ArrayList<Tileset> getTilesetsInProject() { return tilesetsInProject; }
+    public void setTilesetsInProject(ArrayList<Tileset> set) { tilesetsInProject = set; }
 
     public String getTilesetDownloadExtension() { return TILESET_EXT; }
 }

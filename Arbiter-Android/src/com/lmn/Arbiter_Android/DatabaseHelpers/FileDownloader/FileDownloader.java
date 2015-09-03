@@ -38,6 +38,7 @@ public class FileDownloader implements OnTaskCompleted{
     private Runnable errorRun;
 
     private long Filesize;
+    private int previousProgress;
     private String fileNameStr;
     private String fileNameStrNoExt;
     private String outputStr;
@@ -46,7 +47,6 @@ public class FileDownloader implements OnTaskCompleted{
     private String file_url = " ";
 
     private boolean[] showSysMessage;
-    private boolean[] logConsole;
 
     public FileDownloader(String url, String _outputStr, FragmentActivity activity,
                           Tileset tileset, Runnable updater, Runnable runMeAfter, Runnable errorRun) {
@@ -59,15 +59,11 @@ public class FileDownloader implements OnTaskCompleted{
         this.updater = updater;
         this.runnable = runMeAfter;
         this.errorRun = errorRun;
+        this.previousProgress = 0;
 
         this.showSysMessage = new boolean[2];
         this.showSysMessage[0] = true;
         this.showSysMessage[1] = true;
-
-        this.logConsole = new boolean[10];
-        for (int i = 0; i < 10; i++){
-            this.logConsole[i] = true;
-        }
 
         this.downloader = new DownloadFileFromURL();
         downloader.execute(file_url);
@@ -189,8 +185,10 @@ public class FileDownloader implements OnTaskCompleted{
                 ArrayList<Tileset> tilesets = TilesetsHelper.getTilesetsHelper().getTilesetsInProject();
                 Tileset tileset;
 
-                // Tell app that progress has been updated (every 1% for performance)
-                if (progress[0] % 1 == 0){
+                // Tell app that progress has been updated
+                if (progress[0] > previousProgress){
+                    previousProgress = progress[0];
+                    Log.w("Download Progress:", fileNameStrNoExt + ": " + progress[0].toString() + "%");
                     onUpdate();
 
                     // Find tileset and update progress locally
@@ -221,14 +219,6 @@ public class FileDownloader implements OnTaskCompleted{
                     sysMessage.makeText(activity, finishedDownloading + " " + fileNameStrNoExt + "!", Toast.LENGTH_SHORT).show();
 
                     showSysMessage[1] = false;
-                }
-
-                // DEBUG CONSOLE LOG
-                for (int i = 0; i < 10; i++){
-                    if (progress[0] >= (10*i) && logConsole[i]){
-                        Log.w("Download Progress:", progress[0].toString());
-                        logConsole[i] = false;
-                    }
                 }
             }
         }

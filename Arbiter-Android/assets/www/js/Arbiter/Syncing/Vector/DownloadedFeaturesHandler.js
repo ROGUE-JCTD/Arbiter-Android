@@ -105,7 +105,9 @@
 			this._storeDownloads();
 		}
 	};
-	
+
+	//TODO: this approach is very dependent on which features happens to be the first one on the layer
+	//      contributes to problems hard to track down. Update with better solution!
 	prototype.calculateTimeDifference = function(features){
 		
 		var timeProperty = this.schema.getTimeProperty();
@@ -153,10 +155,19 @@
 					console.log("diffInMilli = " + diffInMilli);
 					
 					this.storeTimeDiff(diffInMilli);
+				} else {
+					// Note: not catching this cases causes app to get stuck if the *first* returned
+					//       from map happens to have null datetime value. assume same case a "no features" for now...
+					// No features, so can't calculate the time difference.  Proceed as usual.
+					this._storeDownloads();
 				}
+			} else {
+				// Note: not catching this cases causes app to get stuck if the *first* returned
+				//       from map happens to have null datetime value. assume same case a "no features" for now...
+				// No features, so can't calculate the time difference.  Proceed as usual.
+				this._storeDownloads();
 			}
 		}else{
-			
 			// No features, so can't calculate the time difference.  Proceed as usual.
 			this._storeDownloads();
 		}

@@ -57,7 +57,7 @@
     
     <target name="custom-post-build-release" unless="${build.is.packaging.debug}" depends="git.revision">
         <echo>Build in release mode off of commit: ${repository.version}</echo>
-        <move quiet="true" failonerror="false" file="bin/Arbiter-release.apk" tofile="bin/Arbiter-${repository.version}.apk" />
+        <move failonerror="false" file="bin/Arbiter-release.apk" tofile="bin/Arbiter-${repository.version}.apk" />
     </target>
     
     <target name="-post-build" depends="custom-post-build-debug,custom-post-build-release">

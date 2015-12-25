@@ -140,12 +140,10 @@ Arbiter.Util = (function(){
 			return features;
 		},
 		
-		getFileServiceURL: function(url){
-			
+		getFileServiceURL: function(url, mediaName){
 			var fileServiceURL = null;
-			
 			var prefix = null;
-			
+
 			if(url.indexOf("http://") === 0){
 				prefix = "http://";
 				fileServiceURL = url.substr(7);
@@ -153,12 +151,16 @@ Arbiter.Util = (function(){
 				prefix = "https://";
 				fileServiceURL = url.substr(8);
 			}
-			
-			fileServiceURL = prefix + fileServiceURL.split('/')[0] + "/file-service/";
-			
+
+			fileServiceURL = prefix + fileServiceURL.split('/')[0] + "/api/fileservice/";
+
 			return fileServiceURL;
 		},
-		
+
+		getFileServiceUploadURL: function(url){
+			return Arbiter.Util.getFileServiceURL(url);
+		},
+
 		getFeatureTypeNoPrefix: function(featureType){
 			
 			featureType = featureType.split(':');

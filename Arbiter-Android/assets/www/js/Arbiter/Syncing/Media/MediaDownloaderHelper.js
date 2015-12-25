@@ -184,7 +184,7 @@ Arbiter.MediaDownloaderHelper.prototype.downloadNext = function(media){
                 
                 progressListener.watchProgress();
                 
-                var uri = encodeURI(context.url + media);
+                var uri = encodeURI(context.url + media + '/download');
                 
                 var options = {};
                 

@@ -16,7 +16,7 @@
 				this.server.getUsername(), 
 				this.server.getPassword());
 		
-	    this.url = Arbiter.Util.getFileServiceURL(this.server.getUrl()) + "upload";
+	    this.url = Arbiter.Util.getFileServiceUploadURL(this.server.getUrl());
 	    
 	    this.header = null;
 	    

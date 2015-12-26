@@ -15,9 +15,8 @@ License:  all source code is licensed under the [MIT license](http://opensource.
 
 ##Install and User Guide
 
-[Latest stable build / Versión estable más reciente ](https://s3.amazonaws.com/geoshape-dependencies/Arbiter.apk)
-
-[Latest dev build / Versión desarollo más reciente ](https://s3.amazonaws.com/geoshape-dependencies/Arbiter.apk)
+[Latest build / Versión reciente ](http://arbiter.geoshape.org/Arbiter.apk)
+[Last fileservice build ](http://arbiter.geoshape.org/Arbiter-last-fileservice.apk)
 
 [Arbiter User Doc Download](https://github.com/ROGUE-JCTD/Arbiter-Android/blob/master/How_to_Use_Arbiter.pdf?raw=true)
 
